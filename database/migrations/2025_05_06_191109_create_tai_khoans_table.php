@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('tai_khoans', function (Blueprint $table) {
             $table->id('ma_tai_khoan');
-            $table->string('email')->nullable()->unique();
+            $table->string('mail')->nullable()->unique();
             $table->string('mat_khau', 255)->nullable();
             // Login bằng QR (lưu token hoặc mã đăng nhập)
             $table->string('qr_token')->nullable()->unique();

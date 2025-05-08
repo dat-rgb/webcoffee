@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('ho_ten_khach_hang', 255);
             $table->date('ngay_sinh')->nullable();
             $table->integer('gioi_tinh')->nullable();
-            $table->char('so_dien_thoai', 10)->nullable()->unique();
+            $table->char('so_dien_thoai', 10)->nullable();
             $table->integer('diem_thanh_vien')->nullable()->default(0);
             $table->enum('hang_thanh_vien', ['Vàng', 'Bạc', 'Đồng'])->nullable()->default('Đồng');
             $table->timestamps();
