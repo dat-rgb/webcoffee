@@ -15,7 +15,7 @@ return [
 
     'defaults' => [
         'guard' => env('AUTH_GUARD', 'web'),
-        'passwords' => env('AUTH_PASSWORD_BROKER', 'taikhoans'),
+        'passwords' => env('AUTH_PASSWORD_BROKER', 'tai_khoans'),
     ],
 
     /*
@@ -38,7 +38,7 @@ return [
     'guards' => [
         'web' => [
             'driver' => 'session',
-            'provider' => 'taikhoans',
+            'provider' => 'tai_khoans',
         ],
     ],
 
@@ -60,7 +60,7 @@ return [
     */
 
     'providers' => [
-        'taikhoans' => [
+        'tai_khoans' => [
             'driver' => 'eloquent',
             'model' => App\Models\TaiKhoan::class,
         ],
@@ -92,12 +92,19 @@ return [
 
     'passwords' => [
         'users' => [
-            'provider' => 'taikhoans',
+            'provider' => 'tai_khoans',
+            'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+        'tai_khoans' => [
+            'provider' => 'tai_khoans',
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
             'expire' => 60,
             'throttle' => 60,
         ],
     ],
+
 
     /*
     |--------------------------------------------------------------------------

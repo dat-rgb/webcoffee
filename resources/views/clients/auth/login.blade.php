@@ -37,20 +37,27 @@
 
                 <div class="form-group mb-3">
                     <label for="email">Email:</label>
-                    <input type="email" class="form-control rounded-pill" name="email" required autofocus>
+                    <input type="email" class="form-control rounded-pill" name="email" value="{{ old('email') }}" required>
+                    @error('email')
+                        <div class="custom-error">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="form-group mb-3">
                     <label for="password">Mật khẩu:</label>
                     <input type="password" class="form-control rounded-pill" name="password" required>
+                    @error('password')
+                        <div class="custom-error">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <button type="submit" class="btn btn-warning w-100 rounded-pill" style="background-color: #f28123; color: white; font-weight: bold;">
                     Đăng nhập
                 </button>
-
+                
                 <div class="text-center mt-3">
-                    <a href="{{ route('register') }}" class="text-decoration-none" style="color: #f28123;">Chưa có tài khoản? Đăng ký ngay</a>
+                    <a href="{{ route('register') }}" class="text-decoration-none" style="color: #f28123;">Chưa có tài khoản? Đăng ký ngay</a> <br>
+                    <a href="{{ route('forgotPassword.show') }}" class="text-decoration-none">Bạn quên mật khẩu?</a>
                 </div>
             </form>
         </div>
