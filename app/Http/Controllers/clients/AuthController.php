@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Mail\ActivationMail;
 use App\Models\KhachHang;
 use App\Models\TaiKhoan;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+
 
 use Str;
 
@@ -86,14 +88,45 @@ class AuthController extends Controller
         return redirect()->route('login');
     }
 
-
-
-
     public function showLoginForm(){
         $viewData = [
             'title'=> 'Đăng nhập | CMDT Coffee & Tea'   
         ];
 
         return view('clients.pages.login', $viewData);
+    }
+    public function login(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|string|email|max:255',
+            'password' => 'required|string|min:6',
+        ], [
+            'email.required' => 'Email là bắt buộc.',
+            'email.email' => 'Email không hợp lệ.',
+            'password.required' => 'Mật khẩu là bắt buộc.',
+            'password.min' => 'Mật khẩu phải ít nhất 6 ký tự.',
+        ]);
+
+        $user = TaiKhoan::where('email', $request->email)->first();
+
+        if (!$user) {
+            toastr()->error('Email không tồn tại. Hãy đăng ký tài khoản.');
+            return redirect()->back();
+        }
+
+        if (!Hash::check($request->password, $user->mat_khau)) {
+            toastr()->error('Mật khẩu không chính xác.');
+            return redirect()->back();
+        }
+
+        if ($user->trang_thai != 1) {
+            toastr()->warning('Tài khoản chưa được kích hoạt.');
+            return redirect()->back();
+        }
+
+        Auth::login($user);
+        $request->session()->regenerate();
+        toastr()->success('Đăng nhập thành công.');
+        return redirect()->route('home');
     }
 }

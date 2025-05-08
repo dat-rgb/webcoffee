@@ -44,7 +44,7 @@ class ActivationMail extends Mailable
             view: 'clients.emails.activationMail',
             with:[
                 'token' => $this->token,
-                'taiKhoang'=> $this->taiKhoan
+                'taiKhoan'=> $this->taiKhoan
             ]
         );
     }
