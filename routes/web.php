@@ -19,7 +19,7 @@ Route::prefix('/')->group(function(){
 
     Route::get('/register',[AuthController::class,'showRegisterForm'])->name('register');
     Route::post('/resgister',[AuthController::class,'register'])->name('register.post');
-
+    Route::get('/activate/{token}',[AuthController::class,'activate'])->name('register.activate');
 });
 
 //Route sản phẩm

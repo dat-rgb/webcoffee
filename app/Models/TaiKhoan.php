@@ -15,6 +15,7 @@ class TaiKhoan extends Model
         'qr_token',
         'loai_tai_khoan',
         'trang_thai',
+        'activation_token'
     ]; 
 
     public function status(){

@@ -57,8 +57,8 @@ $(document).ready(function(){
         let errorMessage = "";
 
         // Kiểm tra tên
-        if(name.length < 3){
-            errorMessage += "Họ và tên phải có ít nhất 3 ký tự. <br>";
+        if(name.length < 2){
+            errorMessage += "Họ và tên phải có ít nhất 2 ký tự. <br>";
         }
 
         // Kiểm tra email

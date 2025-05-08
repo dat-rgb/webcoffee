@@ -13,12 +13,16 @@ class ActivationMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public $token;
+    public $taiKhoan;
+    
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public function __construct($token, $taiKhoan)
     {
-        //
+        $this->token = $token;
+        $this->taiKhoan = $taiKhoan;
     }
 
     /**
@@ -37,7 +41,11 @@ class ActivationMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.activationMail',
+            view: 'clients.emails.activationMail',
+            with:[
+                'token' => $this->token,
+                'taiKhoang'=> $this->taiKhoan
+            ]
         );
     }
 
