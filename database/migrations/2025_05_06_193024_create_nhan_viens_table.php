@@ -20,9 +20,9 @@ return new class extends Migration
             $table->string('ho_ten_nhan_vien', 255);
             $table->date('ngay_sinh')->nullable();
             $table->integer('gioi_tinh')->nullable();
-            $table->char('so_dien_thoai', 10)->nullable()->unique();
+            $table->char('so_dien_thoai', 10)->nullable();
             $table->string('dia_chi', 255)->nullable();
-            $table->string('ca_lam', 50)->nullable();
+            $table->integer('ca_lam')->nullable(); // 1: ca sáng, 0: ca tối, 2 full ca
             $table->timestamps();
 
             $table->foreign('ma_tai_khoan')->references('ma_tai_khoan')->on('tai_khoans')->onDelete('cascade');
