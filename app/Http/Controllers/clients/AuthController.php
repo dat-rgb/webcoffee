@@ -21,7 +21,7 @@ class AuthController extends Controller
             'title'=> 'Đăng ký | CMDT Coffee & Tea'   
         ];
 
-        return view('clients.pages.register', $viewData);
+        return view('clients.auth.register', $viewData);
     }
 
     public function register( Request $request){
@@ -93,7 +93,7 @@ class AuthController extends Controller
             'title'=> 'Đăng nhập | CMDT Coffee & Tea'   
         ];
 
-        return view('clients.pages.login', $viewData);
+        return view('clients.auth.login', $viewData);
     }
     public function login(Request $request)
     {

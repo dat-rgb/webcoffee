@@ -19,27 +19,33 @@
         <div class="row">
             <div class="col-lg-8 offset-lg-2 text-center">
                 <div class="breadcrumb-text">
-                    <p>Quên mật khẩu</p>
+                    <p></p>
+                    <h1>Quên mật khẩu</h1>
                 </div>
             </div>
         </div>
     </div>
 </div>
 <!-- end breadcrumb section -->
- 
-<div class="container d-flex justify-content-center align-items-center" style="min-height: 70vh;">
+
+<div id="scrollTarget" class="container d-flex justify-content-center align-items-center" style="min-height: 70vh;">
     <div class="col-md-6">
         <div class="card shadow-sm p-4" style="border-radius: 20px;">
-            <h4 class="text-center mb-4" style="color: #f28123; font-weight: bold;">Nhập email để lấy lại mật khẩu</h4>
-            <form method="POST" action="{{ route('login.post') }}" id="login-form">
+            <h3 class="text-center mb-4" style="color: #f28123; font-weight: bold;">Nhập email để đặt lại mật khẩu</h3>
+            <form method="POST" action="{{ route('forgotPassword.send') }}">
                 @csrf
                 <div class="form-group mb-3">
                     <label for="email">Email:</label>
-                    <input type="email" class="form-control rounded-pill" name="email" required autofocus>
+                    <input type="email" class="form-control rounded-pill" name="email" value="{{ old('email') }}" required>
+                    @error('email')
+                        <div class="custom-error">{{ $message }}</div>
+                    @enderror
                 </div>
+
                 <button type="submit" class="btn btn-warning w-100 rounded-pill" style="background-color: #f28123; color: white; font-weight: bold;">
                     Gửi
                 </button>
+
             </form>
         </div>
     </div>
@@ -49,3 +55,4 @@
 @push('scripts')
     <script src="{{ asset('js/form-validate.js') }}"></script>
 @endpush
+
