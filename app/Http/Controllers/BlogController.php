@@ -11,7 +11,7 @@ class BlogController extends Controller
             'title'=> 'Tin Tức | CMDT Coffee & Tea'   
         ];
 
-        return view('pages.blogs.index', $viewData);
+        return view('clients.pages.blogs.index', $viewData);
     }
 
     public function blogDetail(){
@@ -19,6 +19,6 @@ class BlogController extends Controller
             'title'=> 'Chi tiết tin tức | CMDT Coffee & Tea'   
         ];
 
-        return view('pages.blogs.blog_detail', $viewData);
+        return view('clients.pages.blogs.blog_detail', $viewData);
     }
 }

@@ -13,14 +13,15 @@ return new class extends Migration
     {
         Schema::create('tai_khoans', function (Blueprint $table) {
             $table->id('ma_tai_khoan');
-            $table->string('mail')->nullable()->unique();
+            $table->string('email')->nullable()->unique();
             $table->string('mat_khau', 255)->nullable();
             // Login bằng QR (lưu token hoặc mã đăng nhập)
             $table->string('qr_token')->nullable()->unique();
             // Loại tài khoản
             $table->integer('loai_tai_khoan')->default(0); // 0=Guest, 1=Admin, 2=Nhân viên, 3=Khách hàng
             // Trạng thái tài khoản
-            $table->integer('trang_thai')->default(1); // 0=Không hoạt động, 1=Hoạt động
+            $table->integer('trang_thai')->default(0); // 0=Không hoạt động (chờ kích hoạt), 1=Hoạt động, 2=Xóa,..
+            $table->string('access_token')->nullable(); 
             $table->timestamps();
         });
     }

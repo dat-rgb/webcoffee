@@ -1,7 +1,14 @@
 @extends('layouts.app')
 
 @section('title', $title)
-
+@push('styles')
+    <style>
+        .toast-error {
+            background-color: #ff0000 !important;
+            color: #ffffff !important;
+        }
+    </style>
+@endpush
 @section('content')
 <!-- breadcrumb-section -->
 <div class="breadcrumb-section breadcrumb-bg">
@@ -22,7 +29,7 @@
     <div class="col-md-6">
         <div class="card shadow-sm p-4" style="border-radius: 20px;">
             <h3 class="text-center mb-4" style="color: #f28123; font-weight: bold;">Đăng Nhập</h3>
-            <form method="POST" action="{{ route('login') }}">
+            <form method="POST" action="{{ route('login.post') }}" id="login-form">
                 @csrf
 
                 <div class="form-group mb-3">
@@ -54,3 +61,8 @@
     </div>
 </div>
 @endsection
+
+
+@push('scripts')
+    <script src="{{ asset('js/form-validate.js') }}"></script>
+@endpush
