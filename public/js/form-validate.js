@@ -34,10 +34,6 @@ $(document).ready(function(){
 		if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
 			errorMessage += "Mật khẩu phải có ít nhất 1 ký tự đặc biệt. <br>";
 		}
-        // Kiểm tra xác nhận mật khẩu
-        if(password != password_confirmation){
-            errorMessage += "Mật khẩu nhập lại không khớp. <br>";
-        }
 
 		if (errorMessage != "") {
 			toastr.error(errorMessage, "Lỗi");

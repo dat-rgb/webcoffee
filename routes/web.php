@@ -10,15 +10,25 @@ use Illuminate\Support\Facades\Route;
 //Route Home
 Route::prefix('/')->group(function(){
     Route::get('',[HomeController::class, 'home'])->name('home');
+
     Route::get('/gioi-thieu', [HomeController::class, 'about'])->name('about');
+    
     Route::get('/lien-he', [HomeController::class, 'contact'])->name('contact');
 
     //Auth Clients
     Route::get('/login',[AuthController::class,'showLoginForm'])->name('login');
+
     Route::post('/login',[AuthController::class,'login'])->name('login.post');
 
+    Route::post('/logout', function () {
+        Auth::logout();
+        return redirect()->route('home');
+    })->name('logout');
+
     Route::get('/register',[AuthController::class,'showRegisterForm'])->name('register');
+
     Route::post('/resgister',[AuthController::class,'register'])->name('register.post');
+
     Route::get('/activate/{token}',[AuthController::class,'activate'])->name('register.activate');
 });
 
