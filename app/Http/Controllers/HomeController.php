@@ -11,7 +11,7 @@ class HomeController extends Controller
             'title'=> 'Trang Chủ | CMDT Coffee & Tea'   
         ];
 
-        return view('pages.home', $viewData);
+        return view('clients.pages.home', $viewData);
     }
 
     public function about(){
@@ -19,7 +19,7 @@ class HomeController extends Controller
             'title'=> 'Giới thiệu | CMDT Coffee & Tea'   
         ];
 
-        return view('pages.about', $viewData);
+        return view('clients.pages.about', $viewData);
     }
 
     public function contact(){
@@ -27,22 +27,6 @@ class HomeController extends Controller
             'title'=> 'Liên Hệ | CMDT Coffee & Tea'   
         ];
 
-        return view('pages.contact', $viewData);
-    }
-
-    //demo giao diện trang đăng ký/ đăng nhập.
-    public function login(){
-        $viewData = [
-            'title'=> 'Đăng nhập | CMDT Coffee & Tea'   
-        ];
-
-        return view('pages.login', $viewData);
-    }
-    public function register(){
-        $viewData = [
-            'title'=> 'Đăng ký | CMDT Coffee & Tea'   
-        ];
-
-        return view('pages.register', $viewData);
+        return view('clients.pages.contact', $viewData);
     }
 }

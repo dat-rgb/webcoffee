@@ -13,8 +13,11 @@
 	<!-- google font -->
 	<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css?family=Poppins:400,700&display=swap" rel="stylesheet">
+	
 	<!-- fontawesome -->
 	<link rel="stylesheet" href="{{ asset('css/all.min.css') }}">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+
 	<!-- bootstrap -->
 	<link rel="stylesheet" href="{{ asset('bootstrap/css/bootstrap.min.css') }}">
 	<!-- owl carousel -->
@@ -29,7 +32,7 @@
 	<link rel="stylesheet" href="{{ asset('css/main.css') }}">
 	<!-- responsive -->
 	<link rel="stylesheet" href="{{ asset('css/responsive.css') }}">
-
+	@stack('styles')
 </head>
 <body>
 	
@@ -185,7 +188,10 @@
 	<!-- end copyright -->
 	
 	<!-- jquery -->
-	<script src="{{ asset('js/jquery-1.11.3.min.js') }}"></script>
+	<!-- <script src="{{ asset('js/jquery-1.11.3.min.js') }}"></script> -->
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
 	<!-- bootstrap -->
 	<script src="{{ asset('bootstrap/js/bootstrap.min.js') }}"></script>
 	<!-- count down -->
@@ -204,6 +210,6 @@
 	<script src="{{ asset('js/sticker.js') }}"></script>
 	<!-- main js -->
 	<script src="{{ asset('js/main.js') }}"></script>
-
+	@stack('scripts')
 </body>
 </html>

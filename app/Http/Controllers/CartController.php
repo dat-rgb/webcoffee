@@ -11,6 +11,6 @@ class CartController extends Controller
             'title'=> 'Giỏ Hàng | CMDT Coffee & Tea'   
         ];
 
-        return view('pages.carts.index', $viewData);
+        return view('clients.pages.carts.index', $viewData);
     }
 }

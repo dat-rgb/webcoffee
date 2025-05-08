@@ -81,3 +81,7 @@
 </div>
 <!-- end google map section -->
 @endsection
+
+@push('scripts')
+    <script src="{{ asset('js/form-validate.js') }}"></script>
+@endpush

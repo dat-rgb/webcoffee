@@ -11,7 +11,7 @@ class ProductController extends Controller
             'title'=> 'Sản Phẩm | CMDT Coffee & Tea'   
         ];
 
-        return view('pages.products.product_list', $viewData);
+        return view('clients.pages.products.product_list', $viewData);
     }
 
     public function productDetail(){
@@ -19,6 +19,6 @@ class ProductController extends Controller
             'title'=> 'Chi tiết sản phẩm | CMDT Coffee & Tea'   
         ];
 
-        return view('pages.products.product_detail', $viewData);
+        return view('clients.pages.products.product_detail', $viewData);
     }
 }
