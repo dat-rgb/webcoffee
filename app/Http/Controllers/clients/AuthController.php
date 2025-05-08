@@ -3,9 +3,13 @@
 namespace App\Http\Controllers\clients;
 
 use App\Http\Controllers\Controller;
+use App\Mail\ActivationMail;
 use App\Models\KhachHang;
 use App\Models\TaiKhoan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+
 use Str;
 
 class AuthController extends Controller
@@ -21,12 +25,12 @@ class AuthController extends Controller
     public function register( Request $request){
        
         $request->validate([
-            'name' => 'required|string|max:255|min:3',
+            'name' => 'required|string|max:255|min:2',
             'email' => 'required|string|max:255|unique:tai_khoans',
             'password' => 'required|string|max:255|min:6',     
         ],[
             'name.required' => 'Tên là bắt buộc.',  
-            'name.min'=> 'Tên phải ít nhất 3 ký tự',
+            'name.min'=> 'Tên phải ít nhất 2 ký tự',
             'email.required' => 'Email là bắt buộc.',  
             'email.unique' => 'Email này đã được sử dụng.', 
             'password.required' => 'Mật khẩu là bắt buộc.', 
@@ -43,13 +47,13 @@ class AuthController extends Controller
             return redirect()->route('register');
         }
 
-        $token = Str::random(64);
-
+        $token = Str::random(64);   
+        
         $taiKhoan = TaiKhoan::create([
             'email' => $request->email,
-            'mat_khau' => $request->password,
+            'mat_khau' => Hash::make($request->password),
             'loai_tai_khoan' => 3, // tài khoản khách hàng
-            'access_token' => $token
+            'activation_token' => $token
         ]);
 
         $maKH = KhachHang::generateMaKhachHang();
@@ -60,9 +64,31 @@ class AuthController extends Controller
             'ho_ten_khach_hang' => $request->name,
         ]);
 
+        Mail::to($taiKhoan->email)->send(new ActivationMail($token, $taiKhoan));
+
         toastr()->success('Đăng ký tài khoản thành công. Vui lòng kiểm tra email của bạn để kích hoạt tài khoản.');
         return redirect()->route('login');
     }
+
+    public function activate($token){
+        $taiKhoan = TaiKhoan::where('activation_token',$token)->first();
+
+        if($taiKhoan){
+            $taiKhoan->trang_thai = 1;
+            $taiKhoan->activation_token = null;
+            $taiKhoan->save();
+
+            toastr()->success('Kích hoạt tài khoản thành công.');
+            return redirect()->route('login');
+        }
+
+        toastr()->error('Token không hợp lệ');
+        return redirect()->route('login');
+    }
+
+
+
+
     public function showLoginForm(){
         $viewData = [
             'title'=> 'Đăng nhập | CMDT Coffee & Tea'   
