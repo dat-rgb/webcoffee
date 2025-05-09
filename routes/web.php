@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\admins\AdminHomeController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\clients\AuthController;
@@ -59,3 +60,7 @@ Route::prefix('tin-tuc')->group(function(){
     Route::get('/chi-tiet', [BlogController::class, 'blogDetail'])->name('blog.detail');
 });
 
+// Route Admin
+Route::prefix('admin')->group(function(){
+    Route::get('',[AdminHomeController::class,'index'])->name('admin');
+});
