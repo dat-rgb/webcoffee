@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\admins\AdminHomeController;
+use App\Http\Controllers\admins\AdminProductController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\clients\AuthController;
@@ -59,3 +61,14 @@ Route::prefix('tin-tuc')->group(function(){
     Route::get('/chi-tiet', [BlogController::class, 'blogDetail'])->name('blog.detail');
 });
 
+// Route Home Admin
+Route::prefix('admin')->group(function(){
+    Route::get('',[AdminHomeController::class,'index'])->name('admin');
+});
+
+//Route Products Admin
+Route::prefix('admin/products')->group(function(){
+    Route::get('',[AdminProductController::class,'listProducts'])->name('admin.products.list');
+    Route::get('/add-product',[AdminProductController::class,'showProductForm'])->name('admin.products.form');
+    Route::post('/add-product',[AdminProductController::class,'productAdd'])->name('admin.products.add');
+});

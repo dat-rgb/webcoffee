@@ -6,11 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class SanPham extends Model
 {
-    protected $table = 'san_phams';
-    protected $primaryKey = 'ma_san_pham';
+    protected $table = 'san_phams'; 
     public $timestamps = true;
 
     protected $fillabe = [
+        'id',
         'ma_san_pham',
         'ten_san_pham',
         'gia',
@@ -25,4 +25,9 @@ class SanPham extends Model
         'ma_danh_muc',
         'trang_thai'    
     ];
+
+    public function danhMuc()
+    {
+        return $this->belongsTo(DanhMucSanPham::class, 'ma_danh_muc'); 
+    }
 }

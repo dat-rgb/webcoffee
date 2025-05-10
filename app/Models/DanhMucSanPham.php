@@ -25,4 +25,9 @@ class DanhMucSanPham extends Model
     {
         return $this->hasMany(DanhMucSanPham::class, 'danh_muc_cha_id', 'ma_danh_muc');
     }
+
+    public function sanPhams()
+    {
+        return $this->hasMany(SanPham::class);
+    }
 }
