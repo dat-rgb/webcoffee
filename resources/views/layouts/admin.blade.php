@@ -157,17 +157,17 @@
                 <div class="collapse" id="forms">
                   <ul class="nav nav-collapse">
                     <li>
-                      <a href="#">
+                      <a href="{{ route('admins.category.index') }}">
                         <span class="sub-item">Danh mục</span>
                       </a>
                     </li>
                     <li>
-                      <a href="#">
+                      <a href="{{ route('admins.category.create') }}">
                         <span class="sub-item">Tạo danh mục</span>
                       </a>
                     </li>
                     <li>
-                      <a href="#">
+                      <a href="{{ route('admins.category.archive.index') }}">
                         <span class="sub-item">Danh mục ẩn</span>
                       </a>
                     </li>
@@ -317,7 +317,7 @@
           >
             <div class="container-fluid">
               <nav
-                class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex"
+                class="p-0 navbar navbar-header-left navbar-expand-lg navbar-form nav-search d-none d-lg-flex"
               >
                 <div class="input-group">
                   <div class="input-group-prepend">
@@ -539,13 +539,13 @@
                   </a>
                   <div class="dropdown-menu quick-actions animated fadeIn">
                     <div class="quick-actions-header">
-                      <span class="title mb-1">Quick Actions</span>
+                      <span class="mb-1 title">Quick Actions</span>
                       <span class="subtitle op-7">Shortcuts</span>
                     </div>
                     <div class="quick-actions-scroll scrollbar-outer">
                       <div class="quick-actions-items">
-                        <div class="row m-0">
-                          <a class="col-6 col-md-4 p-0" href="#">
+                        <div class="m-0 row">
+                          <a class="p-0 col-6 col-md-4" href="#">
                             <div class="quick-actions-item">
                               <div class="avatar-item bg-danger rounded-circle">
                                 <i class="far fa-calendar-alt"></i>
@@ -553,7 +553,7 @@
                               <span class="text">Calendar</span>
                             </div>
                           </a>
-                          <a class="col-6 col-md-4 p-0" href="#">
+                          <a class="p-0 col-6 col-md-4" href="#">
                             <div class="quick-actions-item">
                               <div
                                 class="avatar-item bg-warning rounded-circle"
@@ -563,7 +563,7 @@
                               <span class="text">Maps</span>
                             </div>
                           </a>
-                          <a class="col-6 col-md-4 p-0" href="#">
+                          <a class="p-0 col-6 col-md-4" href="#">
                             <div class="quick-actions-item">
                               <div class="avatar-item bg-info rounded-circle">
                                 <i class="fas fa-file-excel"></i>
@@ -571,7 +571,7 @@
                               <span class="text">Reports</span>
                             </div>
                           </a>
-                          <a class="col-6 col-md-4 p-0" href="#">
+                          <a class="p-0 col-6 col-md-4" href="#">
                             <div class="quick-actions-item">
                               <div
                                 class="avatar-item bg-success rounded-circle"
@@ -581,7 +581,7 @@
                               <span class="text">Emails</span>
                             </div>
                           </a>
-                          <a class="col-6 col-md-4 p-0" href="#">
+                          <a class="p-0 col-6 col-md-4" href="#">
                             <div class="quick-actions-item">
                               <div
                                 class="avatar-item bg-primary rounded-circle"
@@ -591,7 +591,7 @@
                               <span class="text">Invoice</span>
                             </div>
                           </a>
-                          <a class="col-6 col-md-4 p-0" href="#">
+                          <a class="p-0 col-6 col-md-4" href="#">
                             <div class="quick-actions-item">
                               <div
                                 class="avatar-item bg-secondary rounded-circle"
@@ -634,7 +634,7 @@
                             <img
                               src="{{ asset('admins/img/profile.jpg') }}"
                               alt="image profile"
-                              class="avatar-img rounded"
+                              class="rounded avatar-img"
                             />
                           </div>
                           <div class="u-text">
@@ -672,7 +672,7 @@
         </div>
 
         <footer class="footer">
-          <div class="container-fluid d-flex justify-content-between">
+          <div class="container-fluid d-flex justify-content-center">
             <div class="copyright">
               2025, Đồ án tốt nghiệp của sinh viên
               <a href="#"> Chí Đạt & Minh Tân.</a>
