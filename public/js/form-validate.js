@@ -36,7 +36,7 @@ $(document).ready(function(){
 		}
 
 		if (errorMessage != "") {
-			toastr.error(errorMessage, "Lỗi");
+			 toastr.error(errorMessage, "Lỗi", {timeOut: 5000}); // Set thời gian hiển thị cho toastr
 			e.preventDefault();
 		}
 
@@ -91,7 +91,7 @@ $(document).ready(function(){
         }
 
 		if (errorMessage != "") {
-			toastr.error(errorMessage, "Lỗi");
+			 toastr.error(errorMessage, "Lỗi", {timeOut: 5000}); // Set thời gian hiển thị cho toastr
 			e.preventDefault();
 		}
     });
@@ -140,7 +140,7 @@ $(document).ready(function(){
         }
 		
 		if (errorMessage != "") {
-			toastr.error(errorMessage, "Lỗi");
+			 toastr.error(errorMessage, "Lỗi", {timeOut: 5000}); // Set thời gian hiển thị cho toastr
 			e.preventDefault();
 		}
     });

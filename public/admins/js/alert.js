@@ -204,3 +204,32 @@ var SweetAlert2Demo = (function () {
   jQuery(document).ready(function () {
     SweetAlert2Demo.init();
   });
+
+  // lưu trữ
+  $(document).ready(function () {
+    $(".archive-btn").click(function (e) {
+        e.preventDefault();
+        const form = $(this).closest("form");
+
+        swal({
+            title: "Xác nhận lưu trữ?",
+            text: "Bạn chắc chắn muốn lưu trữ sản phẩm này?",
+            icon: "warning",
+            buttons: {
+                cancel: {
+                    text: "Không, hủy",
+                    visible: true,
+                    className: "btn btn-danger",
+                },
+                confirm: {
+                    text: "Có, tiếp tục",
+                    className: "btn btn-success",
+                },
+            },
+        }).then((willDelete) => {
+            if (willDelete) {
+                form.submit(); // Gửi form
+            }
+        });
+    });
+});

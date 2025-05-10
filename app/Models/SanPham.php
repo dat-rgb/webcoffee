@@ -9,8 +9,7 @@ class SanPham extends Model
     protected $table = 'san_phams'; 
     public $timestamps = true;
 
-    protected $fillabe = [
-        'id',
+    protected $fillable  = [
         'ma_san_pham',
         'ten_san_pham',
         'gia',

@@ -71,4 +71,5 @@ Route::prefix('admin/products')->group(function(){
     Route::get('',[AdminProductController::class,'listProducts'])->name('admin.products.list');
     Route::get('/add-product',[AdminProductController::class,'showProductForm'])->name('admin.products.form');
     Route::post('/add-product',[AdminProductController::class,'productAdd'])->name('admin.products.add');
+    Route::post('/archive-product/{id}',[AdminProductController::class, 'productArchive'])->name('admin.product.archive');
 });

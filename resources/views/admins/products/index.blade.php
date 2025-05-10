@@ -36,25 +36,23 @@
                     <div class="card-header">
                         <div class="d-flex align-items-center">
                             <h4 class="card-title">Danh sách sản phẩm</h4>
-                            <button class="btn btn-primary btn-round ms-auto">
+                            <a href="{{ route('admin.products.form') }}" class="btn btn-primary btn-round ms-auto">
                                 <i class="fa fa-plus"></i> Thêm sản phẩm
-                            </button>
+                            </a>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-icon">
+                            <input type="text" class="form-control" placeholder="Search for...">
+                            <span class="input-icon-addon">
+                                <i class="fa fa-search"></i>
+                            </span>
+                            </div>
                         </div>
                     </div>
 
                     <div class="card-body">
                         <div class="table-responsive">
                             <div id="add-row_wrapper" class="dataTables_wrapper container-fluid dt-bootstrap4">
-                                <div class="row">
-                                    <div class="col-sm-12 col-md-6">
-                                        <div id="add-row_filter" class="dataTables_filter">
-                                            <label>
-                                                Search:
-                                                <input type="search" class="form-control form-control-sm" placeholder="" aria-controls="add-row">
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
 
                                 <div class="row">
                                     <div class="col-sm-12">
@@ -73,48 +71,66 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @foreach ( $products as $pro )
-                                                    <tr role="row" class="odd">
-                                                        <td class="sorting_1">{{ $loop->iteration }}</td>
-                                                        <td>
-                                                        <img src="{{ asset('storage/products/' . $pro->hinh_anh) }}" alt="{{ $pro->ten_san_pham }}" width="80">
-                                                        </td>
-                                                        <td>{{ $pro->ma_san_pham }}</td>
-                                                        <td>{{ $pro->ten_san_pham }}</td>
-                                                        <td>{{ $pro->danhMuc->ten_danh_muc }}</td>
-                                                        <td>{{ number_format($pro->gia, 0, ',', '.') }} đ</td>
-                                                        <td>
-                                                            @if ($pro->trang_thai == 1)
-                                                                <span class="badge badge-success">Đang bán</span>
-                                                            @elseif ($pro->trang_thai == 2)
-                                                                <span class="badge badge-danger">Ngừng bán</span>
-                                                            @else
-                                                                <span class="badge badge-secondary">Không xác định</span>
-                                                            @endif
-                                                        </td>
-                                                        <td>
-                                                            @for ($i = 1; $i <= 5; $i++)
-                                                                @if ($i <= $pro->rating)
-                                                                    <i class="fas fa-star"></i>  <!-- Sao đầy -->
-                                                                @elseif ($i - 0.5 == $pro->rating)
-                                                                    <i class="fas fa-star-half-alt"></i>  <!-- Sao nửa -->
-                                                                @else
-                                                                    <i class="far fa-star"></i>  <!-- Sao rỗng -->
-                                                                @endif
-                                                            @endfor
-                                                        </td>
-                                                        <td>
-                                                            <div class="form-button-action">
-                                                                <button type="button" class="btn btn-link btn-primary btn-lg" data-bs-toggle="tooltip" title="Chỉnh sửa">
-                                                                    <i class="fa fa-edit"></i>
-                                                                </button>
-                                                                <button type="button" class="btn btn-link btn-danger btn-lg" data-bs-toggle="tooltip" title="Xóa" id="alert_demo_8">
-                                                                    <i class="fa fa-trash"></i>
-                                                                </button>
-                                                            </div>
-                                                        </td>
+                                                @if($products->isEmpty())
+                                                    <tr>
+                                                        <td colspan="9" class="text-center">Không có sản phẩm nào. <a href="{{ route('admin.products.form') }}">Thêm mới.</a></td>
                                                     </tr>
-                                                @endforeach
+                                                @else
+                                                    @foreach ( $products as $pro )
+                                                        <tr role="row" class="odd">
+                                                            <td class="sorting_1">{{ $loop->iteration }}</td>
+                                                            <td>
+                                                            <img src="{{ asset('storage/products/' . $pro->hinh_anh) }}" alt="{{ $pro->ten_san_pham }}" width="80">
+                                                            </td>
+                                                            <td>{{ $pro->ma_san_pham }}</td>
+                                                            <td>{{ $pro->ten_san_pham }}</td>
+                                                            <td>{{ $pro->danhMuc->ten_danh_muc }}</td>
+                                                            <td>{{ number_format($pro->gia, 0, ',', '.') }} đ</td>
+                                                            <td>
+                                                                @if ($pro->trang_thai == 1)
+                                                                    <span class="badge badge-success">Đang bán</span>
+                                                                @elseif ($pro->trang_thai == 2)
+                                                                    <span class="badge badge-danger">Ngừng bán</span>
+                                                                @elseif ($pro->trang_thai == 3)
+                                                                    <span class="badge badge-warning">Lưu trữ</span>
+                                                                @else
+                                                                    <span class="badge badge-secondary">Không xác định</span>
+                                                                @endif
+                                                            </td>
+                                                            <td>
+                                                                @for ($i = 1; $i <= 5; $i++)
+                                                                    @if ($i <= $pro->rating)
+                                                                        <i class="fas fa-star"></i>  <!-- Sao đầy -->
+                                                                    @elseif ($i - 0.5 == $pro->rating)
+                                                                        <i class="fas fa-star-half-alt"></i>  <!-- Sao nửa -->
+                                                                    @else
+                                                                        <i class="far fa-star"></i>  <!-- Sao rỗng -->
+                                                                    @endif
+                                                                @endfor
+                                                            </td>
+                                                            <td>
+                                                                <div class="form-button-action">
+                                                                    @if($pro->trang_thai == 1)
+                                                                        <button type="button" class="btn btn-link btn-primary btn-lg" data-bs-toggle="tooltip" title="Sửa" id="alert_demo_8">
+                                                                            <i class="fa fa-edit"></i>
+                                                                        </button>
+                                                                        <form action="{{ route('admin.product.archive', $pro->ma_san_pham) }}" method="POST" class="archive-form">
+                                                                            @csrf
+                                                                            <button type="button" class="btn btn-link btn-danger btn-lg archive-btn" data-bs-toggle="tooltip" title="Lưu trữ">
+                                                                                <i class="fas fa-archive"></i>
+                                                                            </button>
+                                                                        </form>
+                                                                    @elseif($pro->trang_thai == 2)
+                                                                        <button type="button" class="btn btn-link btn-success btn-lg" data-bs-toggle="tooltip" title="Xóa" id="alert_demo_8">
+                                                                            <i class="fa fa-edit"></i>
+                                                                        </button>
+                                                                    @endif
+                                                                </div>
+                                                            
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                @endif
                                             </tbody>
                                         </table>
                                     </div>
