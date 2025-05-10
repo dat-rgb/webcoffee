@@ -73,7 +73,10 @@ Route::prefix('admin/products')->group(function(){
     Route::get('',[AdminProductController::class,'listProducts'])->name('admin.products.list');
     Route::get('/add-product',[AdminProductController::class,'showProductForm'])->name('admin.products.form');
     Route::post('/add-product',[AdminProductController::class,'productAdd'])->name('admin.products.add');
+    Route::post('/archive-product/{id}',[AdminProductController::class, 'productArchive'])->name('admin.product.archive');
+
 });
+
 //Route Categories Admin
 Route::prefix('admin/categories')->name('admins.category.')->group(function () {
     Route::get('/', action: [AdminCategoryController::class, 'index'])->name('index');
@@ -87,3 +90,4 @@ Route::prefix('admin/categories')->name('admins.category.')->group(function () {
     Route::post('/{id}/restore', [AdminCategoryController::class, 'restore'])->name('restore');
 
 });
+

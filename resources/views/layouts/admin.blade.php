@@ -33,6 +33,8 @@
       });
     </script>
 
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+
     <!-- CSS Files -->
     <link rel="stylesheet" href="{{ asset('admins/css/bootstrap.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('admins/css/plugins.min.css') }}" />
@@ -402,7 +404,7 @@
                           <a href="#">
                             <div class="notif-img">
                               <img
-                                src="admins/img/chadengle.jpg"
+                                src="{{ asset('admins/img/chadengle.jpg') }}"
                                 alt="Img Profile"
                               />
                             </div>
@@ -498,7 +500,7 @@
                           <a href="#">
                             <div class="notif-img">
                               <img
-                                src="admins/img/profile2.jpg"
+                                src="{{ asset('admins/img/profile2.jpg') }}"
                                 alt="Img Profile"
                               />
                             </div>
@@ -876,17 +878,21 @@
       </div>
       <!-- End Custom template -->
     </div>
-    <!--   Core JS Files   -->
-    <script src="{{ asset('admins/js/core/jquery-3.7.1.min.js') }}"></script>
-    <script src="{{ asset('admins/js/core/popper.min.js') }}"></script>
-    <script src="{{ asset('admins/js/core/bootstrap.min.js') }}"></script>
-    <script src="{{ asset('admins/js/plugin/sweetalert/sweetalert.min.js') }}"></script>
-    <!-- jQuery Scrollbar -->
-    <script src="{{ asset('admins/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js') }}"></script>
-    <!-- Kaiadmin JS -->
-    <script src="{{ asset('admins/js/kaiadmin.min.js') }}"></script>
-    <!-- Kaiadmin DEMO methods, don't include it in your project! -->
-    <script src="{{ asset('admins/js/setting-demo2.js') }}"></script>
-    @stack('scripts')
+
+  <!-- Load Toastr before your custom scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+  <!-- Core JS Files -->
+  <script src="{{ asset('admins/js/core/jquery-3.7.1.min.js') }}"></script>
+  <script src="{{ asset('admins/js/core/popper.min.js') }}"></script>
+  <script src="{{ asset('admins/js/core/bootstrap.min.js') }}"></script>
+  <script src="{{ asset('admins/js/plugin/sweetalert/sweetalert.min.js') }}"></script>
+  <!-- jQuery Scrollbar -->
+  <script src="{{ asset('admins/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js') }}"></script>
+  <!-- Kaiadmin JS -->
+  <script src="{{ asset('admins/js/kaiadmin.min.js') }}"></script>
+  <!-- Kaiadmin DEMO methods, don't include it in your project! -->
+  <script src="{{ asset('admins/js/setting-demo2.js') }}"></script>
+  @stack('scripts')
+
   </body>
 </html>
