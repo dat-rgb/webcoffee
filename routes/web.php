@@ -70,11 +70,13 @@ Route::prefix('admin')->group(function(){
 
 //Route Products Admin
 Route::prefix('admin/products')->group(function(){
-    Route::get('',[AdminProductController::class,'listProducts'])->name('admin.products.list');
+    Route::get('/list',[AdminProductController::class,'listProducts'])->name('admin.products.list');
+    Route::get('/archive',[AdminProductController::class,'listProductsArchive'])->name('admin.products.archive.list');
+    Route::get('/hidden',[AdminProductController::class,'listProductsHidden'])->name('admin.products.hidden.list');
     Route::get('/add-product',[AdminProductController::class,'showProductForm'])->name('admin.products.form');
     Route::post('/add-product',[AdminProductController::class,'productAdd'])->name('admin.products.add');
     Route::post('/archive-product/{id}',[AdminProductController::class, 'productArchive'])->name('admin.product.archive');
-
+    Route::post('/hidden-or-acctive/{id}',[AdminProductController::class,'productHiddenOrAcctive'])->name('admin.product.hidde-or-acctive');
 });
 
 //Route Categories Admin
