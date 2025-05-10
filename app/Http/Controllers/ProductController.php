@@ -8,7 +8,7 @@ class ProductController extends Controller
 {
     public function productList(){
         $viewData = [
-            'title'=> 'Sản Phẩm | CMDT Coffee & Tea'   
+            'title'=> 'Sản Phẩm | CMDT Coffee & Tea',
         ];
 
         return view('clients.pages.products.product_list', $viewData);

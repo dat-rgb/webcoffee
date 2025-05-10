@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Google Maps - Kaiadmin Bootstrap 5 Admin Dashboard</title>
+    <title>@yield('title',"Admin CDMT Coffee & Tea")</title>
     <meta
       content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
       name="viewport"
@@ -40,6 +40,7 @@
 
     <!-- CSS Just for demo purpose, don't include it in your project -->
     <link rel="stylesheet" href="{{ asset('admins/css/demo.css') }}" />
+    @stack('styles')
   </head>
   <body>
     <div class="wrapper">
@@ -130,12 +131,12 @@
                 <div class="collapse" id="sidebarLayouts">
                   <ul class="nav nav-collapse">
                     <li>
-                      <a href="#">
+                      <a href="{{ route('admin.products.list') }}">
                         <span class="sub-item">Danh sách sản phẩm</span>
                       </a>
                     </li>
                     <li>
-                      <a href="#">
+                      <a href="{{ route('admin.products.form') }}">
                         <span class="sub-item">Thêm sản phẩm mới</span>
                       </a>
                     </li>
@@ -879,12 +880,13 @@
     <script src="{{ asset('admins/js/core/jquery-3.7.1.min.js') }}"></script>
     <script src="{{ asset('admins/js/core/popper.min.js') }}"></script>
     <script src="{{ asset('admins/js/core/bootstrap.min.js') }}"></script>
-
+    <script src="{{ asset('admins/js/plugin/sweetalert/sweetalert.min.js') }}"></script>
     <!-- jQuery Scrollbar -->
     <script src="{{ asset('admins/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js') }}"></script>
     <!-- Kaiadmin JS -->
     <script src="{{ asset('admins/js/kaiadmin.min.js') }}"></script>
     <!-- Kaiadmin DEMO methods, don't include it in your project! -->
     <script src="{{ asset('admins/js/setting-demo2.js') }}"></script>
+    @stack('scripts')
   </body>
 </html>
