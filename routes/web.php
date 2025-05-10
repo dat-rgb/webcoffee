@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\admins\AdminHomeController;
 use App\Http\Controllers\admins\AdminProductController;
+use App\Http\Controllers\admins\AdminCategoryController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\clients\AuthController;
@@ -9,6 +10,7 @@ use App\Http\Controllers\clients\ForgotPasswordController;
 use App\Http\Controllers\clients\ResetPasswordController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 //Route Home
@@ -72,4 +74,20 @@ Route::prefix('admin/products')->group(function(){
     Route::get('/add-product',[AdminProductController::class,'showProductForm'])->name('admin.products.form');
     Route::post('/add-product',[AdminProductController::class,'productAdd'])->name('admin.products.add');
     Route::post('/archive-product/{id}',[AdminProductController::class, 'productArchive'])->name('admin.product.archive');
+
 });
+
+//Route Categories Admin
+Route::prefix('admin/categories')->name('admins.category.')->group(function () {
+    Route::get('/', action: [AdminCategoryController::class, 'index'])->name('index');
+    Route::get('/create', [AdminCategoryController::class, 'create'])->name('create');
+    Route::post('/', [AdminCategoryController::class, 'store'])->name('store');
+    Route::get('/{id}/edit', [AdminCategoryController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [AdminCategoryController::class, 'update'])->name('update');
+    Route::delete('/{id}', [AdminCategoryController::class, 'destroy'])->name('destroy');
+    Route::post('/{id}/archive', [AdminCategoryController::class, 'archive'])->name('archive');
+    Route::get('/archive', [AdminCategoryController::class, 'archiveIndex'])->name('archive.index'); // Hiển thị danh mục lưu trữ
+    Route::post('/{id}/restore', [AdminCategoryController::class, 'restore'])->name('restore');
+
+});
+
