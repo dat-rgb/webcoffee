@@ -138,13 +138,18 @@
                       </a>
                     </li>
                     <li>
-                      <a href="{{ route('admin.products.form') }}">
+                      <a href="{{ route('admin.products.add') }}">
                         <span class="sub-item">Thêm sản phẩm mới</span>
                       </a>
                     </li>
                     <li>
-                      <a href="#">
-                        <span class="sub-item">Sản phẩm ngừng kinh doanh</span>
+                      <a href="{{ route('admin.products.hidden.list') }}">
+                        <span class="sub-item">Sản phẩm ẩn</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="{{ route('admin.products.archive.list') }}">
+                        <span class="sub-item">Sản phẩm lưu trữ</span>
                       </a>
                     </li>
                   </ul>

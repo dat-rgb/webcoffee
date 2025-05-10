@@ -205,8 +205,8 @@ var SweetAlert2Demo = (function () {
     SweetAlert2Demo.init();
   });
 
-  // lưu trữ
-  $(document).ready(function () {
+// lưu trữ
+$(document).ready(function () {
     $(".archive-btn").click(function (e) {
         e.preventDefault();
         const form = $(this).closest("form");
@@ -232,4 +232,60 @@ var SweetAlert2Demo = (function () {
             }
         });
     });
+});
+//Ẩn
+$(document).ready(function () {
+  $(".hidden-btn").on("click", function (e) {
+    e.preventDefault();
+    const form = $(this).closest("form");
+
+    swal({
+      title: "Bạn có chắc muốn ẩn sản phẩm?",
+      text: "Sản phẩm sẽ bị ẩn khỏi danh sách hiển thị!",
+      icon: "warning",
+      buttons: {
+        cancel: {
+          text: "Hủy",
+          visible: true,
+          className: "btn btn-secondary",
+        },
+        confirm: {
+          text: "Đồng ý",
+          className: "btn btn-warning",
+        },
+      },
+    }).then((confirmed) => {
+      if (confirmed) {
+        form.submit();
+      }
+    });
+  });
+});
+//Hiển thị 
+$(document).ready(function () {
+  $(".acctive-btn").on("click", function (e) {
+    e.preventDefault();
+    const form = $(this).closest("form");
+
+    swal({
+      title: "Bạn có chắc muốn hiển thị sản phẩm?",
+      text: "Sản phẩm sẽ hiển thị trong danh sách!",
+      icon: "warning",
+      buttons: {
+        cancel: {
+          text: "Hủy",
+          visible: true,
+          className: "btn btn-secondary",
+        },
+        confirm: {
+          text: "Đồng ý",
+          className: "btn btn-warning",
+        },
+      },
+    }).then((confirmed) => {
+      if (confirmed) {
+        form.submit();
+      }
+    });
+  });
 });

@@ -35,7 +35,7 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="d-flex align-items-center">
-                            <h4 class="card-title">Danh sách sản phẩm</h4>
+                            <h4 class="card-title">{{ $subtitle }}</h4>
                             <a href="{{ route('admin.products.form') }}" class="btn btn-primary btn-round ms-auto">
                                 <i class="fa fa-plus"></i> Thêm sản phẩm
                             </a>
@@ -80,12 +80,12 @@
                                                         <tr role="row" class="odd">
                                                             <td class="sorting_1">{{ $loop->iteration }}</td>
                                                             <td>
-                                                            <img src="{{ asset('storage/products/' . $pro->hinh_anh) }}" alt="{{ $pro->ten_san_pham }}" width="80">
+                                                            <img src="{{ asset('storage/' . $pro->hinh_anh) }}" alt="{{ $pro->ten_san_pham }}" width="80">
                                                             </td>
                                                             <td>{{ $pro->ma_san_pham }}</td>
                                                             <td>{{ $pro->ten_san_pham }}</td>
                                                             <td>{{ $pro->danhMuc->ten_danh_muc }}</td>
-                                                            <td>{{ number_format($pro->gia, 0, ',', '.') }} đ</td>
+                                                            <td>{{ number_format($pro->gia, 0, ',', '.') }}</td>
                                                             <td>
                                                                 @if ($pro->trang_thai == 1)
                                                                     <span class="badge badge-success">Đang bán</span>
@@ -111,18 +111,38 @@
                                                             <td>
                                                                 <div class="form-button-action">
                                                                     @if($pro->trang_thai == 1)
-                                                                        <button type="button" class="btn btn-link btn-primary btn-lg" data-bs-toggle="tooltip" title="Sửa" id="alert_demo_8">
+                                                                        <button type="button" class="btn btn-icon btn-round btn-info" data-bs-toggle="tooltip" title="Chỉnh sửa">
                                                                             <i class="fa fa-edit"></i>
                                                                         </button>
                                                                         <form action="{{ route('admin.product.archive', $pro->ma_san_pham) }}" method="POST" class="archive-form">
                                                                             @csrf
-                                                                            <button type="button" class="btn btn-link btn-danger btn-lg archive-btn" data-bs-toggle="tooltip" title="Lưu trữ">
-                                                                                <i class="fas fa-archive"></i>
+                                                                            <button type="button" class="btn btn-icon btn-round btn-secondary archive-btn" data-bs-toggle="tooltip" title="Lưu trữ">
+                                                                                <i class="fa fa-bookmark"></i>
                                                                             </button>
                                                                         </form>
+                                                                        <form action="{{ route('admin.product.hidde-or-acctive', $pro->ma_san_pham) }}" method="POST" class="hidden-or-acctive">
+                                                                            @csrf    
+                                                                            <button type="button" class="btn btn-icon btn-round btn-black hidden-btn" data-bs-toggle="tooltip" title="Ẩn">
+                                                                                <i class="fas fa-toggle-off text-white"></i>
+                                                                            </button>   
+                                                                        </form>
                                                                     @elseif($pro->trang_thai == 2)
-                                                                        <button type="button" class="btn btn-link btn-success btn-lg" data-bs-toggle="tooltip" title="Xóa" id="alert_demo_8">
-                                                                            <i class="fa fa-edit"></i>
+
+                                                                        <form action="{{ route('admin.product.hidde-or-acctive', $pro->ma_san_pham) }}" method="POST" class="acctive-form">
+                                                                            @csrf
+                                                                            <button type="button" class="btn btn-icon btn-round btn-warning acctive-btn" data-bs-toggle="tooltip" title="Hiển thị">
+                                                                                <i class="fas fa-toggle-on text-white"></i>
+                                                                            </button>
+                                                                        </form>
+                                                                    @elseif($pro->trang_thai == 3)
+                                                                        <form action="{{ route('admin.product.archive',$pro->ma_san_pham) }}" method="POST" class="acctive-form">
+                                                                            @csrf    
+                                                                            <button type="button" class="btn btn-icon btn-round btn-success acctive-btn" data-bs-toggle="tooltip" title="Khôi phục">
+                                                                                <i class="fas fa-undo text-white"></i>
+                                                                            </button>
+                                                                        </form>
+                                                                        <button type="button" class="btn btn-icon btn-round btn-danger" data-bs-toggle="tooltip" title="Xóa">
+                                                                            <i class="fa fa-trash"></i>
                                                                         </button>
                                                                     @endif
                                                                 </div>
