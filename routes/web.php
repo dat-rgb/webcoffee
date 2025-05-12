@@ -49,7 +49,7 @@ Route::prefix('/')->group(function(){
 //Route sản phẩm
 Route::prefix('san-pham')->group(function(){
     Route::get('/',[ProductController::class, 'productList'])->name('sanpham');
-    Route::get('/detail',[ProductController::class, 'productDetail'])->name('sanpham.detail');
+    Route::get('/detail/{slug}',[ProductController::class, 'productDetail'])->name('sanpham.detail');
 });
 
 //Route giỏ hàng

@@ -207,33 +207,7 @@
                   </ul>
                 </div>
               </li>
-              <li class="nav-item active submenu">
-                <a data-bs-toggle="collapse" href="#maps">
-                  <i class="fas fa-newspaper"></i>
-                  <p>Blog</p>
-                  <span class="caret"></span>
-                </a>
-                <div class="collapse show" id="maps">
-                  <ul class="nav nav-collapse">
-                    <li class="active">
-                      <a href="#">
-                        <span class="sub-item">Các bài viết</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="#">
-                        <span class="sub-item">Danh mục bài viết</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="#">
-                        <span class="sub-item">Tạo bài viết</span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </li>
-
+              
               <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#submenu">
                   <i class="fas fa-user-tie"></i>
@@ -277,6 +251,46 @@
                           <li>
                             <a href="#">
                                 <span class="sub-item">Thêm khách hàng mới</span>
+                            </a>
+                            </li>
+                        </ul>
+                      </div>
+                    </li>
+                    <li>
+                      <a data-bs-toggle="collapse" href="#subnav3">
+                        <span class="sub-item">Vouchers</span>
+                        <span class="caret"></span>
+                      </a>
+                      <div class="collapse" id="subnav3">
+                        <ul class="nav nav-collapse subnav">
+                          <li>
+                            <a href="#">
+                              <span class="sub-item">Danh sách Vouchers</span>
+                            </a>
+                          </li>
+                          <li>
+                            <a href="#">
+                                <span class="sub-item">Thêm Voucher</span>
+                            </a>
+                            </li>
+                        </ul>
+                      </div>
+                    </li>
+                    <li>
+                      <a data-bs-toggle="collapse" href="#subnav4">
+                        <span class="sub-item">Blogs</span>
+                        <span class="caret"></span>
+                      </a>
+                      <div class="collapse" id="subnav4">
+                        <ul class="nav nav-collapse subnav">
+                          <li>
+                            <a href="#">
+                              <span class="sub-item">Danh sách blog</span>
+                            </a>
+                          </li>
+                          <li>
+                            <a href="#">
+                                <span class="sub-item">Thêm blog</span>
                             </a>
                             </li>
                         </ul>
