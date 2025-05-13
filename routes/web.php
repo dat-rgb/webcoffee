@@ -3,6 +3,7 @@
 use App\Http\Controllers\admins\AdminHomeController;
 use App\Http\Controllers\admins\AdminProductController;
 use App\Http\Controllers\admins\AdminCategoryController;
+use App\Http\Controllers\admins\AdminVoucherController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\clients\AuthController;
@@ -83,7 +84,7 @@ Route::prefix('admin/products')->group(function(){
 Route::prefix('admin/categories')->name('admins.category.')->group(function () {
     Route::get('/', action: [AdminCategoryController::class, 'index'])->name('index');
     Route::get('/create', [AdminCategoryController::class, 'create'])->name('create');
-    Route::post('/', [AdminCategoryController::class, 'store'])->name('store');
+    Route::post('/', [AdminCategoryController::class, 'store'])->name('store'); 
     Route::get('/{id}/edit', [AdminCategoryController::class, 'edit'])->name('edit');
     Route::put('/{id}', [AdminCategoryController::class, 'update'])->name('update');
     Route::delete('/{id}', [AdminCategoryController::class, 'destroy'])->name('destroy');
@@ -93,3 +94,9 @@ Route::prefix('admin/categories')->name('admins.category.')->group(function () {
 
 });
 
+//Route Vouchers Admin
+Route::prefix('admin/vouchers')->name('admin.vouchers.')->group(function(){
+    Route::get('',[AdminVoucherController::class,'listVouchers'])->name('list');
+    Route::get('/add-voucher',[AdminVoucherController::class,'showVoucherForm'])->name('form');
+    Route::post('/add-voucher',[AdminVoucherController::class,'addVoucher'])->name('add');
+});
