@@ -55,7 +55,7 @@
                                 <div class="form-group">
                                     <label for="email2">Mã sản phẩm</label>
                                     <div class="input-icon">
-                                        <input type="text" name="ma_san_pham" class="form-control" placeholder="SP00000000" value="{{ old('ma_san_pham') }}"  required>
+                                        <input type="text" name="ma_san_pham" class="form-control" value="{{ $newCode }}"  readonly>
                                         @error('ma_san_pham')
                                             <div class="custom-error">{{ $message }}</div>
                                         @enderror

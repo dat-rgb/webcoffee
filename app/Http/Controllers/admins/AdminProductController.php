@@ -69,11 +69,25 @@ class AdminProductController extends Controller
         $categorys = $this->getCategory();
         $ingredients = $this->getIngredient();
 
+        // Lấy mã lớn nhất hiện có (giả sử dạng: NL001, NL002, ...)
+        $lastItem = SanPham::orderByDesc('ma_san_pham')->first();
+
+        if ($lastItem) {
+            // Tách số phía sau
+            $lastNumber = intval(substr($lastItem->ma_san_pham, 2));
+            $newNumber = $lastNumber + 1;
+        } else {
+            $newNumber = 1;
+        }
+
+        $newCode = 'SP' . str_pad($newNumber, 8, '0', STR_PAD_LEFT);
+
         $viewData = [
             'title' => 'Thêm sản phẩm | CMDT Coffee & Tea',
             'subtitle' => 'Thêm sản phẩm',
             'categorys' => $categorys,
-            'ingredients' =>$ingredients
+            'ingredients' =>$ingredients,
+            'newCode' => $newCode
         ];
 
         return view('admins.products.product_form', $viewData);

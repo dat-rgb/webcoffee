@@ -289,3 +289,202 @@ $(document).ready(function () {
     });
   });
 });
+//voucher-hidden-btn
+$(document).ready(function () {
+  $(".voucher-hidden-btn").on("click", function (e) {
+    e.preventDefault();
+    const form = $(this).closest("form");
+
+    swal({
+      title: "Bạn có chắc muốn đóng voucher?",
+      text: "Voucher sẽ đóng. Không thể sử dụng!",
+      icon: "warning",
+      buttons: {
+        cancel: {
+          text: "Hủy",
+          visible: true,
+          className: "btn btn-secondary",
+        },
+        confirm: {
+          text: "Đồng ý",
+          className: "btn btn-warning",
+        },
+      },
+    }).then((confirmed) => {
+      if (confirmed) {
+        form.submit();
+      }
+    });
+  });
+});
+//voucher-acctive-btn
+$(document).ready(function () {
+  $(".voucher-acctive-btn").on("click", function (e) {
+    e.preventDefault();
+    const form = $(this).closest("form");
+
+    swal({
+      title: "Bạn có chắc muốn mở voucher?",
+      text: "Voucher sẽ được ở và sử dụng!",
+      icon: "warning",
+      buttons: {
+        cancel: {
+          text: "Hủy",
+          visible: true,
+          className: "btn btn-secondary",
+        },
+        confirm: {
+          text: "Đồng ý",
+          className: "btn btn-warning",
+        },
+      },
+    }).then((confirmed) => {
+      if (confirmed) {
+        form.submit();
+      }
+    });
+  });
+});
+//voucher-archive-btn
+$(document).ready(function () {
+  $(".voucher-archive-btn").click(function (e) {
+      e.preventDefault();
+      const form = $(this).closest("form");
+
+      swal({
+          title: "Xác nhận lưu trữ?",
+          text: "Bạn chắc chắn muốn lưu trữ Voucher này?",
+          icon: "warning",
+          buttons: {
+              cancel: {
+                  text: "Không, hủy",
+                  visible: true,
+                  className: "btn btn-danger",
+              },
+              confirm: {
+                  text: "Có, tiếp tục",
+                  className: "btn btn-success",
+              },
+          },
+      }).then((willDelete) => {
+          if (willDelete) {
+              form.submit(); // Gửi form
+          }
+      });
+  });
+});
+
+//voucher-delete-btn
+$(document).ready(function () {
+  $(".voucher-delete-btn").click(function (e) {
+      e.preventDefault();
+      const form = $(this).closest("form");
+
+      swal({
+          title: "Xác nhận xóa?",
+          text: "Bạn chắc chắn muốn xóa voucher này?",
+          icon: "warning",
+          buttons: {
+              cancel: {
+                  text: "Không, hủy",
+                  visible: true,
+                  className: "btn btn-danger",
+              },
+              confirm: {
+                  text: "Có, tiếp tục",
+                  className: "btn btn-success",
+              },
+          },
+      }).then((willDelete) => {
+          if (willDelete) {
+              form.submit(); // Gửi form
+          }
+      });
+  });
+});
+//btn-update
+$(document).ready(function () {
+  $(".btn-update").on("click", function (e) {
+    e.preventDefault();
+    
+    Swal.fire({
+      title: "Xác nhận cập nhật voucher?",
+      text: "Sẽ cập nhật lại các thông tin của voucher!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Đồng ý",
+      cancelButtonText: "Hủy",
+      buttonsStyling: true,
+      customClass: {
+        confirmButton: "btn btn-warning",
+        cancelButton: "btn btn-secondary",
+      },
+      buttonsStyling: false
+    }).then((result) => {
+      if (result.isConfirmed) {
+        $("#voucher-form")[0].submit();
+      }
+    });
+  });
+});
+
+//voucher-cancel-btn
+$(document).ready(function () {
+  $(".voucher-cancel-btn").click(function (e) {
+      e.preventDefault(); // Ngừng hành động mặc định của thẻ <a>
+
+      // Hiển thị SweetAlert xác nhận
+      Swal.fire({
+          title: "Xác nhận hủy?",
+          text: "Bạn chắc chắn muốn hủy cập nhật voucher này?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Có, tiếp tục",
+          cancelButtonText: "Không, hủy",
+          customClass: {
+              cancelButton: "btn btn-danger",
+              confirmButton: "btn btn-success"
+          }
+      }).then((result) => {
+          if (result.isConfirmed) {
+              // Nếu người dùng xác nhận "Có, tiếp tục", chuyển trang
+              window.location.href = $(this).attr('href'); // Điều hướng tới URL
+          }
+          // Nếu người dùng chọn "Không, hủy", không làm gì cả
+      });
+  });
+});
+
+
+
+
+
+function confirmStatusChange(event, checkbox) {
+  event.preventDefault(); // Ngăn chặn form submit ngay lập tức
+  let form = checkbox.form;
+  let message = checkbox.checked ? "Bạn chắc chắn muốn mở voucher?" : "Bạn chắc chắn muốn đóng voucher?";
+
+  // Sử dụng SweetAlert để hiển thị thông báo xác nhận
+  swal({
+      title: "Xác nhận",
+      text: message,
+      icon: "warning",
+      buttons: {
+          cancel: {
+              visible: true,
+              text: "Hủy",
+              className: "btn btn-danger",
+          },
+          confirm: {
+              text: "Có, tiếp tục",
+              className: "btn btn-success",
+          },
+      },
+  }).then((willChange) => {
+      if (willChange) {
+          form.submit(); // Nếu xác nhận, submit form để cập nhật trạng thái
+      } else {
+          checkbox.checked = !checkbox.checked; // Nếu hủy, trả lại trạng thái ban đầu
+      }
+  });
+}

@@ -97,6 +97,14 @@ Route::prefix('admin/categories')->name('admins.category.')->group(function () {
 //Route Vouchers Admin
 Route::prefix('admin/vouchers')->name('admin.vouchers.')->group(function(){
     Route::get('',[AdminVoucherController::class,'listVouchers'])->name('list');
+    Route::get('/list-vouchers-off',[AdminVoucherController::class,'listVouchersOff'])->name('list-vouchers-off');
+    Route::get('/list-vouchers-archive',[AdminVoucherController::class,'listVouchersArchive'])->name('list-vouchers-archive');
     Route::get('/add-voucher',[AdminVoucherController::class,'showVoucherForm'])->name('form');
     Route::post('/add-voucher',[AdminVoucherController::class,'addVoucher'])->name('add');
+    Route::post('/on-or-off-voucher/{id}',[AdminVoucherController::class,'onOrOffVoucher'])->name('on-or-off-voucher');
+    Route::post('/archive-voucher{id}',[AdminVoucherController::class,'voucherArchive'])->name('archive-voucher');
+    Route::post('/delete-voucher/{id}', [AdminVoucherController::class, 'deleteVoucher'])->name('delete');
+    Route::get('/edit-voucher/{id}', [AdminVoucherController::class, 'editVoucherForm'])->name('edit');
+    Route::post('/admin/vouchers/{id}/edit', [AdminVoucherController::class, 'editVoucher'])->name('update');
+
 });

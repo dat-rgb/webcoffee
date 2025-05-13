@@ -105,6 +105,8 @@
                                                                     <span class="badge badge-success">Mở</span>
                                                                 @elseif ($vou->trang_thai == 2)
                                                                     <span class="badge badge-danger">Đóng</span>
+                                                                @elseif ($vou->trang_thai == 3)
+                                                                    <span class="badge badge-warning">Lưu trữ</span>
                                                                 @else
                                                                     <span class="badge badge-secondary">Không xác định</span>
                                                                 @endif
@@ -112,46 +114,50 @@
                                                             <td>
                                                                 <div class="form-button-action">
                                                                     @if($vou->trang_thai == 1)
-                                                                        <button type="button" class="btn btn-icon btn-round btn-info" data-bs-toggle="tooltip" title="Chỉnh sửa">
-                                                                            <i class="fa fa-edit"></i>
-                                                                        </button>
-                                                                        <form action="" method="POST" class="archive-form">
+                                                                        <form action="{{ route('admin.vouchers.edit',$vou->ma_voucher) }}" method="GET" class="archive-form">
                                                                             @csrf
-                                                                            <button type="button" class="btn btn-icon btn-round btn-secondary archive-btn" data-bs-toggle="tooltip" title="Lưu trữ">
+                                                                            <button type="submit" class="btn btn-icon btn-round btn-info" data-bs-toggle="tooltip" title="Chỉnh sửa">
+                                                                                <i class="fa fa-edit"></i>
+                                                                            </button>
+                                                                        </form>
+                                                                        <form action="{{ route('admin.vouchers.archive-voucher',$vou->ma_voucher) }}" method="POST" class="archive-form">
+                                                                            @csrf
+                                                                            <button type="button" class="btn btn-icon btn-round btn-secondary voucher-archive-btn" data-bs-toggle="tooltip" title="Lưu trữ">
                                                                                 <i class="fa fa-bookmark"></i>
                                                                             </button>
                                                                         </form>
-                                                                        <form action="" method="POST" class="hidden-or-acctive">
+                                                                        <form action="{{ route('admin.vouchers.on-or-off-voucher',$vou->ma_voucher) }}" method="POST" class="hidden-or-acctive">
                                                                             @csrf    
-                                                                            <button type="button" class="btn btn-icon btn-round btn-black hidden-btn" data-bs-toggle="tooltip" title="Ẩn">
+                                                                            <button type="button" class="btn btn-icon btn-round btn-black voucher-hidden-btn" data-bs-toggle="tooltip" title="Đóng">
                                                                                 <i class="fas fa-toggle-off text-white"></i>
                                                                             </button>   
                                                                         </form>
                                                                     @elseif($vou->trang_thai == 2)
 
-                                                                        <form action="" method="POST" class="acctive-form">
+                                                                        <form action="{{ route('admin.vouchers.on-or-off-voucher',$vou->ma_voucher) }}" method="POST" class="acctive-form">
                                                                             @csrf
-                                                                            <button type="button" class="btn btn-icon btn-round btn-warning acctive-btn" data-bs-toggle="tooltip" title="Hiển thị">
+                                                                            <button type="button" class="btn btn-icon btn-round btn-warning voucher-acctive-btn" data-bs-toggle="tooltip" title="Hiển thị">
                                                                                 <i class="fas fa-toggle-on text-white"></i>
                                                                             </button>
                                                                         </form>
                                                                     @elseif($vou->trang_thai == 3)
-                                                                        <form action="" method="POST" class="acctive-form">
+                                                                        <form action="{{ route('admin.vouchers.archive-voucher',$vou->ma_voucher) }}" method="POST" class="acctive-form">
                                                                             @csrf    
-                                                                            <button type="button" class="btn btn-icon btn-round btn-success acctive-btn" data-bs-toggle="tooltip" title="Khôi phục">
+                                                                            <button type="button" class="btn btn-icon btn-round btn-success voucher-acctive-btn" data-bs-toggle="tooltip" title="Khôi phục">
                                                                                 <i class="fas fa-undo text-white"></i>
                                                                             </button>
                                                                         </form>
-                                                                        <button type="button" class="btn btn-icon btn-round btn-danger" data-bs-toggle="tooltip" title="Xóa">
-                                                                            <i class="fa fa-trash"></i>
-                                                                        </button>
+                                                                        <form action="{{ route('admin.vouchers.delete', $vou->ma_voucher) }}" method="POST" class="voucher-delete-form">
+                                                                            @csrf
+                                                                            <button type="button" class="btn btn-icon btn-round btn-danger voucher-delete-btn" data-bs-toggle="tooltip" title="Xóa">
+                                                                                <i class="fa fa-trash"></i>
+                                                                            </button>
+                                                                        </form>
                                                                     @endif
-                                                                </div>
-                                                            
+                                                                </div> 
                                                             </td>
                                                         </tr>
-                                                    @endforeach
-                                               
+                                                    @endforeach                                              
                                             </tbody>
                                         </table>
                                         @endif
