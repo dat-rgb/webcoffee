@@ -27,10 +27,7 @@ Route::prefix('/')->group(function(){
 
     Route::post('/login',[AuthController::class,'login'])->name('login.post');
 
-    Route::post('/logout', function () {
-        Auth::logout();
-        return redirect()->route('home');
-    })->name('logout');
+    Route::post('/logout', [AuthController::class,'logout'])->name('logout');
 
     Route::get('/register',[AuthController::class,'showRegisterForm'])->name('register');
 

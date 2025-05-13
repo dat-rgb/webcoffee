@@ -26,7 +26,11 @@
                     <ul>
                         <li class="active" data-filter="*">All</li>
                         @foreach ($categorys as $cate)
-                            <li data-filter=".{{ $cate->ma_danh_muc }}">{{ $cate->ten_danh_muc }}</li>
+                            @if (!empty($countCate[$cate->ma_danh_muc]) && $countCate[$cate->ma_danh_muc] > 0)
+                                <li data-filter=".{{ $cate->ma_danh_muc }}">
+                                    {{ $cate->ten_danh_muc }} ({{ $countCate[$cate->ma_danh_muc] }})
+                                </li>
+                            @endif
                         @endforeach
                     </ul>
                 </div>

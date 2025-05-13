@@ -18,10 +18,17 @@ class ProductController extends Controller
             ->whereNotNull('danh_muc_cha_id')
             ->get(); 
 
+        $countCate = [];
+
+        foreach ($categorys as $cate) {
+            $countCate[$cate->ma_danh_muc] = $products->where('ma_danh_muc', $cate->ma_danh_muc)->count();
+        }
+        
         $viewData = [
             'title' => 'Sản Phẩm | CMDT Coffee & Tea',
             'products' => $products,
-            'categorys' => $categorys
+            'categorys' => $categorys,
+            'countCate' => $countCate
         ];
 
         return view('clients.pages.products.product_list', $viewData);

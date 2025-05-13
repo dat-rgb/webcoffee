@@ -455,6 +455,33 @@ $(document).ready(function () {
   });
 });
 
+//Logout out
+$(document).ready(function () {
+  $("#logout-link").click(function (e) {
+      e.preventDefault();
+
+      swal({
+          title: "Xác nhận đăng xuất?",
+          text: "Bạn chắc chắn muốn đăng xuất khỏi tài khoản này?",
+          icon: "warning",
+          buttons: {
+              cancel: {
+                  text: "Không, hủy",
+                  visible: true,
+                  className: "btn btn-danger",
+              },
+              confirm: {
+                  text: "Có, đăng xuất",
+                  className: "btn btn-success",
+              },
+          },
+      }).then((willLogout) => {
+          if (willLogout) {
+              $("#logout-form").submit(); // Gửi form đăng xuất
+          }
+      });
+  });
+});
 
 
 
