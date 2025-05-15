@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 class ProductController extends Controller
 {
-
     public function productList() {
         $products = SanPham::with('danhMuc')
             ->where('trang_thai', 1)
@@ -72,20 +71,36 @@ class ProductController extends Controller
     }
 
     public function listProductsByCategoryParent($slug) {
-        // Tìm danh mục cha theo slug
-        $categoryParent = DanhMucSanPham::with('children')
+        // Lấy danh mục cha cùng toàn bộ con cháu đệ quy
+        $categoryParent = DanhMucSanPham::with('childrenRecursive')
             ->where('slug', $slug)
             ->firstOrFail();
 
-        // Lấy danh sách danh mục con
-        $categories = $categoryParent->children;
+        // Hàm đệ quy lấy tất cả danh mục con cháu 
+        function flattenCategories($category) {
+            $flat = [];
+            foreach ($category->childrenRecursive as $child) {
+                $flat[] = $child;
+                $flat = array_merge($flat, flattenCategories($child));
+            }
+            return $flat;
+        }
 
-        // Lấy mã danh mục cha + các danh mục con (để lọc sản phẩm)
+        // Lấy mảng danh mục con cháu
+        $flatCategories = flattenCategories($categoryParent);
+
+        // Tạo collection từ mảng phẳng để tiện thao tác
+        $categories = collect($flatCategories);
+        
+        //Lấy danh mục cha
+        $categories->prepend($categoryParent);
+
+        // Lấy tất cả mã danh mục con cháu + cha
         $categoryIDs = collect([$categoryParent->ma_danh_muc])
             ->merge($categories->pluck('ma_danh_muc'))
             ->toArray();
 
-        // Lấy tất cả sản phẩm thuộc các danh mục trên
+        // Lấy sản phẩm
         $products = SanPham::with('danhMuc')
             ->where('trang_thai', 1)
             ->whereIn('ma_danh_muc', $categoryIDs)
@@ -110,6 +125,7 @@ class ProductController extends Controller
             'categoryParent' => $categoryParent,
             'countCate' => $countCate
         ];
+
         return view('clients.pages.products.product_list', $viewData);
     }
 }

@@ -37,6 +37,12 @@ class DanhMucSanPham extends Model
     {
         return $this->hasMany(DanhMucSanPham::class, 'danh_muc_cha_id');
     }
+
+    public function childrenRecursive()
+    {
+        return $this->children()->with('childrenRecursive');
+    }
+
     public function deactivateChildren()
     {
         foreach ($this->children as $child) {
