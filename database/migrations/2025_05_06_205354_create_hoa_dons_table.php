@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('hoa_dons', function (Blueprint $table) {
             $table->id();
-            $table->char('ma_hoa_don', 20)->unique();
+            $table->string('ma_hoa_don', 50)->unique();
             $table->char('ma_nhan_vien', 10);  
             $table->char('ma_voucher',50)->nullable();
             $table->char('ma_khach_hang', 10); 

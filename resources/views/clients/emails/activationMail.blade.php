@@ -44,7 +44,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Xin chào, {{ $taiKhoan->name }}.</h1>
+        <h1>Xin chào, {{ $name }}.</h1>
         <p>Cảm ơn bạn đã đăng ký tài khoản tại website của chúng tôi.</p>
         <p>Để kích hoạt tài khoản, vui lòng nhấn vào nút bên dưới:</p>
         <a href="{{ url('activate/' . $token) }}" class="btn">Kích hoạt tài khoản</a>

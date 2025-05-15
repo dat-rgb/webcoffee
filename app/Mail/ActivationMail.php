@@ -19,10 +19,12 @@ class ActivationMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct($token, $taiKhoan)
+    public function __construct($token, $taiKhoan, $name)
     {
         $this->token = $token;
         $this->taiKhoan = $taiKhoan;
+        $this->name = $name;
+
     }
 
     /**
@@ -44,7 +46,8 @@ class ActivationMail extends Mailable
             view: 'clients.emails.activationMail',
             with:[
                 'token' => $this->token,
-                'taiKhoan'=> $this->taiKhoan
+                'taiKhoan'=> $this->taiKhoan,
+                'name'=> $this->name
             ]
         );
     }
