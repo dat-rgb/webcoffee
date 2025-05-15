@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Mail;
 
 
 use Str;
+use function Flasher\Toastr\Prime\toastr;
 
 class AuthController extends Controller
 {
@@ -128,5 +129,17 @@ class AuthController extends Controller
         $request->session()->regenerate();
         toastr()->success('Đăng nhập thành công.');
         return redirect()->route('home');
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+
+        $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
+
+        toastr()->success('Đăng xuất thành công.');
+        return redirect()->route('login');
     }
 }

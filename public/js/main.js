@@ -167,19 +167,5 @@
 
 }(jQuery));
 
-document.getElementById('logout-link').addEventListener('click', function (e) {
-    Swal.fire({
-        title: 'Xác nhận đăng xuất?',
-        text: 'Bạn sẽ cần đăng nhập lại để tiếp tục.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Đăng xuất',
-        cancelButtonText: 'Hủy'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            document.getElementById('logout-form').submit();
-        }
-    });
-});
+
+

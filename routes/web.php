@@ -3,6 +3,7 @@
 use App\Http\Controllers\admins\AdminHomeController;
 use App\Http\Controllers\admins\AdminProductController;
 use App\Http\Controllers\admins\AdminCategoryController;
+use App\Http\Controllers\admins\AdminVoucherController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\clients\AuthController;
@@ -26,10 +27,7 @@ Route::prefix('/')->group(function(){
 
     Route::post('/login',[AuthController::class,'login'])->name('login.post');
 
-    Route::post('/logout', function () {
-        Auth::logout();
-        return redirect()->route('home');
-    })->name('logout');
+    Route::post('/logout', [AuthController::class,'logout'])->name('logout');
 
     Route::get('/register',[AuthController::class,'showRegisterForm'])->name('register');
 
@@ -47,9 +45,10 @@ Route::prefix('/')->group(function(){
 });
 
 //Route sản phẩm
-Route::prefix('san-pham')->group(function(){
-    Route::get('/',[ProductController::class, 'productList'])->name('sanpham');
-    Route::get('/detail/{slug}',[ProductController::class, 'productDetail'])->name('sanpham.detail');
+Route::prefix('products')->group(function(){
+    Route::get('/',[ProductController::class, 'productList'])->name('product');
+    Route::get('/categories-products/{id}',[ProductController::class,'listProductsByCategoryParent'])->name('product.category.list');
+    Route::get('/product-detail/{slug}',[ProductController::class, 'productDetail'])->name('product.detail');
 });
 
 //Route giỏ hàng
@@ -83,7 +82,7 @@ Route::prefix('admin/products')->group(function(){
 Route::prefix('admin/categories')->name('admins.category.')->group(function () {
     Route::get('/', action: [AdminCategoryController::class, 'index'])->name('index');
     Route::get('/create', [AdminCategoryController::class, 'create'])->name('create');
-    Route::post('/', [AdminCategoryController::class, 'store'])->name('store');
+    Route::post('/', [AdminCategoryController::class, 'store'])->name('store'); 
     Route::get('/{id}/edit', [AdminCategoryController::class, 'edit'])->name('edit');
     Route::put('/{id}', [AdminCategoryController::class, 'update'])->name('update');
     Route::delete('/{id}', [AdminCategoryController::class, 'destroy'])->name('destroy');
@@ -93,3 +92,17 @@ Route::prefix('admin/categories')->name('admins.category.')->group(function () {
 
 });
 
+//Route Vouchers Admin
+Route::prefix('admin/vouchers')->name('admin.vouchers.')->group(function(){
+    Route::get('',[AdminVoucherController::class,'listVouchers'])->name('list');
+    Route::get('/list-vouchers-off',[AdminVoucherController::class,'listVouchersOff'])->name('list-vouchers-off');
+    Route::get('/list-vouchers-archive',[AdminVoucherController::class,'listVouchersArchive'])->name('list-vouchers-archive');
+    Route::get('/add-voucher',[AdminVoucherController::class,'showVoucherForm'])->name('form');
+    Route::post('/add-voucher',[AdminVoucherController::class,'addVoucher'])->name('add');
+    Route::post('/on-or-off-voucher/{id}',[AdminVoucherController::class,'onOrOffVoucher'])->name('on-or-off-voucher');
+    Route::post('/archive-voucher{id}',[AdminVoucherController::class,'voucherArchive'])->name('archive-voucher');
+    Route::post('/delete-voucher/{id}', [AdminVoucherController::class, 'deleteVoucher'])->name('delete');
+    Route::get('/edit-voucher/{id}', [AdminVoucherController::class, 'editVoucherForm'])->name('edit');
+    Route::post('/admin/vouchers/{id}/edit', [AdminVoucherController::class, 'editVoucher'])->name('update');
+
+});
