@@ -29,6 +29,9 @@
 	<link rel="stylesheet" href="{{ asset('css/main.css') }}">
 	<!-- responsive -->
 	<link rel="stylesheet" href="{{ asset('css/responsive.css') }}">
+	<!-- Thêm jQuery -->
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<link rel="stylesheet" href="{{ asset('css/store-popup.css') }}">
 	@stack('styles')
 </head>
 <body>
@@ -49,7 +52,7 @@
 					<div class="main-menu-wrap">
 						<!-- logo -->
 						<div class="site-logo">
-							<a href="index.html">
+							<a href="{{ route('home') }}">
 								<img src="{{ asset('img/logo.png') }}" alt="">
 							</a>
 						</div>
@@ -75,34 +78,43 @@
 										<li><a href="#">Cart</a></li>
 									</ul>
 								</li>
-
+								<li>
+									<a href="#" onclick="openStoreModal()" style="border-radius: 20px; background-color:#F28123; color: #fff; padding: 6px 16px; ">
+										<i class="fas fa-store-alt"></i>
+										Giao hàng / Đến lấy
+									</a>
+								</li>
 								{{-- Tách user icon ra khỏi header-icons --}}
 								@auth
-								<li class="current-list-item">
-									<a href="#"><i class="fas fa-user"></i> Tài Khoản</a>
-									<ul class="sub-menu">
-										<li><a href="#"><i class="fas fa-user-circle" style="margin-right:6px;"></i>Hồ sơ</a></li>
-										<li><a href="#"><i class="fas fa-map-marker-alt" style="margin-right:6px;"></i>Sổ địa chỉ</a></li>
-										<li><a href="#"><i class="fas fa-heart" style="margin-right:6px;"></i>Yêu thích</a></li>
-										<li><a href="#"><i class="fas fa-receipt" style="margin-right:6px;"></i>Lịch sử mua hàng</a></li>
-										<li><a href="#"><i class="fas fa-eye" style="margin-right:6px;"></i>Sản phẩm đã xem</a></li>
-										<li>
-											<button type="button" id="logout-btn" style="color: #fff; background: #e74c3c; border-radius: 8px; padding: 8px 16px; border: none; font-weight: 500;">
-												<i class="fas fa-sign-out-alt" style="margin-right:6px;"></i>Đăng xuất
-											</button>
+								<li>
+									<div class="current-list-item">
+										<a href="#"><i class="fas fa-user"></i> Tài Khoản</a>
+										<ul class="sub-menu">
+											<li><a href="#"><i class="fas fa-user-circle" style="margin-right:6px;"></i>Hồ sơ</a></li>
+											<li><a href="#"><i class="fas fa-map-marker-alt" style="margin-right:6px;"></i>Sổ địa chỉ</a></li>
+											<li><a href="#"><i class="fas fa-heart" style="margin-right:6px;"></i>Yêu thích</a></li>
+											<li><a href="#"><i class="fas fa-receipt" style="margin-right:6px;"></i>Lịch sử mua hàng</a></li>
+											<li><a href="#"><i class="fas fa-eye" style="margin-right:6px;"></i>Sản phẩm đã xem</a></li>
+											<li>
+												<button type="button" id="logout-btn" style="color: #fff; background: #e74c3c; border-radius: 8px; padding: 8px 16px; border: none; font-weight: 500;">
+													<i class="fas fa-sign-out-alt" style="margin-right:6px;"></i>Đăng xuất
+												</button>
 
-											<form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-												@csrf
-											</form>
-										</li>
-									</ul>
+												<form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+													@csrf
+												</form>
+											</li>
+										</ul>
+									</div>
 								</li>
 								@else
 								<li>
 									<a class="login" href="{{ route('login') }}"><i class="fas fa-user"></i></a>
 								</li>
 								@endauth
+								
 
+								
 								{{-- Icon giỏ hàng + tìm kiếm giữ nguyên --}}
 								<li>
 									<div class="header-icons">
@@ -233,9 +245,11 @@
 	<script src="{{ asset('js/sticker.js') }}"></script>
 	<!-- main js -->
 	<script src="{{ asset('js/main.js') }}"></script>
-	<script src="{{ asset('js/sweet-alert.js.js') }}"></script>
+	<script src="{{ asset('js/sweet-alert.js') }}"></script> 
 	<!-- SweetAlert2 -->
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<script src="{{ asset('js/store-popup.js') }}"></script>
 	@stack('scripts')
+	<x-store-popup />
 </body>
 </html>

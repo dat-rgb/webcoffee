@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DanhMucSanPham;
 use App\Models\SanPham;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\DB;
 class ProductController extends Controller
 {
 
@@ -40,11 +40,20 @@ class ProductController extends Controller
             ->where('slug',$slug)
             ->where('trang_thai',1)
             ->first();
+
         $productRelate = SanPham::where('ma_danh_muc', $product->ma_danh_muc)
             ->where('trang_thai',1)
             ->where('id', '!=', $product->id)
             ->inRandomOrder()
-            ->take(3)
+            ->take(4)
+            ->get();
+
+         // Lấy danh sách size của sản phẩm
+         $sizes = DB::table('thanh_phan_san_phams')
+            ->join('sizes', 'thanh_phan_san_phams.ma_size', '=', 'sizes.ma_size')
+            ->where('thanh_phan_san_phams.ma_san_pham', $product->ma_san_pham)
+            ->select('sizes.ma_size', 'sizes.ten_size', 'sizes.gia_size')
+            ->distinct()
             ->get();
 
         if(!$product){
@@ -55,7 +64,8 @@ class ProductController extends Controller
         $viewData = [
             'title'=> $product->ten_san_pham . ' | CMDT Coffee & Tea',
             'product' => $product,
-            'productRelate' => $productRelate
+            'productRelate' => $productRelate,
+            'sizes' => $sizes
         ];
 
         return view('clients.pages.products.product_detail', $viewData);
