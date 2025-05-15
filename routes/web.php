@@ -45,9 +45,10 @@ Route::prefix('/')->group(function(){
 });
 
 //Route sản phẩm
-Route::prefix('san-pham')->group(function(){
-    Route::get('/',[ProductController::class, 'productList'])->name('sanpham');
-    Route::get('/detail/{slug}',[ProductController::class, 'productDetail'])->name('sanpham.detail');
+Route::prefix('products')->group(function(){
+    Route::get('/',[ProductController::class, 'productList'])->name('product');
+    Route::get('/categories-products/{id}',[ProductController::class,'listProductsByCategoryParent'])->name('product.category.list');
+    Route::get('/product-detail/{slug}',[ProductController::class, 'productDetail'])->name('product.detail');
 });
 
 //Route giỏ hàng

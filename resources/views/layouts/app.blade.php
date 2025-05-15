@@ -70,12 +70,13 @@
 									</ul>
 								</li>
 								<li><a href="{{ route('contact') }}">Liên Hệ</a></li>
-								<li><a href="{{ route('sanpham') }}">Sản Phẩm</a>
+								<li><a href="{{ route('product') }}">Sản Phẩm</a>
 									<ul class="sub-menu">
-										<li><a href="#">Shop</a></li>
-										<li><a href="#">Check Out</a></li>
-										<li><a href="#">Single Product</a></li>
-										<li><a href="#">Cart</a></li>
+										@foreach ($danhMucCha as $dm)
+											@if ($dm->totalProductsCount > 0)
+												<li><a href="{{ route('product.category.list',$dm->slug) }}">{{ $dm->ten_danh_muc }}</a></li>
+											@endif
+										@endforeach
 									</ul>
 								</li>
 								<li>

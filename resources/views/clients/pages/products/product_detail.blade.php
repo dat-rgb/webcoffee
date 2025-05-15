@@ -78,8 +78,8 @@
                             </div>
                             <div>
                                 <a href="" class="cart-btn"><i class="fas fa-shopping-cart"></i> Thêm vào giỏ hàng</a>
-                                <a href="" class="cart-btn"><i class="fas fa-shopping-cart"></i> Mua ngay</a>
-                            </div>
+                                <a href="" class="cart-btn"><i class="fas fa-credit-card"></i> Mua ngay</a>
+                            </div>  
                         </form>
                         <p><strong>Tag: </strong>{{ $product->danhMuc->ten_danh_muc }}</p>
                         <p>{{ $product->mo_ta }}</p>
@@ -107,7 +107,7 @@
                 <div class="col-lg-3 col-md-4 col-sm-6 text-center">
                     <div class="single-product-item">
                         <div class="product-image">
-                            <a href="{{ route('sanpham.detail',$pro->slug) }}"><img src="{{ asset('storage/'. $pro->hinh_anh) }}" alt=""></a>
+                            <a href="{{ route('product.detail',$pro->slug) }}"><img src="{{ asset('storage/'. $pro->hinh_anh) }}" alt=""></a>
                         </div>
                         <h3>{{ $pro->ten_san_pham }}</h3>
                         <a href="cart.html" class="cart-btn"><i class="fas fa-shopping-cart"></i> Add to Cart</a>

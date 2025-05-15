@@ -13,21 +13,21 @@ class ProductController extends Controller
         $products = SanPham::with('danhMuc')
             ->where('trang_thai', 1)
             ->get();
+            
 
-        $categorys = DanhMucSanPham::where('trang_thai', 1)
-            ->whereNotNull('danh_muc_cha_id')
-            ->get(); 
+        $categories = DanhMucSanPham::where('trang_thai', 1)->get(); 
 
         $countCate = [];
 
-        foreach ($categorys as $cate) {
+        foreach ($categories as $cate) {
             $countCate[$cate->ma_danh_muc] = $products->where('ma_danh_muc', $cate->ma_danh_muc)->count();
         }
         
         $viewData = [
-            'title' => 'Sản Phẩm | CMDT Coffee & Tea',
+            'title' => 'Tất cả sản phẩm | CMDT Coffee & Tea',
+            'subtitle' => 'Sản phẩm',
             'products' => $products,
-            'categorys' => $categorys,
+            'categories' => $categories,
             'countCate' => $countCate
         ];
 
@@ -69,5 +69,47 @@ class ProductController extends Controller
         ];
 
         return view('clients.pages.products.product_detail', $viewData);
+    }
+
+    public function listProductsByCategoryParent($slug) {
+        // Tìm danh mục cha theo slug
+        $categoryParent = DanhMucSanPham::with('children')
+            ->where('slug', $slug)
+            ->firstOrFail();
+
+        // Lấy danh sách danh mục con
+        $categories = $categoryParent->children;
+
+        // Lấy mã danh mục cha + các danh mục con (để lọc sản phẩm)
+        $categoryIDs = collect([$categoryParent->ma_danh_muc])
+            ->merge($categories->pluck('ma_danh_muc'))
+            ->toArray();
+
+        // Lấy tất cả sản phẩm thuộc các danh mục trên
+        $products = SanPham::with('danhMuc')
+            ->where('trang_thai', 1)
+            ->whereIn('ma_danh_muc', $categoryIDs)
+            ->get();
+
+        // Đếm sản phẩm theo từng danh mục con + cha
+        $countCate = [];
+        foreach ($categories as $cate) {
+            $countCate[$cate->ma_danh_muc] = $products
+                ->where('ma_danh_muc', $cate->ma_danh_muc)
+                ->count();
+        }
+        $countCate[$categoryParent->ma_danh_muc] = $products
+            ->where('ma_danh_muc', $categoryParent->ma_danh_muc)
+            ->count();
+
+        $viewData = [
+            'title' => $categoryParent->ten_danh_muc . ' | CDMT coffee & tea',
+            'subtitle' => $categoryParent->ten_danh_muc . ' tại nhà',
+            'products' => $products,
+            'categories' => $categories,
+            'categoryParent' => $categoryParent,
+            'countCate' => $countCate
+        ];
+        return view('clients.pages.products.product_list', $viewData);
     }
 }
