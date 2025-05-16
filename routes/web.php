@@ -52,8 +52,21 @@ Route::prefix('products')->group(function(){
 });
 
 //Route giỏ hàng
-Route::prefix('gio-hang')->group(function(){
+Route::prefix('cart')->group(function(){
     Route::get('/', [CartController::class, 'cart'])->name('cart');
+    
+    //add to cart
+    Route::get('/add-to-cart/{id}',[CartController::class,'addToCart'])->name('cart.addToCart');
+    Route::get('/debug', function () {
+        return dd(session('cart'));
+    });
+    Route::get('/delete', function () {
+        session()->forget('cart');
+        session()->save(); // bắt buộc gọi để lưu thay đổi session ngay
+        return 'Cart đã bị xóa!';
+    });
+
+
 });
 
 //Tin tức
