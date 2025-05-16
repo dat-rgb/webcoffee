@@ -15,7 +15,7 @@
 		</div>
 	</div>
 	<!-- end breadcrumb section -->
-
+	@if (count($cart) > 0)
 	<!-- cart -->
 	<div class="cart-section mt-150 mb-150">
 		<div class="container">
@@ -34,14 +34,41 @@
 								</tr>
 							</thead>
 							<tbody>
-								<tr class="table-body-row">
-									<td class="product-remove"><a href="#"><i class="far fa-window-close"></i></a></td>
-									<td class="product-image"><img src="{{ asset('img/products/product-img-1.jpg') }}" alt=""></td>
-									<td class="product-name">Dâu Đà Lạt</td>
-									<td class="product-price">85.000 đ</td>
-									<td class="product-quantity"><input type="number" placeholder="0"></td>
-									<td class="product-total">85.000đ</td>
-								</tr>
+								@foreach ( $cart as  $item)
+									<tr class="table-body-row">
+										<td class="product-remove">
+											<a href="#"><i class="far fa-window-close"></i></a>
+										</td>
+										<td class="product-image">
+											<a href="{{ route('product.detail', $item['product_slug']) }}">
+												<img src="{{ $item['product_image'] ? asset('storage/' . $item['product_image']) : asset('images/no_product_image.png') }}" alt="">
+											</a>
+										</td>
+										<td class="product-name">
+											<strong>{{ $item['product_name'] }}</strong> <br>
+
+											@if (count($productSizes[$item['product_id']]) > 0)
+												<select name="size_update_{{ $item['product_id'] }}" class="form-select form-select-sm mt-1" style="max-width: 200px; padding: 5px 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px;">
+													@foreach ($productSizes[$item['product_id']] ?? [] as $size)
+														<option value="{{ $size->ma_size }}" {{ $size->ma_size == $item['size_id'] ? 'selected' : '' }}>
+															{{ $size->ten_size .' + '. number_format($size->gia_size, 0, ',', '.') }} đ
+														</option>
+													@endforeach
+												</select>
+											@endif
+										</td>
+
+										<td class="product-price">
+											{{ number_format($item['product_price'],0,',','.')}} đ
+										</td>
+										<td class="product-quantity">
+											<input type="number" placeholder="0" value="{{ $item['product_quantity'] }}">
+										</td>
+										<td class="product-total">
+											{{ number_format($item['money'],0,',','.') }} đ
+										</td>
+									</tr>
+								@endforeach
 							</tbody>
 						</table>
 					</div>
@@ -59,36 +86,37 @@
 							<tbody>
 								<tr class="total-data">
 									<td><strong>Tạm tính: </strong></td>
-									<td>85.000 đ</td>
+									<td>{{ number_format($total, 0,',','.') }} đ</td>
 								</tr>
 								<tr class="total-data">
 									<td><strong>Phí Ship: </strong></td>
-									<td>45.000 đ</td>
+									<td>0 đ</td>
 								</tr>
 								<tr class="total-data">
 									<td><strong>Thành tiền: </strong></td>
-									<td>130.000 đ</td>
+									<td>{{ number_format($total, 0,',','.') }} đ</td>
 								</tr>
 							</tbody>
 						</table>
 						<div class="cart-buttons">
-							<a href="cart.html" class="boxed-btn">Update Cart</a>
-							<a href="checkout.html" class="boxed-btn black">Check Out</a>
-						</div>
-					</div>
-
-					<div class="coupon-section">
-						<h3>Apply Coupon</h3>
-						<div class="coupon-form-wrap">
-							<form action="index.html">
-								<p><input type="text" placeholder="Coupon"></p>
-								<p><input type="submit" value="Apply"></p>
-							</form>
+							<a href="#" class="boxed-btn">Update Cart</a>
+							<a href="#" class="boxed-btn black">Check Out</a>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
+	@else
+		<div class="d-flex align-items-center justify-content-center gap-4 py-5" style="min-height: 250px;">
+			<img src="{{ asset('images/empty-cart.png') }}" alt="Giỏ hàng trống" style="width: 150px; padding:20px">
+			<div class="text-start">
+				<h5 class="mb-2 text-muted">Giỏ hàng của bạn đang trống!</h5>
+				<a href="{{ route('product') }}" class="btn btn-outline-primary">
+					<i class="fas fa-arrow-left me-1"></i> Tiếp tục mua sắm
+				</a>
+			</div>
+		</div>
+	@endif
 	<!-- end cart -->
 @endsection

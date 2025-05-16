@@ -43,7 +43,9 @@
                 <div class="col-lg-3 col-md-4 col-sm-6 text-center {{ $pro->danhMuc->ma_danh_muc ?? '' }}">
                     <div class="single-product-item">
                         <div class="product-image">
-                            <a href="{{ route('product.detail',$pro->slug) }}"><img src="{{ asset('storage/'. $pro->hinh_anh) }}" alt=""></a>
+                            <a href="{{ route('product.detail',$pro->slug) }}">
+                                <img src="{{ $pro->hinh_anh ? asset('storage/' . $pro->hinh_anh) : asset('images/no_product_image.png') }}" alt="">
+                            </a>
                         </div>
                         <h3>{{ $pro->ten_san_pham }}</h3>
                         <a href="{{ route('product.detail',$pro->slug) }}" class="cart-btn"><i class="fas fa-shopping-cart"></i> Đặt mua</a>
