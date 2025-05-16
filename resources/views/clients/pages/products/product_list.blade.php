@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('title', $title)
+@section('subtitle', $subtitle)
 @section('content')
 <!-- breadcrumb-section -->
 <div class="breadcrumb-section breadcrumb-bg">
@@ -7,8 +8,8 @@
         <div class="row">
             <div class="col-lg-8 offset-lg-2 text-center">
                 <div class="breadcrumb-text">
-                    <p>Fresh and Organic</p>
-                    <h1>Shop</h1>
+                    <p>Coffee & Tea</p>
+                    <h1>{{ $subtitle }}</h1>
                 </div>
             </div>
         </div>
@@ -25,8 +26,12 @@
                 <div class="product-filters">
                     <ul>
                         <li class="active" data-filter="*">All</li>
-                        @foreach ($categorys as $cate)
-                            <li data-filter=".{{ $cate->ma_danh_muc }}">{{ $cate->ten_danh_muc }}</li>
+                        @foreach ($categories as $cate)
+                            @if (!empty($countCate[$cate->ma_danh_muc]) && $countCate[$cate->ma_danh_muc] > 0)
+                                <li data-filter=".{{ $cate->ma_danh_muc }}" >
+                                    {{ $cate->ten_danh_muc }}
+                                </li>
+                            @endif
                         @endforeach
                     </ul>
                 </div>
@@ -38,27 +43,15 @@
                 <div class="col-lg-3 col-md-4 col-sm-6 text-center {{ $pro->danhMuc->ma_danh_muc ?? '' }}">
                     <div class="single-product-item">
                         <div class="product-image">
-                            <a href="{{ route('sanpham.detail',$pro->slug) }}"><img src="{{ asset('storage/'. $pro->hinh_anh) }}" alt=""></a>
+                            <a href="{{ route('product.detail',$pro->slug) }}">
+                                <img src="{{ $pro->hinh_anh ? asset('storage/' . $pro->hinh_anh) : asset('images/no_product_image.png') }}" alt="">
+                            </a>
                         </div>
                         <h3>{{ $pro->ten_san_pham }}</h3>
-                        <a href="cart.html" class="cart-btn"><i class="fas fa-shopping-cart"></i> Add to Cart</a>
+                        <a href="{{ route('product.detail',$pro->slug) }}" class="cart-btn"><i class="fas fa-shopping-cart"></i> Đặt mua</a>
                     </div>
                 </div>
             @endforeach
-        </div>
-
-        <div class="row">
-            <div class="col-lg-12 text-center">
-                <div class="pagination-wrap">
-                    <ul>
-                        <li><a href="#">Prev</a></li>
-                        <li><a href="#">1</a></li>
-                        <li><a class="active" href="#">2</a></li>
-                        <li><a href="#">3</a></li>
-                        <li><a href="#">Next</a></li>
-                    </ul>
-                </div>
-            </div>
         </div>
     </div>
 </div>

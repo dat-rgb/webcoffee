@@ -29,4 +29,12 @@ class SanPham extends Model
     {
         return $this->belongsTo(DanhMucSanPham::class, 'ma_danh_muc'); 
     }
+
+   // SanPham.php
+    public function sizes()
+    {
+        return $this->belongsToMany(Sizes::class, 'thanh_phan_san_phams', 'ma_san_pham', 'ma_size')
+            ->withPivot('dinh_luong', 'don_vi'); // Đảm bảo lấy thêm các trường cần thiết từ bảng trung gian
+    }
+
 }

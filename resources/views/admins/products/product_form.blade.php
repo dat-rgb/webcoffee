@@ -55,7 +55,7 @@
                                 <div class="form-group">
                                     <label for="email2">Mã sản phẩm</label>
                                     <div class="input-icon">
-                                        <input type="text" name="ma_san_pham" class="form-control" placeholder="SP00000000" value="{{ old('ma_san_pham') }}"  required>
+                                        <input type="text" name="ma_san_pham" class="form-control" value="{{ $newCode }}"  readonly>
                                         @error('ma_san_pham')
                                             <div class="custom-error">{{ $message }}</div>
                                         @enderror
@@ -127,6 +127,10 @@
                                             <input type="checkbox" name="is_new" value="New" class="selectgroup-input" >
                                             <span class="selectgroup-button">New</span>
                                         </label>
+                                        <label class="selectgroup-item">
+                                            <input type="checkbox" name="san_pham_pha_che" value="PhaChe" class="selectgroup-input" >
+                                            <span class="selectgroup-button">Sản phẩm pha chế</span>
+                                        </label>
                                     </div>
                                 </div>
                             </div>   
@@ -134,98 +138,54 @@
                     </div>
                 </div>
                 <!-- Thành phần sản phẩm -->
-                <div class="card">
+                <div class="card" id="thanh_phan">
                     <div class="card-header">
                         <div class="card-title">Nhập thành phần sản phảm</div>
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <!-- Size Nhỏ -->
+                        @foreach ($sizes as $sz )
                             <div class="col-md-6 col-lg-4">
                                 <div class="form-group">
                                     <label class="form-label">Size</label>
                                     <div class="selectgroup selectgroup-pills">
                                         <label class="selectgroup-item">
-                                            <input type="checkbox" id="sizeSmallCheckbox" class="selectgroup-input">
-                                            <span class="selectgroup-button">Nhỏ</span>
+                                            <input type="checkbox" id="{{ 'checkbox' . $sz->ma_size }}" class="selectgroup-input" name="sizes[{{ $sz->ma_size }}][checked]" value="1" {{ old("sizes.$sz->ma_size.checked") ? 'checked' : '' }}>
+                                            <span class="selectgroup-button">{{ $sz->ten_size }}</span>
                                         </label>
+                                        @error("sizes.$sz->ma_size.checked")
+                                            <div class="custom-error">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                 </div>
-                                <div id="ingredientContainerSmall" class="ingredient-container" style="display: none;">
+                                <div id="ingredientContainer{{ $sz->ma_size }}" class="ingredient-container" style="display:none;">
                                     <div class="ingredient-form mb-3">
-                                        <select class="form-select mb-2">
-                                            <option>Chọn nguyên liệu</option>
-                                            <option>Trà xanh</option>
-                                            <option>Sữa tươi</option>
+                                        <select class="form-select mb-2" name="sizes[{{ $sz->ma_size }}][ingredients][0][ma_nguyen_lieu]">
+                                            <option value="">Chọn nguyên liệu</option>
+                                            @foreach ($ingredients as $ing )
+                                                <option value="{{ $ing->ma_nguyen_lieu }}" {{ old("sizes.$sz->ma_size.ingredients.0.ma_nguyen_lieu") == $ing->ma_nguyen_lieu ? 'selected' : '' }}>{{ $ing->ten_nguyen_lieu }}</option>
+                                            @endforeach
                                         </select>
-                                        <input type="number" class="form-control mb-2" placeholder="Định lượng">
-                                        <select class="form-select mb-2">
-                                            <option>g</option>
-                                            <option>ml</option>
-                                            <option>ly</option>
+                                        @error("sizes.$sz->ma_size.ingredients.0.ma_nguyen_lieu")
+                                            <div class="custom-error">{{ $message }}</div>
+                                        @enderror
+                                        <input type="number" class="form-control mb-2" placeholder="Định lượng" name="sizes[{{ $sz->ma_size }}][ingredients][0][dinh_luong]" value="{{ old("sizes.$sz->ma_size.ingredients.0.dinh_luong") }}">
+                                        @error("sizes.$sz->ma_size.ingredients.0.dinh_luong")
+                                            <div class="custom-error">{{ $message }}</div>
+                                        @enderror
+                                        <select class="form-select mb-2" name="sizes[{{ $sz->ma_size }}][ingredients][0][don_vi]">
+                                            <option value="g" {{ old("sizes.$sz->ma_size.ingredients.0.don_vi") == 'g' ? 'selected' : '' }}>g</option>
+                                            <option value="ml" {{ old("sizes.$sz->ma_size.ingredients.0.don_vi") == 'ml' ? 'selected' : '' }}>ml</option>
+                                            <option value="ly" {{ old("sizes.$sz->ma_size.ingredients.0.don_vi") == 'ly' ? 'selected' : '' }}>ly</option>
                                         </select>
+                                        @error("sizes.$sz->ma_size.ingredients.0.don_vi")
+                                            <div class="custom-error">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                     <button type="button" class="btn btn-success addIngredientBtn">+</button>
                                 </div>
                             </div>
-
-                            <!-- Size Vừa -->
-                            <div class="col-md-6 col-lg-4">
-                                <div class="form-group">
-                                    <label class="form-label">Size</label>
-                                    <div class="selectgroup selectgroup-pills">
-                                        <label class="selectgroup-item">
-                                            <input type="checkbox" id="sizeMediumCheckbox" class="selectgroup-input">
-                                            <span class="selectgroup-button">Vừa</span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div id="ingredientContainerMedium" class="ingredient-container" style="display: none;">
-                                    <div class="ingredient-form mb-3">
-                                        <select class="form-select mb-2">
-                                            <option>Chọn nguyên liệu</option>
-                                            <option>Trà xanh</option>
-                                            <option>Sữa tươi</option>
-                                        </select>
-                                        <input type="number" class="form-control mb-2" placeholder="Định lượng">
-                                        <select class="form-select mb-2">
-                                            <option>g</option>
-                                            <option>ml</option>
-                                            <option>ly</option>
-                                        </select>
-                                    </div>
-                                    <button type="button" class="btn btn-success addIngredientBtn">+</button>
-                                </div>
-                            </div>
-
-                            <!-- Size Lớn -->
-                            <div class="col-md-6 col-lg-4">
-                                <div class="form-group">
-                                    <label class="form-label">Size</label>
-                                    <div class="selectgroup selectgroup-pills">
-                                        <label class="selectgroup-item">
-                                            <input type="checkbox" id="sizeLargeCheckbox" class="selectgroup-input">
-                                            <span class="selectgroup-button">Lớn</span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div id="ingredientContainerLarge" class="ingredient-container" style="display: none;">
-                                    <div class="ingredient-form mb-3">
-                                        <select class="form-select mb-2">
-                                            <option>Chọn nguyên liệu</option>
-                                            <option>Trà xanh</option>
-                                            <option>Sữa tươi</option>
-                                        </select>
-                                        <input type="number" class="form-control mb-2" placeholder="Định lượng">
-                                        <select class="form-select mb-2">
-                                            <option>g</option>
-                                            <option>ml</option>
-                                            <option>ly</option>
-                                        </select>
-                                    </div>
-                                    <button type="button" class="btn btn-success addIngredientBtn">+</button>
-                                </div>
-                            </div>
+                        @endforeach
                         </div>
                     </div>
                 </div>

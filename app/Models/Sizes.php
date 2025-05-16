@@ -21,4 +21,10 @@ class Sizes extends Model
         'trang_thai',
         'mo_ta'    
     ];
+    // Size.php
+    public function products()
+    {
+        return $this->belongsToMany(SanPham::class, 'thanh_phan_san_phams', 'ma_size', 'ma_san_pham');
+    }
+
 }

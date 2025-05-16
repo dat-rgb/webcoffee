@@ -1,0 +1,57 @@
+.store-modal {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1050;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.store-modal-dialog {
+  background: #fff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 720px;
+  padding: 24px;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.store-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  font-size: 24px;
+  background: none;
+  border: none;
+  color: #000;
+}
+
+.search-store .input-group-text {
+  background: #f1f1f1;
+  border: none;
+}
+
+.search-store input {
+  border-left: none;
+  background: #f1f1f1;
+  border: none;
+  border-radius: 0 10px 10px 0;
+}
+
+.nav-tabs .nav-link {
+  border: none;
+  color: #333;
+  font-weight: bold;
+  background: none;
+}
+
+.nav-tabs .nav-link.active {
+  border-bottom: 2px solid #F28123;
+  color: #F28123;
+  background-color: transparent;
+}

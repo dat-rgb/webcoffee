@@ -13,11 +13,8 @@
 	<!-- google font -->
 	<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css?family=Poppins:400,700&display=swap" rel="stylesheet">
-	
 	<!-- fontawesome -->
 	<link rel="stylesheet" href="{{ asset('css/all.min.css') }}">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
-
 	<!-- bootstrap -->
 	<link rel="stylesheet" href="{{ asset('bootstrap/css/bootstrap.min.css') }}">
 	<!-- owl carousel -->
@@ -32,6 +29,9 @@
 	<link rel="stylesheet" href="{{ asset('css/main.css') }}">
 	<!-- responsive -->
 	<link rel="stylesheet" href="{{ asset('css/responsive.css') }}">
+	<!-- Thêm jQuery -->
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<link rel="stylesheet" href="{{ asset('css/store-popup.css') }}">
 	@stack('styles')
 </head>
 <body>
@@ -52,7 +52,7 @@
 					<div class="main-menu-wrap">
 						<!-- logo -->
 						<div class="site-logo">
-							<a href="index.html">
+							<a href="{{ route('home') }}">
 								<img src="{{ asset('img/logo.png') }}" alt="">
 							</a>
 						</div>
@@ -70,41 +70,52 @@
 									</ul>
 								</li>
 								<li><a href="{{ route('contact') }}">Liên Hệ</a></li>
-								<li><a href="{{ route('sanpham') }}">Sản Phẩm</a>
+								<li><a href="{{ route('product') }}">Sản Phẩm</a>
 									<ul class="sub-menu">
-										<li><a href="#">Shop</a></li>
-										<li><a href="#">Check Out</a></li>
-										<li><a href="#">Single Product</a></li>
-										<li><a href="#">Cart</a></li>
+										@foreach ($danhMucCha as $dm)
+											@if ($dm->totalProductsCount > 0)
+												<li><a href="{{ route('product.category.list',$dm->slug) }}">{{ $dm->ten_danh_muc }}</a></li>
+											@endif
+										@endforeach
 									</ul>
 								</li>
-
+								<li>
+									<a href="#" onclick="openStoreModal()" style="border-radius: 20px; background-color:#F28123; color: #fff; padding: 6px 16px; ">
+										<i class="fas fa-store-alt"></i>
+										Giao hàng / Đến lấy
+									</a>
+								</li>
 								{{-- Tách user icon ra khỏi header-icons --}}
 								@auth
-								<li class="current-list-item">
-									<a href="#"><i class="fas fa-user"></i> Tài Khoản</a>
-									<ul class="sub-menu">
-										<li><a href="#"><i class="fas fa-user-circle" style="margin-right:6px;"></i>Hồ sơ</a></li>
-										<li><a href="#"><i class="fas fa-map-marker-alt" style="margin-right:6px;"></i>Sổ địa chỉ</a></li>
-										<li><a href="#"><i class="fas fa-heart" style="margin-right:6px;"></i>Yêu thích</a></li>
-										<li><a href="#"><i class="fas fa-receipt" style="margin-right:6px;"></i>Lịch sử mua hàng</a></li>
-										<li><a href="#"><i class="fas fa-eye" style="margin-right:6px;"></i>Sản phẩm đã xem</a></li>
-										<li>
-											<a href="#" id="logout-link" style="color:#fff; background:#e74c3c; border-radius:8px; padding:8px 16px; display:inline-block; font-weight:500;">
-												<i class="fas fa-sign-out-alt" style="margin-right:6px;"></i>Đăng xuất
-											</a>
-											<form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-												@csrf
-											</form>
-										</li>
-									</ul>
+								<li>
+									<div class="current-list-item">
+										<a href="#"><i class="fas fa-user"></i> Tài Khoản</a>
+										<ul class="sub-menu">
+											<li><a href="#"><i class="fas fa-user-circle" style="margin-right:6px;"></i>Hồ sơ</a></li>
+											<li><a href="#"><i class="fas fa-map-marker-alt" style="margin-right:6px;"></i>Sổ địa chỉ</a></li>
+											<li><a href="#"><i class="fas fa-heart" style="margin-right:6px;"></i>Yêu thích</a></li>
+											<li><a href="#"><i class="fas fa-receipt" style="margin-right:6px;"></i>Lịch sử mua hàng</a></li>
+											<li><a href="#"><i class="fas fa-eye" style="margin-right:6px;"></i>Sản phẩm đã xem</a></li>
+											<li>
+												<button type="button" id="logout-btn" style="color: #fff; background: #e74c3c; border-radius: 8px; padding: 8px 16px; border: none; font-weight: 500;">
+													<i class="fas fa-sign-out-alt" style="margin-right:6px;"></i>Đăng xuất
+												</button>
+
+												<form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+													@csrf
+												</form>
+											</li>
+										</ul>
+									</div>
 								</li>
 								@else
 								<li>
 									<a class="login" href="{{ route('login') }}"><i class="fas fa-user"></i></a>
 								</li>
 								@endauth
+								
 
+								
 								{{-- Icon giỏ hàng + tìm kiếm giữ nguyên --}}
 								<li>
 									<div class="header-icons">
@@ -217,10 +228,6 @@
 	
 	<!-- jquery -->
 	<script src="{{ asset('js/jquery-1.11.3.min.js') }}"></script>
-	<!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 	<!-- bootstrap -->
 	<script src="{{ asset('bootstrap/js/bootstrap.min.js') }}"></script>
 	<!-- count down -->
@@ -239,6 +246,11 @@
 	<script src="{{ asset('js/sticker.js') }}"></script>
 	<!-- main js -->
 	<script src="{{ asset('js/main.js') }}"></script>
+	<script src="{{ asset('js/sweet-alert.js') }}"></script> 
+	<!-- SweetAlert2 -->
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<script src="{{ asset('js/store-popup.js') }}"></script>
 	@stack('scripts')
+	<x-store-popup />
 </body>
 </html>

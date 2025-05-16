@@ -19,8 +19,8 @@ return new class extends Migration
             $table->unsignedBigInteger('ma_nha_cung_cap');
             $table->float('so_luong')->default(0);
             $table->float('gia')->default(0);
-            $table->integer('loai_nguyen_lieu')->default(0); // 0: chế biến, 1: tiêu dùng
-            $table->string('don_vi', 50); // 500ml/chai
+            $table->integer('loai_nguyen_lieu')->default(0); // 0: chế biến, 1: tiêu dùng: ly, muổng, ống hút, túi T, 
+            $table->string('don_vi', 50); // 500ml/chai g, ml, ly,..
             $table->tinyInteger('trang_thai')->default(1);
             $table->timestamps();
 

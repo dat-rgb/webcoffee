@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Mail;
 
 
 use Str;
+use function Flasher\Toastr\Prime\toastr;
 
 class AuthController extends Controller
 {
@@ -40,7 +41,7 @@ class AuthController extends Controller
         ]);
 
         //check email
-        $emailExit = TaiKhoan::where('email',$request->email)->first();
+        $emailExit = TaiKhoan::with('taiKhoan')->where('email',$request->email)->first();
         if($emailExit){
             if($emailExit->status()){
                 toastr()->error('Email đã được đăng ký và đang chờ kích hoạt');
@@ -66,7 +67,8 @@ class AuthController extends Controller
             'ho_ten_khach_hang' => $request->name,
         ]);
 
-        Mail::to($taiKhoan->email)->send(new ActivationMail($token, $taiKhoan));
+        Mail::to($taiKhoan->email)->send(new ActivationMail($token, $taiKhoan, $khachHang->ho_ten_khach_hang));
+
 
         toastr()->success('Đăng ký tài khoản thành công. Vui lòng kiểm tra email của bạn để kích hoạt tài khoản.');
         return redirect()->route('login');
@@ -80,7 +82,7 @@ class AuthController extends Controller
             $taiKhoan->activation_token = null;
             $taiKhoan->save();
 
-            toastr()->success('Kích hoạt tài khoản thành công.');
+            toastr()->success('Kích hoạt tài khoản thành công. Hãy đăng nhập tài khoản.');
             return redirect()->route('login');
         }
 
@@ -128,5 +130,17 @@ class AuthController extends Controller
         $request->session()->regenerate();
         toastr()->success('Đăng nhập thành công.');
         return redirect()->route('home');
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+
+        $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
+
+        toastr()->success('Đăng xuất thành công.');
+        return redirect()->route('login');
     }
 }

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->char('ma_voucher',50)->unique();
             $table->string('ten_voucher',255);
-            $table->string('hinh_anh',255);
+            $table->string('hinh_anh',255)->nullable();
             $table->integer('so_luong')->default(0);
             $table->dateTime('ngay_bat_dau')->nullable();
             $table->dateTime('ngay_ket_thuc')->nullable();

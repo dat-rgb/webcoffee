@@ -26,8 +26,9 @@ class DanhMucSanPham extends Model
     ];
     public function sanPhams()
     {
-        return $this->hasMany(SanPham::class);
+        return $this->hasMany(SanPham::class, 'ma_danh_muc', 'ma_danh_muc');
     }
+
     public function parent()
     {
         return $this->belongsTo(DanhMucSanPham::class, 'danh_muc_cha_id');
@@ -36,6 +37,12 @@ class DanhMucSanPham extends Model
     {
         return $this->hasMany(DanhMucSanPham::class, 'danh_muc_cha_id');
     }
+
+    public function childrenRecursive()
+    {
+        return $this->children()->with('childrenRecursive');
+    }
+
     public function deactivateChildren()
     {
         foreach ($this->children as $child) {
@@ -43,14 +50,10 @@ class DanhMucSanPham extends Model
             $child->deactivateChildren(); // gọi đệ quy tiếp
         }
     }
-
-
     public function subCategories()
     {
         return $this->hasMany(DanhMucSanPham::class, 'danh_muc_cha_id');
     }
-
-
     // Trong model DanhMucSanPham
     public function archiveWithChildren()
     {

@@ -265,15 +265,25 @@
                       <div class="collapse" id="subnav3">
                         <ul class="nav nav-collapse subnav">
                           <li>
-                            <a href="#">
+                            <a href="{{ route('admin.vouchers.list') }}">
                               <span class="sub-item">Danh sách Vouchers</span>
                             </a>
                           </li>
                           <li>
-                            <a href="#">
+                            <a href="{{ route('admin.vouchers.form') }}">
                                 <span class="sub-item">Thêm Voucher</span>
                             </a>
-                            </li>
+                          </li>
+                          <li>
+                            <a href="{{ route('admin.vouchers.list-vouchers-off') }}">
+                                <span class="sub-item">Voucher đóng</span>
+                            </a>
+                          </li>
+                          <li>
+                            <a href="{{ route('admin.vouchers.list-vouchers-archive') }}">
+                                <span class="sub-item">Voucher lưu trữ</span>
+                            </a>
+                          </li>
                         </ul>
                       </div>
                     </li>
@@ -901,6 +911,9 @@
 
   <!-- Load Toastr before your custom scripts -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+  <!-- Thêm thư viện SweetAlert -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
   <!-- Core JS Files -->
   <script src="{{ asset('admins/js/core/jquery-3.7.1.min.js') }}"></script>
   <script src="{{ asset('admins/js/core/popper.min.js') }}"></script>
