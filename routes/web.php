@@ -3,6 +3,7 @@
 use App\Http\Controllers\admins\AdminHomeController;
 use App\Http\Controllers\admins\AdminProductController;
 use App\Http\Controllers\admins\AdminCategoryController;
+use App\Http\Controllers\admins\AdminMaterialController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\clients\AuthController;
@@ -90,6 +91,22 @@ Route::prefix('admin/categories')->name('admins.category.')->group(function () {
     Route::post('/{id}/archive', [AdminCategoryController::class, 'archive'])->name('archive');
     Route::get('/archive', [AdminCategoryController::class, 'archiveIndex'])->name('archive.index'); // Hiển thị danh mục lưu trữ
     Route::post('/{id}/restore', [AdminCategoryController::class, 'restore'])->name('restore');
+
+});
+//Route Material Admin
+Route::prefix('admin/materials')->name('admins.material.')->group(function () {
+    Route::get('/', [AdminMaterialController::class, 'index'])->name('index');
+    Route::get('/create', [AdminMaterialController::class, 'create'])->name('create');
+    Route::post('/', [AdminMaterialController::class, 'store'])->name('store');
+    Route::get('/{id}/edit', [AdminMaterialController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [AdminMaterialController::class, 'update'])->name('update');
+    Route::delete('/{id}', [AdminMaterialController::class, 'destroy'])->name('destroy');
+    Route::post('/{id}/archive', [AdminMaterialController::class, 'archive'])->name('archive');
+    Route::get('/archive', [AdminMaterialController::class, 'archiveIndex'])->name('archive.index'); // Hiển thị danh mục lưu trữ
+    Route::post('/{id}/restore', [AdminMaterialController::class, 'restore'])->name('restore');
+    Route::post('/{id}/toggle-status', [AdminMaterialController::class, 'toggleStatus'])->name('toggleStatus');
+    Route::post('/{id}/archive', action: [AdminMaterialController::class, 'archive'])->name('archive');
+    Route::get('/archive', [AdminMaterialController::class, 'archiveIndex'])->name('archive.index');
 
 });
 
