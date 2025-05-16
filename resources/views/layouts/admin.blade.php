@@ -173,11 +173,7 @@
                         <span class="sub-item">Tạo danh mục</span>
                       </a>
                     </li>
-                    <li>
-                      <a href="{{ route('admins.category.archive.index') }}">
-                        <span class="sub-item">Danh mục ẩn</span>
-                      </a>
-                    </li>
+
                   </ul>
                 </div>
               </li>
@@ -190,14 +186,19 @@
                 <div class="collapse" id="tables">
                   <ul class="nav nav-collapse">
                     <li>
-                      <a href=".#">
+                      <a href="{{ route('admins.material.index') }}">
                         <span class="sub-item">Kho nguyên liệu</span>
                       </a>
                     </li>
                     <li>
-                      <a href="#">
+                      <a href="{{ route('admins.material.create') }}">
                         <span class="sub-item">Nhập nguyên liệu</span>
                       </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admins.material.archive.index') }}">
+                            <span class="sub-item">Nguyên liệu ẩn</span>
+                        </a>
                     </li>
                     <li>
                       <a href="#">
@@ -207,7 +208,7 @@
                   </ul>
                 </div>
               </li>
-              
+
               <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#submenu">
                   <i class="fas fa-user-tie"></i>
