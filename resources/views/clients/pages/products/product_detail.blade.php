@@ -54,9 +54,20 @@
             <div class="col-md-7">
                 <div class="single-product-content">
                     <h3>{{ $product->ten_san_pham }}</h3>
-                    <p id="product-price" class="single-product-pricing" data-base="{{ $product->gia }}">
-                        {{ number_format($product->gia, 0, ',', '.') }} đ
-                    </p>
+                   
+                    @if ($sizes->count() < 2)
+                        @php
+                            $size = $sizes->first();
+                            $totalPrice = $product->gia + ($size->gia_size ?? 0);
+                        @endphp
+                        <p id="product-price" class="single-product-pricing" data-base="{{ $product->gia }}">
+                            {{ number_format($totalPrice, 0, ',', '.') }} đ
+                        </p>
+                    @else
+                        <p id="product-price" class="single-product-pricing" data-base="{{ $product->gia }}">
+                            {{ number_format($product->gia, 0, ',', '.') }} đ
+                        </p>
+                    @endif
                     <!-- Thêm size -->
                     <div class="single-product-form">
                         <form action="">
@@ -65,7 +76,7 @@
                                 <input type="number" placeholder="1" name="quantity">
                                 <!-- Chọn kích thước -->
                                 <div class="product-size mb-3">
-                                    <label><strong>Chọn Size:</strong></label>
+                                    <label><strong>Chọn Size (Bắt buộc):</strong></label>
                                     <div class="btn-group-toggle d-flex gap-2 mt-2 flex-wrap" data-toggle="buttons">
                                         @foreach ($sizes as $size)
                                             <label class="btn btn-outline-secondary btn-sm size-label">
@@ -75,7 +86,6 @@
                                         @endforeach
                                     </div>
                                 </div>
-                               
                             </div>
                             <div>
                                 <a href="#" 

@@ -67,8 +67,10 @@ Route::prefix('cart')->group(function(){
         session()->save(); // bắt buộc gọi để lưu thay đổi session ngay
         return 'Cart đã bị xóa!';
     });
-
-
+    Route::get('/check-cart-quantity', [CartController::class, 'checkCartQuantity'])->name('cart.checkQuantity');
+    Route::post('/update-quantity', [CartController::class, 'updateQuantity']);
+    Route::post('/delete-product',[CartController::class,'deleteProduct']);
+    Route::get('/api/cart/status', [CartController::class, 'checkCartStatus']);
 });
 
 //Tin tức

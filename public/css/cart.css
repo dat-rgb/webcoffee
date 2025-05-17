@@ -1,0 +1,109 @@
+.quantity-wrapper {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 5px;
+	border-radius: 8px;
+	
+	width: fit-content;
+	margin: auto;
+}
+
+.qty-btn {
+	background-color: #fff;
+	border: 1px solid #ddd;
+	color: #333;
+	font-size: 18px;
+	width: 32px;
+	height: 32px;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.qty-btn:hover {
+	background-color: #F28123;
+	color: #fff;
+}
+
+.update-cart-quantity {
+	width: 50px;
+	text-align: center;
+	border: none;
+	outline: none;
+	background: transparent;
+	font-size: 16px;
+}
+.product-price .price {
+	font-weight: 600;
+	font-size: 16px;
+	display: inline-block;
+}
+
+.product-price .currency {
+	font-size: 12px;
+	position: relative;
+	top: -2px;
+	margin-left: 2px;
+}
+.product-total .total-money {
+	font-weight: 700;
+	font-size: 17px;
+	color: #F28123;
+	padding: 5px 10px;
+	border-radius: 6px;
+	display: inline-block;
+}
+
+.product-total .currency {
+	font-size: 12px;
+	color: #555;
+	position: relative;
+	top: -2px;
+	margin-left: 2px;
+}
+.total-data {
+	border-bottom: 1px dashed #ccc;
+	padding: 10px 0;
+}
+
+.total-data .label {
+	font-weight: 600;
+	color: #333;
+}
+
+.total-data .value {
+	font-weight: 700;
+	font-size: 16px;
+	color: #F28123;
+	padding: 5px 10px;
+	border-radius: 6px;
+	display: inline-block;
+}
+
+.total-data .value sup {
+	font-size: 12px;
+	position: relative;
+	top: -2px;
+	color: #666;
+}
+
+.total-final .value.total {
+	color: #F28123;
+	font-size: 18px;
+}
+select.form-select {
+	background-color: #fff;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	padding: 6px 12px;
+	font-size: 14px;
+	transition: border-color 0.3s ease;
+}
+  
+select.form-select:focus {
+	border-color: #F28123;
+	outline: none;
+	box-shadow: 0 0 5px #F28123;
+}
+  

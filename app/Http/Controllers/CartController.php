@@ -9,9 +9,9 @@ use Illuminate\Support\Facades\DB;
 
 class CartController extends Controller
 {
+    //Hiển thị cart
     public function cart(){
         $cart = session()->get('cart', []);  
-        $countItem = count($cart);
         $productSizes = [];
 
         foreach ($cart as $item) {
@@ -38,13 +38,38 @@ class CartController extends Controller
             'title' => 'Giỏ Hàng | CMDT Coffee & Tea',
             'cart' => $cart,   
             'productSizes' => $productSizes,
-            'countItem' => $countItem,
-            'total' => $total
+            'total' => $total,
         ];
 
         return view('clients.pages.carts.index', $viewData);
     }
+    //Check quantity
+    public function checkCartQuantity(Request $request) {
+        $productId = $request->product_id;
+        $sizeId = $request->size_id;
 
+        $cart = session()->get('cart', []);
+        $key = $productId . '_' . $sizeId;
+
+        $quantity = isset($cart[$key]) ? $cart[$key]['product_quantity'] : 0;
+
+        return response()->json(['quantity' => $quantity]);
+    }
+
+    //
+    // 
+    public function checkCartStatus()
+    {
+        $cart = session('cart', []);
+        $isEmpty = empty($cart) || count($cart) === 0;
+
+        return response()->json([
+            'isEmpty' => $isEmpty,
+            'cartCount' => count($cart),
+        ]);
+    }
+
+    //add to cart
     public function addToCart(Request $request, $id)
     {
         
@@ -67,6 +92,8 @@ class CartController extends Controller
 
             if (isset($cart[$cartKey])) {
                 $cart[$cartKey]['product_quantity'] += $quantity;
+                $cart[$cartKey]['money'] = $cart[$cartKey]['product_quantity'] * ($cart[$cartKey]['product_price'] + $cart[$cartKey]['size_price']);
+
             } else {
                 $cart[$cartKey] = [
                     'product_id' => $id,
@@ -89,4 +116,88 @@ class CartController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+    //change quantity
+    public function updateQuantity(Request $request)
+    {
+        try {
+            $productId = $request->input('product_id');
+            $sizeId = $request->input('size_id');
+            $quantity = (int) $request->input('quantity');
+
+            $cartKey = $productId . '_' . $sizeId;
+            $cart = session()->get('cart', []);
+
+            if (!isset($cart[$cartKey])) {
+                return response()->json(['error' => 'Sản phẩm không tồn tại trong giỏ.'], 404);
+            }
+
+            // Cập nhật lại số lượng và tiền
+            $cart[$cartKey]['product_quantity'] = $quantity;
+            $cart[$cartKey]['money'] = $quantity * ($cart[$cartKey]['product_price'] + $cart[$cartKey]['size_price']);
+
+            session()->put('cart', $cart);
+
+            // Tính lại tổng
+            $subtotal = 0;
+            foreach ($cart as $item) {
+                $subtotal += $item['money'];
+            }
+
+            $shippingFee = $subtotal >= 300000 ? 0 : 25000; // ví dụ: free ship từ 300k
+            $total = $subtotal + $shippingFee;
+
+            return response()->json([
+                'success' => 'Cập nhật thành công',
+                'money' => $cart[$cartKey]['money'],
+                'money_format' => number_format($cart[$cartKey]['money'], 0, ',', '.') . ' đ',
+                'subtotal_format' => number_format($subtotal, 0, ',', '.') . ' đ',
+                'shipping_fee_format' => number_format($shippingFee, 0, ',', '.') . ' đ',
+                'total_format' => number_format($total, 0, ',', '.') . ' đ',
+            ]);
+            
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+    
+
+    //delete 
+    public function deleteProduct(Request $request)
+    {
+        $productId = $request->input('product_id');
+        $sizeId = $request->input('size_id');
+
+        // Lấy giỏ hàng từ session (mảng)
+        $cart = session()->get('cart', []);
+
+        $key = $productId . '_' . $sizeId;
+
+        if (isset($cart[$key])) {
+            // Xóa sản phẩm khỏi giỏ hàng
+            unset($cart[$key]);
+
+            // Cập nhật lại giỏ hàng trong session
+            session()->put('cart', $cart);
+
+            // Tính lại tổng tiền
+            $subtotal = collect($cart)->sum('money');
+            $shippingFee = $subtotal >= 200000 ? 0 : 25000;
+            $total = $subtotal + $shippingFee;
+
+            return response()->json([
+                'message' => 'Xoá thành công',
+                'subtotal_format' => number_format($subtotal, 0, ',', '.') . ' đ',
+                'shipping_fee_format' => number_format($shippingFee, 0, ',', '.') . ' đ',
+                'total_format' => number_format($total, 0, ',', '.') . ' đ',
+                'cartCount' => count($cart), // Trả về số lượng sản phẩm còn lại
+            ]);
+        }
+
+        // Nếu sản phẩm không tồn tại trong giỏ hàng thì báo lỗi
+        return response()->json([
+            'error' => 'Sản phẩm không tồn tại trong giỏ hàng.'
+        ], 400);
+    }
+
 }
