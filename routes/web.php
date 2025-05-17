@@ -5,6 +5,7 @@ use App\Http\Controllers\admins\AdminProductController;
 use App\Http\Controllers\admins\AdminCategoryController;
 use App\Http\Controllers\admins\AdminMaterialController;
 use App\Http\Controllers\admins\AdminVoucherController;
+use App\Http\Controllers\admins\AdminSupplierController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\clients\AuthController;
@@ -55,7 +56,7 @@ Route::prefix('products')->group(function(){
 //Route giỏ hàng
 Route::prefix('cart')->group(function(){
     Route::get('/', [CartController::class, 'cart'])->name('cart');
-    
+
     //add to cart
     Route::get('/add-to-cart/{id}',[CartController::class,'addToCart'])->name('cart.addToCart');
     Route::get('/debug', function () {
@@ -96,7 +97,7 @@ Route::prefix('admin/products')->group(function(){
 Route::prefix('admin/categories')->name('admins.category.')->group(function () {
     Route::get('/', action: [AdminCategoryController::class, 'index'])->name('index');
     Route::get('/create', [AdminCategoryController::class, 'create'])->name('create');
-    Route::post('/', [AdminCategoryController::class, 'store'])->name('store'); 
+    Route::post('/', [AdminCategoryController::class, 'store'])->name('store');
     Route::get('/{id}/edit', [AdminCategoryController::class, 'edit'])->name('edit');
     Route::put('/{id}', [AdminCategoryController::class, 'update'])->name('update');
     Route::delete('/{id}', [AdminCategoryController::class, 'destroy'])->name('destroy');
@@ -136,3 +137,19 @@ Route::prefix('admin/vouchers')->name('admin.vouchers.')->group(function(){
     Route::post('/admin/vouchers/{id}/edit', [AdminVoucherController::class, 'editVoucher'])->name('update');
 
 });
+//Route Supplier Admin
+Route::prefix('admin/suppliers')->name('admins.supplier.')->group(function () {
+    Route::get('/', [AdminSupplierController::class, 'index'])->name('index');
+    Route::get('/create', [AdminSupplierController::class, 'create'])->name('create');
+    Route::post('/store', [AdminSupplierController::class, 'store'])->name('store');
+    Route::get('/edit/{id}', [AdminSupplierController::class, 'edit'])->name('edit');
+    Route::put('/update/{id}', [AdminSupplierController::class, 'update'])->name('update');
+    Route::delete('/destroy/{id}', [AdminSupplierController::class, 'destroy'])->name('destroy');
+
+    Route::post('/archive/{id}', [AdminSupplierController::class, 'archive'])->name('archive');  // Lưu trữ
+    Route::get('/archived', [AdminSupplierController::class, 'archived'])->name('archived');    // Danh sách lưu trữ
+    Route::patch('/restore/{id}', [AdminSupplierController::class, 'restore'])->name('restore'); // Khôi phục
+
+    Route::patch('/toggle-status/{id}', [AdminSupplierController::class, 'toggleStatus'])->name('toggleStatus');
+});
+
