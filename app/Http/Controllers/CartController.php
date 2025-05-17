@@ -49,6 +49,69 @@ class CartController extends Controller
 
         return view('clients.pages.carts.index', $viewData);
     }
+    public function loadCart()
+    {
+        $cart = session()->get('cart', []);
+        $productSizes = [];
+        $total = 0;
+        $cartCount = 0;
+
+        foreach ($cart as $item) {
+            $total += $item['money'];
+            $cartCount += $item['product_quantity'];
+
+            $productId = $item['product_id'];
+            if (!isset($productSizes[$productId])) {
+                $productSizes[$productId] = DB::table('thanh_phan_san_phams')
+                    ->join('sizes', 'thanh_phan_san_phams.ma_size', '=', 'sizes.ma_size')
+                    ->where('thanh_phan_san_phams.ma_san_pham', $productId)
+                    ->select('sizes.ma_size', 'sizes.ten_size', 'sizes.gia_size')
+                    ->distinct()
+                    ->get();
+            }
+        }
+
+        if ($cartCount > 0) {
+            $cartTableHtml = view('clients.pages.carts.cart_table', compact('cart', 'productSizes'))->render();
+            $cartTotalHtml = view('clients.pages.carts.cart_total', compact('cart', 'total'))->render();
+
+            $html = '
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 col-md-12 cart-table">' . $cartTableHtml . '</div>
+                    <div class="col-lg-4 cart-total">' . $cartTotalHtml . '</div>
+                </div>
+            </div>';
+
+            return response()->json([
+                'html' => $html,
+                'cartCount' => $cartCount
+            ]);
+        } else {
+            $emptyHtml = view('clients.pages.carts.cart_empty')->render();
+            return response()->json([
+                'html' => $emptyHtml,
+                'cartCount' => $cartCount
+            ]);
+        }
+    }
+
+    //chech count
+    public function getCartCount()
+    {
+        try {
+            $cart = session('cart', []);
+            $totalQuantity = 0;
+
+            foreach ($cart as $item) {
+                $totalQuantity += isset($item['product_quantity']) ? $item['product_quantity'] : 0;
+            }
+
+            return response()->json(['cartCount' => $totalQuantity]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Lỗi lấy số lượng giỏ hàng'], 500);
+        }
+    }
 
     //Check quantity
     public function checkCartQuantity(Request $request) {
