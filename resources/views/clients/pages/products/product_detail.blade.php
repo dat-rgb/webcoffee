@@ -14,14 +14,21 @@
     transition: all 0.2s ease;
     display: inline-block;
     margin-right: 10px; /* thêm khoảng cách ngang */
+    margin-top: 10px;
     margin-bottom: 10px; /* thêm khoảng cách dọc */
+    max-width: 100%;
+    box-sizing: border-box;
+    white-space: normal; /* cho phép xuống dòng */
 }
 
-.size-label.active {
-    background-color: #999;
-    color: #fff;
-    border-color: #999;
+/* Thu nhỏ font trên màn hình bé hơn 480px */
+@media (max-width: 480px) {
+    .size-label {
+        font-size: 14px;
+        padding: 8px 12px;
+    }
 }
+
 </style>
 
 @endpush
@@ -60,7 +67,7 @@
                             $size = $sizes->first();
                             $totalPrice = $product->gia + ($size->gia_size ?? 0);
                         @endphp
-                        <p id="product-price" class="single-product-pricing" data-base="{{ $product->gia }}">
+                        <p class="single-product-pricing">
                             {{ number_format($totalPrice, 0, ',', '.') }} đ
                         </p>
                     @else
@@ -138,5 +145,5 @@
 <!-- end more products -->
 @endsection
 @push('scripts')
-<script src="{{ asset('js/cart.js') }}"></script>
+
 @endpush

@@ -19,10 +19,6 @@
 		</div>
 	</div>
 	<!-- end breadcrumb section -->
-	@php
-		$cart = session('cart', []);
-		$cartCount = is_array($cart) || $cart instanceof \Countable ? count($cart) : 0;
-	@endphp
 	@if ($cartCount > 0)
 		<!-- cart -->
 		<div class="cart-section mt-150 mb-150" style="min-height: 250px;">
@@ -56,16 +52,29 @@
 											</td>
 											<td class="product-name">
 												<strong>{{ $item['product_name'] }}</strong><br>
-												@if (isset($productSizes[$item['product_id']]) && count($productSizes[$item['product_id']]) > 0)
-													<select name="size_update_{{ $item['product_id'] }}" 
-															class="form-select form-select-sm mt-1" 
-															style="max-width: 200px; border-radius: 8px; border: 1px solid #ccc; padding: 4px 8px;">
+												@if (isset($productSizes[$item['product_id']]) && count($productSizes[$item['product_id']]) > 1)
+													{{-- Có nhiều size -> cho chọn --}}
+													<select 
+														name="size_update_{{ $item['product_id'] }}" 
+														class="form-select form-select-sm mt-1 change-size" 
+														data-product-id="{{ $item['product_id'] }}"
+														data-old-size-id="{{ $item['size_id'] }}"
+														style="max-width: 200px; border-radius: 8px; border: 1px solid #ccc; padding: 4px 8px;">
 														@foreach ($productSizes[$item['product_id']] as $size)
 															<option value="{{ $size->ma_size }}" {{ $size->ma_size == $item['size_id'] ? 'selected' : '' }}>
 																{{ $size->ten_size }} + {{ number_format($size->gia_size, 0, ',', '.') }} đ
 															</option>
 														@endforeach
 													</select>
+												@elseif (isset($productSizes[$item['product_id']]) && count($productSizes[$item['product_id']]) === 1)
+													{{-- Chỉ có 1 size -> hiển thị bằng span --}}
+													@php
+														$onlySize = $productSizes[$item['product_id']][0];
+													@endphp
+													<span style="display: inline-block; background: #e0f7fa; color: #00796b; 
+																padding: 6px 12px; border-radius: 8px; font-size: 14px; font-weight: 500;">
+														{{ $onlySize->ten_size }} + {{ number_format($onlySize->gia_size, 0, ',', '.') }} đ
+													</span>
 												@endif
 											</td>
 											<td class="product-price">
@@ -132,8 +141,8 @@
 								</tbody>
 							</table>
 							<div class="cart-buttons">
-								<a href="#" class="boxed-btn">Cập nhật giỏ hàng</a>
-								<a href="#" class="boxed-btn black">Thanh toán</a>
+								<a href="{{ route('product') }}" class="boxed-btn"><i class="fas fa-arrow-left me-1"></i> Tiếp tục mua sắm</a>
+								<a href="#" class="boxed-btn black"><i class="fas fa-credit-card"></i>  Thanh toán</a>
 							</div>
 						</div>
 					</div>
@@ -156,5 +165,5 @@
 	@endif
 @endsection
 @push('scripts')
-<script src="{{ asset('js/cart.js') }}"></script>
+
 @endpush

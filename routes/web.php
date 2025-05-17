@@ -68,7 +68,7 @@ Route::prefix('cart')->group(function(){
     Route::get('/check-cart-quantity', [CartController::class, 'checkCartQuantity'])->name('cart.checkQuantity');
     Route::post('/update-quantity', [CartController::class, 'updateQuantity']);
     Route::post('/delete-product',[CartController::class,'deleteProduct']);
-    Route::get('/api/cart/status', [CartController::class, 'checkCartStatus']);
+    Route::post('/update-size', [CartController::class, 'updateSize']);
 });
 
 //Tin tức

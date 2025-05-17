@@ -34,11 +34,17 @@ class CartController extends Controller
             $total += $item['money'];
         }
 
+        $cartCount = 0;
+        foreach ($cart as $item) {
+            $cartCount += $item['product_quantity'];
+        }
+
         $viewData = [
             'title' => 'Giỏ Hàng | CMDT Coffee & Tea',
             'cart' => $cart,   
             'productSizes' => $productSizes,
             'total' => $total,
+            'cartCount' => $cartCount
         ];
 
         return view('clients.pages.carts.index', $viewData);
@@ -56,19 +62,6 @@ class CartController extends Controller
         return response()->json(['quantity' => $quantity]);
     }
 
-    //
-    // 
-    public function checkCartStatus()
-    {
-        $cart = session('cart', []);
-        $isEmpty = empty($cart) || count($cart) === 0;
-
-        return response()->json([
-            'isEmpty' => $isEmpty,
-            'cartCount' => count($cart),
-        ]);
-    }
-
     //add to cart
     public function addToCart(Request $request, $id)
     {
@@ -78,13 +71,13 @@ class CartController extends Controller
             if (!$product) {
                 return response()->json(['error' => 'Không tìm thấy sản phẩm.'], 404);
             }
-
+            
             $size = $request->input('size');
             $quantity = $request->input('quantity') ?: 1;
             $cartKey = $id . '_' . $size;
             
             $sizeInfo = Sizes::where('ma_size', $size)->first();
-            $cart = session()->get('cart', []);
+            $cart = session()->get('cart', []); 
 
             $size_price =  $sizeInfo->gia_size;
             $pro_price = $product->gia + $size_price;
@@ -111,7 +104,12 @@ class CartController extends Controller
 
             session()->put('cart', $cart);
 
-            return response()->json(['success' => 'Đã thêm sản phẩm vào giỏ hàng.', 'cartCount' => count($cart)]);
+            $cartCount = 0;
+            foreach ($cart as $item) {
+                $cartCount += $item['product_quantity'];
+            }
+
+            return response()->json(['success' => 'Đã thêm sản phẩm vào giỏ hàng.', 'cartCount' => $cartCount]);
         } catch (\Throwable $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -144,9 +142,13 @@ class CartController extends Controller
                 $subtotal += $item['money'];
             }
 
-            $shippingFee = $subtotal >= 300000 ? 0 : 25000; // ví dụ: free ship từ 300k
+            $shippingFee = $subtotal >= 0; 
             $total = $subtotal + $shippingFee;
 
+            $cartCount = 0;
+            foreach ($cart as $item) {
+                $cartCount += $item['product_quantity'];
+            }
             return response()->json([
                 'success' => 'Cập nhật thành công',
                 'money' => $cart[$cartKey]['money'],
@@ -154,6 +156,7 @@ class CartController extends Controller
                 'subtotal_format' => number_format($subtotal, 0, ',', '.') . ' đ',
                 'shipping_fee_format' => number_format($shippingFee, 0, ',', '.') . ' đ',
                 'total_format' => number_format($total, 0, ',', '.') . ' đ',
+                'cartCount' => $cartCount,
             ]);
             
         } catch (\Throwable $e) {
@@ -161,6 +164,7 @@ class CartController extends Controller
         }
     }
     
+    //change size 
 
     //delete 
     public function deleteProduct(Request $request)
@@ -182,15 +186,19 @@ class CartController extends Controller
 
             // Tính lại tổng tiền
             $subtotal = collect($cart)->sum('money');
-            $shippingFee = $subtotal >= 200000 ? 0 : 25000;
+            $shippingFee = $subtotal >= 0;
             $total = $subtotal + $shippingFee;
 
+            $cartCount = 0;
+            foreach ($cart as $item) {
+                $cartCount += $item['product_quantity'];
+            }
             return response()->json([
                 'message' => 'Xoá thành công',
                 'subtotal_format' => number_format($subtotal, 0, ',', '.') . ' đ',
                 'shipping_fee_format' => number_format($shippingFee, 0, ',', '.') . ' đ',
                 'total_format' => number_format($total, 0, ',', '.') . ' đ',
-                'cartCount' => count($cart), // Trả về số lượng sản phẩm còn lại
+                'cartCount' => $cartCount, 
             ]);
         }
 
@@ -199,5 +207,4 @@ class CartController extends Controller
             'error' => 'Sản phẩm không tồn tại trong giỏ hàng.'
         ], 400);
     }
-
 }

@@ -88,45 +88,43 @@
 								</li>
 								{{-- Tách user icon ra khỏi header-icons --}}
 								@auth
-								<li>
-									<div class="current-list-item">
-										<a href="#"><i class="fas fa-user"></i> Tài Khoản</a>
-										<ul class="sub-menu">
-											<li><a href="#"><i class="fas fa-user-circle" style="margin-right:6px;"></i>Hồ sơ</a></li>
-											<li><a href="#"><i class="fas fa-map-marker-alt" style="margin-right:6px;"></i>Sổ địa chỉ</a></li>
-											<li><a href="#"><i class="fas fa-heart" style="margin-right:6px;"></i>Yêu thích</a></li>
-											<li><a href="#"><i class="fas fa-receipt" style="margin-right:6px;"></i>Lịch sử mua hàng</a></li>
-											<li><a href="#"><i class="fas fa-eye" style="margin-right:6px;"></i>Sản phẩm đã xem</a></li>
-											<li>
-												<button type="button" id="logout-btn" style="color: #fff; background: #e74c3c; border-radius: 8px; padding: 8px 16px; border: none; font-weight: 500;">
-													<i class="fas fa-sign-out-alt" style="margin-right:6px;"></i>Đăng xuất
-												</button>
+									<li>
+										<div class="current-list-item">
+											<a href="#"><i class="fas fa-user"></i> Tài Khoản</a>
+											<ul class="sub-menu">
+												<li><a href="#"><i class="fas fa-user-circle" style="margin-right:6px;"></i>Hồ sơ</a></li>
+												<li><a href="#"><i class="fas fa-map-marker-alt" style="margin-right:6px;"></i>Sổ địa chỉ</a></li>
+												<li><a href="#"><i class="fas fa-heart" style="margin-right:6px;"></i>Yêu thích</a></li>
+												<li><a href="#"><i class="fas fa-receipt" style="margin-right:6px;"></i>Lịch sử mua hàng</a></li>
+												<li><a href="#"><i class="fas fa-eye" style="margin-right:6px;"></i>Sản phẩm đã xem</a></li>
+												<li>
+													<button type="button" id="logout-btn" style="color: #fff; background: #e74c3c; border-radius: 8px; padding: 8px 16px; border: none; font-weight: 500;">
+														<i class="fas fa-sign-out-alt" style="margin-right:6px;"></i>Đăng xuất
+													</button>
 
-												<form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-													@csrf
-												</form>
-											</li>
-										</ul>
-									</div>
-								</li>
+													<form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+														@csrf
+													</form>
+												</li>
+											</ul>
+										</div>
+									</li>
 								@else
-								<li>
-									<a class="login" href="{{ route('login') }}"><i class="fas fa-user"></i></a>
-								</li>
+									<li>
+										<a class="login" href="{{ route('login') }}"><i class="fas fa-user"></i></a>
+									</li>
 								@endauth
-								
-
-								
-								{{-- Icon giỏ hàng + tìm kiếm giữ nguyên --}}
 								<li>
 									<div class="header-icons">
-										<a class="shopping-cart" href="{{ route('cart') }}"><i class="fas fa-shopping-cart"></i></a>
+										<a class="shopping-cart" href="{{ route('cart') }}">
+											<i class="fas fa-shopping-cart"></i>
+											<span class="cart-count">{{ session('cart') ? array_sum(array_column(session('cart'), 'product_quantity')) : 0 }}</span>
+										</a>
 										<a class="mobile-hide search-bar-icon" href="#"><i class="fas fa-search"></i></a>
 									</div>
 								</li>
 							</ul>
 						</nav>
-
 						<a class="mobile-show search-bar-icon" href="#"><i class="fas fa-search"></i></a>
 						<div class="mobile-menu"></div>
 						<!-- menu end -->
@@ -172,9 +170,9 @@
 					<div class="footer-box get-in-touch">
 						<h2 class="widget-title">Get in Touch</h2>
 						<ul>
-							<li>34/8, East Hukupara, Gifirtok, Sadan.</li>
-							<li>support@fruitkha.com</li>
-							<li>+00 111 222 3333</li>
+							<li>65, Huỳnh Thúc Kháng, Bến Nghé, Quận 1, Thành Phố Hồ Chí Minh</li>
+							<li>trandatc3vvk@gmail.com</li>
+							<li>+84 901 318 766</li>
 						</ul>
 					</div>
 				</div>
@@ -182,11 +180,11 @@
 					<div class="footer-box pages">
 						<h2 class="widget-title">Pages</h2>
 						<ul>
-							<li><a href="index.html">Trang Chủ</a></li>
-							<li><a href="about.html">Giới Thiệu</a></li>
-							<li><a href="services.html">Sản Phẩm</a></li>
-							<li><a href="news.html">Tin Tức</a></li>
-							<li><a href="contact.html">Liên Hệ</a></li>
+							<li><a href="{{ route('home') }}">Trang Chủ</a></li>
+							<li><a href="{{ route('about')}}">Giới Thiệu</a></li>
+							<li><a href="{{ route('product') }}">Sản Phẩm</a></li>
+							<li><a href="{{ route('blog') }}">Tin Tức</a></li>
+							<li><a href="{{ route('contact') }}">Liên Hệ</a></li>
 						</ul>
 					</div>
 				</div>
@@ -194,7 +192,7 @@
 					<div class="footer-box subscribe">
 						<h2 class="widget-title">Subscribe</h2>
 						<p>Subscribe to our mailing list to get the latest updates.</p>
-						<form action="index.html">
+						<form action="#">
 							<input type="email" placeholder="Email">
 							<button type="submit"><i class="fas fa-paper-plane"></i></button>
 						</form>
@@ -207,11 +205,11 @@
 	
 	<!-- copyright -->
 	<div class="copyright">
-		<div class="container">
+		<div class="container">	
 			<div class="row">
 				<div class="col-lg-6 col-md-12">
-					<p>Copyrights &copy; 2019 - <a href="https://imransdesign.com/">Imran Hossain</a>,  All Rights Reserved.<br>
-						Distributed By - <a href="https://themewagon.com/">Themewagon</a>
+					<p>Copyrights &copy; 2025 - Đồ án tốt nghiệp webiste thương mại điện tử trường <a href="https://caothang.edu.vn/">Cao đăng kỹ thuật Cao Thắng</a>.<br>
+						Sinh viên - Chí Đạt & Minh Tân
 					</p>
 				</div>
 				<div class="col-lg-6 text-right col-md-12">
@@ -251,6 +249,7 @@
 	<!-- SweetAlert2 -->
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 	<script src="{{ asset('js/store-popup.js') }}"></script>
+	<script src="{{ asset('js/cart.js') }}"></script>
 	@stack('scripts')
 	<x-store-popup />
 </body>
