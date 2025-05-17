@@ -57,8 +57,7 @@
 													<select 
 														name="size_update_{{ $item['product_id'] }}" 
 														class="form-select form-select-sm mt-1 change-size" 
-														data-product-id="{{ $item['product_id'] }}"
-														data-old-size-id="{{ $item['size_id'] }}"
+														data-old-size="{{ $item['size_id'] }}"
 														style="max-width: 200px; border-radius: 8px; border: 1px solid #ccc; padding: 4px 8px;">
 														@foreach ($productSizes[$item['product_id']] as $size)
 															<option value="{{ $size->ma_size }}" {{ $size->ma_size == $item['size_id'] ? 'selected' : '' }}>
@@ -150,8 +149,7 @@
 			</div>
 		</div>
 		<!-- end cart -->
-	@endif
-	@if ($cartCount === 0)
+	@else
 		<!-- empty-cart -->
 		<div class="empty-cart d-flex align-items-center justify-content-center gap-4 py-5" style="{{ $cartCount === 0 ? '' : 'display:none;' }}">
 			<img src="{{ asset('images/empty-cart.png') }}" alt="Giỏ hàng trống" style="width: 150px; padding:20px">

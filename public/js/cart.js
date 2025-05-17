@@ -125,6 +125,41 @@ $('.add-to-cart').click(function(e){
         }
     });
 });
+// change size
+$('.change-size').change(function() {
+    const select = $(this);
+    const productId = select.attr('name').replace('size_update_', ''); // lấy product_id
+    const newSizeId = select.val();
+    const oldSizeId = select.data('old-size');
+
+    if (newSizeId === oldSizeId) {
+        return;
+    }
+
+    $.ajax({
+        url: '/cart/update-size',  
+        type: 'POST',
+        data: {
+            product_id: productId,
+            old_size_id: oldSizeId,
+            new_size_id: newSizeId,
+            _token: $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(response) {
+            if (response.success) {
+                Swal.fire('Thành công', response.success, 'success').then(() => {
+                    location.reload();
+                });
+            } else if (response.error) {
+                Swal.fire('Lỗi', response.error, 'error');
+            }
+        
+        },
+        error: function(xhr) {
+            Swal.fire('Lỗi', 'Có lỗi xảy ra, thử lại sau!', 'error');
+        }
+    });
+});
 //change quantity
 $('.qty-btn').click(function() {
     const isIncrease = $(this).hasClass('increase');
@@ -168,8 +203,34 @@ $('.qty-btn').click(function() {
         }
     }
 });
-//change size
-
+//update quanttity
+function updateQuantity(productId, sizeId, quantity) {
+    $.ajax({
+        url: '/cart/update-quantity',
+        method: 'POST',
+        data: {
+            product_id: productId,
+            size_id: sizeId,
+            quantity: quantity,
+            _token: $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(response) {
+            //console.log('cartCount from server:', response.cartCount);
+            $(`#money-${productId}-${sizeId}`).text(response.money_format);
+            $('#subtotal').html(response.subtotal_format);
+            $('#shipping-fee').html(response.shipping_fee_format);
+            $('#total').html(response.total_format);
+            $('.cart-count').text(response.cartCount);
+        },
+        error: function(xhr) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: xhr.responseJSON?.error || 'Cập nhật không thành công.'
+            });
+        }
+    });
+}
 //delete if quantity = 0
 $(document).on('click', '.delete-product', function(e) {
     e.preventDefault();
@@ -209,8 +270,7 @@ $(document).on('click', '.delete-product', function(e) {
                         $('.cart-section').show();
                         $('.empty-cart').hide();
                     } else {
-                        $('.cart-section').hide();
-                        $('.empty-cart').show();
+                        location.reload();
                     }
                     Swal.fire('Đã xoá!', 'Sản phẩm đã được xoá khỏi giỏ hàng.', 'success');
                 },
@@ -221,34 +281,6 @@ $(document).on('click', '.delete-product', function(e) {
         }
     });
 });
-//update quanttity
-function updateQuantity(productId, sizeId, quantity) {
-    $.ajax({
-        url: '/cart/update-quantity',
-        method: 'POST',
-        data: {
-            product_id: productId,
-            size_id: sizeId,
-            quantity: quantity,
-            _token: $('meta[name="csrf-token"]').attr('content')
-        },
-        success: function(response) {
-            //console.log('cartCount from server:', response.cartCount);
-            $(`#money-${productId}-${sizeId}`).text(response.money_format);
-            $('#subtotal').html(response.subtotal_format);
-            $('#shipping-fee').html(response.shipping_fee_format);
-            $('#total').html(response.total_format);
-            $('.cart-count').text(response.cartCount);
-        },
-        error: function(xhr) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: xhr.responseJSON?.error || 'Cập nhật không thành công.'
-            });
-        }
-    });
-}
 //delete products in cart
 function deleteProduct(productId, sizeId) {
     $.ajax({
@@ -282,8 +314,7 @@ function deleteProduct(productId, sizeId) {
                 $('.cart-section').show();
                 $('.empty-cart').hide();
             } else {
-                $('.cart-section').hide();
-                $('.empty-cart').show();
+                location.reload();
             }
         },
         error: function() {

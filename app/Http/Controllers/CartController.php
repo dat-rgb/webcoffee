@@ -49,6 +49,7 @@ class CartController extends Controller
 
         return view('clients.pages.carts.index', $viewData);
     }
+
     //Check quantity
     public function checkCartQuantity(Request $request) {
         $productId = $request->product_id;
@@ -142,7 +143,7 @@ class CartController extends Controller
                 $subtotal += $item['money'];
             }
 
-            $shippingFee = $subtotal >= 0; 
+            $shippingFee = 0; 
             $total = $subtotal + $shippingFee;
 
             $cartCount = 0;
@@ -165,7 +166,94 @@ class CartController extends Controller
     }
     
     //change size 
+    public function updateSize(Request $request)
+    {
+        try {
+            $productId = $request->input('product_id');
+            $oldSizeId = $request->input('old_size_id');
+            $newSizeId = $request->input('new_size_id');
 
+            $cart = session()->get('cart', []);
+
+            $oldKey = $productId . '_' . $oldSizeId;
+            $newKey = $productId . '_' . $newSizeId;
+
+            
+            if (!isset($cart[$oldKey])) {
+                return response()->json(['error' => 'Sản phẩm không tồn tại trong giỏ.'], 404);
+            }
+
+            // Lấy thông tin sản phẩm cũ
+            $product = $cart[$oldKey];
+            $quantity = $product['product_quantity'];
+            $productPrice = $product['product_price'];
+
+            // Lấy thông tin size mới từ DB
+            $size = DB::table('sizes')->where('ma_size', $newSizeId)->first();
+            if (!$size) {
+                return response()->json(['error' => 'Size không hợp lệ.'], 400);
+            }
+
+            // Tính tiền mới
+            $money = $quantity * ($productPrice + $size->gia_size);
+
+            if ($oldKey != $newKey) {
+                // Nếu key mới đã tồn tại trong giỏ hàng, gộp số lượng
+                if (isset($cart[$newKey])) {
+                    $cart[$newKey]['product_quantity'] += $quantity;
+                    $cart[$newKey]['money'] += $money;
+                } else {
+                    // Thêm mới key mới
+                    $cart[$newKey] = [
+                        'product_id' => $productId,
+                        'product_name' => $product['product_name'],
+                        'product_price' => $productPrice,
+                        'product_quantity' => $quantity,
+                        'product_image' => $product['product_image'],
+                        'product_slug' => $product['product_slug'],
+                        'size_id' => $newSizeId,
+                        'size_price' => $size->gia_size,
+                        'size_name' => $size->ten_size,
+                        'money' => $money,
+                    ];
+                }
+                // Xóa key cũ
+                unset($cart[$oldKey]);
+            } else {
+                // Nếu key giống nhau, chỉ update thông tin size và tiền
+                $cart[$oldKey]['size_id'] = $newSizeId;
+                $cart[$oldKey]['size_price'] = $size->gia_size;
+                $cart[$oldKey]['size_name'] = $size->ten_size;
+                $cart[$oldKey]['money'] = $money;
+            }
+
+            session()->put('cart', $cart);
+
+            // Tính lại tổng tiền, số lượng
+            $subtotal = 0;
+            $cartCount = 0;
+            foreach ($cart as $item) {
+                $subtotal += $item['money'];
+                $cartCount += $item['product_quantity'];
+            }
+
+            $shippingFee = 0; // bạn xử lý phí ship riêng
+            $total = $subtotal + $shippingFee;
+
+            return response()->json([
+                'success' => 'Cập nhật size thành công',
+                'money' => $money,
+                'money_format' => number_format($money, 0, ',', '.') . ' đ',
+                'subtotal_format' => number_format($subtotal, 0, ',', '.') . ' đ',
+                'shipping_fee_format' => number_format($shippingFee, 0, ',', '.') . ' đ',
+                'total_format' => number_format($total, 0, ',', '.') . ' đ',
+                'cartCount' => $cartCount,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+    
     //delete 
     public function deleteProduct(Request $request)
     {
