@@ -173,11 +173,7 @@
                         <span class="sub-item">Tạo danh mục</span>
                       </a>
                     </li>
-                    <li>
-                      <a href="{{ route('admins.category.archive.index') }}">
-                        <span class="sub-item">Danh mục ẩn</span>
-                      </a>
-                    </li>
+
                   </ul>
                 </div>
               </li>
@@ -190,24 +186,50 @@
                 <div class="collapse" id="tables">
                   <ul class="nav nav-collapse">
                     <li>
-                      <a href=".#">
+                      <a href="{{ route('admins.material.index') }}">
                         <span class="sub-item">Kho nguyên liệu</span>
                       </a>
                     </li>
                     <li>
-                      <a href="#">
+                      <a href="{{ route('admins.material.create') }}">
                         <span class="sub-item">Nhập nguyên liệu</span>
                       </a>
                     </li>
                     <li>
-                      <a href="#">
-                        <span class="sub-item">Nhà cung cấp</span>
-                      </a>
+                        <a href="{{ route('admins.material.archive.index') }}">
+                            <span class="sub-item">Nguyên liệu ẩn</span>
+                        </a>
                     </li>
                   </ul>
                 </div>
               </li>
-              
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#suppliers">
+                  <i class="fas fa-warehouse"></i>
+                  <p>Nhà cung cấp</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse" id="suppliers">
+                  <ul class="nav nav-collapse">
+                    <li>
+                      <a href="{{ route('admins.supplier.index') }}">
+                        <span class="sub-item">Danh sách nhà cung cấp</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="{{ route('admins.supplier.create') }}">
+                        <span class="sub-item">Thêm nhà cung cấp</span>
+                      </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admins.supplier.archived') }}">
+                            <span class="sub-item">Danh sách nhà cung cấp bị ẩn</span>
+                        </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+
               <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#submenu">
                   <i class="fas fa-user-tie"></i>

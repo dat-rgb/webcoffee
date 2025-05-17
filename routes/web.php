@@ -3,7 +3,9 @@
 use App\Http\Controllers\admins\AdminHomeController;
 use App\Http\Controllers\admins\AdminProductController;
 use App\Http\Controllers\admins\AdminCategoryController;
+use App\Http\Controllers\admins\AdminMaterialController;
 use App\Http\Controllers\admins\AdminVoucherController;
+use App\Http\Controllers\admins\AdminSupplierController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\clients\AuthController;
@@ -104,13 +106,29 @@ Route::prefix('admin/products')->group(function(){
 Route::prefix('admin/categories')->name('admins.category.')->group(function () {
     Route::get('/', action: [AdminCategoryController::class, 'index'])->name('index');
     Route::get('/create', [AdminCategoryController::class, 'create'])->name('create');
-    Route::post('/', [AdminCategoryController::class, 'store'])->name('store'); 
+    Route::post('/', [AdminCategoryController::class, 'store'])->name('store');
     Route::get('/{id}/edit', [AdminCategoryController::class, 'edit'])->name('edit');
     Route::put('/{id}', [AdminCategoryController::class, 'update'])->name('update');
     Route::delete('/{id}', [AdminCategoryController::class, 'destroy'])->name('destroy');
     Route::post('/{id}/archive', [AdminCategoryController::class, 'archive'])->name('archive');
     Route::get('/archive', [AdminCategoryController::class, 'archiveIndex'])->name('archive.index'); // Hiển thị danh mục lưu trữ
     Route::post('/{id}/restore', [AdminCategoryController::class, 'restore'])->name('restore');
+
+});
+//Route Material Admin
+Route::prefix('admin/materials')->name('admins.material.')->group(function () {
+    Route::get('/', [AdminMaterialController::class, 'index'])->name('index');
+    Route::get('/create', [AdminMaterialController::class, 'create'])->name('create');
+    Route::post('/', [AdminMaterialController::class, 'store'])->name('store');
+    Route::get('/{id}/edit', [AdminMaterialController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [AdminMaterialController::class, 'update'])->name('update');
+    Route::delete('/{id}', [AdminMaterialController::class, 'destroy'])->name('destroy');
+    Route::post('/{id}/archive', [AdminMaterialController::class, 'archive'])->name('archive');
+    Route::get('/archive', [AdminMaterialController::class, 'archiveIndex'])->name('archive.index'); // Hiển thị danh mục lưu trữ
+    Route::post('/{id}/restore', [AdminMaterialController::class, 'restore'])->name('restore');
+    Route::post('/{id}/toggle-status', [AdminMaterialController::class, 'toggleStatus'])->name('toggleStatus');
+    Route::post('/{id}/archive', action: [AdminMaterialController::class, 'archive'])->name('archive');
+    Route::get('/archive', [AdminMaterialController::class, 'archiveIndex'])->name('archive.index');
 
 });
 
@@ -128,3 +146,19 @@ Route::prefix('admin/vouchers')->name('admin.vouchers.')->group(function(){
     Route::post('/admin/vouchers/{id}/edit', [AdminVoucherController::class, 'editVoucher'])->name('update');
 
 });
+//Route Supplier Admin
+Route::prefix('admin/suppliers')->name('admins.supplier.')->group(function () {
+    Route::get('/', [AdminSupplierController::class, 'index'])->name('index');
+    Route::get('/create', [AdminSupplierController::class, 'create'])->name('create');
+    Route::post('/store', [AdminSupplierController::class, 'store'])->name('store');
+    Route::get('/edit/{id}', [AdminSupplierController::class, 'edit'])->name('edit');
+    Route::put('/update/{id}', [AdminSupplierController::class, 'update'])->name('update');
+    Route::delete('/destroy/{id}', [AdminSupplierController::class, 'destroy'])->name('destroy');
+
+    Route::post('/archive/{id}', [AdminSupplierController::class, 'archive'])->name('archive');  // Lưu trữ
+    Route::get('/archived', [AdminSupplierController::class, 'archived'])->name('archived');    // Danh sách lưu trữ
+    Route::patch('/restore/{id}', [AdminSupplierController::class, 'restore'])->name('restore'); // Khôi phục
+
+    Route::patch('/toggle-status/{id}', [AdminSupplierController::class, 'toggleStatus'])->name('toggleStatus');
+});
+

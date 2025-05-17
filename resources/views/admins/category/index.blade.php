@@ -1,7 +1,5 @@
 @extends('layouts.admin')
-
 @section('title', 'Danh sách Danh mục')
-
 @section('content')
 {{-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"> --}}
 
@@ -32,7 +30,8 @@
         </div>
     @endif
 
-    <a href="{{ route('admins.category.create') }}" class="mb-3 btn btn-primary">+ Thêm danh mục mới</a>
+
+    <BR></BR>{{-- <a href="{{ route('admins.category.create') }}" class="mb-3 btn btn-primary">+ Thêm danh mục mới</a> --}}
     <div class="mb-3">
         <a href="{{ route('admins.category.index') }}" class="btn btn-secondary {{ request('trang_thai') == null ? 'active' : '' }}">Tất cả</a>
         <a href="{{ route('admins.category.index', ['trang_thai' => 1]) }}" class="btn btn-success {{ request('trang_thai') == 1 ? 'active' : '' }}">Đang hoạt động</a>

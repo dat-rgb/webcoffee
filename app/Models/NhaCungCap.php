@@ -8,10 +8,13 @@ class NhaCungCap extends Model
 {
     protected $table = 'nha_cung_caps';
 
-    protected $primarykey = 'ma_nha_cung_cap';
+    protected $primaryKey = 'ma_nha_cung_cap'; // Khóa chính là cột này
 
-    protected $fillabe = [
-        'ma_nha_cung_cap',
+    public $incrementing = true; // Tự động tăng
+
+    protected $keyType = 'int'; // Kiểu số nguyên
+
+    protected $fillable = [
         'ten_nha_cung_cap',
         'dia_chi',
         'so_dien_thoai',
