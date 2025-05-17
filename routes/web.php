@@ -56,6 +56,8 @@ Route::prefix('products')->group(function(){
 //Route giỏ hàng
 Route::prefix('cart')->group(function(){
     Route::get('/', [CartController::class, 'cart'])->name('cart');
+    Route::get('/load', [CartController::class, 'loadCart'])->name('cart.load');
+    Route::get('/count', [CartController::class, 'getCartCount'])->name('cart.count');
 
     //add to cart
     Route::get('/add-to-cart/{id}',[CartController::class,'addToCart'])->name('cart.addToCart');
@@ -70,7 +72,12 @@ Route::prefix('cart')->group(function(){
     Route::get('/check-cart-quantity', [CartController::class, 'checkCartQuantity'])->name('cart.checkQuantity');
     Route::post('/update-quantity', [CartController::class, 'updateQuantity']);
     Route::post('/delete-product',[CartController::class,'deleteProduct']);
-    Route::get('/api/cart/status', [CartController::class, 'checkCartStatus']);
+    Route::post('update-size', [CartController::class, 'updateSize'])->name('cart.updateSize');
+    Route::get('/empty-component', function () {
+        $cart = session('cart', []);
+        return view('carts.cart_empty', compact('cart'));
+    });
+    
 });
 
 //Tin tức

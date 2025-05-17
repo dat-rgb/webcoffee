@@ -2753,8 +2753,26 @@ table.order-details tbody td {
 .full-height-tablecell {
   display: table-cell;
   vertical-align: middle;
-  width: 100%;
+  width: 100%;  
 }
+
+/* span count cart */
+.shopping-cart {
+  display: flex;
+  align-items: center;
+  gap: 6px; /* khoảng cách giữa icon và số */
+}
+
+.cart-count {
+  background-color: red;
+  color: white;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 12px;
+  font-weight: bold;
+  line-height: 1;
+}
+
 
 
 
