@@ -76,11 +76,19 @@ $('.add-to-cart').click(function(e){
     }
 
     // Check quantity hợp lệ
-    if (quantity < 1 || quantity > 99) {
+    if (quantity < 1) {
         Swal.fire({
             icon: 'warning',
-            title: 'Số lượng không hợp lệ',
-            text: 'Vui lòng nhập số lượng từ 1 đến 99.',
+            title: 'Số lượng quá nhỏ',
+            text: 'Số lượng phải ít nhất là 1 nhé.',
+            confirmButtonText: 'OK'
+        });
+        return;
+    } else if (quantity > 99) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Số lượng quá lớn',
+            text: 'Số lượng không được vượt quá 99 Hãy liên hệ chúng tôi để đặt hàng với số lượng lớn.',
             confirmButtonText: 'OK'
         });
         return;

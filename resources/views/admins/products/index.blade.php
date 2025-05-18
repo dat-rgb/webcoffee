@@ -57,7 +57,6 @@
                                 <div class="row">
                                     <div class="col-sm-12">
                                         <table id="add-row" class="display table table-striped table-hover dataTable" role="grid" aria-describedby="add-row_info">
-                                           
                                             <thead>
                                                 <tr>
                                                     <th>#</th>
@@ -80,7 +79,7 @@
                                                         <tr role="row" class="odd">
                                                             <td class="sorting_1">{{ $loop->iteration }}</td>
                                                             <td>
-                                                            <img src="{{ asset('storage/' . $pro->hinh_anh) }}" alt="{{ $pro->ten_san_pham }}" width="80">
+                                                                <img src="{{ $pro->hinh_anh ? asset('storage/' . $pro->hinh_anh) : asset('images/no_product_image.png') }}" alt="{{ $pro->ten_san_pham }}" width="80">
                                                             </td>
                                                             <td>{{ $pro->ma_san_pham }}</td>
                                                             <td>{{ $pro->ten_san_pham }}</td>

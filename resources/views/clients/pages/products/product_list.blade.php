@@ -1,6 +1,30 @@
 @extends('layouts.app')
 @section('title', $title)
 @section('subtitle', $subtitle)
+
+@push('styles')
+<style>
+.product-image {
+  position: relative;
+  display: inline-block;
+}
+
+.product-image .icon-wrapper {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  z-index: 10;
+  display: flex;
+  gap: 5px; 
+}
+
+.product-image .hot-icon {
+  width: 40px;
+  height: 40px;
+}
+</style>
+
+@endpush
 @section('content')
 <!-- breadcrumb-section -->
 <div class="breadcrumb-section breadcrumb-bg">
@@ -43,6 +67,16 @@
                 <div class="col-lg-3 col-md-4 col-sm-6 text-center {{ $pro->danhMuc->ma_danh_muc ?? '' }}">
                     <div class="single-product-item">
                         <div class="product-image">
+                            <div class="icon-wrapper">
+                                @if ($pro->hot && $pro->is_new)
+                                    <img src="{{ asset('images/product_hot.png') }}" alt="" class="hot-icon">
+                                    <img src="{{ asset('images/product_new.png') }}" alt="" class="hot-icon second">
+                                @elseif($pro->hot)
+                                    <img src="{{ asset('images/product_hot.png') }}" alt="" class="hot-icon">
+                                @elseif($pro->is_new)
+                                    <img src="{{ asset('images/product_new.png') }}" alt="" class="hot-icon">
+                                @endif
+                            </div>
                             <a href="{{ route('product.detail',$pro->slug) }}">
                                 <img src="{{ $pro->hinh_anh ? asset('storage/' . $pro->hinh_anh) : asset('images/no_product_image.png') }}" alt="">
                             </a>

@@ -104,7 +104,6 @@ class AdminProductController extends Controller
     //Thêm sản phẩm mới
     public function productAdd(Request $request)
     {
-        dd($request->all());
         $request->validate([
             'ma_san_pham' => 'required|string|size:10|unique:san_phams,ma_san_pham',
             'ten_san_pham' => 'required|string|max:255|min:2',
@@ -133,64 +132,12 @@ class AdminProductController extends Controller
         $new = $request->is_new === 'New' ? 1 : 0;
         $hot = $request->hot === 'Hot' ? 1 : 0;
         $slug = Str::slug($request->ten_san_pham);
-        $phaChe = $request->san_pham_pha_che === 'PhaChe' ? 1: 0;
+        $phaChe = $request->san_pham_pha_che === 'DongGoi' ? 0: 1;
 
         // Check slug trùng
         if (SanPham::where('slug', $slug)->exists()) {
             toastr()->error('Tên sản phẩm đã trùng, vui lòng chọn tên khác');
             return redirect()->back()->withInput();
-        }
-
-        // Nếu là pha chế thì phải có size và ingredient
-        if ($phaChe && (!is_array($request->sizes) || count($request->sizes) === 0)) {
-            toastr()->warning('Bạn phải thêm nguyên liệu cho sản phẩm pha chế.');
-            return redirect()->back()->withInput();
-        }
-        // Kiểm tra thành phần khi không phải pha chế
-        if (!$phaChe) {
-            $hasIngredient = false;
-
-            if (is_array($request->sizes)) {
-                foreach ($request->sizes as $size) {
-                    if (!empty($size['checked']) && !empty($size['ingredients'])) {
-                        $hasIngredient = true;
-                        break;
-                    }
-                }
-            }
-
-            if (!$hasIngredient) {
-                toastr()->warning('Bạn phải thêm ít nhất một thành phần cho sản phẩm không pha chế.');
-                return redirect()->back()->withInput();
-            }
-        }
-        // Validate từng size nếu có check
-        if ($phaChe == 1) {
-            foreach ($request->sizes as $index => $size) {
-                if (!empty($size['checked'])) {
-                    $validator = Validator::make($size, [
-                        'ingredients' => 'required|array',
-                        'ingredients.*.ma_nguyen_lieu' => 'required|string|exists:ingredients,ma_nguyen_lieu',
-                        'ingredients.*.dinh_luong' => 'required|numeric|min:0.1',
-                        'ingredients.*.don_vi' => 'required|in:g,ml,ly',
-                    ], [
-                        'ingredients.required' => "Nguyên liệu ở size $index là bắt buộc.",
-                        'ingredients.*.ma_nguyen_lieu.required' => "Nguyên liệu ở size $index là bắt buộc.",
-                        'ingredients.*.ma_nguyen_lieu.exists' => "Nguyên liệu ở size $index không tồn tại.",
-                        'ingredients.*.dinh_luong.required' => "Định lượng ở size $index là bắt buộc.",
-                        'ingredients.*.dinh_luong.min' => "Định lượng ở size $index phải > 0.",
-                        'ingredients.*.don_vi.required' => "Đơn vị ở size $index là bắt buộc.",
-                        'ingredients.*.don_vi.in' => "Đơn vị ở size $index không hợp lệ.",
-                    ]);
-
-                    if ($validator->fails()) {
-                        foreach ($validator->errors()->all() as $error) {
-                            toastr()->error($error);
-                        }
-                        return redirect()->back();
-                    }
-                }
-            }
         }
 
         // Xử lý ảnh
@@ -216,23 +163,6 @@ class AdminProductController extends Controller
             'is_new' => $new,
             'san_pham_pha_che' => $phaChe,
         ]);
-
-        // Nếu là pha chế thì insert nguyên liệu
-        if ($phaChe) {
-            foreach ($request->sizes as $size) {
-                if (!empty($size['checked']) && !empty($size['ingredients'])) {
-                    foreach ($size['ingredients'] as $ingredient) {
-                        ThanhPhanSanPham::create([
-                            'ma_san_pham' => $sanPham->ma_san_pham,
-                            'ma_nguyen_lieu' => $ingredient['ma_nguyen_lieu'],
-                            'ma_size' => $size['ma_size'] ?? null, // <- lấy đúng size nhé
-                            'dinh_luong' => $ingredient['dinh_luong'],
-                            'don_vi' => $ingredient['don_vi'],
-                        ]);
-                    }
-                }
-            }
-        }
 
         toastr()->success('Thêm sản phẩm thành công.');
         return redirect()->route('admin.products.list');
@@ -287,7 +217,6 @@ class AdminProductController extends Controller
 
         return redirect()->back();
     }
-
     public function productEdit($proId) {
         $product = SanPham::with('danhMuc', 'thanhPhanSanPham')->find($proId);
 

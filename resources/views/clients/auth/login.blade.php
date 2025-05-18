@@ -34,7 +34,6 @@
             <h3 class="text-center mb-4" style="color: #f28123; font-weight: bold;">Đăng Nhập</h3>
             <form method="POST" action="{{ route('login.post') }}" id="login-form">
                 @csrf
-
                 <div class="form-group mb-3">
                     <label for="email">Email:</label>
                     <input type="email" class="form-control rounded-pill" name="email" value="{{ old('email') }}" required>
