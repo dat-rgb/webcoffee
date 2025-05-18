@@ -28,6 +28,29 @@
         padding: 8px 12px;
     }
 }
+.single-product-img {
+    position: relative;
+    display: inline-block;
+}
+
+.single-product-img img.hot-icon {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 50px;       /* tăng size */
+    height: 50px;      /* tăng size */
+    z-index: 10;
+}
+
+.single-product-img img.hot-icon.second {
+    right: 60px;       /* tăng khoảng cách để rộng hơn theo size mới */
+}
+.star-big {
+    font-size: 20px; /* hoặc bạn muốn lớn cỡ nào thì chỉnh */
+}
+.star-gold {
+    color: gold;
+}
 
 </style>
 
@@ -55,13 +78,20 @@
         <div class="row">
             <div class="col-md-5">
                 <div class="single-product-img">
+                    @if ($product->hot && $product->is_new)
+                        <img src="{{ asset('images/product_hot.png') }}" alt="" class="hot-icon">
+                        <img src="{{ asset('images/product_new.png') }}" alt="" class="hot-icon second">
+                    @elseif($product->hot)
+                        <img src="{{ asset('images/product_hot.png') }}" alt="" class="hot-icon">
+                    @elseif($product->is_new)
+                        <img src="{{ asset('images/product_new.png') }}" alt="" class="hot-icon">
+                    @endif
                     <img src="{{ $product->hinh_anh ? asset('storage/' . $product->hinh_anh) : asset('images/no_product_image.png') }}" alt="">
                 </div>
             </div>
             <div class="col-md-7">
                 <div class="single-product-content">
                     <h3>{{ $product->ten_san_pham }}</h3>
-                   
                     @if ($sizes->count() < 2)
                         @php
                             $size = $sizes->first();
@@ -94,18 +124,35 @@
                                     </div>
                                 </div>
                             </div>
-                            <div>
-                                <a href="#" 
-                                    data-url="{{ route('cart.addToCart',['id'=>$product->ma_san_pham]) }}"
-                                    class="cart-btn add-to-cart">
-                                    <i class="fas fa-shopping-cart"></i> 
-                                    Thêm vào giỏ hàng
-                                </a>
-                                <a href="" class="cart-btn"><i class="fas fa-credit-card"></i> Mua ngay</a>
-                            </div>  
+                            @if (($product->san_pham_pha_che == 0 && $sizes->count() == 0))
+                                <span style="color: #ff9900; font-weight: 600;">
+                                    Sản phẩm đang cập nhật... Vui lòng quay lại sau nhé!
+                                </span>
+                            @else
+                                <div>
+                                    <a href="#" 
+                                        data-url="{{ route('cart.addToCart', ['id' => $product->ma_san_pham]) }}"
+                                        class="cart-btn add-to-cart">
+                                        <i class="fas fa-shopping-cart"></i> 
+                                        Thêm vào giỏ hàng
+                                    </a>
+                                    <a href="" class="cart-btn"><i class="fas fa-credit-card"></i> Mua ngay</a>
+                                </div> 
+                            @endif
                         </form>
                         <p><strong>Tag: </strong>{{ $product->danhMuc->ten_danh_muc }}</p>
-                        <p>{{ $product->mo_ta }}</p>
+                        <p><strong>Mô tả: </strong>{{ $product->mo_ta }}</p>
+                        @for ($i = 1; $i <= 5; $i++)
+                            @if ($i <= $product->rating)
+                                <i class="fas fa-star star-gold star-big"></i> <!-- Sao đầy -->
+                            @elseif ($i - 0.5 == $product->rating)
+                                <i class="fas fa-star-half-alt star-gold star-big"></i> <!-- Sao nửa -->
+                            @else
+                                <i class="far fa-star star-gold star-big"></i> <!-- Sao rỗng -->
+                            @endif
+                        @endfor
+                        <!-- <p>Lượt xem</p> -->
+                        <!--  -->
                     </div>
                 </div>
             </div>

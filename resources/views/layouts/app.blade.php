@@ -14,6 +14,7 @@
 	<!-- google font -->
 	<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css?family=Poppins:400,700&display=swap" rel="stylesheet">
+	
 	<!-- fontawesome -->
 	<link rel="stylesheet" href="{{ asset('css/all.min.css') }}">
 	<!-- bootstrap -->
@@ -30,8 +31,7 @@
 	<link rel="stylesheet" href="{{ asset('css/main.css') }}">
 	<!-- responsive -->
 	<link rel="stylesheet" href="{{ asset('css/responsive.css') }}">
-	<!-- Thêm jQuery -->
-	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<!-- store -->
 	<link rel="stylesheet" href="{{ asset('css/store-popup.css') }}">
 	@stack('styles')
 </head>
@@ -248,6 +248,9 @@
 	<script src="{{ asset('js/sweet-alert.js') }}"></script> 
 	<!-- SweetAlert2 -->
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<!-- Thêm jQuery -->
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<!-- JS -->
 	<script src="{{ asset('js/store-popup.js') }}"></script>
 	<script src="{{ asset('js/cart.js') }}"></script>
 	@stack('scripts')

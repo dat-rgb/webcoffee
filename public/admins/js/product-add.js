@@ -34,25 +34,48 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   
 
+document.addEventListener('DOMContentLoaded', function () {
+  // Khi check chọn size thì show phần nhập N nguyên liệu
+  document.querySelectorAll('.selectgroup-input').forEach(checkbox => {
+      checkbox.addEventListener('change', function () {
+          const sizeId = this.id.replace('checkbox', '');
+          const container = document.querySelector(`#ingredientContainer${sizeId}`);
+          container.style.display = this.checked ? 'block' : 'none';
+      });
+  });
 
-// Lấy tất cả checkbox của size theo class chung
-document.querySelectorAll('input[type="checkbox"][id^="checkbox"]').forEach(checkbox => {
-    const sizeId = checkbox.id.replace('checkbox', ''); // Lấy phần số trong id checkbox1, checkbox2...
-    const container = document.getElementById('ingredientContainer' + sizeId);
+  // Khi bấm nút "Tạo"
+  document.querySelectorAll('.btn-generate-ingredients').forEach(btn => {
+      btn.addEventListener('click', function () {
+          const container = this.closest('.ingredient-container');
+          const sizeId = container.id.replace('ingredientContainer', '');
+          const numInput = container.querySelector('.num-ingredients');
+          const num = parseInt(numInput.value);
 
-    if (container) {
-        checkbox.addEventListener('change', () => {
-            container.style.display = checkbox.checked ? 'block' : 'none';
-        });
-    }
-});
+          if (!num || num < 1 || num > 10) return alert('Nhập số nguyên liệu hợp lệ');
 
-// Xử lý nút + cho từng container (đã clone cả khối ingredient-form)
-document.querySelectorAll('.addIngredientBtn').forEach(button => {
-    button.addEventListener('click', () => {
-        const container = button.parentElement;
-        const form = container.querySelector('.ingredient-form');
-        const newForm = form.cloneNode(true);
-        container.insertBefore(newForm, button);
-    });
+          const ingredientsList = container.querySelector('.ingredients-list');
+          ingredientsList.innerHTML = ''; // clear cũ
+
+          for (let i = 0; i < num; i++) {
+              const html = `
+                  <div class="ingredient-form mb-3">
+                      <select class="form-select mb-2" name="sizes[${sizeId}][ingredients][${i}][ma_nguyen_lieu]">
+                          <option value="">Chọn nguyên liệu ${i+1}</option>
+                          @foreach ($ingredients as $ing)
+                              <option value="{{ $ing->ma_nguyen_lieu }}">{{ $ing->ten_nguyen_lieu }}</option>
+                          @endforeach
+                      </select>
+                      <input type="number" class="form-control mb-2" name="sizes[${sizeId}][ingredients][${i}][dinh_luong]" placeholder="Định lượng">
+                      <select class="form-select mb-2" name="sizes[${sizeId}][ingredients][${i}][don_vi]">
+                          <option value="g">g</option>
+                          <option value="ml">ml</option>
+                          <option value="ly">ly</option>
+                      </select>
+                  </div>
+              `;
+              ingredientsList.insertAdjacentHTML('beforeend', html);
+          }
+      });
+  });
 });
