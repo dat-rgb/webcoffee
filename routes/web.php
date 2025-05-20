@@ -14,6 +14,7 @@ use App\Http\Controllers\clients\ResetPasswordController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\payments\PaymentController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\StoreController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -38,12 +39,14 @@ Route::prefix('/')->group(function(){
 
     Route::get('/activate/{token}',[AuthController::class,'activate'])->name('register.activate');
 
+
     //Forgot password
     Route::get('/forgot-password',[ForgotPasswordController::class,'showForgotPassword'])->name('forgotPassword.show');
     Route::post( '/forgot-password',[ForgotPasswordController::class,'sendResetPasswordLink'])->name('forgotPassword.send');
     Route::get('/reset-password/{token}',[ResetPasswordController::class,'showRetsetForm'])->name('password.reset');
     Route::post('/reset-password',[ResetPasswordController::class,'resetPassword'])->name('resetPassword.update');
 
+    Route::post('/select-store', [StoreController::class, 'selectStore'])->name('select.store');
 
 });
 
@@ -63,10 +66,19 @@ Route::prefix('cart')->group(function(){
     //add to cart
     Route::get('/add-to-cart/{id}',[CartController::class,'addToCart'])->name('cart.addToCart');
     Route::get('/debug', function () {
-        return dd(session('cart'));
+        return dd([
+            'cart' => session('cart'),
+            'selected_store_id' => session('selected_store_id'),
+            'selected_store_name' => session('selected_store_name'),
+            'selected_store_dia_chi' => session('selected_store_dia_chi'),
+        ]);
     });
+
     Route::get('/delete', function () {
         session()->forget('cart');
+        session()->forget('selected_store_id');
+        session()->forget('selected_store_name');
+        session()->forget('selected_store_dia_chi');
         session()->save(); // bắt buộc gọi để lưu thay đổi session ngay
         return 'Cart đã bị xóa!';
     });
@@ -80,7 +92,6 @@ Route::prefix('cart')->group(function(){
     });
 
     Route::get('/check-out',[CartController::class,'checkout'])->name('cart.check-out');
-    
 });
 
 //Tin tức

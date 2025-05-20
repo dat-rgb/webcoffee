@@ -81,11 +81,12 @@
 									</ul>
 								</li>
 								<li>
-									<a href="#" onclick="openStoreModal()" style="border-radius: 20px; background-color:#F28123; color: #fff; padding: 6px 16px; ">
+									<a href="#" id="store-btn" onclick="openStoreModal()" style="border-radius: 20px; background-color:#F28123; color: #fff; padding: 6px 16px;">
 										<i class="fas fa-store-alt"></i>
-										Cửa hàng
+										{{ session('selected_store_name') ?? 'Cửa hàng' }}
 									</a>
 								</li>
+
 								{{-- Tách user icon ra khỏi header-icons --}}
 								@auth
 									<li>
@@ -224,9 +225,9 @@
 		</div>
 	</div>
 	<!-- end copyright -->
-	
+	 
 	<!-- jquery -->
-	<script src="{{ asset('js/jquery-1.11.3.min.js') }}"></script>
+	<script src="{{ asset('js/jquery-1.11.3.min.js') }}"></script>	
 	<!-- bootstrap -->
 	<script src="{{ asset('bootstrap/js/bootstrap.min.js') }}"></script>
 	<!-- count down -->
@@ -248,8 +249,6 @@
 	<script src="{{ asset('js/sweet-alert.js') }}"></script> 
 	<!-- SweetAlert2 -->
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-	<!-- Thêm jQuery -->
-	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<!-- JS -->
 	<script src="{{ asset('js/store-popup.js') }}"></script>
 	<script src="{{ asset('js/cart.js') }}"></script>

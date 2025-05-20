@@ -56,14 +56,24 @@ $(document).ready(function () {
         }
     });
 });
+
 // add-to-cart
 $('.add-to-cart').click(function(e){
     e.preventDefault();
+
     let url = $(this).data('url');
     let size = $('input[name="size"]:checked').val();
     let quantity = parseInt($('input[name="quantity"]').val()) || 1;
     let productId = url.split('/').pop(); // lấy ID sản phẩm từ URL
 
+    let store = $('#selectedStoreId').val(); 
+   
+    if (!store) {
+        openStoreModal();
+        return;
+    }
+
+    //console.log('Selected store:', store); 
     // Check size
     if (!size) {
         Swal.fire({
@@ -100,7 +110,8 @@ $('.add-to-cart').click(function(e){
         method: 'GET',
         data: {
             product_id: productId,
-            size_id: size
+            quantity: quantity,
+            _token: $('input[name="_token"]').val()       
         },
         success: function(response){
             let currentQuantity = parseInt(response.quantity || 0);
@@ -123,6 +134,7 @@ $('.add-to-cart').click(function(e){
                 data: {
                     size: size,
                     quantity: quantity,
+                    store: store,
                     _token: $('input[name="_token"]').val()
                 },
                 success: function(res){
@@ -147,14 +159,21 @@ $('.add-to-cart').click(function(e){
                 }
             });
         },
-        error: function(){
+        error: function(xhr) {
+            let message = 'Đã xảy ra lỗi không xác định!';
+            if(xhr.responseJSON && xhr.responseJSON.error){
+                message = xhr.responseJSON.error;
+            } else if(xhr.responseText){
+                message = xhr.responseText;
+            }
             Swal.fire({
                 icon: 'error',
-                title: 'Không thể kiểm tra giỏ hàng',
-                text: 'Vui lòng thử lại sau.',
+                title: 'Lỗi',
+                text: message,
                 confirmButtonText: 'OK'
             });
         }
+        
     });
 });
 // change size
@@ -262,6 +281,7 @@ function updateQuantity(productId, sizeId, quantity) {
             $('#shipping-fee').html(response.shipping_fee_format);
             $('#total').html(response.total_format);
             $('.cart-count').text(response.cartCount);
+            $('.label-cart-count').text(response.cartCount);
         },
         error: function(xhr) {
             Swal.fire({

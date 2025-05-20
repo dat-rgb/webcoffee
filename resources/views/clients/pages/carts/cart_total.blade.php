@@ -8,7 +8,7 @@
         </thead>
         <tbody>
             <tr class="total-data">
-                <td><strong class="label">Tạm tính: ({{ count(session('cart')) }} món)</strong></td>
+                <td><strong class="label">Tạm tính: </strong></td>
                 <td>
                     <span class="value subtotal" id="subtotal">
                         {{ number_format($total, 0, ',', '.') }} đ

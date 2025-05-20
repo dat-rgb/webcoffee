@@ -3,12 +3,19 @@
 @section('title', $title)
 @section('subtitle', $subtitle)
 @push('styles')
-    <style>
-        .fas, .far {
-            color: #f39c12;  /* Màu vàng cho sao */
-            font-size: 18px;  /* Kích thước sao */
-        }
-    </style>
+<style>
+    .fas, .far {
+        color: #f39c12;  /* Màu vàng cho sao */
+        font-size: 18px;  /* Kích thước sao */
+    }
+    th {
+        white-space: nowrap;
+        font-size: 14px;
+        padding: 8px 10px;
+        text-align: center;
+    }
+
+</style>
 @endpush
 
 @section('content')
@@ -97,15 +104,17 @@
                                                                 @endif
                                                             </td>
                                                             <td>
-                                                                @for ($i = 1; $i <= 5; $i++)
-                                                                    @if ($i <= $pro->rating)
-                                                                        <i class="fas fa-star"></i>  <!-- Sao đầy -->
-                                                                    @elseif ($i - 0.5 == $pro->rating)
-                                                                        <i class="fas fa-star-half-alt"></i>  <!-- Sao nửa -->
-                                                                    @else
-                                                                        <i class="far fa-star"></i>  <!-- Sao rỗng -->
-                                                                    @endif
-                                                                @endfor
+                                                                <div style="display: inline-flex; gap: 2px;">
+                                                                    @for ($i = 1; $i <= 5; $i++)
+                                                                        @if ($i <= $pro->rating)
+                                                                            <i class="fas fa-star" style="color: gold;"></i>
+                                                                        @elseif ($i - 0.5 == $pro->rating)
+                                                                            <i class="fas fa-star-half-alt" style="color: gold;"></i>
+                                                                        @else
+                                                                            <i class="far fa-star" style="color: gold;"></i>
+                                                                        @endif
+                                                                    @endfor
+                                                                </div>
                                                             </td>
                                                             <td>
                                                                 <div class="form-button-action">
