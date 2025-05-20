@@ -110,7 +110,7 @@
                         <form action="">
                             @csrf
                             <div>
-                                <input type="number" placeholder="1" name="quantity">
+                                <input type="number" placeholder="1" name="quantity" min="1">
                                 <!-- Chọn kích thước -->
                                 <div class="product-size mb-3">
                                     <label><strong>Chọn Size (Bắt buộc):</strong></label>

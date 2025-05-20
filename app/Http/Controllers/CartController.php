@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\KhachHang;
 use App\Models\SanPham;
 use App\Models\Sizes;
 use Illuminate\Http\Request;
@@ -357,5 +358,64 @@ class CartController extends Controller
         return response()->json([
             'error' => 'Sản phẩm không tồn tại trong giỏ hàng.'
         ], 400);
+    }
+    public function checkout() {
+        $cart = session()->get('cart', []);  
+        
+        // Lấy user đã đăng nhập
+        $user = auth()->user();  // Lấy thông tin user đăng nhập Laravel
+        
+        $ma_tai_khoan = null;
+        $khach_hang = null;
+        
+        if ($user) {
+            $ma_tai_khoan = $user->ma_tai_khoan;
+
+            $khach_hang = KhachHang::with('taiKhoan')
+                            ->where('ma_tai_khoan', $ma_tai_khoan)
+                            ->first();
+
+            $email = $khach_hang?->taiKhoan?->email;
+        }
+
+        $productSizes = [];
+
+        foreach ($cart as $item) {
+            $productId = $item['product_id'];
+
+            if (!isset($productSizes[$productId])) {
+                $sizes = DB::table('thanh_phan_san_phams')
+                    ->join('sizes', 'thanh_phan_san_phams.ma_size', '=', 'sizes.ma_size')
+                    ->where('thanh_phan_san_phams.ma_san_pham', $productId)
+                    ->select('sizes.ma_size', 'sizes.ten_size', 'sizes.gia_size')
+                    ->distinct()
+                    ->get();
+
+                $productSizes[$productId] = $sizes;
+            }
+        }
+
+        $total = 0;
+        foreach ($cart as $item) {
+            $total += $item['money'];
+        }
+
+        $cartCount = 0;
+        foreach ($cart as $item) {
+            $cartCount += $item['product_quantity'];
+        }
+
+        $viewData = [
+            'title' => 'Check out | CMDT Coffee & Tea',
+            'cart' => $cart,   
+            'productSizes' => $productSizes,
+            'total' => $total,
+            'cartCount' => $cartCount,
+            'ma_tai_khoan' => $ma_tai_khoan ?? null,
+            'khach_khach' => $khach_hang ?? null,
+            'email' => $email ?? null
+        ];
+        //dd($viewData);
+        return view('clients.pages.carts.checkout', $viewData);
     }
 }
