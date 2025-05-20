@@ -35,10 +35,7 @@ class CartController extends Controller
             $total += $item['money'];
         }
 
-        $cartCount = 0;
-        foreach ($cart as $item) {
-            $cartCount += $item['product_quantity'];
-        }
+        $cartCount = count($cart);
 
         $viewData = [
             'title' => 'Giỏ Hàng | CMDT Coffee & Tea',
@@ -55,11 +52,12 @@ class CartController extends Controller
         $cart = session()->get('cart', []);
         $productSizes = [];
         $total = 0;
-        $cartCount = 0;
+        //$cartCount = 0;
+        $cartCount = count($cart);
 
         foreach ($cart as $item) {
             $total += $item['money'];
-            $cartCount += $item['product_quantity'];
+            //$cartCount += $item['product_quantity'];
 
             $productId = $item['product_id'];
             if (!isset($productSizes[$productId])) {
@@ -102,13 +100,10 @@ class CartController extends Controller
     {
         try {
             $cart = session('cart', []);
-            $totalQuantity = 0;
+           
+            $cartCount = count($cart);
 
-            foreach ($cart as $item) {
-                $totalQuantity += isset($item['product_quantity']) ? $item['product_quantity'] : 0;
-            }
-
-            return response()->json(['cartCount' => $totalQuantity]);
+            return response()->json(['cartCount' => $cartCount]);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Lỗi lấy số lượng giỏ hàng'], 500);
         }
@@ -169,10 +164,7 @@ class CartController extends Controller
 
             session()->put('cart', $cart);
 
-            $cartCount = 0;
-            foreach ($cart as $item) {
-                $cartCount += $item['product_quantity'];
-            }
+            $cartCount = count($cart);
 
             return response()->json(['success' => 'Đã thêm sản phẩm vào giỏ hàng.', 'cartCount' => $cartCount]);
         } catch (\Throwable $e) {
@@ -210,10 +202,8 @@ class CartController extends Controller
             $shippingFee = 0; 
             $total = $subtotal + $shippingFee;
 
-            $cartCount = 0;
-            foreach ($cart as $item) {
-                $cartCount += $item['product_quantity'];
-            }
+            $cartCount = count($cart);
+          
             return response()->json([
                 'success' => 'Cập nhật thành công',
                 'money' => $cart[$cartKey]['money'],
@@ -295,12 +285,8 @@ class CartController extends Controller
 
             // Tính lại tổng tiền, số lượng
             $subtotal = 0;
-            $cartCount = 0;
-            foreach ($cart as $item) {
-                $subtotal += $item['money'];
-                $cartCount += $item['product_quantity'];
-            }
-
+           
+            $cartCount = count($cart);
             $shippingFee = 0; // bạn xử lý phí ship riêng
             $total = $subtotal + $shippingFee;
 
@@ -341,10 +327,8 @@ class CartController extends Controller
             $shippingFee = $subtotal >= 0;
             $total = $subtotal + $shippingFee;
 
-            $cartCount = 0;
-            foreach ($cart as $item) {
-                $cartCount += $item['product_quantity'];
-            }
+            $cartCount = count($cart);
+            
             return response()->json([
                 'message' => 'Xoá thành công',
                 'subtotal_format' => number_format($subtotal, 0, ',', '.') . ' đ',
@@ -359,6 +343,7 @@ class CartController extends Controller
             'error' => 'Sản phẩm không tồn tại trong giỏ hàng.'
         ], 400);
     }
+    //check out page
     public function checkout() {
         $cart = session()->get('cart', []);  
         
@@ -400,10 +385,7 @@ class CartController extends Controller
             $total += $item['money'];
         }
 
-        $cartCount = 0;
-        foreach ($cart as $item) {
-            $cartCount += $item['product_quantity'];
-        }
+        $cartCount = count($cart);
 
         $viewData = [
             'title' => 'Check out | CMDT Coffee & Tea',

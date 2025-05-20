@@ -167,7 +167,7 @@
                         </tbody>
                         <tbody class="checkout-details">
                             <tr>
-                                <td>Tạm tính</td>
+                                <td>Tạm tính: ({{ count(session('cart')) }} món)</td>
                                 <td>
                                     {{ number_format($total, 0, ',', '.') }} đ
                                 </td>

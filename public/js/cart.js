@@ -191,7 +191,7 @@ $(document).on('change', '.change-size', function() {
                                 $('#empty-cart').html(res.html).show();
                                 $('#cart-section').hide();
                             }
-                            $('#cart-count').text(res.cartCount);
+                            $('.cart-count').text(res.cartCount);
                         }
                     });
                 });
