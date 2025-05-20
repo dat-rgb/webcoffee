@@ -95,7 +95,6 @@ class CartController extends Controller
             ]);
         }
     }
-
     //chech count
     public function getCartCount()
     {
@@ -109,7 +108,6 @@ class CartController extends Controller
             return response()->json(['error' => 'Lỗi lấy số lượng giỏ hàng'], 500);
         }
     }
-
     //Check quantity
     public function checkCartQuantity(Request $request) {
         $productId = $request->product_id;
@@ -122,46 +120,54 @@ class CartController extends Controller
 
         return response()->json(['quantity' => $quantity]);
     }
-    public function checkStore($productId, $storeId, $sizeId, $quantity = 1)
+    public function checkStore($productId, $storeId, $sizeId, $quantity)
     {
-        // 1. Lấy danh sách nguyên liệu & định lượng theo sản phẩm và size
-        $ingredients = DB::table('thanh_phan_san_phams')
-            ->where('ma_san_pham', $productId)
-            ->where('ma_size', $sizeId)
+        $ingredients = DB::table('thanh_phan_san_phams as tpsp')
+            ->join('nguyen_lieus as nl', 'tpsp.ma_nguyen_lieu', '=', 'nl.ma_nguyen_lieu')
+            ->leftJoin('cua_hang_nguyen_lieus as chnl', function ($join) use ($storeId) {
+                $join->on('tpsp.ma_nguyen_lieu', '=', 'chnl.ma_nguyen_lieu')
+                    ->on('chnl.ma_cua_hang', '=', DB::raw("'" . $storeId . "'")); // dùng raw và nháy đơn cho string
+            })
+            ->select(
+                'tpsp.ma_nguyen_lieu',
+                'nl.ten_nguyen_lieu',   
+                'tpsp.dinh_luong',
+                'tpsp.don_vi',
+                'chnl.so_luong_ton'
+            )
+            ->where('tpsp.ma_san_pham', $productId)
+            ->where('tpsp.ma_size', $sizeId)
             ->get();
 
         if ($ingredients->isEmpty()) {
-            return response()->json([
-                'error' => 'Không tìm thấy nguyên liệu cho sản phẩm này.'
-            ], 404);
+            return [
+                'success' => false,
+                'message' => 'Không tìm thấy nguyên liệu cho sản phẩm này.'
+            ];
         }
 
-        // 2. Kiểm tra tồn kho nguyên liệu trong cửa hàng
         foreach ($ingredients as $item) {
-            $inventory = DB::table('cua_hang_nguyen_lieus')
-                ->where('ma_cua_hang', $storeId)
-                ->where('ma_nguyen_lieu', $item->ma_nguyen_lieu)
-                ->first();
-
-            if (!$inventory) {
-                return response()->json([
-                    'error' => "Nguyên liệu {$item->ma_nguyen_lieu} không tồn tại trong kho cửa hàng."
-                ], 404);
+            if (is_null($item->so_luong_ton)) {
+                return [
+                    'success' => false,
+                    'message' => "Sản phẩm tại cửa hàng không đủ số lượng bán. Hãy chọn sang cửa hàng khác."
+                ];
             }
 
-            $requiredQty = $item->dinh_luong * $quantity;
+            $required = $item->dinh_luong * $quantity;
 
-            if ($inventory->so_luong_ton < $requiredQty) {
-                return response()->json([
-                    'error' => "Nguyên liệu {$item->ma_nguyen_lieu} không đủ trong kho (cần {$requiredQty} {$inventory->don_vi}, còn {$inventory->so_luong_ton})."
-                ], 400);
+            if ($item->so_luong_ton < $required) {
+                return [
+                    'success' => false,
+                    'message' => "Hiện tại không đủ hàng, vui lòng giảm số lượng hoặc chọn sản phẩm khác."
+                ];
             }
         }
 
-        // Nếu đủ tất cả nguyên liệu
-        return response()->json([
-            'success' => 'Nguyên liệu đủ để làm sản phẩm này.',
-        ]);
+        return [
+            'success' => true,
+            'message' => 'Đủ nguyên liệu trong kho.'
+        ];
     }
     //add to cart
     public function addToCart(Request $request, $id)
@@ -173,26 +179,23 @@ class CartController extends Controller
                 return response()->json(['error' => 'Không tìm thấy sản phẩm.'], 404);
             }
 
-            $storeID = (int) $request->input('store');
+            $storeID =  $request->input('store');
           
             $store = CuaHang::where('ma_cua_hang',$storeID);
             if (!$store) {
                 return response()->json(['error' => 'Không tìm thấy cửa hàng.'], 404);
             }
 
-                    
             $size = $request->input('size');
             $quantity = $request->input('quantity') ?: 1;
             $sizeInfo = Sizes::where('ma_size', $size)->first();
             $cartKey = $id . '_' . $size;
 
-            // 1. Kiểm tra nguyên liệu đủ không
             $check = $this->checkStore($id, $storeID, $size, $quantity);
 
-            if ($check->getStatusCode() !== 200) {
-                // Nếu lỗi (nguyên liệu không đủ hoặc không tồn tại)
+            if (!$check['success']) {
                 return response()->json([
-                    'error' => $check->original['error'] ?? 'Không đủ nguyên liệu.'
+                    'error' => $check['message']
                 ], 400);
             }
 
