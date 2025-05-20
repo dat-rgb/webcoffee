@@ -83,7 +83,7 @@
 								<li>
 									<a href="#" onclick="openStoreModal()" style="border-radius: 20px; background-color:#F28123; color: #fff; padding: 6px 16px; ">
 										<i class="fas fa-store-alt"></i>
-										Giao hàng / Đến lấy
+										Cửa hàng
 									</a>
 								</li>
 								{{-- Tách user icon ra khỏi header-icons --}}

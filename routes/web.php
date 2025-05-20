@@ -12,6 +12,7 @@ use App\Http\Controllers\clients\AuthController;
 use App\Http\Controllers\clients\ForgotPasswordController;
 use App\Http\Controllers\clients\ResetPasswordController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\payments\PaymentController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -77,6 +78,8 @@ Route::prefix('cart')->group(function(){
         $cart = session('cart', []);
         return view('carts.cart_empty', compact('cart'));
     });
+
+    Route::get('/check-out',[CartController::class,'checkout'])->name('cart.check-out');
     
 });
 

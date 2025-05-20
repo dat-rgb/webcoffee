@@ -33,6 +33,6 @@
     </table>
     <div class="cart-buttons">
         <a href="{{ route('product') }}" class="boxed-btn"><i class="fas fa-arrow-left me-1"></i> Tiếp tục mua sắm</a>
-        <a href="#" class="boxed-btn black"><i class="fas fa-credit-card"></i>  Thanh toán</a>
+        <a href="{{ route('cart.check-out') }}" class="boxed-btn black"><i class="fas fa-credit-card"></i>  Đặt hàng</a>
     </div>
 </div>
