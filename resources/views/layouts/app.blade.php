@@ -81,16 +81,17 @@
 									</ul>
 								</li>
 								<li>
-									<a href="#" onclick="openStoreModal()" style="border-radius: 20px; background-color:#F28123; color: #fff; padding: 6px 16px; ">
+									<a href="#" id="store-btn" onclick="openStoreModal()" style="border-radius: 20px; background-color:#F28123; color: #fff; padding: 6px 16px;">
 										<i class="fas fa-store-alt"></i>
-										Cửa hàng
+										{{ session('selected_store_name') ?? 'Cửa hàng' }}
 									</a>
 								</li>
+
 								{{-- Tách user icon ra khỏi header-icons --}}
 								@auth
 									<li>
 										<div class="current-list-item">
-											<a href="#"><i class="fas fa-user"></i> Tài Khoản</a>
+											<a href="#"><i class="fas fa-user"></i> {{ Auth::user()->khachHang->ho_ten_khach_hang ?? 'Nhân viên' }}</a>
 											<ul class="sub-menu">
 												<li><a href="#"><i class="fas fa-user-circle" style="margin-right:6px;"></i>Hồ sơ</a></li>
 												<li><a href="#"><i class="fas fa-map-marker-alt" style="margin-right:6px;"></i>Sổ địa chỉ</a></li>
@@ -118,7 +119,7 @@
 									<div class="header-icons">
 										<a class="shopping-cart" href="{{ route('cart') }}">
 											<i class="fas fa-shopping-cart"></i>
-											<span class="cart-count">{{ session('cart') ? array_sum(array_column(session('cart'), 'product_quantity')) : 0 }}</span>
+											<span class="cart-count">{{ session('cart') ? count(session('cart')) : 0 }}</span>
 										</a>
 										<a class="mobile-hide search-bar-icon" href="#"><i class="fas fa-search"></i></a>
 									</div>
@@ -224,9 +225,9 @@
 		</div>
 	</div>
 	<!-- end copyright -->
-	
+	 
 	<!-- jquery -->
-	<script src="{{ asset('js/jquery-1.11.3.min.js') }}"></script>
+	<script src="{{ asset('js/jquery-1.11.3.min.js') }}"></script>	
 	<!-- bootstrap -->
 	<script src="{{ asset('bootstrap/js/bootstrap.min.js') }}"></script>
 	<!-- count down -->
@@ -248,8 +249,6 @@
 	<script src="{{ asset('js/sweet-alert.js') }}"></script> 
 	<!-- SweetAlert2 -->
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-	<!-- Thêm jQuery -->
-	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<!-- JS -->
 	<script src="{{ asset('js/store-popup.js') }}"></script>
 	<script src="{{ asset('js/cart.js') }}"></script>

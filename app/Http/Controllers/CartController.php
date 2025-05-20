@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CuaHang;
 use App\Models\KhachHang;
 use App\Models\SanPham;
 use App\Models\Sizes;
@@ -35,10 +36,7 @@ class CartController extends Controller
             $total += $item['money'];
         }
 
-        $cartCount = 0;
-        foreach ($cart as $item) {
-            $cartCount += $item['product_quantity'];
-        }
+        $cartCount = count($cart);
 
         $viewData = [
             'title' => 'Giỏ Hàng | CMDT Coffee & Tea',
@@ -55,11 +53,12 @@ class CartController extends Controller
         $cart = session()->get('cart', []);
         $productSizes = [];
         $total = 0;
-        $cartCount = 0;
+        //$cartCount = 0;
+        $cartCount = count($cart);
 
         foreach ($cart as $item) {
             $total += $item['money'];
-            $cartCount += $item['product_quantity'];
+            //$cartCount += $item['product_quantity'];
 
             $productId = $item['product_id'];
             if (!isset($productSizes[$productId])) {
@@ -102,13 +101,10 @@ class CartController extends Controller
     {
         try {
             $cart = session('cart', []);
-            $totalQuantity = 0;
+           
+            $cartCount = count($cart);
 
-            foreach ($cart as $item) {
-                $totalQuantity += isset($item['product_quantity']) ? $item['product_quantity'] : 0;
-            }
-
-            return response()->json(['cartCount' => $totalQuantity]);
+            return response()->json(['cartCount' => $cartCount]);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Lỗi lấy số lượng giỏ hàng'], 500);
         }
@@ -126,7 +122,47 @@ class CartController extends Controller
 
         return response()->json(['quantity' => $quantity]);
     }
+    public function checkStore($productId, $storeId, $sizeId, $quantity = 1)
+    {
+        // 1. Lấy danh sách nguyên liệu & định lượng theo sản phẩm và size
+        $ingredients = DB::table('thanh_phan_san_phams')
+            ->where('ma_san_pham', $productId)
+            ->where('ma_size', $sizeId)
+            ->get();
 
+        if ($ingredients->isEmpty()) {
+            return response()->json([
+                'error' => 'Không tìm thấy nguyên liệu cho sản phẩm này.'
+            ], 404);
+        }
+
+        // 2. Kiểm tra tồn kho nguyên liệu trong cửa hàng
+        foreach ($ingredients as $item) {
+            $inventory = DB::table('cua_hang_nguyen_lieus')
+                ->where('ma_cua_hang', $storeId)
+                ->where('ma_nguyen_lieu', $item->ma_nguyen_lieu)
+                ->first();
+
+            if (!$inventory) {
+                return response()->json([
+                    'error' => "Nguyên liệu {$item->ma_nguyen_lieu} không tồn tại trong kho cửa hàng."
+                ], 404);
+            }
+
+            $requiredQty = $item->dinh_luong * $quantity;
+
+            if ($inventory->so_luong_ton < $requiredQty) {
+                return response()->json([
+                    'error' => "Nguyên liệu {$item->ma_nguyen_lieu} không đủ trong kho (cần {$requiredQty} {$inventory->don_vi}, còn {$inventory->so_luong_ton})."
+                ], 400);
+            }
+        }
+
+        // Nếu đủ tất cả nguyên liệu
+        return response()->json([
+            'success' => 'Nguyên liệu đủ để làm sản phẩm này.',
+        ]);
+    }
     //add to cart
     public function addToCart(Request $request, $id)
     {
@@ -136,12 +172,30 @@ class CartController extends Controller
             if (!$product) {
                 return response()->json(['error' => 'Không tìm thấy sản phẩm.'], 404);
             }
-            
+
+            $storeID = (int) $request->input('store');
+          
+            $store = CuaHang::where('ma_cua_hang',$storeID);
+            if (!$store) {
+                return response()->json(['error' => 'Không tìm thấy cửa hàng.'], 404);
+            }
+
+                    
             $size = $request->input('size');
             $quantity = $request->input('quantity') ?: 1;
-            $cartKey = $id . '_' . $size;
-            
             $sizeInfo = Sizes::where('ma_size', $size)->first();
+            $cartKey = $id . '_' . $size;
+
+            // 1. Kiểm tra nguyên liệu đủ không
+            $check = $this->checkStore($id, $storeID, $size, $quantity);
+
+            if ($check->getStatusCode() !== 200) {
+                // Nếu lỗi (nguyên liệu không đủ hoặc không tồn tại)
+                return response()->json([
+                    'error' => $check->original['error'] ?? 'Không đủ nguyên liệu.'
+                ], 400);
+            }
+
             $cart = session()->get('cart', []); 
 
             $size_price =  $sizeInfo->gia_size;
@@ -166,20 +220,16 @@ class CartController extends Controller
                     'money' => $money
                 ];
             }
-
+          
             session()->put('cart', $cart);
 
-            $cartCount = 0;
-            foreach ($cart as $item) {
-                $cartCount += $item['product_quantity'];
-            }
+            $cartCount = count($cart);
 
             return response()->json(['success' => 'Đã thêm sản phẩm vào giỏ hàng.', 'cartCount' => $cartCount]);
         } catch (\Throwable $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
-
     //change quantity
     public function updateQuantity(Request $request)
     {
@@ -210,10 +260,8 @@ class CartController extends Controller
             $shippingFee = 0; 
             $total = $subtotal + $shippingFee;
 
-            $cartCount = 0;
-            foreach ($cart as $item) {
-                $cartCount += $item['product_quantity'];
-            }
+            $cartCount = count($cart);
+          
             return response()->json([
                 'success' => 'Cập nhật thành công',
                 'money' => $cart[$cartKey]['money'],
@@ -228,7 +276,6 @@ class CartController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
-    
     //change size 
     public function updateSize(Request $request)
     {
@@ -295,12 +342,8 @@ class CartController extends Controller
 
             // Tính lại tổng tiền, số lượng
             $subtotal = 0;
-            $cartCount = 0;
-            foreach ($cart as $item) {
-                $subtotal += $item['money'];
-                $cartCount += $item['product_quantity'];
-            }
-
+           
+            $cartCount = count($cart);
             $shippingFee = 0; // bạn xử lý phí ship riêng
             $total = $subtotal + $shippingFee;
 
@@ -317,7 +360,6 @@ class CartController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
-    
     //delete 
     public function deleteProduct(Request $request)
     {
@@ -341,10 +383,8 @@ class CartController extends Controller
             $shippingFee = $subtotal >= 0;
             $total = $subtotal + $shippingFee;
 
-            $cartCount = 0;
-            foreach ($cart as $item) {
-                $cartCount += $item['product_quantity'];
-            }
+            $cartCount = count($cart);
+            
             return response()->json([
                 'message' => 'Xoá thành công',
                 'subtotal_format' => number_format($subtotal, 0, ',', '.') . ' đ',
@@ -359,6 +399,7 @@ class CartController extends Controller
             'error' => 'Sản phẩm không tồn tại trong giỏ hàng.'
         ], 400);
     }
+    //check out page
     public function checkout() {
         $cart = session()->get('cart', []);  
         
@@ -400,10 +441,7 @@ class CartController extends Controller
             $total += $item['money'];
         }
 
-        $cartCount = 0;
-        foreach ($cart as $item) {
-            $cartCount += $item['product_quantity'];
-        }
+        $cartCount = count($cart);
 
         $viewData = [
             'title' => 'Check out | CMDT Coffee & Tea',

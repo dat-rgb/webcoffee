@@ -33,9 +33,11 @@
                                 data-old-size="{{ $item['size_id'] }}"
                                 style="max-width: 200px; border-radius: 8px; border: 1px solid #ccc; padding: 4px 8px;">
                                 @foreach ($productSizes[$item['product_id']] as $size)
+                                 
                                     <option value="{{ $size->ma_size }}" {{ $size->ma_size == $item['size_id'] ? 'selected' : '' }}>
-                                        {{ $size->ten_size }} + {{ number_format($size->gia_size, 0, ',', '.') }} đ
+                                            Size {{ $size->ten_size }} 
                                     </option>
+                                  
                                 @endforeach
                             </select>
                         @elseif (isset($productSizes[$item['product_id']]) && count($productSizes[$item['product_id']]) === 1)
@@ -45,12 +47,12 @@
                             @endphp
                             <span style="display: inline-block; background: #e0f7fa; color: #00796b; 
                                         padding: 6px 12px; border-radius: 8px; font-size: 14px; font-weight: 500;">
-                                {{ $onlySize->ten_size }} + {{ number_format($onlySize->gia_size, 0, ',', '.') }} đ
+                                Size{{ $onlySize->ten_size }} 
                             </span>
                         @endif
                     </td>
                     <td class="product-price">
-                        {{ number_format($item['product_price'], 0, ',', '.') }} đ
+                        {{ number_format($item['product_price'] + $item['size_price'], 0, ',', '.') }} đ
                     </td>
                     <td class="product-quantity">
                         <div class="quantity-wrapper">

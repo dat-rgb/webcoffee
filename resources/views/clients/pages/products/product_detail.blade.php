@@ -53,7 +53,6 @@
 }
 
 </style>
-
 @endpush
 @section('content')
 
@@ -110,6 +109,7 @@
                         <form action="">
                             @csrf
                             <div>
+                                <input type="hidden" name="store" id="selectedStoreId" value="{{ session('selected_store_id') ?? '' }}">
                                 <input type="number" placeholder="1" name="quantity" min="1">
                                 <!-- Chọn kích thước -->
                                 <div class="product-size mb-3">
