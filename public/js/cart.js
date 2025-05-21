@@ -56,7 +56,28 @@ $(document).ready(function () {
         }
     });
 });
-
+//load cart
+function loadCart() {
+    $.ajax({
+        url: '/cart/load',
+        type: 'GET',
+        success: function(res) {
+            if (res.cartCount > 0) {
+                $('#cart-section').html(res.html).show();
+                $('#empty-cart').hide();
+            } else {
+                $('#empty-cart').html(res.html).show();
+                $('#cart-section').hide();
+            }
+            $('.cart-count').text(res.cartCount);
+        }
+    });
+}
+// ví dụ gọi trong event khác:
+$(document).on('click', '.some-button', function() {
+    // làm gì đó xong gọi loadCart
+    loadCart();
+});
 // add-to-cart
 $('.add-to-cart').click(function(e){
     e.preventDefault();
@@ -187,7 +208,7 @@ $(document).on('change', '.change-size', function() {
         return;
     }
     $.ajax({
-        url: '/cart/update-size',  
+        url: '/cart/update-size',
         type: 'POST',
         data: {
             product_id: productId,
@@ -198,24 +219,26 @@ $(document).on('change', '.change-size', function() {
         success: function(response) {
             if (response.success) {
                 Swal.fire('Thành công', response.success, 'success').then(() => {
-                    // gọi ajax load lại cart mới
-                    $.ajax({
-                        url: '/cart/load',
-                        type: 'GET',
-                        success: function(res) {
-                            if (res.cartCount > 0) {
-                                $('#cart-section').html(res.html).show();
-                                $('#empty-cart').hide();
-                            } else {
-                                $('#empty-cart').html(res.html).show();
-                                $('#cart-section').hide();
-                            }
-                            $('.cart-count').text(res.cartCount);
-                        }
-                    });
+                    // load lại giỏ hàng
+                    loadCart();
                 });
             } else if (response.error) {
-                Swal.fire('Lỗi', response.error, 'error');
+                Swal.fire('Lỗi', response.error, 'error').then(()=>{
+                    loadCart();
+                });
+            }
+        },
+        error: function(xhr) {
+            // đây mới là nơi nhận lỗi trả về từ backend dạng 400
+            let res = xhr.responseJSON;
+            if (res && res.error) {
+                Swal.fire('Lỗi', res.error, 'error').then(()=>{
+                    loadCart();
+                });
+            } else {
+                Swal.fire('Lỗi', 'Đã xảy ra lỗi không xác định.', 'error').then(()=>{
+                    loadCart();
+                });
             }
         }
     });
@@ -286,8 +309,10 @@ function updateQuantity(productId, sizeId, quantity) {
         error: function(xhr) {
             Swal.fire({
                 icon: 'error',
-                title: 'Oops...',
+                title: 'Lỗi',
                 text: xhr.responseJSON?.error || 'Cập nhật không thành công.'
+              }).then(() => {
+                loadCart();
             });
         }
     });
