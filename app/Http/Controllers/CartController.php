@@ -314,7 +314,7 @@ class CartController extends Controller
 
             $oldQuantity = $cart[$cartKey]['product_quantity'];
             $oldSizeId = $cart[$cartKey]['size_id'];
-
+            
             $check = $this->checkStore($productId, $storeID, $sizeId, $quantity, 'update', $oldSizeId, $oldQuantity);
             if (!$check['success']) {
                 return response()->json(['error' => $check['message']], 400);
@@ -353,37 +353,38 @@ class CartController extends Controller
             $productId = $request->input('product_id');
             $oldSizeId = $request->input('old_size_id');
             $newSizeId = $request->input('new_size_id');
+            $storeID = session('selected_store_id');
 
             $cart = session()->get('cart', []);
 
             $oldKey = $productId . '_' . $oldSizeId;
             $newKey = $productId . '_' . $newSizeId;
 
-            $storeID = session('selected_store_id');
+            if (!isset($cart[$oldKey])) {
+                return response()->json(['error' => 'Sản phẩm không tồn tại trong giỏ hàng.'], 400);
+            }
 
-            // Lấy thông tin sản phẩm cũ
             $product = $cart[$oldKey];
             $quantity = $product['product_quantity'];
             $productPrice = $product['product_price'];
 
-            // Lấy thông tin size mới từ DB
             $size = DB::table('sizes')->where('ma_size', $newSizeId)->first();
             if (!$size) {
                 return response()->json(['error' => 'Size không hợp lệ.'], 400);
             }
 
-            // Tính tiền mới
-            $money = $quantity * ($productPrice + $size->gia_size);
+            $newMoney = $quantity * ($productPrice + $size->gia_size);
             $newQuantity = 0;
-            if ($oldKey != $newKey) {
-                // Nếu key mới đã tồn tại trong giỏ hàng, gộp số lượng
-                if (isset($cart[$newKey])) {
-                    $cart[$newKey]['product_quantity'] += $quantity;
-                    $cart[$newKey]['money'] += $money;
-                    $newQuantity = $cart[$newKey]['product_quantity'];
+
+            $newCart = $cart;
+
+            if ($oldKey !== $newKey) {
+                if (isset($newCart[$newKey])) {
+                    $newCart[$newKey]['product_quantity'] += $quantity;
+                    $newCart[$newKey]['money'] += $newMoney;
+                    $newQuantity = $newCart[$newKey]['product_quantity'];
                 } else {
-                    // Thêm mới key mới
-                    $cart[$newKey] = [
+                    $newCart[$newKey] = [
                         'product_id' => $productId,
                         'product_name' => $product['product_name'],
                         'product_price' => $productPrice,
@@ -393,46 +394,42 @@ class CartController extends Controller
                         'size_id' => $newSizeId,
                         'size_price' => $size->gia_size,
                         'size_name' => $size->ten_size,
-                        'money' => $money,
+                        'money' => $newMoney,
                     ];
                     $newQuantity = $quantity;
                 }
-                // Xóa key cũ
-                unset($cart[$oldKey]);
+                unset($newCart[$oldKey]);
             } else {
-                // Nếu key giống nhau, chỉ update thông tin size và tiền
-                $cart[$oldKey]['size_id'] = $newSizeId;
-                $cart[$oldKey]['size_price'] = $size->gia_size;
-                $cart[$oldKey]['size_name'] = $size->ten_size;
-                $cart[$oldKey]['money'] = $money;
-                $newQuantity = $cart[$oldKey]['product_quantity'];
+                $newCart[$oldKey]['size_id'] = $newSizeId;
+                $newCart[$oldKey]['size_price'] = $size->gia_size;
+                $newCart[$oldKey]['size_name'] = $size->ten_size;
+                $newCart[$oldKey]['money'] = $newMoney;
+                $newQuantity = $newCart[$oldKey]['product_quantity'];
             }
 
-            $oldQuantity = $quantity;
-
-            $check = $this->checkStore($productId, $storeID, $newSizeId, $newQuantity, 'update', $oldSizeId, $oldQuantity);
+            // Gọi checkStore với cart mới để validate nguyên liệu
+            $check = $this->checkStore($productId, $storeID, $newSizeId, $newQuantity, 'update', $oldSizeId, $quantity);
 
             if (!$check['success']) {
+                // Ko cập nhật cart, trả về lỗi luôn
                 return response()->json(['error' => $check['message']], 400);
             }
 
-            session()->put('cart', $cart);
+            // Nếu checkStore OK, mới cập nhật session cart chính thức
+            session()->put('cart', $newCart);
 
-            // Tính lại tổng tiền, số lượng
-            $subtotal = 0;
-           
-            $cartCount = count($cart);
-            $shippingFee = 0; // bạn xử lý phí ship riêng
+            $subtotal = collect($newCart)->sum('money');
+            $shippingFee = 0; // tính phí ship riêng
             $total = $subtotal + $shippingFee;
 
             return response()->json([
                 'success' => 'Cập nhật size thành công',
-                'money' => $money,
-                'money_format' => number_format($money, 0, ',', '.') . ' đ',
+                'money' => $newMoney,
+                'money_format' => number_format($newMoney, 0, ',', '.') . ' đ',
                 'subtotal_format' => number_format($subtotal, 0, ',', '.') . ' đ',
                 'shipping_fee_format' => number_format($shippingFee, 0, ',', '.') . ' đ',
                 'total_format' => number_format($total, 0, ',', '.') . ' đ',
-                'cartCount' => $cartCount,
+                'cartCount' => count($newCart),
             ]);
         } catch (\Throwable $e) {
             return response()->json(['error' => $e->getMessage()], 500);
