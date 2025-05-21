@@ -3,7 +3,7 @@
 
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/checkout.css') }}">
-@endpus
+@endpush
 @section('content')
 <!-- breadcrumb-section -->
 <div class="breadcrumb-section breadcrumb-bg">
@@ -25,7 +25,7 @@
             <div class="col-lg-8">
                 <div class="checkout-accordion-wrap">
                     <div class="accordion" id="accordionExample">
-                        <div class="card single-accordion">
+                    <div class="card single-accordion">
                         <div class="card-header" id="headingOne">
                             <h5 class="mb-0">
                                 <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
@@ -33,70 +33,75 @@
                                 </button>
                             </h5>
                         </div>
-                        <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample" style="">
+                            <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
                             <div class="card-body">
                                 <div class="billing-address-form">
                                     <form action="#">
                                         <p>
-                                            <input type="text" placeholder="Họ và tên" 
-                                                value="{{ $khach_hang->ho_ten_khach_hang ?? '' }}">
+                                            <input type="text" placeholder="Họ và tên" value="{{ $khach_hang->ho_ten_khach_hang ?? '' }}">
                                         </p>
                                         <p>
-                                            <input type="email" placeholder="Email" 
-                                                value="{{ $email ?? '' }}">
+                                            <input type="email" placeholder="Email" value="{{ $email ?? '' }}">
                                         </p>
                                         <p>
-                                            <input type="text" placeholder="Địa chỉ" 
-                                                value="{{ $khach_hang->dia_chi ?? '' }}">
+                                            <input type="text" placeholder="Địa chỉ" value="{{ $khach_hang->dia_chi ?? '' }}">
                                         </p>
                                         <p>
-                                            <input type="tel" placeholder="Số điện thoại" 
-                                                value="{{ $khach_hang->so_dien_thoai ?? '' }}">
+                                            <input type="tel" placeholder="Số điện thoại" value="{{ $khach_hang->so_dien_thoai ?? '' }}">
                                         </p>
                                         <p>
                                             <textarea name="bill" id="bill" cols="30" rows="10" placeholder="Ghi chú"></textarea>
                                         </p>
-                                    </form>
 
-                                </div>
-                            </div>
-                        </div>
-                        </div>
-                        <div class="card single-accordion">
-                        <div class="card-header" id="headingTwo">
-                            <h5 class="mb-0">
-                                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                    Địa chỉ giao hàng
-                                </button>
-                            </h5>
-                        </div>
-                        <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
-                            <div class="card-body">
-                                <div class="shipping-address-form">
-                                    <div class="d-flex flex-column flex-lg-row gap-3">
-                                        <div class="flex-grow-1">
-                                        <label for="provinceSelect" class="form-label fw-bold">Tỉnh/Thành phố</label>
-                                        <select class="form-select" name="province" id="provinceSelect" required>
-                                            <option value="" selected>Chọn tỉnh/thành phố</option>
-                                            <!-- options -->
-                                        </select>
+                                        <!-- Lựa chọn phương thức nhận hàng -->
+                                        <div class="mb-3 shipping-method-group">
+                                            <div class="shipping-method-option">
+                                                <input type="radio" name="shippingMethod" id="shipToHome" value="delivery" checked>
+                                                <label for="shipToHome">Giao hàng tận nơi</label>
+                                            </div>
+
+                                            <div class="shipping-method-option">
+                                                <input type="radio" name="shippingMethod" id="pickupStore" value="pickup">
+                                                <label for="pickupStore">Đến lấy tại cửa hàng</label>
+                                            </div>
                                         </div>
-                                        <div class="flex-grow-1">
-                                        <label for="districtSelect" class="form-label fw-bold">Quận/Huyện</label>
-                                        <select class="form-select" name="district" id="districtSelect" disabled required>
-                                            <option value="" selected>Chọn quận/huyện</option>
-                                        </select>
+
+                                        <!-- Phần giao hàng -->
+                                        <div class="shipping-address-form" id="deliverySection">
+                                            <div class="row g-3">
+                                                <div class="col-md-4">
+                                                    <label for="provinceSelect" class="form-label fw-bold">Tỉnh/Thành phố</label>
+                                                    <select class="form-select" name="province" id="provinceSelect" required>
+                                                        <option value="" selected>Chọn tỉnh/thành phố</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label for="districtSelect" class="form-label fw-bold">Quận/Huyện</label>
+                                                    <select class="form-select" name="district" id="districtSelect" disabled required>
+                                                        <option value="" selected>Chọn quận/huyện</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label for="wardSelect" class="form-label fw-bold">Xã/Phường</label>
+                                                    <select class="form-select" name="ward" id="wardSelect" disabled required>
+                                                        <option value="" selected>Chọn xã/phường</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <input type="hidden" id="provinceName" name="provinceName">
+                                            <input type="hidden" id="districtName" name="districtName">
+                                            <input type="hidden" id="wardName" name="wardName">
                                         </div>
-                                        <div class="flex-grow-1">
-                                        <label for="wardSelect" class="form-label fw-bold">Xã/Phường</label>
-                                        <select class="form-select" name="ward" id="wardSelect" disabled required>
-                                            <option value="" selected>Chọn xã/phường</option>
-                                        </select>
+
+                                        <!-- Phần đến lấy tại cửa hàng -->
+                                        <div class="store-info mt-3" id="pickupSection" style="display: none;">
+                                            <div class="alert alert-info">
+                                                <strong>Địa điểm lấy hàng:</strong><br>
+                                                Tên cửa hàng: <strong>{{ session('selected_store_name') }}</strong><br>
+                                                Địa chỉ: {{ session('selected_store_dia_chi') }}
+                                            </div>
                                         </div>
-                                    </div>
-                                    <input type="hidden" id="provinceName" name="provinceName">
-                                    <input type="hidden" id="districtName" name="districtName">
-                                    <input type="hidden" id="wardName" name="wardName">
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -155,7 +160,10 @@
                                         </div>
                                         <div class="product-info">
                                             <span>{{ $item['product_name'] }} </span><br>
-                                            <span>{{ $item['size_name'] }} x {{ $item['product_quantity'] }}</span>
+                                            <span>
+                                                {{ $item['size_name'] }} x {{ $item['product_quantity'] }} 
+                                                <a href="{{ route('cart') }}" class=""></a>
+                                            </span>
                                         </div>
                                     </div>
                                 </td>
