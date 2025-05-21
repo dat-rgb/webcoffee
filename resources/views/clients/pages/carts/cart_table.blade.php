@@ -1,4 +1,5 @@
 <div class="cart-table-wrap">
+    <input type="hidden" name="store" id="selectedStoreId" value="{{ session('selected_store_id') ?? '' }}">
     <table class="cart-table">
         <thead class="cart-table-head">
             <tr class="table-head-row">
@@ -63,7 +64,10 @@
                                 class="update-cart-quantity"
                                 data-id="{{ $item['product_id'] }}" 
                                 data-size="{{ $item['size_id'] }}">
-                            <button class="qty-btn increase" type="button" data-id="{{ $item['product_id'] }}" data-size="{{ $item['size_id'] }}">
+                            <button class="qty-btn increase" type="button" 
+                                    data-id="{{ $item['product_id'] }}" 
+                                    data-size="{{ $item['size_id'] }}" 
+                                    data-storeid="{{ session('selected_store_id') ?? ' ' }}">
                                 <i class="fas fa-plus"></i>
                             </button>
                         </div>
