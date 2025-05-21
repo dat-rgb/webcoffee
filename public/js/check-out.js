@@ -1,64 +1,99 @@
-// Lấy tỉnh/thành
-fetch('https://provinces.open-api.vn/api/p/')
-  .then(res => res.json())
-  .then(data => {
-    const provinceSelect = document.getElementById('provinceSelect');
-    data.forEach(province => {
-      const option = document.createElement('option');
-      option.value = province.code;
-      option.textContent = province.name;
-      provinceSelect.appendChild(option);
+document.addEventListener("DOMContentLoaded", function () {
+    const deliverySection = document.getElementById("deliverySection");
+    const pickupSection = document.getElementById("pickupSection");
+    const shippingMethods = document.querySelectorAll("input[name='shippingMethod']");
+
+    shippingMethods.forEach(method => {
+        method.addEventListener("change", () => {
+            if (method.value === "delivery" && method.checked) {
+                deliverySection.style.display = "block";
+                pickupSection.style.display = "none";
+            } else if (method.value === "pickup" && method.checked) {
+                deliverySection.style.display = "none";
+                pickupSection.style.display = "block";
+            }
+        });
     });
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const provinceSelect = document.getElementById("provinceSelect");
+  const districtSelect = document.getElementById("districtSelect");
+  const wardSelect = document.getElementById("wardSelect");
+
+  const provinceName = document.getElementById("provinceName");
+  const districtName = document.getElementById("districtName");
+  const wardName = document.getElementById("wardName");
+
+  // Gắn cứng TP.HCM
+  fetch("https://provinces.open-api.vn/api/p/79?depth=2") // 79 = TP.HCM
+      .then(res => res.json())
+      .then(data => {
+          // Gán tên và mã tỉnh
+          provinceSelect.innerHTML = `<option value="${data.code}" selected>${data.name}</option>`;
+          provinceSelect.disabled = true; // Không cho đổi
+
+          provinceName.value = data.name;
+
+          // Load danh sách quận
+          districtSelect.disabled = false;
+          data.districts.forEach(d => {
+              const opt = new Option(d.name, d.code);
+              districtSelect.add(opt);
+          });
+      });
+
+  // Khi chọn quận → load xã
+  districtSelect.addEventListener("change", () => {
+      const code = districtSelect.value;
+      districtName.value = districtSelect.options[districtSelect.selectedIndex].text;
+      wardSelect.innerHTML = '<option selected>Chọn xã/phường</option>';
+
+      if (!code) {
+          wardSelect.disabled = true;
+          return;
+      }
+
+      fetch(`https://provinces.open-api.vn/api/d/${code}?depth=2`)
+          .then(res => res.json())
+          .then(data => {
+              wardSelect.disabled = false;
+              data.wards.forEach(w => {
+                  const opt = new Option(w.name, w.code);
+                  wardSelect.add(opt);
+              });
+          });
   });
 
-// Khi chọn tỉnh/thành, lấy quận/huyện tương ứng
-document.getElementById('provinceSelect').addEventListener('change', function() {
-  const provinceCode = this.value;
-  const districtSelect = document.getElementById('districtSelect');
-  const wardSelect = document.getElementById('wardSelect');
-  
-  // Reset quận và xã, disable xã luôn
-  districtSelect.innerHTML = '<option value="" selected>Chọn quận/huyện</option>';
-  districtSelect.disabled = true;
-  wardSelect.innerHTML = '<option value="" selected>Chọn xã/phường</option>';
-  wardSelect.disabled = true;
-  
-  if (!provinceCode) return; // không chọn gì thì dừng
-  
-  fetch(`https://provinces.open-api.vn/api/p/${provinceCode}?depth=2`)
-    .then(res => res.json())
-    .then(data => {
-      data.districts.forEach(district => {
-        const option = document.createElement('option');
-        option.value = district.code;
-        option.textContent = district.name;
-        districtSelect.appendChild(option);
-      });
-      districtSelect.disabled = false;
-    });
+  // Gán tên xã vào input hidden
+  wardSelect.addEventListener("change", () => {
+      wardName.value = wardSelect.options[wardSelect.selectedIndex].text;
+  });
 });
 
-// Khi chọn quận/huyện, lấy xã/phường tương ứng
-document.getElementById('districtSelect').addEventListener('change', function() {
-  const districtCode = this.value;
-  const wardSelect = document.getElementById('wardSelect');
-  
-  // Reset xã/phường
-  wardSelect.innerHTML = '<option value="" selected>Chọn xã/phường</option>';
-  wardSelect.disabled = true;
-  
-  if (!districtCode) return; // không chọn gì thì dừng
-  
-  fetch(`https://provinces.open-api.vn/api/d/${districtCode}?depth=2`)
-    .then(res => res.json())
-    .then(data => {
-      data.wards.forEach(ward => {
-        const option = document.createElement('option');
-        option.value = ward.code;
-        option.textContent = ward.name;
-        wardSelect.appendChild(option);
-      });
-      wardSelect.disabled = false;
-    });
-});
-
+//Khi chọn quận/huyện, xã/phường sẽ tính lấy địa chỉ và tính shiping fee
+//Lấy địa chỉ được lưu từ session 
+//"selected_store_id" => "CH00000001"
+//"selected_store_name" => "CDMT Coffee & Tea"
+//"selected_store_dia_chi" => "72, đường 37, phường Tân Kiểng, Quận 7, TP Hồ Chí Minh"
+//Nếu địa cách cửa hàng bán kính 5km shippingfee = 0 đ, hơn 5Km = 25.000 đ, hơn 10km = 50.000 đ.
+//sau đó cập nhật ajax lên 
+{/* <tbody class="checkout-details">
+<tr>
+    <td>Tạm tính: ({{ count(session('cart')) }} món)</td>
+    <td>
+        {{ number_format($total, 0, ',', '.') }} đ
+    </td>
+</tr>
+<tr>
+    <td>Shipping</td>
+    <td> 0 đ</td>
+</tr>
+<tr>
+    <td>Tổng cộng</td>
+    <td>
+        {{ number_format($total, 0, ',', '.') }} đ
+    </td>
+</tr>
+</tbody> */}
+$(document)
