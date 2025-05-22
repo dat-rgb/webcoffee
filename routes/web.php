@@ -114,6 +114,8 @@ Route::prefix('admin/products')->group(function(){
     Route::post('/add-product',[AdminProductController::class,'productAdd'])->name('admin.products.add');
     Route::post('/archive-product/{id}',[AdminProductController::class, 'productArchive'])->name('admin.product.archive');
     Route::post('/hidden-or-acctive/{id}',[AdminProductController::class,'productHiddenOrAcctive'])->name('admin.product.hidde-or-acctive');
+    Route::post('/bulk-action', [AdminProductController::class, 'bulkAction'])->name('admin.product.bulk-action');
+
 });
 
 //Route Categories Admin
