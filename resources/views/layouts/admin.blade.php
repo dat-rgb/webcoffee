@@ -3,16 +3,10 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>@yield('title',"Admin CDMT Coffee & Tea")</title>
-    <meta
-      content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
-      name="viewport"
-    />
-    <link
-      rel="icon"
-      href="{{ asset('admins/img/kaiadmin/favicon.ico') }}"
-      type="image/x-icon"
-    />
+    <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport"/>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    <link rel="icon" href="{{ asset('admins/img/kaiadmin/favicon.ico') }}" type="image/x-icon"/>
     <!-- Fonts and icons -->
     <script src="{{ asset('admins/js/plugin/webfont/webfont.min.js') }}"></script>
     <script>
@@ -43,6 +37,7 @@
     <!-- CSS Just for demo purpose, don't include it in your project -->
     <link rel="stylesheet" href="{{ asset('admins/css/demo.css') }}" />
     @stack('styles')
+    
   </head>
   <body>
     <div class="wrapper">
@@ -145,11 +140,6 @@
                     <li>
                       <a href="{{ route('admin.products.hidden.list') }}">
                         <span class="sub-item">Sản phẩm ẩn</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="{{ route('admin.products.archive.list') }}">
-                        <span class="sub-item">Sản phẩm lưu trữ</span>
                       </a>
                     </li>
                   </ul>
