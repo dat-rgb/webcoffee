@@ -21,87 +21,97 @@
     <div class="page-header">
         <h3 class="fw-bold mb-3">{{ $subtitle }}</h3>
         <ul class="breadcrumbs mb-3">
-        <li class="nav-home">
-            <a href="{{ route('admin') }}">
-            <i class="icon-home"></i>
-            </a>
-        </li>
-        <li class="separator">
-            <i class="icon-arrow-right"></i>
-        </li>
-        <li class="nav-item">
-            <a href="{{ route('admin.products.list') }}">Sản phẩm</a>
-        </li>
-        <li class="separator">
-            <i class="icon-arrow-right"></i>
-        </li>
-        <li class="nav-item">
-            <a href="{{ route('admin.products.form') }}">Thêm sản phẩm</a>
-        </li>
+            <li class="nav-home">
+                <a href="{{ route('admin') }}">
+                <i class="icon-home"></i>
+                </a>
+            </li>
+            <li class="separator">
+                <i class="icon-arrow-right"></i>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('admin.products.list') }}">Sản phẩm</a>
+            </li>
+            <li class="separator">
+                <i class="icon-arrow-right"></i>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('admin.product.edit.form',$product->ma_san_pham) }}">Chỉnh sửa sản phẩm {{ $product->ma_san_pham }}</a>
+            </li>
         </ul>
     </div>
-    <form id="product-form" method="POST" enctype="multipart/form-data" Actions="{{ route('admin.products.add') }}">
+    <form id="product-edit-form" method="POST" enctype="multipart/form-data" action="{{ route('admin.product.update',$product->ma_san_pham) }}">
         @csrf
+       
         <div class="row">
             <div class="col-md-12">
                 <!-- Thông tin sản phẩm -->
                 <div class="card">
                     <div class="card-header">
-                        <div class="card-title">Nhập thông tin sản phẩm</div>
+                        <div class="card-title">Chỉnh sửa thông tin sản phẩm</div>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6 col-lg-4">
                                 <div class="form-group">
-                                    <label for="email2">Mã sản phẩm</label>
+                                    <label for="ma_san_pham">Mã sản phẩm</label>
                                     <div class="input-icon">
-                                        <input type="text" name="ma_san_pham" class="form-control" placeholder="SP00000000" value="{{ old('ma_san_pham') }}"  required>
+                                        <input type="text" name="ma_san_pham" class="form-control" placeholder="SP00000000" 
+                                            value="{{ old('ma_san_pham', $product->ma_san_pham) }}" readonly>
                                         @error('ma_san_pham')
                                             <div class="custom-error">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="largeInput">Tên sản phẩm</label>
-                                    <input type="text" name="ten_san_pham" class="form-control form-control" id="defaultInput" placeholder="Tên sản phẩm" value="{{ old('ten_san_pham') }}" required>
+                                    <label for="ten_san_pham">Tên sản phẩm</label>
+                                    <input type="text" name="ten_san_pham" class="form-control" id="ten_san_pham" placeholder="Tên sản phẩm" 
+                                        value="{{ old('ten_san_pham', $product->ten_san_pham) }}" required>
                                     @error('ten_san_pham')
                                         <div class="custom-error">{{ $message }}</div>
                                     @enderror
                                 </div>
                                 <div class="form-group">
-                                    <label for="exampleFormControlSelect1">Danh mục sản phẩm</label>
-                                    <select class="form-select" name="ma_danh_muc" id="exampleFormControlSelect1">
-                                        @foreach ( $categorys as $cate )
-                                            <option value="{{ $cate->ma_danh_muc }}">{{ $cate->ten_danh_muc }}</option>
-                                        @endforeach
-                                    </select>
+                                    <label for="hinh_anh">Hình ảnh</label>
+                                    <input type="file" name="hinh_anh" class="form-control-file" id="hinh_anh">
+                                    @error('hinh_anh')
+                                        <div class="custom-error">{{ $message }}</div>
+                                    @enderror
+                                    @if ($product->hinh_anh)
+                                        <img src="{{ asset('storage/' . $product->hinh_anh) }}" alt="Ảnh sản phẩm" style="max-width: 150px; margin-top: 10px;">
+                                    @endif
                                 </div>
                             </div>
                             <div class="col-md-6 col-lg-4">
                                 <div class="form-group">
-                                    <label for="exampleFormControlFile1">Hình ảnh</label>
-                                    <input type="file" name="hinh_anh" class="form-control-file" id="exampleFormControlFile1">
-                                    @error('hinh_anh')
-                                        <div class="custom-error">{{ $message }}</div>
-                                    @enderror
+                                    <label for="ma_danh_muc">Danh mục sản phẩm</label>
+                                    <select class="form-select" name="ma_danh_muc" id="ma_danh_muc">
+                                        @foreach ($categorys as $cate)
+                                            <option value="{{ $cate->ma_danh_muc }}" 
+                                                {{ old('ma_danh_muc', $product->ma_danh_muc) == $cate->ma_danh_muc ? 'selected' : '' }}>
+                                                {{ $cate->ten_danh_muc }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Giá</label>
                                     <div class="input-group mb-3">
                                         <span class="input-group-text">VND</span>
-                                        <input type="number" name="gia" class="form-control" aria-label="Amount (to the nearest dollar)" value="{{ old('gia') }}">
+                                        <input type="number" name="gia" class="form-control" aria-label="Amount (to the nearest dollar)" 
+                                            value="{{ old('gia', $product->gia) }}">
                                         <span class="input-group-text">.00</span>
-                                        @error('gia')
+                                    </div>
+                                    @error('gia')
                                         <div class="custom-error">{{ $message }}</div>
                                     @enderror
-                                    </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="exampleFormControlSelect1">Trạng thái</label>
-                                    <select class="form-select" name="trang_thai" id="exampleFormControlSelect1">
-                                        <option value="1">Đang bán</option>
-                                        <option value="2">Ngừng bán</option>
-                                        <option value="3">Demo</option>
+                                    <label for="trang_thai">Trạng thái</label>
+                                    <select class="form-select" name="trang_thai" id="trang_thai">
+                                        <option value="1" {{ old('trang_thai', $product->trang_thai) == 1 ? 'selected' : '' }}>Hiển thị</option>
+                                        <option value="2" {{ old('trang_thai', $product->trang_thai) == 2 ? 'selected' : '' }}>Ẩn</option>
+                                        <option value="3" {{ old('trang_thai', $product->trang_thai) == 3 ? 'selected' : '' }}>Demo</option>
                                     </select>
                                     @error('trang_thai')
                                         <div class="custom-error">{{ $message }}</div>
@@ -110,8 +120,8 @@
                             </div>
                             <div class="col-md-6 col-lg-4">
                                 <div class="form-group">
-                                    <label for="comment">Mô tả</label>
-                                    <textarea name="mo_ta" class="form-control" id="comment" rows="5"></textarea>
+                                    <label for="mo_ta">Mô tả</label>
+                                    <textarea name="mo_ta" class="form-control" id="mo_ta" rows="5">{{ old('mo_ta', $product->mo_ta) }}</textarea>
                                     @error('mo_ta')
                                         <div class="custom-error">{{ $message }}</div>
                                     @enderror
@@ -120,11 +130,13 @@
                                     <label class="form-label">Tags</label>
                                     <div class="selectgroup selectgroup-pills">
                                         <label class="selectgroup-item">
-                                            <input type="checkbox" name="hot" value="Hot" class="selectgroup-input" >
+                                            <input type="checkbox" name="hot" value="Hot" class="selectgroup-input" 
+                                                {{ old('hot', $product->hot) == 'Hot' ? 'checked' : '' }}>
                                             <span class="selectgroup-button">Hot</span>
                                         </label>
                                         <label class="selectgroup-item">
-                                            <input type="checkbox" name="is_new" value="New" class="selectgroup-input" >
+                                            <input type="checkbox" name="is_new" value="New" class="selectgroup-input" 
+                                                {{ old('is_new', $product->is_new) == 'New' ? 'checked' : '' }}>
                                             <span class="selectgroup-button">New</span>
                                         </label>
                                     </div>
@@ -133,110 +145,15 @@
                         </div>
                     </div>
                 </div>
-                <!-- Thành phần sản phẩm -->
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">Nhập thành phần sản phảm</div>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <!-- Size Nhỏ -->
-                            <div class="col-md-6 col-lg-4">
-                                <div class="form-group">
-                                    <label class="form-label">Size</label>
-                                    <div class="selectgroup selectgroup-pills">
-                                        <label class="selectgroup-item">
-                                            <input type="checkbox" id="sizeSmallCheckbox" class="selectgroup-input">
-                                            <span class="selectgroup-button">Nhỏ</span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div id="ingredientContainerSmall" class="ingredient-container" style="display: none;">
-                                    <div class="ingredient-form mb-3">
-                                        <select class="form-select mb-2">
-                                            <option>Chọn nguyên liệu</option>
-                                            <option>Trà xanh</option>
-                                            <option>Sữa tươi</option>
-                                        </select>
-                                        <input type="number" class="form-control mb-2" placeholder="Định lượng">
-                                        <select class="form-select mb-2">
-                                            <option>g</option>
-                                            <option>ml</option>
-                                            <option>ly</option>
-                                        </select>
-                                    </div>
-                                    <button type="button" class="btn btn-success addIngredientBtn">+</button>
-                                </div>
-                            </div>
-
-                            <!-- Size Vừa -->
-                            <div class="col-md-6 col-lg-4">
-                                <div class="form-group">
-                                    <label class="form-label">Size</label>
-                                    <div class="selectgroup selectgroup-pills">
-                                        <label class="selectgroup-item">
-                                            <input type="checkbox" id="sizeMediumCheckbox" class="selectgroup-input">
-                                            <span class="selectgroup-button">Vừa</span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div id="ingredientContainerMedium" class="ingredient-container" style="display: none;">
-                                    <div class="ingredient-form mb-3">
-                                        <select class="form-select mb-2">
-                                            <option>Chọn nguyên liệu</option>
-                                            <option>Trà xanh</option>
-                                            <option>Sữa tươi</option>
-                                        </select>
-                                        <input type="number" class="form-control mb-2" placeholder="Định lượng">
-                                        <select class="form-select mb-2">
-                                            <option>g</option>
-                                            <option>ml</option>
-                                            <option>ly</option>
-                                        </select>
-                                    </div>
-                                    <button type="button" class="btn btn-success addIngredientBtn">+</button>
-                                </div>
-                            </div>
-
-                            <!-- Size Lớn -->
-                            <div class="col-md-6 col-lg-4">
-                                <div class="form-group">
-                                    <label class="form-label">Size</label>
-                                    <div class="selectgroup selectgroup-pills">
-                                        <label class="selectgroup-item">
-                                            <input type="checkbox" id="sizeLargeCheckbox" class="selectgroup-input">
-                                            <span class="selectgroup-button">Lớn</span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div id="ingredientContainerLarge" class="ingredient-container" style="display: none;">
-                                    <div class="ingredient-form mb-3">
-                                        <select class="form-select mb-2">
-                                            <option>Chọn nguyên liệu</option>
-                                            <option>Trà xanh</option>
-                                            <option>Sữa tươi</option>
-                                        </select>
-                                        <input type="number" class="form-control mb-2" placeholder="Định lượng">
-                                        <select class="form-select mb-2">
-                                            <option>g</option>
-                                            <option>ml</option>
-                                            <option>ly</option>
-                                        </select>
-                                    </div>
-                                    <button type="button" class="btn btn-success addIngredientBtn">+</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
             <!-- Hành động -->
             <div class="card-action">
-                <button type="submit" class="btn btn-primary">Cập nhật</button> <!-- Nút chính -->
-                <button class="btn btn-danger">Hủy</button> <!-- Thoát, không gây nhầm lẫn -->
+                <button type="submit" class="btn btn-primary">Cập nhật</button>
+                <a href="{{ route('admin.products.list') }}" class="btn btn-danger">Hủy</a>
             </div>
         </div>
     </form>
+
 </div>
 @endsection
 

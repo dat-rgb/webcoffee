@@ -115,8 +115,9 @@
                                                                 <input type="checkbox" class="product-checkbox" value="{{ $pro->ma_san_pham }}">
                                                             </td> 
                                                             <td>
-                                                                <img src="{{ $pro->hinh_anh ? asset('storage/' . $pro->hinh_anh) : asset('images/no_product_image.png') }}" alt="{{ $pro->ten_san_pham }}" width="80">
-                                                            </td>
+                                                                <a href="{{ route('admin.product.edit.form',$pro->ma_san_pham) }}" class="">
+                                                                    <img src="{{ $pro->hinh_anh ? asset('storage/' . $pro->hinh_anh) : asset('images/no_product_image.png') }}" alt="{{ $pro->ten_san_pham }}" width="80">
+                                                                </a>                                                            </td>
                                                             <td>{{ $pro->ma_san_pham }}</td>
                                                             <td>{{ $pro->ten_san_pham }}</td>
                                                             <td>{{ $pro->danhMuc->ten_danh_muc }}</td>
@@ -130,9 +131,9 @@
                                                                         @foreach ($sizes as $size)
                                                                             <span style="background: #e0f7fa; color: #00796b;
                                                                                         padding: 4px 8px; border-radius: 6px;
-                                                                                        font-size: 10px; font-weight: 500;
+                                                                                        font-size: 11px; font-weight: 500;
                                                                                         white-space: nowrap;">
-                                                                                {{ $size->ten_size }} - {{ number_format($size->gia_size + $pro->gia, 0, ',', '.') }}đ
+                                                                                {{ $size->ten_size }}
                                                                             </span>
                                                                         @endforeach
                                                                     </div>
@@ -165,9 +166,9 @@
                                                             <td>
                                                                 <div class="form-button-action">
                                                                     @if($pro->trang_thai == 1)
-                                                                        <button type="button" class="btn btn-icon btn-round btn-info" data-bs-toggle="tooltip" title="Chỉnh sửa">
+                                                                        <a href="{{ route('admin.product.edit.form', $pro->ma_san_pham) }}" class="btn btn-icon btn-round btn-info" data-bs-toggle="tooltip" title="Chỉnh sửa">
                                                                             <i class="fa fa-edit"></i>
-                                                                        </button>
+                                                                        </a>
                                                                         <form action="{{ route('admin.product.hidde-or-acctive', $pro->ma_san_pham) }}" method="POST" class="hidden-or-acctive">
                                                                             @csrf    
                                                                             <button type="button" class="btn btn-icon btn-round btn-black hidden-btn" data-bs-toggle="tooltip" title="Ẩn">

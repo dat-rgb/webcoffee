@@ -69,6 +69,15 @@
                                     @enderror
                                 </div>
                                 <div class="form-group">
+                                    <label for="exampleFormControlFile1">Hình ảnh</label>
+                                    <input type="file" name="hinh_anh" class="form-control-file" id="exampleFormControlFile1">
+                                    @error('hinh_anh')
+                                        <div class="custom-error">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-4">
+                                <div class="form-group">
                                     <label for="exampleFormControlSelect1">Danh mục sản phẩm</label>
                                     <select class="form-select" name="ma_danh_muc" id="exampleFormControlSelect1">
                                         <option value="" selected disabled>-- Chọn danh mục sản phẩm --</option>
@@ -76,15 +85,6 @@
                                             <option value="{{ $cate->ma_danh_muc }}">{{ $cate->ten_danh_muc }}</option>
                                         @endforeach
                                     </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6 col-lg-4">
-                                <div class="form-group">
-                                    <label for="exampleFormControlFile1">Hình ảnh</label>
-                                    <input type="file" name="hinh_anh" class="form-control-file" id="exampleFormControlFile1">
-                                    @error('hinh_anh')
-                                        <div class="custom-error">{{ $message }}</div>
-                                    @enderror
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Giá</label>

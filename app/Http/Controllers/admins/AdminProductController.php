@@ -33,7 +33,6 @@ class AdminProductController extends Controller
         $ingredients = NguyenLieu::where('trang_thai',1)->get();
         return $ingredients;
     }
-
     public function getProductsByStatus($status) {
         return SanPham::with('danhMuc')
             ->where('trang_thai', $status)
@@ -314,16 +313,94 @@ class AdminProductController extends Controller
         return response()->json(['status' => 'success', 'message' => 'Đã thực hiện thao tác thành công']);
     }
 
-    public function productEdit($proId) {
-        $product = SanPham::with('danhMuc', 'thanhPhanSanPham')->find($proId);
-
+    public function showProductEdit($proId) {
+        $product = SanPham::where('ma_san_pham', $proId)->first();
         if (!$product) {
-            return redirect()->back()->with('error', 'Không tìm thấy sản phẩm!');
+            toastr()->error('Không tìm thấy sản phẩm.');
+            return redirect()->back();
         }
+
+        // Lấy danh mục để select trong form
+        $categorys = $this->getCategory();
+
         $viewData = [
-            'title' => 'Thêm sản phẩm | CMDT Coffee & Tea',
-            'subtitle' => 'Thêm sản phẩm',
-            'product' => $product
+            'title' => 'Chỉnh sửa sản phẩm ' . $product->ma_san_pham . ' | CMDT Coffee & Tea',
+            'subtitle' => 'Chỉnh sửa sản phẩm ' . $product->ma_san_pham,
+            'product' => $product,
+            'categorys' => $categorys
         ];
+
+        return view('admins.products.product_edit', $viewData);
+    }
+
+    public function updateProduct(Request $request, $proId)
+    {
+        $product = SanPham::where('ma_san_pham', $proId)->first();
+        if (!$product) {
+            toastr()->error('Không tìm thấy sản phẩm!');
+            return redirect()->back();
+        }
+
+        $request->validate([
+            // Bỏ qua id hiện tại khi check unique ma_san_pham
+            'ma_san_pham' => 'required|string|size:10|unique:san_phams,ma_san_pham,' . $product->id,
+            'ten_san_pham' => 'required|string|max:255|min:2',
+            'ma_danh_muc' => 'required',
+            'hinh_anh' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'gia' => 'required|numeric|min:0|max:10000000',
+            'mo_ta' => 'nullable|string|max:1000',
+        ], [
+            'ma_san_pham.required' => 'Mã sản phẩm là bắt buộc.',
+            'ma_san_pham.size' => 'Mã sản phẩm phải có đúng 10 ký tự.',
+            'ma_san_pham.unique' => 'Mã sản phẩm đã được sử dụng.',
+            'ten_san_pham.required' => 'Tên sản phẩm là bắt buộc.',
+            'ten_san_pham.min' => 'Tên sản phẩm phải ít nhất 2 ký tự.',
+            'ten_san_pham.max' => 'Tên sản phẩm không quá 255 ký tự.',
+            'ma_danh_muc.required' => 'Danh mục sản phẩm là bắt buộc.',
+            'hinh_anh.image' => 'Tệp phải là ảnh.',
+            'hinh_anh.mimes' => 'Ảnh phải có định dạng jpg, jpeg, png hoặc webp.',
+            'hinh_anh.max' => 'Ảnh không quá 2MB.',
+            'gia.required' => 'Giá sản phẩm là bắt buộc.',
+            'gia.numeric' => 'Giá sản phẩm phải là một số.',
+            'gia.min' => 'Giá sản phẩm phải lớn hơn 0.',
+            'gia.max' => 'Giá sản phẩm không quá 10 triệu.',
+            'mo_ta.max' => 'Mô tả không quá 1000 ký tự.',
+        ]);
+
+        // Kiểm tra slug mới có trùng không (nếu tên sản phẩm đổi)
+        $newSlug = Str::slug($request->ten_san_pham);
+        if ($newSlug !== $product->slug && SanPham::where('slug', $newSlug)->exists()) {
+            toastr()->error('Tên sản phẩm đã trùng, vui lòng chọn tên khác');
+            return redirect()->back()->withInput();
+        }
+
+        // Xử lý ảnh mới nếu có
+        if ($request->hasFile('hinh_anh')) {
+            // Xóa ảnh cũ nếu có (nếu muốn)
+            if ($product->hinh_anh) {
+                Storage::disk('public')->delete($product->hinh_anh);
+            }
+
+            $image = $request->file('hinh_anh');
+            $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+            Storage::disk('public')->putFileAs('products', $image, $imageName);
+            $product->hinh_anh = 'products/' . $imageName;
+        }
+
+        // Cập nhật các trường
+        $product->ma_san_pham = $request->ma_san_pham;
+        $product->ten_san_pham = $request->ten_san_pham;
+        $product->ma_danh_muc = $request->ma_danh_muc;
+        $product->slug = $newSlug;
+        $product->gia = $request->gia;
+        $product->trang_thai = $request->trang_thai;
+        $product->mo_ta = $request->mo_ta;
+        $product->hot = $request->hot === 'Hot' ? 1 : 0;
+        $product->is_new = $request->is_new === 'New' ? 1 : 0;
+
+        $product->save();
+
+        toastr()->success('Cập nhật sản phẩm thành công.');
+        return redirect()->route('admin.products.list');
     }
 }

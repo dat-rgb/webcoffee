@@ -112,6 +112,11 @@ Route::prefix('admin/products')->group(function(){
     Route::get('/hidden',[AdminProductController::class,'listProductsHidden'])->name('admin.products.hidden.list');
     Route::get('/add-product',[AdminProductController::class,'showProductForm'])->name('admin.products.form');
     Route::post('/add-product',[AdminProductController::class,'productAdd'])->name('admin.products.add');
+
+   // Hiển thị form edit sản phẩm
+    Route::get('/edit-product/{id}', [AdminProductController::class, 'showProductEdit'])->name('admin.product.edit.form');
+    Route::post('/edit-product/{id}', [AdminProductController::class, 'updateProduct'])->name('admin.product.update');
+
     Route::post('/archive-product/{id}',[AdminProductController::class, 'productArchive'])->name('admin.product.archive');
     Route::post('/hidden-or-acctive/{id}',[AdminProductController::class,'productHiddenOrAcctive'])->name('admin.product.hidde-or-acctive');
     Route::post('/bulk-action', [AdminProductController::class, 'bulkAction'])->name('admin.product.bulk-action');
