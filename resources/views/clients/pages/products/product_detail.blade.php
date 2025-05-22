@@ -124,7 +124,7 @@
                                     </div>
                                 </div>
                             </div>
-                            @if (($product->san_pham_pha_che == 0 && $sizes->count() == 0))
+                            @if ( $sizes->count() == 0)
                                 <span style="color: #ff9900; font-weight: 600;">
                                     Sản phẩm đang cập nhật... Vui lòng quay lại sau nhé!
                                 </span>

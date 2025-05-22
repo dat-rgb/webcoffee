@@ -103,23 +103,44 @@
                                                         <th>Tên SP</th>
                                                         <th>Danh mục</th>
                                                         <th>Giá (vnd)</th>
-                                                        <th>Trạng thái</th>
+                                                        <th>Sizes</th>
+                                                        <th>T.thái</th>
                                                         <th>Rating</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     @foreach ( $products as $pro )
-                                                        <tr role="row" class="odd product-row">
+                                                        <tr role="" class=" product-row">
                                                             <td>
                                                                 <input type="checkbox" class="product-checkbox" value="{{ $pro->ma_san_pham }}">
                                                             </td> 
                                                             <td>
-                                                                <img src="{{ $pro->hinh_anh ? asset('storage/' . $pro->hinh_anh) : asset('images/no_product_image.png') }}" alt="{{ $pro->ten_san_pham }}" width="80">
-                                                            </td>
+                                                                <a href="{{ route('admin.product.edit.form',$pro->ma_san_pham) }}" class="">
+                                                                    <img src="{{ $pro->hinh_anh ? asset('storage/' . $pro->hinh_anh) : asset('images/no_product_image.png') }}" alt="{{ $pro->ten_san_pham }}" width="80">
+                                                                </a>                                                            </td>
                                                             <td>{{ $pro->ma_san_pham }}</td>
                                                             <td>{{ $pro->ten_san_pham }}</td>
                                                             <td>{{ $pro->danhMuc->ten_danh_muc }}</td>
                                                             <td>{{ number_format($pro->gia, 0, ',', '.') }}</td>
+                                                            @php
+                                                                $sizes = $sizesMap[$pro->ma_san_pham] ?? collect(); // dùng collect() để đảm bảo có thể count()
+                                                            @endphp
+                                                            <td>
+                                                                @if ($sizes->count())
+                                                                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                                                        @foreach ($sizes as $size)
+                                                                            <span style="background: #e0f7fa; color: #00796b;
+                                                                                        padding: 4px 8px; border-radius: 6px;
+                                                                                        font-size: 11px; font-weight: 500;
+                                                                                        white-space: nowrap;">
+                                                                                {{ $size->ten_size }}
+                                                                            </span>
+                                                                        @endforeach
+                                                                    </div>
+                                                                @else
+                                                                    <span class="text-muted"><a href="{{ route('admin.products.ingredients.form', $pro->slug) }}" class="">Thêm size.</a></span>
+                                                                @endif
+                                                            </td>
                                                             <td>
                                                                 @if ($pro->trang_thai == 1)
                                                                     <span class="badge badge-success">Hiển thị</span>
@@ -145,15 +166,16 @@
                                                             <td>
                                                                 <div class="form-button-action">
                                                                     @if($pro->trang_thai == 1)
-                                                                        <button type="button" class="btn btn-icon btn-round btn-info" data-bs-toggle="tooltip" title="Chỉnh sửa">
+                                                                        <a href="{{ route('admin.product.edit.form', $pro->ma_san_pham) }}" class="btn btn-icon btn-round btn-info" data-bs-toggle="tooltip" title="Chỉnh sửa">
                                                                             <i class="fa fa-edit"></i>
-                                                                        </button>
+                                                                        </a>
                                                                         <form action="{{ route('admin.product.hidde-or-acctive', $pro->ma_san_pham) }}" method="POST" class="hidden-or-acctive">
                                                                             @csrf    
                                                                             <button type="button" class="btn btn-icon btn-round btn-black hidden-btn" data-bs-toggle="tooltip" title="Ẩn">
                                                                                 <i class="fas fa-toggle-off text-white"></i>
                                                                             </button>   
                                                                         </form> 
+
                                                                     @elseif($pro->trang_thai == 2)
 
                                                                         <form action="{{ route('admin.product.hidde-or-acctive', $pro->ma_san_pham) }}" method="POST" class="acctive-form">
@@ -178,7 +200,8 @@
                                         <div class="col-sm-12 col-md-7">
                                             <div class="dataTables_paginate paging_simple_numbers" id="add-row_paginate">
                                                 <ul class="pagination">
-                                                    {!! $products->links('pagination::bootstrap-5') !!}
+                                                    {{ $products->appends(request()->query())->links() }}
+
                                                 </ul>
                                             </div>
                                         </div>

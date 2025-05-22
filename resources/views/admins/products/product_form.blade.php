@@ -69,6 +69,15 @@
                                     @enderror
                                 </div>
                                 <div class="form-group">
+                                    <label for="exampleFormControlFile1">Hình ảnh</label>
+                                    <input type="file" name="hinh_anh" class="form-control-file" id="exampleFormControlFile1">
+                                    @error('hinh_anh')
+                                        <div class="custom-error">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-4">
+                                <div class="form-group">
                                     <label for="exampleFormControlSelect1">Danh mục sản phẩm</label>
                                     <select class="form-select" name="ma_danh_muc" id="exampleFormControlSelect1">
                                         <option value="" selected disabled>-- Chọn danh mục sản phẩm --</option>
@@ -76,15 +85,6 @@
                                             <option value="{{ $cate->ma_danh_muc }}">{{ $cate->ten_danh_muc }}</option>
                                         @endforeach
                                     </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6 col-lg-4">
-                                <div class="form-group">
-                                    <label for="exampleFormControlFile1">Hình ảnh</label>
-                                    <input type="file" name="hinh_anh" class="form-control-file" id="exampleFormControlFile1">
-                                    @error('hinh_anh')
-                                        <div class="custom-error">{{ $message }}</div>
-                                    @enderror
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Giá</label>
@@ -103,7 +103,7 @@
                                         <option value="" selected disabled>-- Chọn trạng thái --</option>
                                         <option value="1">Hiển thị</option>
                                         <option value="2">Ẩn</option>
-                                        <option value="3">Lưu trữ</option>
+                                        <option value="3">Demo</option>
                                     </select>
                                     @error('trang_thai')
                                         <div class="custom-error">{{ $message }}</div>
@@ -129,10 +129,6 @@
                                             <input type="checkbox" name="is_new" value="New" class="selectgroup-input" >
                                             <span class="selectgroup-button">New</span>
                                         </label>
-                                        <label class="selectgroup-item">
-                                            <input type="checkbox" name="san_pham_pha_che" value="DongGoi" class="selectgroup-input" >
-                                            <span class="selectgroup-button">Sản phẩm đóng gói</span>
-                                        </label>
                                     </div>
                                 </div>
                             </div>   
@@ -143,7 +139,7 @@
             <!-- Hành động -->
             <div class="card-action">
                 <button type="submit" class="btn btn-primary">Thêm</button> <!-- Nút chính -->
-                <button class="btn btn-danger">Hủy</button> <!-- Thoát, không gây nhầm lẫn -->
+                <button class="btn btn-danger" onclick="window.history.back()">Hủy</button> <!-- Thoát, không gây nhầm lẫn -->
             </div>
         </div>
     </form>
