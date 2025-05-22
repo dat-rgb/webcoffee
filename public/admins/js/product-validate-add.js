@@ -22,12 +22,10 @@ $(document).ready(function(){
         if(productName.length > 255){
             errorMessage += "- Tên sản phẩm không vượt quá 255 ký tự.<br>";
         }
-
         // Kiểm tra danh mục
         if(!categpryId){
             errorMessage += "- Vui lòng chọn danh mục sản phẩm.<br>";
         }
-
         let priceNumber = parseFloat(price); // Ép kiểu về số
         if (!price) {
             errorMessage += "- Vui lòng nhập giá sản phẩm.<br>";
@@ -43,7 +41,6 @@ $(document).ready(function(){
                 }
             }
         }
-
         // Kiểm tra trạng thái
         if(!status){
             errorMessage += "- Vui lòng chọn trạng thái.<br>";

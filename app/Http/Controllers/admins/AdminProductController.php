@@ -13,34 +13,47 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use PhpParser\Node\Expr\List_;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Support\Facades\DB;
 class AdminProductController extends Controller
 {
     public function getCategory(){
         $categorys = DanhMucSanPham::where('trang_thai',1)->get();
         return $categorys;
     }
+    public function getSizeProduct($proId){
+        $sizes = DB::table('thanh_phan_san_phams')
+            ->join('sizes', 'thanh_phan_san_phams.ma_size', '=', 'sizes.ma_size')
+            ->where('thanh_phan_san_phams.ma_san_pham', $proId)
+            ->select('sizes.ma_size', 'sizes.ten_size', 'sizes.gia_size')
+            ->distinct()
+            ->get();
+        return $sizes;
+    }
     public function getIngredient(){
         $ingredients = NguyenLieu::where('trang_thai',1)->get();
         return $ingredients;
-    }
-    public function getSizes(){
-        $sizes = Sizes::all();
-        return $sizes;
     }
 
     public function getProductsByStatus($status) {
         return SanPham::with('danhMuc')
             ->where('trang_thai', $status)
+            ->orderBy('id', 'desc')
             ->paginate(10);
     }
     public function listProducts(Request $request) {
         $products = $this->getProductsByStatus(1);
 
+
+        $sizesMap = [];
+        foreach ($products as $pro) {
+            $sizesMap[$pro->ma_san_pham] = $this->getSizeProduct($pro->ma_san_pham);
+        }
+
         $viewData = [
             'title' => 'Quản lý sản phẩm || CDMT Coffee & Tea',
             'subtitle' => 'Danh sách sản phẩm',
             'products' => $products,
+            'sizesMap' => $sizesMap
         ];
 
         return view('admins.products.index', $viewData);
@@ -48,10 +61,15 @@ class AdminProductController extends Controller
     public function listProductsHidden(){
         $products = $this->getProductsByStatus(2);
 
+        $sizesMap = [];
+        foreach ($products as $pro) {
+            $sizesMap[$pro->ma_san_pham] = $this->getSizeProduct($pro->ma_san_pham);
+        }
         $viewData = [
             'title' => 'Quản lý sản phẩm || CDMT Coffee & Tea',
             'subtitle' => 'Sản phẩm đã ẩn',
             'products' => $products,
+            'sizesMap' => $sizesMap
         ];
 
         return view('admins.products.index', $viewData);
@@ -60,8 +78,6 @@ class AdminProductController extends Controller
 
         $categorys = $this->getCategory();
         $ingredients = $this->getIngredient();
-        $sizes = $this->getSizes();
-
         // Lấy mã lớn nhất hiện có (giả sử dạng: NL001, NL002, ...)
         $lastItem = SanPham::orderByDesc('ma_san_pham')->first();
 
@@ -80,7 +96,6 @@ class AdminProductController extends Controller
             'subtitle' => 'Thêm sản phẩm',
             'categorys' => $categorys,
             'ingredients' =>$ingredients,
-            'sizes' => $sizes,
             'newCode' => $newCode
         ];
 
@@ -117,7 +132,6 @@ class AdminProductController extends Controller
         $new = $request->is_new === 'New' ? 1 : 0;
         $hot = $request->hot === 'Hot' ? 1 : 0;
         $slug = Str::slug($request->ten_san_pham);
-        $phaChe = $request->san_pham_pha_che === 'DongGoi' ? 0: 1;
 
         // Check slug trùng
         if (SanPham::where('slug', $slug)->exists()) {
@@ -146,12 +160,113 @@ class AdminProductController extends Controller
             'hinh_anh' => $imagePath,
             'hot' => $hot,
             'is_new' => $new,
-            'san_pham_pha_che' => $phaChe,
         ]);
-
         toastr()->success('Thêm sản phẩm thành công.');
         return redirect()->route('admin.products.list');
     }
+    //show thành phần
+    public function showProductAddIngredients($slug){
+        $product = SanPham::where('slug', $slug)->first();
+        $sizes = Sizes::where('trang_thai',1)->get();
+        $ingredients = $this->getIngredient();
+
+        if(!$product){
+            toastr()->error('Sản phẩm không tồn tại');
+            return redirect()->back();
+        }
+
+        $viewData = [
+            'title' => 'Thêm thành phần sản phẩm | CMDT Coffee & Tea',
+            'subtitle' => 'Thêm thành phần sản phẩm',
+            'product' => $product,
+            'ingredients' =>$ingredients,
+            'sizes' => $sizes
+        ];
+
+        return view('admins.products.product_ingredients', $viewData);
+    }
+    public function productAddIngredients(Request $request) {
+        $request->validate([
+            'ma_san_pham' => 'required|string',
+            'sizes' => 'required|array|min:1',
+            'ingredients' => 'required|array',
+            'dinh_luongs' => 'required|array',
+            'don_vis' => 'required|array',
+        ], [
+            'ma_san_pham.required' => 'Mã sản phẩm là bắt buộc.',
+            'ma_san_pham.string' => 'Mã sản phẩm phải là chuỗi.',
+            'sizes.required' => 'Phải chọn ít nhất 1 size.',
+            'sizes.array' => 'Size phải là một mảng.',
+            'ingredients.required' => 'Nguyên liệu là bắt buộc.',
+            'ingredients.array' => 'Nguyên liệu phải là một mảng.',
+            'dinh_luongs.required' => 'Định lượng là bắt buộc.',
+            'dinh_luongs.array' => 'Định lượng phải là một mảng.',
+            'don_vis.required' => 'Đơn vị là bắt buộc.',
+            'don_vis.array' => 'Đơn vị phải là một mảng.',
+        ]);
+
+        $productId = $request->input('ma_san_pham');
+        $sizes = $request->input('sizes');
+
+        $insertedCount = 0;
+        $duplicateCount = 0;
+
+        try {
+            foreach ($sizes as $size) {
+                $ings = $request->input("ingredients.$size", []);
+                $dls = $request->input("dinh_luongs.$size", []);
+                $dvs = $request->input("don_vis.$size", []);
+
+                foreach ($ings as $index => $ingredientId) {
+                    $quantity = $dls[$index] ?? null;
+                    $unit = $dvs[$index] ?? null;
+
+                    if ($ingredientId && $quantity && $unit) {
+                        // Kiểm tra trùng
+                        $exists = ThanhPhanSanPham::where([
+                            ['ma_san_pham', '=', $productId],
+                            ['ma_size', '=', $size],
+                            ['ma_nguyen_lieu', '=', $ingredientId],
+                        ])->exists();
+
+                        if ($exists) {
+                            $duplicateCount++;
+                            continue;
+                        }
+
+                        // Thêm mới
+                        ThanhPhanSanPham::create([
+                            'ma_san_pham' => $productId,
+                            'ma_size' => $size,
+                            'ma_nguyen_lieu' => $ingredientId,
+                            'dinh_luong' => $quantity,
+                            'don_vi' => $unit,
+                        ]);
+                        $insertedCount++;
+                    }
+                }
+            }
+
+            if ($insertedCount > 0) {
+                toastr()->success("Đã thêm $insertedCount nguyên liệu thành công!");
+            }
+
+            if ($duplicateCount > 0) {
+                toastr()->warning("$duplicateCount nguyên liệu đã tồn tại và không được thêm lại.");
+            }
+
+            if ($insertedCount == 0 && $duplicateCount == 0) {
+                toastr()->error('Không có nguyên liệu nào được thêm. Vui lòng kiểm tra lại!');
+            }
+
+        } catch (\Exception $e) {
+            toastr()->error('Đã xảy ra lỗi: ' . $e->getMessage());
+            // Có thể log thêm $e nếu cần
+        }
+
+        return redirect()->back();
+    }
+
     //Ẩn/hiện 
     public function productHiddenOrAcctive($proId) {
         $product = SanPham::where('ma_san_pham',$proId)->first();
