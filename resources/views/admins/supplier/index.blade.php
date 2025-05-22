@@ -37,7 +37,7 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Mã NCC</th>
+                                    {{-- <th>Mã NCC</th> --}}
                                     <th>Tên nhà cung cấp</th>
                                     <th>Địa chỉ</th>
                                     <th>Số điện thoại</th>
@@ -50,7 +50,7 @@
                                 @forelse($suppliers as $index => $supplier)
                                     <tr>
                                         <td>{{ $index + 1 }}</td>
-                                        <td>{{ $supplier->ma_nha_cung_cap }}</td>
+                                        {{-- <td>{{ $supplier->ma_nha_cung_cap }}</td> --}}
                                         <td>{{ $supplier->ten_nha_cung_cap }}</td>
                                         <td>{{ $supplier->dia_chi }}</td>
                                         <td>{{ $supplier->so_dien_thoai }}</td>

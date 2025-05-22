@@ -6,6 +6,8 @@ use App\Http\Controllers\admins\AdminCategoryController;
 use App\Http\Controllers\admins\AdminMaterialController;
 use App\Http\Controllers\admins\AdminVoucherController;
 use App\Http\Controllers\admins\AdminSupplierController;
+use App\Http\Controllers\admins\AdminNhanvienController;
+use App\Http\Controllers\admins\AdminLichlamviecController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\clients\AuthController;
@@ -176,11 +178,24 @@ Route::prefix('admin/suppliers')->name('admins.supplier.')->group(function () {
     Route::get('/edit/{id}', [AdminSupplierController::class, 'edit'])->name('edit');
     Route::put('/update/{id}', [AdminSupplierController::class, 'update'])->name('update');
     Route::delete('/destroy/{id}', [AdminSupplierController::class, 'destroy'])->name('destroy');
-
     Route::post('/archive/{id}', [AdminSupplierController::class, 'archive'])->name('archive');  // Lưu trữ
     Route::get('/archived', [AdminSupplierController::class, 'archived'])->name('archived');    // Danh sách lưu trữ
     Route::patch('/restore/{id}', [AdminSupplierController::class, 'restore'])->name('restore'); // Khôi phục
-
-    Route::patch('/toggle-status/{id}', [AdminSupplierController::class, 'toggleStatus'])->name('toggleStatus');
+    Route::post('/toggle-status/{id}', [AdminSupplierController::class, 'toggleStatus'])->name('toggleStatus');
 });
+//Route NhanVien
+Route::prefix('admin/nhanviens')->name('admins.nhanvien.')->group(function () {
+    Route::get('/', [AdminNhanVienController::class, 'index'])->name('index');
+    Route::get('/create', [AdminNhanVienController::class, 'create'])->name('create');
+    Route::post('/store', [AdminNhanVienController::class, 'store'])->name('store');
+    Route::get('/{ma_nhan_vien}/edit', [AdminNhanVienController::class, 'edit'])->name('edit');
+    Route::put('/{ma_nhan_vien}', [AdminNhanVienController::class, 'update'])->name('update');
+    Route::delete('/{ma_nhan_vien}', [AdminNhanVienController::class, 'destroy'])->name('destroy');
+    //Thử thách Admin phân công lịch làm việc
+    Route::get('/phan-cong-lich', [AdminLichlamviecController::class, 'showForm'])->name('lich.showForm');
+    Route::post('/phan-cong-lich', [AdminLichlamviecController::class, 'assignWork'])->name('lich.assignWork');
+    Route::get('/lich-lam-viec', [AdminLichlamviecController::class, 'showLichTheoTuan'])->name('lich.tuan');
+
+});
+
 
