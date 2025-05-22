@@ -47,8 +47,8 @@ class ProductController extends Controller
             ->take(4)
             ->get();
 
-         // Lấy danh sách size của sản phẩm
-         $sizes = DB::table('thanh_phan_san_phams')
+        // Lấy danh sách size của sản phẩm
+        $sizes = DB::table('thanh_phan_san_phams')
             ->join('sizes', 'thanh_phan_san_phams.ma_size', '=', 'sizes.ma_size')
             ->where('thanh_phan_san_phams.ma_san_pham', $product->ma_san_pham)
             ->select('sizes.ma_size', 'sizes.ten_size', 'sizes.gia_size')

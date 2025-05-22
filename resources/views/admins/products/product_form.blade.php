@@ -69,21 +69,22 @@
                                     @enderror
                                 </div>
                                 <div class="form-group">
-                                    <label for="exampleFormControlSelect1">Danh mục sản phẩm</label>
-                                    <select class="form-select" name="ma_danh_muc" id="exampleFormControlSelect1">
-                                        @foreach ( $categorys as $cate )
-                                            <option value="{{ $cate->ma_danh_muc }}">{{ $cate->ten_danh_muc }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6 col-lg-4">
-                                <div class="form-group">
                                     <label for="exampleFormControlFile1">Hình ảnh</label>
                                     <input type="file" name="hinh_anh" class="form-control-file" id="exampleFormControlFile1">
                                     @error('hinh_anh')
                                         <div class="custom-error">{{ $message }}</div>
                                     @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-4">
+                                <div class="form-group">
+                                    <label for="exampleFormControlSelect1">Danh mục sản phẩm</label>
+                                    <select class="form-select" name="ma_danh_muc" id="exampleFormControlSelect1">
+                                        <option value="" selected disabled>-- Chọn danh mục sản phẩm --</option>
+                                        @foreach ( $categorys as $cate )
+                                            <option value="{{ $cate->ma_danh_muc }}">{{ $cate->ten_danh_muc }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Giá</label>
@@ -99,8 +100,9 @@
                                 <div class="form-group">
                                     <label for="exampleFormControlSelect1">Trạng thái</label>
                                     <select class="form-select" name="trang_thai" id="exampleFormControlSelect1">
-                                        <option value="1">Đang bán</option>
-                                        <option value="2">Ngừng bán</option>
+                                        <option value="" selected disabled>-- Chọn trạng thái --</option>
+                                        <option value="1">Hiển thị</option>
+                                        <option value="2">Ẩn</option>
                                         <option value="3">Demo</option>
                                     </select>
                                     @error('trang_thai')
@@ -127,65 +129,9 @@
                                             <input type="checkbox" name="is_new" value="New" class="selectgroup-input" >
                                             <span class="selectgroup-button">New</span>
                                         </label>
-                                        <label class="selectgroup-item">
-                                            <input type="checkbox" name="san_pham_pha_che" value="PhaChe" class="selectgroup-input" >
-                                            <span class="selectgroup-button">Sản phẩm pha chế</span>
-                                        </label>
                                     </div>
                                 </div>
                             </div>   
-                        </div>
-                    </div>
-                </div>
-                <!-- Thành phần sản phẩm -->
-                <div class="card" id="thanh_phan">
-                    <div class="card-header">
-                        <div class="card-title">Nhập thành phần sản phảm</div>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                        @foreach ($sizes as $sz )
-                            <div class="col-md-6 col-lg-4">
-                                <div class="form-group">
-                                    <label class="form-label">Size</label>
-                                    <div class="selectgroup selectgroup-pills">
-                                        <label class="selectgroup-item">
-                                            <input type="checkbox" id="{{ 'checkbox' . $sz->ma_size }}" class="selectgroup-input" name="sizes[{{ $sz->ma_size }}][checked]" value="1" {{ old("sizes.$sz->ma_size.checked") ? 'checked' : '' }}>
-                                            <span class="selectgroup-button">{{ $sz->ten_size }}</span>
-                                        </label>
-                                        @error("sizes.$sz->ma_size.checked")
-                                            <div class="custom-error">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div id="ingredientContainer{{ $sz->ma_size }}" class="ingredient-container" style="display:none;">
-                                    <div class="ingredient-form mb-3">
-                                        <select class="form-select mb-2" name="sizes[{{ $sz->ma_size }}][ingredients][0][ma_nguyen_lieu]">
-                                            <option value="">Chọn nguyên liệu</option>
-                                            @foreach ($ingredients as $ing )
-                                                <option value="{{ $ing->ma_nguyen_lieu }}" {{ old("sizes.$sz->ma_size.ingredients.0.ma_nguyen_lieu") == $ing->ma_nguyen_lieu ? 'selected' : '' }}>{{ $ing->ten_nguyen_lieu }}</option>
-                                            @endforeach
-                                        </select>
-                                        @error("sizes.$sz->ma_size.ingredients.0.ma_nguyen_lieu")
-                                            <div class="custom-error">{{ $message }}</div>
-                                        @enderror
-                                        <input type="number" class="form-control mb-2" placeholder="Định lượng" name="sizes[{{ $sz->ma_size }}][ingredients][0][dinh_luong]" value="{{ old("sizes.$sz->ma_size.ingredients.0.dinh_luong") }}">
-                                        @error("sizes.$sz->ma_size.ingredients.0.dinh_luong")
-                                            <div class="custom-error">{{ $message }}</div>
-                                        @enderror
-                                        <select class="form-select mb-2" name="sizes[{{ $sz->ma_size }}][ingredients][0][don_vi]">
-                                            <option value="g" {{ old("sizes.$sz->ma_size.ingredients.0.don_vi") == 'g' ? 'selected' : '' }}>g</option>
-                                            <option value="ml" {{ old("sizes.$sz->ma_size.ingredients.0.don_vi") == 'ml' ? 'selected' : '' }}>ml</option>
-                                            <option value="ly" {{ old("sizes.$sz->ma_size.ingredients.0.don_vi") == 'ly' ? 'selected' : '' }}>ly</option>
-                                        </select>
-                                        @error("sizes.$sz->ma_size.ingredients.0.don_vi")
-                                            <div class="custom-error">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <button type="button" class="btn btn-success addIngredientBtn">+</button>
-                                </div>
-                            </div>
-                        @endforeach
                         </div>
                     </div>
                 </div>
@@ -193,9 +139,7 @@
             <!-- Hành động -->
             <div class="card-action">
                 <button type="submit" class="btn btn-primary">Thêm</button> <!-- Nút chính -->
-                <button class="btn btn-outline-primary">Thêm, ở lại</button> <!-- Hành động phụ -->
-                <button class="btn btn-warning">Nháp</button> <!-- Hành động tạm -->
-                <button class="btn btn-danger">Hủy</button> <!-- Thoát, không gây nhầm lẫn -->
+                <button class="btn btn-danger" onclick="window.history.back()">Hủy</button> <!-- Thoát, không gây nhầm lẫn -->
             </div>
         </div>
     </form>

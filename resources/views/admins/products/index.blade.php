@@ -3,12 +3,18 @@
 @section('title', $title)
 @section('subtitle', $subtitle)
 @push('styles')
-    <style>
-        .fas, .far {
-            color: #f39c12;  /* Màu vàng cho sao */
-            font-size: 18px;  /* Kích thước sao */
-        }
-    </style>
+<style>
+    .fas, .far {
+        color: #f39c12;  /* Màu vàng cho sao */
+        font-size: 18px;  /* Kích thước sao */
+    }
+    th {
+        white-space: nowrap;
+        font-size: 14px;
+        padding: 8px 10px;
+        text-align: center;
+    }
+</style>
 @endpush
 
 @section('content')
@@ -36,96 +42,140 @@
                     <div class="card-header">
                         <div class="d-flex align-items-center">
                             <h4 class="card-title">{{ $subtitle }}</h4>
-                            <a href="{{ route('admin.products.form') }}" class="btn btn-primary btn-round ms-auto">
-                                <i class="fa fa-plus"></i> Thêm sản phẩm
-                            </a>
                         </div>
-                        <div class="form-group">
-                            <div class="input-icon">
-                            <input type="text" class="form-control" placeholder="Search for...">
-                            <span class="input-icon-addon">
-                                <i class="fa fa-search"></i>
-                            </span>
+                        <div class="form-group mb-3">
+                            <div class="row g-2 align-items-center">
+                                <div class="col-12 col-md-6 col-lg-5">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" placeholder="Tìm kiếm sản phẩm...">
+                                        <button  class="input-group-text bg-white">
+                                            <i class="fa fa-search text-muted"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="col-6 col-md-3 col-lg-2">
+                                    <div class="dropdown">
+                                        <button class="btn btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Thao tác nhanh
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                            <li>
+                                                <button type="button" class="dropdown-item" id="hide-products">Ẩn các sản phẩm đã chọn</button>
+                                            </li>
+                                    
+                                            <li>
+                                                <button type="button" class="dropdown-item" id="show-products">Hiển thị các sản phẩm đã chọn</button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="col-6 col-md-3 col-lg-2">
+                                    <a href="{{ route('admin.products.form') }}" class="btn btn-primary w-100">
+                                        <i class="fa fa-plus"></i> Thêm mới
+                                    </a>    
+                                </div>
                             </div>
                         </div>
                     </div>
-
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <div id="add-row_wrapper" class="dataTables_wrapper container-fluid dt-bootstrap4">
-
-                                <div class="row">
-                                    <div class="col-sm-12">
-                                        <table id="add-row" class="display table table-striped table-hover dataTable" role="grid" aria-describedby="add-row_info">
-                                           
-                                            <thead>
-                                                <tr>
-                                                    <th>#</th>
-                                                    <th>Ảnh</th>
-                                                    <th>Mã SP</th>
-                                                    <th>Tên SP</th>
-                                                    <th>Danh mục</th>
-                                                    <th>Giá</th>
-                                                    <th>Trạng thái</th>
-                                                    <th>Rating</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @if($products->isEmpty())
+                    @if($products->isEmpty())
+                        <div class="text-center my-5 py-5">
+                            <i class="fa fa-box-open fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Không có sản phẩm nào trong danh sách</h5>
+                            <p>Hãy thêm sản phẩm mới để bắt đầu quản lý kho hàng.</p>
+                            <a href="{{ route('admin.products.form') }}" class="btn btn-primary mt-3">
+                                <i class="fa fa-plus"></i> Thêm sản phẩm mới
+                            </a>
+                        </div>
+                    @else
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <div id="add-row_wrapper" class="dataTables_wrapper container-fluid dt-bootstrap4">
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <table id="add-row" class="display table table-striped table-hover dataTable" role="grid" aria-describedby="add-row_info">
+                                                <thead>
                                                     <tr>
-                                                        <td colspan="9" class="text-center">Không có sản phẩm nào. <a href="{{ route('admin.products.form') }}">Thêm mới.</a></td>
+                                                        <th><input type="checkbox" id="checkAll"></th>
+                                                        <th>Ảnh</th>
+                                                        <th>Mã SP</th>
+                                                        <th>Tên SP</th>
+                                                        <th>Danh mục</th>
+                                                        <th>Giá (vnd)</th>
+                                                        <th>Sizes</th>
+                                                        <th>T.thái</th>
+                                                        <th>Rating</th>
                                                     </tr>
-                                                @else
+                                                </thead>
+                                                <tbody>
                                                     @foreach ( $products as $pro )
-                                                        <tr role="row" class="odd">
-                                                            <td class="sorting_1">{{ $loop->iteration }}</td>
+                                                        <tr role="" class=" product-row">
                                                             <td>
-                                                            <img src="{{ asset('storage/' . $pro->hinh_anh) }}" alt="{{ $pro->ten_san_pham }}" width="80">
-                                                            </td>
+                                                                <input type="checkbox" class="product-checkbox" value="{{ $pro->ma_san_pham }}">
+                                                            </td> 
+                                                            <td>
+                                                                <a href="{{ route('admin.product.edit.form',$pro->ma_san_pham) }}" class="">
+                                                                    <img src="{{ $pro->hinh_anh ? asset('storage/' . $pro->hinh_anh) : asset('images/no_product_image.png') }}" alt="{{ $pro->ten_san_pham }}" width="80">
+                                                                </a>                                                            </td>
                                                             <td>{{ $pro->ma_san_pham }}</td>
                                                             <td>{{ $pro->ten_san_pham }}</td>
                                                             <td>{{ $pro->danhMuc->ten_danh_muc }}</td>
                                                             <td>{{ number_format($pro->gia, 0, ',', '.') }}</td>
+                                                            @php
+                                                                $sizes = $sizesMap[$pro->ma_san_pham] ?? collect(); // dùng collect() để đảm bảo có thể count()
+                                                            @endphp
+                                                            <td>
+                                                                @if ($sizes->count())
+                                                                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                                                        @foreach ($sizes as $size)
+                                                                            <span style="background: #e0f7fa; color: #00796b;
+                                                                                        padding: 4px 8px; border-radius: 6px;
+                                                                                        font-size: 11px; font-weight: 500;
+                                                                                        white-space: nowrap;">
+                                                                                {{ $size->ten_size }}
+                                                                            </span>
+                                                                        @endforeach
+                                                                    </div>
+                                                                @else
+                                                                    <span class="text-muted"><a href="{{ route('admin.products.ingredients.form', $pro->slug) }}" class="">Thêm size.</a></span>
+                                                                @endif
+                                                            </td>
                                                             <td>
                                                                 @if ($pro->trang_thai == 1)
-                                                                    <span class="badge badge-success">Đang bán</span>
+                                                                    <span class="badge badge-success">Hiển thị</span>
                                                                 @elseif ($pro->trang_thai == 2)
-                                                                    <span class="badge badge-danger">Ngừng bán</span>
-                                                                @elseif ($pro->trang_thai == 3)
-                                                                    <span class="badge badge-warning">Lưu trữ</span>
+                                                                    <span class="badge badge-danger">Ẩn</span>
                                                                 @else
                                                                     <span class="badge badge-secondary">Không xác định</span>
                                                                 @endif
                                                             </td>
                                                             <td>
-                                                                @for ($i = 1; $i <= 5; $i++)
-                                                                    @if ($i <= $pro->rating)
-                                                                        <i class="fas fa-star"></i>  <!-- Sao đầy -->
-                                                                    @elseif ($i - 0.5 == $pro->rating)
-                                                                        <i class="fas fa-star-half-alt"></i>  <!-- Sao nửa -->
-                                                                    @else
-                                                                        <i class="far fa-star"></i>  <!-- Sao rỗng -->
-                                                                    @endif
-                                                                @endfor
+                                                                <div style="display: inline-flex; gap: 2px;">
+                                                                    @for ($i = 1; $i <= 5; $i++)
+                                                                        @if ($i <= $pro->rating)
+                                                                            <i class="fas fa-star" style="color: gold;"></i>
+                                                                        @elseif ($i - 0.5 == $pro->rating)
+                                                                            <i class="fas fa-star-half-alt" style="color: gold;"></i>
+                                                                        @else
+                                                                            <i class="far fa-star" style="color: gold;"></i>
+                                                                        @endif
+                                                                    @endfor
+                                                                </div>
                                                             </td>
                                                             <td>
                                                                 <div class="form-button-action">
                                                                     @if($pro->trang_thai == 1)
-                                                                        <button type="button" class="btn btn-icon btn-round btn-info" data-bs-toggle="tooltip" title="Chỉnh sửa">
+                                                                        <a href="{{ route('admin.product.edit.form', $pro->ma_san_pham) }}" class="btn btn-icon btn-round btn-info" data-bs-toggle="tooltip" title="Chỉnh sửa">
                                                                             <i class="fa fa-edit"></i>
-                                                                        </button>
-                                                                        <form action="{{ route('admin.product.archive', $pro->ma_san_pham) }}" method="POST" class="archive-form">
-                                                                            @csrf
-                                                                            <button type="button" class="btn btn-icon btn-round btn-secondary archive-btn" data-bs-toggle="tooltip" title="Lưu trữ">
-                                                                                <i class="fa fa-bookmark"></i>
-                                                                            </button>
-                                                                        </form>
+                                                                        </a>
                                                                         <form action="{{ route('admin.product.hidde-or-acctive', $pro->ma_san_pham) }}" method="POST" class="hidden-or-acctive">
                                                                             @csrf    
                                                                             <button type="button" class="btn btn-icon btn-round btn-black hidden-btn" data-bs-toggle="tooltip" title="Ẩn">
                                                                                 <i class="fas fa-toggle-off text-white"></i>
                                                                             </button>   
-                                                                        </form>
+                                                                        </form> 
+
                                                                     @elseif($pro->trang_thai == 2)
 
                                                                         <form action="{{ route('admin.product.hidde-or-acctive', $pro->ma_san_pham) }}" method="POST" class="acctive-form">
@@ -134,46 +184,38 @@
                                                                                 <i class="fas fa-toggle-on text-white"></i>
                                                                             </button>
                                                                         </form>
-                                                                    @elseif($pro->trang_thai == 3)
-                                                                        <form action="{{ route('admin.product.archive',$pro->ma_san_pham) }}" method="POST" class="acctive-form">
-                                                                            @csrf    
-                                                                            <button type="button" class="btn btn-icon btn-round btn-success acctive-btn" data-bs-toggle="tooltip" title="Khôi phục">
-                                                                                <i class="fas fa-undo text-white"></i>
-                                                                            </button>
-                                                                        </form>
                                                                         <button type="button" class="btn btn-icon btn-round btn-danger" data-bs-toggle="tooltip" title="Xóa">
                                                                             <i class="fa fa-trash"></i>
                                                                         </button>
                                                                     @endif
                                                                 </div>
-                                                            
                                                             </td>
                                                         </tr>
                                                     @endforeach
-                                                @endif
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-sm-12 col-md-7">
-                                        <div class="dataTables_paginate paging_simple_numbers" id="add-row_paginate">
-                                            <ul class="pagination">
-                                                {!! $products->links('pagination::bootstrap-5') !!}
-                                            </ul>
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </div>
-                                </div>
-                            </div> <!-- end dataTables_wrapper -->
-                        </div> <!-- end table-responsive -->
-                    </div> <!-- end card-body -->
+                                    <div class="row">
+                                        <div class="col-sm-12 col-md-7">
+                                            <div class="dataTables_paginate paging_simple_numbers" id="add-row_paginate">
+                                                <ul class="pagination">
+                                                    {{ $products->appends(request()->query())->links() }}
+
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div> <!-- end dataTables_wrapper -->
+                            </div> <!-- end table-responsive -->
+                        </div> <!-- end card-body -->   
+                    @endif
                 </div> <!-- end card -->
             </div>
         </div>
     </div>
 @endsection
-
 @push('scripts')
     <script src="{{ asset('admins/js/alert.js') }}"></script>
+    <script src="{{ asset('admins/js/admin-product.js') }}"></script>
 @endpush
