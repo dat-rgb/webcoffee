@@ -23,6 +23,7 @@ return new class extends Migration
             $table->char('so_dien_thoai', 10)->nullable();
             $table->string('dia_chi', 255)->nullable();
             $table->integer('ca_lam')->nullable(); // 1: ca sáng, 0: ca tối, 2 full ca
+             $table->integer('trang_thai')->default(0);// 0 là hoạt động , 1 là không hoạt động
             $table->timestamps();
 
             $table->foreign('ma_tai_khoan')->references('ma_tai_khoan')->on('tai_khoans')->onDelete('cascade');

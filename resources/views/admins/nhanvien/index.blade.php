@@ -2,45 +2,7 @@
 @section('title', $title)
 @section('subtitle', $subtitle)
 
-{{-- @section('content')
-    <div class="container mt-4">
-        <h2>{{ $title }}</h2>
-        <p>{{ $subtitle }}</p>
 
-        <table class="table table-bordered table-hover">
-            <thead class="table-dark">
-                <tr>
-                    <th>#</th>
-                    <th>Mã nhân viên</th>
-                    <th>Họ tên</th>
-                    <th>Chức vụ</th>
-                    <th>Cửa hàng</th>
-                    <th>SĐT</th>
-                    <th>Ca làm</th>
-
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($nhanViens as $index => $nv)
-                    <tr>
-                        <td>{{ $index + 1 }}</td>
-                        <td>{{ $nv->ma_nhan_vien }}</td>
-                        <td>{{ $nv->ho_ten_nhan_vien }}</td>
-                        <td>{{ $nv->chucVu->ten_chuc_vu ?? 'N/A' }}</td>
-                        <td>{{ $nv->cuaHang->ten_cua_hang ?? 'N/A' }}</td>
-                        <td>{{ $nv->so_dien_thoai }}</td>
-                        <td>
-                            @php
-                                $caLabels = [0 => 'Ca Tối', 1 => 'Ca Sáng', 2 => 'Full Ca'];
-                            @endphp
-                            {{ $caLabels[$nv->ca_lam] ?? 'Không rõ' }}
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-@endsection --}}
 @push('styles')
     <style>
         .fas, .far {
@@ -85,10 +47,10 @@
                             </a>
                         </div>
                         <div class="mb-3">
-                            <a href="{{ route('admins.nhanvien.lich.showForm') }}" class="btn bg-info me-2">Phân công lịch làm việc</a>
-                            <a href="{{ route('admins.nhanvien.lich.tuan') }}" class="btn btn-success-secondary me-2">Lịch làm việc</a>
+                            <a href="{{ route('admins.nhanvien.lich.showForm') }}" class="btn btn-info me-2">Phân công lịch làm việc</a>
+                            <a href="{{ route('admins.nhanvien.lich.tuan') }}" class="btn btn-success me-2">Lịch làm việc</a>
                             <a href="#" class="btn btn-outline-secondary me-2">Đổi ca làm </a>
-                            <a href="#" class="btn btn-outline-secondary">Tạm nghỉ</a>
+                            <a href="#" class="btn btn-danger">Tạm nghỉ</a>
                         </div>
                     </div>
 
@@ -104,31 +66,32 @@
 
                                             <thead>
                                                 <tr>
+                                                    <th>
+                                                        <input type="checkbox" id="select-all" />
+                                                    </th>
                                                     <th>#</th>
                                                     <th>Mã nhân viên</th>
                                                     <th>Họ tên</th>
                                                     <th>Chức vụ</th>
                                                     <th>Cửa hàng</th>
                                                     <th>SĐT</th>
-                                                    <th>Ca làm</th>
+                                                    <th>Địa chỉ</th>
                                                     <th>Thao tác</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 @foreach ($nhanViens as $index => $nv)
                                                     <tr>
+                                                        <td>
+                                                            <input type="checkbox" class="select-nhanvien" name="selected_nhanviens[]" value="{{ $nv->ma_nhan_vien }}">
+                                                        </td>
                                                         <td>{{ $index + 1 }}</td>
                                                         <td>{{ $nv->ma_nhan_vien }}</td>
                                                         <td>{{ $nv->ho_ten_nhan_vien }}</td>
                                                         <td>{{ $nv->chucVu->ten_chuc_vu ?? 'N/A' }}</td>
                                                         <td>{{ $nv->cuaHang->ten_cua_hang ?? 'N/A' }}</td>
-                                                        <td>{{ $nv->so_dien_thoai  }}</td>
-                                                        <td>
-                                                            @php
-                                                                $caLabels = [0 => 'Ca Tối', 1 => 'Ca Sáng', 2 => 'Full Ca'];
-                                                            @endphp
-                                                            {{ $caLabels[$nv->ca_lam] ?? 'Không rõ' }}
-                                                        </td>
+                                                        <td>{{ $nv->so_dien_thoai }}</td>
+                                                        <td>{{ $nv->dia_chi }}</td>
                                                         <td>
                                                             <a href="{{ route('admins.nhanvien.edit', $nv->ma_nhan_vien) }}" class="btn btn-sm btn-warning">
                                                                 Sửa
@@ -140,16 +103,6 @@
                                         </table>
                                     </div>
                                 </div>
-
-                                {{-- <div class="row">
-                                    <div class="col-sm-12 col-md-7">
-                                        <div class="dataTables_paginate paging_simple_numbers" id="add-row_paginate">
-                                            <ul class="pagination">
-                                                {!! $nhanViens->links('pagination::bootstrap-5') !!}
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div> --}}
                             </div> <!-- end dataTables_wrapper -->
                         </div> <!-- end table-responsive -->
                     </div> <!-- end card-body -->
@@ -161,4 +114,14 @@
 
 @push('scripts')
     <script src="{{ asset('admins/js/alert.js') }}"></script>
+@endpush
+@push('scripts')
+<script>
+    document.getElementById('select-all').addEventListener('change', function() {
+        const checked = this.checked;
+        document.querySelectorAll('.select-nhanvien').forEach(cb => {
+            cb.checked = checked;
+        });
+    });
+</script>
 @endpush

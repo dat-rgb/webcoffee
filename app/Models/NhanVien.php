@@ -28,6 +28,7 @@ class NhanVien extends Model
         'so_dien_thoai',
         'dia_chi',
         'ca_lam',
+        'trang_thai',
     ];
 
     /**
@@ -54,3 +55,4 @@ class NhanVien extends Model
         return $this->belongsTo(CuaHang::class, 'ma_cua_hang', 'ma_cua_hang');
     }
 }
+    
