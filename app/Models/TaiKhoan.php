@@ -29,9 +29,14 @@ class TaiKhoan extends Authenticatable
     public function status(){
         return $this->trang_thai = 0; //chờ kích hoạt
     }
+
+    public function khachHang()
+    {
+        return $this->hasOne(KhachHang::class, 'ma_tai_khoan', 'ma_tai_khoan');
+    }
+  
     public function nhanVien()
     {
         return $this->hasOne(NhanVien::class, 'ma_tai_khoan', 'ma_tai_khoan');
     }
-
 }

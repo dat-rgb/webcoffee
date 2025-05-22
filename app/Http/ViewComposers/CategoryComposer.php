@@ -15,17 +15,17 @@ class CategoryComposer
             ->get();
 
         foreach ($categories as $category) {
-            // Sản phẩm của danh mục cha
-            $parentProductsCount = $category->sanPhams->count();
+            // Chỉ đếm sản phẩm đang hoạt động
+            $parentProductsCount = $category->sanPhams->where('trang_thai', 1)->count();
+            $childrenProductsCount = $category->children->sum(function ($child) {
+                return $child->sanPhams->where('trang_thai', 1)->count();
+            });
 
-            // Sản phẩm của tất cả danh mục con
-            $childrenProductsCount = $category->children->sum(fn($child) => $child->sanPhams->count());
-
-            // Tổng sản phẩm trong danh mục cha (bao gồm con)
             $category->totalProductsCount = $parentProductsCount + $childrenProductsCount;
         }
 
         $view->with('danhMucCha', $categories);
     }
+
 
 }

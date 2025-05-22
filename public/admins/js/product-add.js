@@ -33,26 +33,3 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
   
-
-
-// Lấy tất cả checkbox của size theo class chung
-document.querySelectorAll('input[type="checkbox"][id^="checkbox"]').forEach(checkbox => {
-    const sizeId = checkbox.id.replace('checkbox', ''); // Lấy phần số trong id checkbox1, checkbox2...
-    const container = document.getElementById('ingredientContainer' + sizeId);
-
-    if (container) {
-        checkbox.addEventListener('change', () => {
-            container.style.display = checkbox.checked ? 'block' : 'none';
-        });
-    }
-});
-
-// Xử lý nút + cho từng container (đã clone cả khối ingredient-form)
-document.querySelectorAll('.addIngredientBtn').forEach(button => {
-    button.addEventListener('click', () => {
-        const container = button.parentElement;
-        const form = container.querySelector('.ingredient-form');
-        const newForm = form.cloneNode(true);
-        container.insertBefore(newForm, button);
-    });
-});
