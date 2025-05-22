@@ -176,8 +176,8 @@ class AdminMaterialController extends Controller
             'loai_nguyen_lieu' => $request->loai_nguyen_lieu,
             'trang_thai' => $request->trang_thai,
         ]);
-
-        return redirect()->route('admins.material.index')->with('success', 'Cập nhật nguyên liệu thành công!');
+        toastr()->success('Cập nhật nguyên liệu thành công!');
+        return redirect()->route('admins.material.index');
     }
     public function toggleStatus($id)
     {

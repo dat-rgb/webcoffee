@@ -571,4 +571,83 @@ $(document).ready(function () {
       });
   });
 });
-//khôi phục ncc
+//// Xác nhận thêm nhân viên
+$(".add-employee-btn").click(function (e) {
+    e.preventDefault();
+    const form = $(this).closest("form");
+
+    swal({
+        title: "Xác nhận thêm nhân viên?",
+        text: "Bạn chắc chắn muốn thêm nhân viên này?",
+        icon: "info",
+        buttons: {
+            cancel: {
+                text: "Không, hủy",
+                visible: true,
+                className: "btn btn-danger",
+            },
+            confirm: {
+                text: "Có, thêm ngay",
+                className: "btn btn-success",
+            },
+        },
+    }).then((willAdd) => {
+        if (willAdd) {
+            form.submit(); // Gửi form
+        }
+    });
+});
+//cập nhật nhân viên
+$(document).ready(function () {
+  $(".nhanvien-btn-update").on("click", function (e) {
+    e.preventDefault();
+
+    let form = $(this).closest("form"); // Tìm form gần nhất chứa nút
+
+    Swal.fire({
+      title: "Xác nhận cập nhật nhân viên?",
+      text: "Thông tin nhân viên sẽ được cập nhật!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Cập nhật",
+      cancelButtonText: "Hủy",
+      buttonsStyling: false,
+      customClass: {
+        confirmButton: "btn btn-warning",
+        cancelButton: "btn btn-secondary",
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        form.submit(); // Gửi form
+      }
+    });
+  });
+});
+//Lưu lịch làm việc
+$(document).ready(function () {
+  $(".lich-btn-update").on("click", function (e) {
+    e.preventDefault();
+
+    let form = $(this).closest("form"); // Tìm form gần nhất chứa nút
+
+    Swal.fire({
+      title: "Xác nhận cập nhật Lịch?",
+      text: "Lịch phân ca sẽ được cập nhật!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Cập nhật",
+      cancelButtonText: "Hủy",
+      buttonsStyling: false,
+      customClass: {
+        confirmButton: "btn btn-warning",
+        cancelButton: "btn btn-secondary",
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        form.submit(); // Gửi form
+      }
+    });
+  });
+});
+
+

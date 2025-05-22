@@ -19,7 +19,7 @@ class TaiKhoan extends Authenticatable
         'loai_tai_khoan',
         'trang_thai',
         'activation_token'
-    ]; 
+    ];
 
     public function getAuthPassword()
     {
@@ -29,4 +29,9 @@ class TaiKhoan extends Authenticatable
     public function status(){
         return $this->trang_thai = 0; //chờ kích hoạt
     }
+    public function nhanVien()
+    {
+        return $this->hasOne(NhanVien::class, 'ma_tai_khoan', 'ma_tai_khoan');
+    }
+
 }

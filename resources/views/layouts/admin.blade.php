@@ -246,15 +246,36 @@
                       <div class="collapse" id="subnav1">
                         <ul class="nav nav-collapse subnav">
                           <li>
-                            <a href="#">
+                            <a href="{{ route('admins.nhanvien.index') }}">
                               <span class="sub-item">Danh sách nhân viên</span>
                             </a>
                           </li>
                           <li>
                             <a href="#">
+                                <span class="sub-item">phân công lịch làm</span>
+                            </a>
+                          </li>
+                          <li>
+                            <a href="#">
+                                <span class="sub-item">phân công lịch làm</span>
+                            </a>
+                          </li>
+                          <li>
+                            <a href="{{ route('admins.nhanvien.create') }}">
                               <span class="sub-item">Thêm nhân viên mới</span>
                             </a>
                           </li>
+                          <li>
+                            <a href="#">
+                                <span class="sub-item">Danh sách nhân viên nghỉ việc</span>
+                            </a>
+                          </li>
+                          <li>
+                            <a href="#">
+                                <span class="sub-item">black list</span>
+                            </a>
+                          </li>
+
                         </ul>
                       </div>
                     </li>
