@@ -67,15 +67,32 @@
                         <br>
                         <span style="font-size: 0.75rem; color: gray;">({{ $nv->chucVu->ten_chuc_vu ?? '' }})</span>
                     </td>
+                    {{-- @foreach($tuanToi as $ngay)
+                        <td>
+                            <select name="work[{{ $nv->ma_nhan_vien }}][{{ $ngay->format('Y-m-d') }}]" class="form-select" >
+                                <option value="3">Nghỉ</option>
+                                <option value="1">Ca sáng</option>
+                                <option value="0">Ca tối</option>
+                                <option value="2">Full ca</option>
+                            </select>
+                        </td>
+                    @endforeach --}}
                     @foreach($tuanToi as $ngay)
-                    <td>
-                        <select name="work[{{ $nv->ma_nhan_vien }}][{{ $ngay->format('Y-m-d') }}]" class="form-select">
-                            <option value="3">Nghỉ</option>
-                            <option value="1">Ca sáng</option>
-                            <option value="0">Ca tối</option>
-                            <option value="2">Full ca</option>
-                        </select>
-                    </td>
+                        @php
+                            $selectedValue = old("work.{$nv->ma_nhan_vien}.{$ngay->format('Y-m-d')}");
+                            if (is_null($selectedValue) && isset($lichPhanCong[$nv->ma_nhan_vien][$ngay->format('Y-m-d')][0])) {
+                                $selectedValue = $lichPhanCong[$nv->ma_nhan_vien][$ngay->format('Y-m-d')][0]->ca_lam;
+                            }
+                        @endphp
+
+                        <td>
+                            <select name="work[{{ $nv->ma_nhan_vien }}][{{ $ngay->format('Y-m-d') }}]" class="form-select">
+                                <option value="3" {{ $selectedValue == '3' ? 'selected' : '' }}>Nghỉ</option>
+                                <option value="1" {{ $selectedValue == '1' ? 'selected' : '' }}>Ca sáng</option>
+                                <option value="0" {{ $selectedValue == '0' ? 'selected' : '' }}>Ca tối</option>
+                                <option value="2" {{ $selectedValue == '2' ? 'selected' : '' }}>Full ca</option>
+                            </select>
+                        </td>
                     @endforeach
                 </tr>
                 @endforeach

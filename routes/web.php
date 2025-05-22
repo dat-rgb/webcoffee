@@ -166,7 +166,10 @@ Route::prefix('admin/nhanviens')->name('admins.nhanvien.')->group(function () {
     Route::get('/phan-cong-lich', [AdminLichlamviecController::class, 'showForm'])->name('lich.showForm');
     Route::post('/phan-cong-lich', [AdminLichlamviecController::class, 'assignWork'])->name('lich.assignWork');
     Route::get('/lich-lam-viec', [AdminLichlamviecController::class, 'showLichTheoTuan'])->name('lich.tuan');
-
+    //Tạm nghỉ cho nhân viên
+    Route::post('/archive/{id}', action: [AdminNhanVienController::class, 'archive'])->name('archive');  // Lưu trữ
+    Route::get('/archived', [AdminNhanVienController::class, 'archived'])->name('archived');    // Danh sách lưu trữ
+    Route::patch('/restore/{id}', action: [AdminNhanVienController::class, 'restore'])->name('restore'); // Khôi phục
 });
 
 
