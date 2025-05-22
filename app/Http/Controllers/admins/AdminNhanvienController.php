@@ -16,8 +16,11 @@ class AdminNhanvienController extends Controller
 {
     public function index()
     {
-        $nhanViens = NhanVien::with(['chucVu', 'taiKhoan', 'cuaHang'])->get();
-        $ViewData=[
+        $nhanViens = NhanVien::with(['chucVu', 'taiKhoan', 'cuaHang'])
+            ->where('trang_thai', 0)
+            ->get();
+
+        $ViewData = [
             'title' => 'Danh sách Nhân viên',
             'subtitle' => 'Quản lý danh sách nhân viên cửa hàng',
             'nhanViens' => $nhanViens,
@@ -50,9 +53,6 @@ class AdminNhanvienController extends Controller
 
         return view('admins.nhanvien.create', $ViewData);
     }
-
-
-
     public function store(Request $request)
     {
         $request->validate([
@@ -61,7 +61,13 @@ class AdminNhanvienController extends Controller
             'ma_cua_hang' => 'required|exists:cua_hangs,ma_cua_hang',
             'ho_ten_nhan_vien' => 'required|string|max:255',
             'email' => 'required|email|unique:tai_khoans,email',
-            //'ca_lam' => 'required|in:0,1,2,3',
+            'so_dien_thoai' => [
+                'required',
+                'regex:/^0\d{9}$/',
+                'unique:nhan_viens,so_dien_thoai',
+                //'max:10',
+            ],
+            'trang_thai'=>'0',
             'ngay_sinh' => [
                 'required',
                 'date',
@@ -87,9 +93,11 @@ class AdminNhanvienController extends Controller
             'email.required' => 'Email không được để trống.',
             'email.email' => 'Email không đúng định dạng.',
             'email.unique' => 'Email đã được sử dụng.',
+            'so_dien_thoai.required' => 'Số điện thoại không được để trống.',
+            'so_dien_thoai.regex' => 'Số điện thoại phải bắt đầu bằng số 0 và gồm 10 chữ số.',
+            'so_dien_thoai.unique' => 'Số điện thoại đã được sử dụng.',
+            //'so_dien_thoai.max' =>'Số điện thoại chỉ được 10 số.'
         ]);
-
-
         // Tạo tài khoản mới
         $taiKhoan = TaiKhoan::create([
             'email' => $request->email,
@@ -97,7 +105,6 @@ class AdminNhanvienController extends Controller
             'vai_tro' => 'nhanvien', // nếu có cột vai trò
             'trang_thai' => 1,
         ]);
-
         // Tạo nhân viên gắn với tài khoản
         NhanVien::create([
             'ma_nhan_vien' => $request->ma_nhan_vien,
@@ -110,15 +117,11 @@ class AdminNhanvienController extends Controller
             'so_dien_thoai' => $request->so_dien_thoai ?? null,
             'dia_chi' => $request->dia_chi ?? null,
             //'ca_lam' => 3,
-            'trang_thai' => 1,
+            'trang_thai' => 0,
         ]);
-
         toastr()->success('Thêm nhân viên và tạo tài khoản thành công!');
         return redirect()->route('admins.nhanvien.index');
     }
-
-
-
     public function edit($ma_nhan_vien)
     {
         $nhanVien = NhanVien::find($ma_nhan_vien);
@@ -129,7 +132,6 @@ class AdminNhanvienController extends Controller
             'cuaHangs' => CuaHang::all(),
         ]);
     }
-
     public function update(Request $request, $ma_nhan_vien)
     {
         $request->validate([
@@ -138,18 +140,24 @@ class AdminNhanvienController extends Controller
             'ma_cua_hang' => 'required|exists:cua_hangs,ma_cua_hang',
             'email' => 'required|email',
             'ngay_sinh' => [
-            'required',
-            'date',
-                function ($attribute, $value, $fail) {
-                    $birthDate = Carbon::parse($value);
-                    $age = $birthDate->diffInYears(Carbon::now());
+                'required',
+                'date',
+                    function ($attribute, $value, $fail) {
+                        $birthDate = Carbon::parse($value);
+                        $age = $birthDate->diffInYears(Carbon::now());
 
-                    if ($age < 18) {
-                        $fail('Tuổi nhân viên phải từ 18 tuổi trở lên.');
-                    } elseif ($age > 40) {
-                        $fail('Tuổi nhân viên không được quá 40 tuổi.');
-                    }
-                },
+                        if ($age < 18) {
+                            $fail('Tuổi nhân viên phải từ 18 tuổi trở lên.');
+                        } elseif ($age > 40) {
+                            $fail('Tuổi nhân viên không được quá 40 tuổi.');
+                        }
+                    },
+                ],
+            'so_dien_thoai' => [
+                'required',
+                'regex:/^0\d{9}$/',
+                'unique:nhan_viens,so_dien_thoai,' . $ma_nhan_vien . ',ma_nhan_vien',
+                //'max:10',
             ],
         ], [
             'ho_ten_nhan_vien.required' => 'Họ tên nhân viên không được để trống.',
@@ -157,6 +165,10 @@ class AdminNhanvienController extends Controller
             'email.email' => 'Email không đúng định dạng.',
             'ma_chuc_vu.required' => 'Vui lòng chọn chức vụ.',
             'ma_cua_hang.required' => 'Vui lòng chọn cửa hàng.',
+            'so_dien_thoai.required' => 'Số điện thoại không được để trống.',
+            'so_dien_thoai.regex' => 'Số điện thoại phải bắt đầu bằng số 0 và gồm 10 chữ số.',
+            'so_dien_thoai.unique' => 'Số điện thoại đã được sử dụng.',
+            //'so_dien_thoai.max' =>'Số điện thoại chỉ được 10 số.'
         ]);
 
         $nhanVien = NhanVien::with('taiKhoan')->find($ma_nhan_vien);
@@ -183,13 +195,38 @@ class AdminNhanvienController extends Controller
         toastr()->success('Cập nhật nhân viên thành công!');
         return redirect()->route('admins.nhanvien.index');
     }
-
-
-
     public function destroy($id)
     {
         NhanVien::destroy($id);
         toastr()->success('Xóa nhân viên thành công!');
         return redirect()->route('admins.nhanvien.index');
     }
+    public function archive($ma_nhan_vien)
+    {
+        $nhanVien = NhanVien::find($ma_nhan_vien); // Tìm theo khóa chính
+        if (!$nhanVien) {
+            toastr()->error('Không tìm thấy nhân viên.');
+            return redirect()->route('admins.nhanvien.index');
+        }
+
+        $nhanVien->trang_thai = 1; // Ẩn nhân viên
+        $nhanVien->save();
+        toastr()->success('Nhân viên đã được lưu trữ thành công!');
+        return redirect()->route('admins.nhanvien.index');
+    }
+
+    public function restore($ma_nhan_vien)
+    {
+        $nhanVien = NhanVien::find($ma_nhan_vien);
+        if (!$nhanVien) {
+            toastr()->error('Không tìm thấy nhân viên.');
+            return redirect()->route('admins.nhanvien.index');
+        }
+
+        $nhanVien->trang_thai = 0;
+        $nhanVien->save();
+        toastr()->success('Khôi phục nhân viên thành công!');
+        return redirect()->route('admins.nhanvien.index');
+    }
+
 }
