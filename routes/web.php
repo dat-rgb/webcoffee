@@ -120,10 +120,13 @@ Route::prefix('admin/products')->group(function(){
     Route::post('/edit-product/{id}', [AdminProductController::class, 'updateProduct'])->name('admin.product.update');
 
     Route::post('/archive-product/{id}',[AdminProductController::class, 'productArchive'])->name('admin.product.archive');
+    Route::get('/ingredients/{id}', [AdminProductController::class, 'showProductIngredients'])->name('admin.products.ingredients.show');
+
     Route::post('/hidden-or-acctive/{id}',[AdminProductController::class,'productHiddenOrAcctive'])->name('admin.product.hidde-or-acctive');
     Route::post('/bulk-action', [AdminProductController::class, 'bulkAction'])->name('admin.product.bulk-action');
-    Route::get('/ingredients/{slug}',[AdminProductController::class,'showProductAddIngredients'])->name('admin.products.ingredients.form');
+    Route::get('/add-ingredients/{slug}',[AdminProductController::class,'showProductAddIngredients'])->name('admin.products.ingredients.form');
     Route::post('/ingredients/add',[AdminProductController::class,'productAddIngredients'])->name('admin.products.ingredients.add');
+    Route::post('/ingredient/update',[AdminProductController::class,'productUpdateIngredients'])->name('admin.products.ingredients.update');
 });
 
 //Route Categories Admin

@@ -263,9 +263,111 @@ class AdminProductController extends Controller
             // Có thể log thêm $e nếu cần
         }
 
-        return redirect()->back();
+        return redirect()->route('admin.products.list');
     }
+    public function showProductIngredients(Request $request, $proId)
+    {
+        $product = SanPham::where('ma_san_pham', $proId)->first();
+        if (!$product) {
+            toastr()->error('Không tìm thấy sản phẩm.');
+            return redirect()->back();
+        }
 
+        $sizes = Sizes::all();
+        $ingredients = $this->getIngredient();
+
+        // Lấy các thành phần đã tồn tại của sản phẩm theo từng size
+        $existingIngredients = ThanhPhanSanPham::where('ma_san_pham', $proId)
+            ->get()
+            ->groupBy('ma_size');
+
+      
+        $selectedSizes = $existingIngredients->keys()->toArray();
+
+        return view('admins.products.product_ingredients_edit', [
+            'title' => 'Thành phần sản phẩm',
+            'subtitle' => 'Thêm thành phần nguyên liệu cho sản phẩm',
+            'product' => $product,
+            'sizes' => $sizes,
+            'ingredients' => $ingredients,
+            'existingIngredients' => $existingIngredients,
+            'selectedSizes' => $selectedSizes 
+        ]);
+    }
+    public function productUpdateIngredients(Request $request)
+    {
+        $request->validate([
+            'ma_san_pham' => 'required|string',
+            'sizes' => 'required|array|min:1',
+            'ingredients' => 'required|array',
+            'dinh_luongs' => 'required|array',
+            'don_vis' => 'required|array',
+        ]);
+
+        $productId = $request->input('ma_san_pham');
+        $sizes = $request->input('sizes');
+
+        $updatedCount = 0;
+        $insertedCount = 0;
+
+        try {
+            foreach ($sizes as $size) {
+                $ings = $request->input("ingredients.$size", []);
+                $dls = $request->input("dinh_luongs.$size", []);
+                $dvs = $request->input("don_vis.$size", []);
+
+                foreach ($ings as $index => $ingredientId) {
+                    $quantity = $dls[$index] ?? null;
+                    $unit = $dvs[$index] ?? null;
+
+                    if ($ingredientId && $quantity && $unit) {
+                        // Kiểm tra nếu đã tồn tại thì cập nhật
+                        $existing = ThanhPhanSanPham::where([
+                            ['ma_san_pham', '=', $productId],
+                            ['ma_size', '=', $size],
+                            ['ma_nguyen_lieu', '=', $ingredientId],
+                        ])->first();
+
+                        if ($existing) {
+                            $existing->update([
+                                'dinh_luong' => $quantity,
+                                'don_vi' => $unit,
+                            ]);
+                            $updatedCount++;
+                        } else {
+                            // Chưa có thì thêm mới
+                            ThanhPhanSanPham::create([
+                                'ma_san_pham' => $productId,
+                                'ma_size' => $size,
+                                'ma_nguyen_lieu' => $ingredientId,
+                                'dinh_luong' => $quantity,
+                                'don_vi' => $unit,
+                            ]);
+                            $insertedCount++;
+                        }
+                    }
+                }
+            }
+
+            // Gửi thông báo
+            if ($updatedCount > 0) {
+                toastr()->success("Đã cập nhật $updatedCount nguyên liệu.");
+            }
+
+            if ($insertedCount > 0) {
+                toastr()->info("Đã thêm mới $insertedCount nguyên liệu.");
+            }
+
+            if ($updatedCount == 0 && $insertedCount == 0) {
+                toastr()->warning('Không có dữ liệu nào được thay đổi.');
+            }
+
+        } catch (\Exception $e) {
+            toastr()->error('Đã xảy ra lỗi: ' . $e->getMessage());
+        }
+
+        return redirect()->route('admin.products.list');
+    }
     //Ẩn/hiện 
     public function productHiddenOrAcctive($proId) {
         $product = SanPham::where('ma_san_pham',$proId)->first();

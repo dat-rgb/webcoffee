@@ -117,7 +117,8 @@
                                                             <td>
                                                                 <a href="{{ route('admin.product.edit.form',$pro->ma_san_pham) }}" class="">
                                                                     <img src="{{ $pro->hinh_anh ? asset('storage/' . $pro->hinh_anh) : asset('images/no_product_image.png') }}" alt="{{ $pro->ten_san_pham }}" width="80">
-                                                                </a>                                                            </td>
+                                                                </a>                                                            
+                                                            </td>
                                                             <td>{{ $pro->ma_san_pham }}</td>
                                                             <td>{{ $pro->ten_san_pham }}</td>
                                                             <td>{{ $pro->danhMuc->ten_danh_muc }}</td>
@@ -125,7 +126,7 @@
                                                             @php
                                                                 $sizes = $sizesMap[$pro->ma_san_pham] ?? collect(); // dùng collect() để đảm bảo có thể count()
                                                             @endphp
-                                                            <td>
+                                                            <td style="min-width: 150px; max-width: 200px; width: 100px;">
                                                                 @if ($sizes->count())
                                                                     <div style="display: flex; flex-wrap: wrap; gap: 8px;">
                                                                         @foreach ($sizes as $size)
@@ -136,9 +137,12 @@
                                                                                 {{ $size->ten_size }}
                                                                             </span>
                                                                         @endforeach
+                                                                        <a href="{{ route('admin.products.ingredients.show',$pro->ma_san_pham) }}" class="" data-bs-toggle="tooltip" title="Xem chi tiết thành phần">chi tiết</a>
                                                                     </div>
                                                                 @else
-                                                                    <span class="text-muted"><a href="{{ route('admin.products.ingredients.form', $pro->slug) }}" class="">Thêm size.</a></span>
+                                                                    <span class="text-muted">
+                                                                        <a href="{{ route('admin.products.ingredients.form', $pro->slug) }} " data-bs-toggle="tooltip" title="Thêm thành phần sản phẩm">Thêm size.</a>
+                                                                    </span>
                                                                 @endif
                                                             </td>
                                                             <td>
