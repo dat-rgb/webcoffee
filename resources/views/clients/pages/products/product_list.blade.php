@@ -22,6 +22,38 @@
   width: 40px;
   height: 40px;
 }
+.product-lists {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; /* khoảng cách giữa các item */
+}
+
+.single-product-item {
+    background: #fff;
+    border: 1px solid #eee;
+    padding: 15px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.single-product-item {
+    min-height: 100%;
+}
+.product-image {
+    position: relative;
+}
+
+.hot-icon {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    width: 40px;
+}
+.hot-icon.second {
+    left: 50px;
+}
+
 </style>
 
 @endpush

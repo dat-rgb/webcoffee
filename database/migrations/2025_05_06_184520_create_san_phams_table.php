@@ -27,6 +27,7 @@ return new class extends Migration
             $table->float('rating')->default(0);
             $table->unsignedBigInteger('ma_danh_muc'); 
             $table->tinyInteger('trang_thai')->default(1); // 1: Đang bán, 0: Ngừng bán
+            $table->softDeletes();
             $table->timestamps();
 
             $table->foreign('ma_danh_muc')->references('ma_danh_muc')
