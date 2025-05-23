@@ -8,47 +8,41 @@ use App\Http\Controllers\admins\AdminVoucherController;
 use App\Http\Controllers\admins\AdminSupplierController;
 use App\Http\Controllers\admins\AdminNhanvienController;
 use App\Http\Controllers\admins\AdminLichlamviecController;
+use App\Http\Controllers\admins\auth\AdminLoginController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\clients\AuthController;
 use App\Http\Controllers\clients\ForgotPasswordController;
 use App\Http\Controllers\clients\ResetPasswordController;
+use App\Http\Controllers\customers\CustomerController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\payments\PaymentController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StoreController;
+use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\KhachHangMiddleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+
 
 //Route Home
 Route::prefix('/')->group(function(){
     Route::get('',[HomeController::class, 'home'])->name('home');
-
     Route::get('/gioi-thieu', [HomeController::class, 'about'])->name('about');
-
     Route::get('/lien-he', [HomeController::class, 'contact'])->name('contact');
-
+    Route::post('/select-store', [StoreController::class, 'selectStore'])->name('select.store');
     //Auth Clients
     Route::get('/login',[AuthController::class,'showLoginForm'])->name('login');
-
     Route::post('/login',[AuthController::class,'login'])->name('login.post');
-
     Route::post('/logout', [AuthController::class,'logout'])->name('logout');
-
     Route::get('/register',[AuthController::class,'showRegisterForm'])->name('register');
-
     Route::post('/resgister',[AuthController::class,'register'])->name('register.post');
-
     Route::get('/activate/{token}',[AuthController::class,'activate'])->name('register.activate');
-
-
     //Forgot password
     Route::get('/forgot-password',[ForgotPasswordController::class,'showForgotPassword'])->name('forgotPassword.show');
     Route::post( '/forgot-password',[ForgotPasswordController::class,'sendResetPasswordLink'])->name('forgotPassword.send');
     Route::get('/reset-password/{token}',[ResetPasswordController::class,'showRetsetForm'])->name('password.reset');
     Route::post('/reset-password',[ResetPasswordController::class,'resetPassword'])->name('resetPassword.update');
-
-    Route::post('/select-store', [StoreController::class, 'selectStore'])->name('select.store');
 
 });
 
@@ -64,7 +58,6 @@ Route::prefix('cart')->group(function(){
     Route::get('/', [CartController::class, 'cart'])->name('cart');
     Route::get('/load', [CartController::class, 'loadCart'])->name('cart.load');
     Route::get('/count', [CartController::class, 'getCartCount'])->name('cart.count');
-
     //add to cart
     Route::get('/add-to-cart/{id}',[CartController::class,'addToCart'])->name('cart.addToCart');
     Route::get('/debug', function () {
@@ -102,9 +95,19 @@ Route::prefix('tin-tuc')->group(function(){
     Route::get('/chi-tiet', [BlogController::class, 'blogDetail'])->name('blog.detail');
 });
 
-// Route Home Admin
-Route::prefix('admin')->group(function(){
-    Route::get('',[AdminHomeController::class,'index'])->name('admin');
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//Admin auth
+Route::prefix('admin/auth')->group(function(){
+    Route::get('/login',[AdminLoginController::class,'showLoginForm'])->name('admin.login.show');
+});
+Route::prefix('customer')->middleware(KhachHangMiddleware::class)->group(function(){
+    Route::get('/profile', [CustomerController::class, 'index'])->name('customer.index');
+});
+Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function(){
+    Route::get('', [AdminHomeController::class, 'index'])->name('admin');
 });
 
 //Route Products Admin
@@ -124,7 +127,6 @@ Route::prefix('admin/products')->group(function(){
     Route::delete('/{slug}/sort-delete',[AdminProductController::class,'sortDelete'])->name('admin.product.sort-delete');
     Route::get('/delete',[AdminProductController::class,'listProductSortDelete'])->name('admin.products.list.delete');
 });
-
 //Route Categories Admin
 Route::prefix('admin/categories')->name('admins.category.')->group(function () {
     Route::get('/', action: [AdminCategoryController::class, 'index'])->name('index');
@@ -154,7 +156,6 @@ Route::prefix('admin/materials')->name('admins.material.')->group(function () {
     Route::get('/archive', [AdminMaterialController::class, 'archiveIndex'])->name('archive.index');
 
 });
-
 //Route Vouchers Admin
 Route::prefix('admin/vouchers')->name('admin.vouchers.')->group(function(){
     Route::get('',[AdminVoucherController::class,'listVouchers'])->name('list');
