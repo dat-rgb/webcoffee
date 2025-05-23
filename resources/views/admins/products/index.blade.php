@@ -33,6 +33,14 @@
                 <li class="nav-item">
                     <a href="{{ route('admin.products.list') }}">Sản phẩm</a>
                 </li>
+                @if(request()->routeIs('admin.products.hidden.list'))
+                    <li class="separator">
+                        <i class="icon-arrow-right"></i>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('admin.products.hidden.list') }}">Sản phẩm đã ẩn</a>
+                    </li>
+                @endif
             </ul>
         </div>
 
@@ -40,46 +48,63 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <div class="d-flex align-items-center">
-                            <h4 class="card-title">{{ $subtitle }}</h4>
-                        </div>
-                        <div class="form-group mb-3">
+                        <form action="{{ url()->current() }}" method="GET">
                             <div class="row g-2 align-items-center">
-                                <div class="col-12 col-md-6 col-lg-5">
+                                {{-- Tìm kiếm --}}
+                                <div class="col-12 col-lg-4">
                                     <div class="input-group">
-                                        <input type="text" class="form-control" placeholder="Tìm kiếm sản phẩm...">
-                                        <button  class="input-group-text bg-white">
+                                        <input 
+                                            type="text" 
+                                            name="search" 
+                                            class="form-control" 
+                                            placeholder="Nhập tên hoặc mã sản phẩm để tìm kiếm..." 
+                                            value="{{ request('search') }}" 
+                                            autocomplete="off"
+                                        >
+                                        <button type="submit" class="input-group-text bg-white">
                                             <i class="fa fa-search text-muted"></i>
                                         </button>
                                     </div>
                                 </div>
 
-                                <div class="col-6 col-md-3 col-lg-2">
-                                    <div class="dropdown">
-                                        <button class="btn btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                {{-- Thao tác nhanh --}}
+                                <div class="col-6 col-lg-2">
+                                    <div class="dropdown w-100">
+                                        <button class="btn btn-outline-primary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown">
                                             Thao tác nhanh
                                         </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                            <li>
-                                                <button type="button" class="dropdown-item" id="hide-products">Ẩn các sản phẩm đã chọn</button>
-                                            </li>
-                                            <li>
-                                                <button type="button" class="dropdown-item" id="show-products">Hiển thị các sản phẩm đã chọn</button>
-                                            </li>
-                                            <li>
-                                                <button type="button" class="dropdown-item text-danger" id="delete-products">Xóa các sản phẩm đã chọn</button>
-                                            </li>
+                                        <ul class="dropdown-menu">
+                                            @if(request()->routeIs('admin.products.hidden.list'))
+                                                <li><button type="button" class="dropdown-item" id="show-products">Hiển thị các sản phẩm đã chọn</button></li>
+                                                <li><button type="button" class="dropdown-item text-danger" id="delete-products">Xóa các sản phẩm đã chọn</button></li>
+                                            @else
+                                                <li><button type="button" class="dropdown-item" id="hide-products">Ẩn các sản phẩm đã chọn</button></li>
+                                                <li><button type="button" class="dropdown-item text-danger" id="delete-products">Xóa các sản phẩm đã chọn</button></li>
+                                            @endif
                                         </ul>
                                     </div>
                                 </div>
 
-                                <div class="col-6 col-md-3 col-lg-2">
+                                {{-- Bộ lọc --}}
+                                <div class="col-6 col-lg-2">
+                                    @if(request()->routeIs('admin.products.hidden.list'))
+                                        <a href="{{ route('admin.products.list') }}" class="btn btn-outline-danger w-100">
+                                            <i class="bi bi-eye-fill me-1"></i> Sản phẩm hiển thị
+                                        </a>
+                                    @else
+                                        <a href="{{ route('admin.products.hidden.list') }}" class="btn btn-outline-secondary w-100">
+                                            <i class="bi bi-eye-slash-fill me-1"></i> Sản phẩm ẩn
+                                        </a>
+                                    @endif
+                                </div>
+                                {{-- Thêm mới --}}
+                                <div class="col-6 col-lg-2">
                                     <a href="{{ route('admin.products.form') }}" class="btn btn-primary w-100">
                                         <i class="fa fa-plus"></i> Thêm mới
-                                    </a>    
+                                    </a>
                                 </div>
                             </div>
-                        </div>
+                        </form>
                     </div>
                     @if($products->isEmpty())
                         <div class="text-center my-5 py-5">

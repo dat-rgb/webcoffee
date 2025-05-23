@@ -47,9 +47,6 @@
             <div class="col-md-12">
                 <!-- Thông tin sản phẩm -->
                 <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">Chỉnh sửa thông tin sản phẩm</div>
-                    </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6 col-lg-4">

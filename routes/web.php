@@ -109,7 +109,7 @@ Route::prefix('admin')->group(function(){
 
 //Route Products Admin
 Route::prefix('admin/products')->group(function(){
-    Route::get('/list',[AdminProductController::class,'listProducts'])->name('admin.products.list');
+    Route::get('/',[AdminProductController::class,'listProducts'])->name('admin.products.list');
     Route::get('/hidden',[AdminProductController::class,'listProductsHidden'])->name('admin.products.hidden.list');
     Route::get('/add-product',[AdminProductController::class,'showProductForm'])->name('admin.products.form');
     Route::post('/add-product',[AdminProductController::class,'productAdd'])->name('admin.products.add');
@@ -122,7 +122,7 @@ Route::prefix('admin/products')->group(function(){
     Route::post('/ingredients/add',[AdminProductController::class,'productAddIngredients'])->name('admin.products.ingredients.add');
     Route::post('/ingredient/update',[AdminProductController::class,'productUpdateIngredients'])->name('admin.products.ingredients.update');
     Route::delete('/{slug}/sort-delete',[AdminProductController::class,'sortDelete'])->name('admin.product.sort-delete');
-    Route::get('/list-delete',[AdminProductController::class,'listProductSortDelete'])->name('admin.products.list.delete');
+    Route::get('/delete',[AdminProductController::class,'listProductSortDelete'])->name('admin.products.list.delete');
 });
 
 //Route Categories Admin
