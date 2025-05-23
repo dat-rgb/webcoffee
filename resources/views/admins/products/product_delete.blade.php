@@ -68,7 +68,7 @@
                                 <div class="col-6 col-md-3 col-lg-2">
                                     <div class="dropdown">
                                         <button class="btn btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                                            Thao tác nhanh
+                                            Thao tác
                                         </button>
                                         <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                             <li>

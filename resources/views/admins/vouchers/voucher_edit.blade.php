@@ -91,7 +91,7 @@
                                     <label for="exampleFormControlSelect1">Trạng thái</label>
                                     <select class="form-select" name="trang_thai" id="exampleFormControlSelect1">
                                         <option value="1" {{ old('trang_thai', $voucher->trang_thai) == 1 ? 'selected' : '' }}>Mở</option>
-                                        <option value="0" {{ old('trang_thai', $voucher->trang_thai) == 0 ? 'selected' : '' }}>Đóng</option>
+                                        <option value="2" {{ old('trang_thai', $voucher->trang_thai) == 2 ? 'selected' : '' }}>Đóng</option>
                                     </select>
                                     @error('trang_thai')
                                         <div class="custom-error">{{ $message }}</div>

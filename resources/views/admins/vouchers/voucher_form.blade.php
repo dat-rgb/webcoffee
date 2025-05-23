@@ -77,7 +77,7 @@
                                     <label for="exampleFormControlSelect1">Trạng thái</label>
                                     <select class="form-select" name="trang_thai" id="exampleFormControlSelect1">
                                         <option value="1">Mở</option>
-                                        <option value="0">Đóng</option>
+                                        <option value="2">Đóng</option>
                                     </select>
                                     @error('trang_thai')
                                         <div class="custom-error">{{ $message }}</div>

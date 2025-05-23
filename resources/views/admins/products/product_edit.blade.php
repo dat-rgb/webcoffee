@@ -127,13 +127,13 @@
                                     <label class="form-label">Tags</label>
                                     <div class="selectgroup selectgroup-pills">
                                         <label class="selectgroup-item">
-                                            <input type="checkbox" name="hot" value="Hot" class="selectgroup-input" 
-                                                {{ old('hot', $product->hot) == 'Hot' ? 'checked' : '' }}>
+                                            <input type="checkbox" name="hot" value="1" class="selectgroup-input" 
+                                                {{ old('hot', $product->hot) == 1 ? 'checked' : '' }}>
                                             <span class="selectgroup-button">Hot</span>
                                         </label>
                                         <label class="selectgroup-item">
-                                            <input type="checkbox" name="is_new" value="New" class="selectgroup-input" 
-                                                {{ old('is_new', $product->is_new) == 'New' ? 'checked' : '' }}>
+                                            <input type="checkbox" name="is_new" value="1" class="selectgroup-input" 
+                                                {{ old('is_new', $product->is_new) == 1 ? 'checked' : '' }}>
                                             <span class="selectgroup-button">New</span>
                                         </label>
                                     </div>

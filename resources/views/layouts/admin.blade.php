@@ -317,8 +317,8 @@
                             </a>
                           </li>
                           <li>
-                            <a href="{{ route('admin.vouchers.list-vouchers-archive') }}">
-                                <span class="sub-item">Voucher lưu trữ</span>
+                            <a href="{{ route('admin.vouchers.deleted-list') }}">
+                              <span class="sub-item">Voucher đã xóa</span>
                             </a>
                           </li>
                         </ul>

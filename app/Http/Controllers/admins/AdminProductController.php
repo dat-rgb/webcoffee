@@ -77,26 +77,26 @@ class AdminProductController extends Controller
         return view('admins.products.index', $viewData);
     }
 
-// Hiển thị danh sách sản phẩm ẩn (trạng thái 2)
-public function listProductsHidden(Request $request){
-    $search = $request->input('search');
-    $products = $this->getProductsByStatus(2, $search);
-    $categories = $this->getCategory();
-    $sizesMap = [];
-    foreach ($products as $pro) {
-        $sizesMap[$pro->ma_san_pham] = $this->getSizeProduct($pro->ma_san_pham);
+    // Hiển thị danh sách sản phẩm ẩn (trạng thái 2)
+    public function listProductsHidden(Request $request){
+        $search = $request->input('search');
+        $products = $this->getProductsByStatus(2, $search);
+        $categories = $this->getCategory();
+        $sizesMap = [];
+        foreach ($products as $pro) {
+            $sizesMap[$pro->ma_san_pham] = $this->getSizeProduct($pro->ma_san_pham);
+        }
+
+        $viewData = [
+            'title' => 'Quản lý sản phẩm | CDMT Coffee & Tea',
+            'subtitle' => 'Sản phẩm đã ẩn',
+            'products' => $products,
+            'sizesMap' => $sizesMap,
+            'search' => $search
+        ];
+
+        return view('admins.products.index', $viewData);
     }
-
-    $viewData = [
-        'title' => 'Quản lý sản phẩm | CDMT Coffee & Tea',
-        'subtitle' => 'Sản phẩm đã ẩn',
-        'products' => $products,
-        'sizesMap' => $sizesMap,
-        'search' => $search
-    ];
-
-    return view('admins.products.index', $viewData);
-}
 
     //show form 
     public function showProductForm(){

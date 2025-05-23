@@ -27,6 +27,14 @@
                 <li class="nav-item">
                     <a href="{{ route('admin.vouchers.list') }}">Vouchers</a>
                 </li>
+                @if(request()->routeIs('admin.vouchers.list-vouchers-off'))
+                <li class="separator">
+                        <i class="icon-arrow-right"></i>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('admin.vouchers.list-vouchers-off') }}">Vouchers đóng</a>
+                    </li>
+                @endif
             </ul>
         </div>
 
@@ -34,56 +42,104 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <div class="d-flex align-items-center">
-                            <h4 class="card-title">{{ $subtitle }}</h4>
-                            <a href="{{ route('admin.vouchers.form') }}" class="btn btn-primary btn-round ms-auto">
-                                <i class="fa fa-plus"></i> Thêm voucher
-                            </a>
-                        </div>
-                        <div class="form-group">
-                            <div class="input-icon">
-                            <input type="text" class="form-control" placeholder="Search for...">
-                            <span class="input-icon-addon">
-                                <i class="fa fa-search"></i>
-                            </span>
-                            </div>
-                        </div>
-                    </div>
+                        <form action="{{ url()->current() }}" method="GET">
+                            <div class="row g-2 align-items-center">
+                                {{-- Tìm kiếm --}}
+                                <div class="col-12 col-lg-4">
+                                    <div class="input-group">
+                                        <input 
+                                            type="text" 
+                                            name="search" 
+                                            class="form-control" 
+                                            placeholder="Nhập tên hoặc mã sản phẩm để tìm kiếm..." 
+                                            value="{{ request('search') }}" 
+                                            autocomplete="off"
+                                        >
+                                        <button type="submit" class="input-group-text bg-white">
+                                            <i class="fa fa-search text-muted"></i>
+                                        </button>
+                                    </div>
+                                </div>  
 
+                                {{-- Thao tác nhanh --}}
+                                <div class="col-6 col-lg-2">
+                                    <div class="dropdown w-100">
+                                        <button class="btn btn-outline-primary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown">
+                                            Thao tác
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            @if(request()->routeIs('admin.vouchers.list-vouchers-off'))
+                                                <li><button type="button" class="dropdown-item" id="show-vouchers">Mở các voucher đã chọn</button></li>
+                                            @else
+                                                <li><button type="button" class="dropdown-item" id="hide-vouchers">Đóng các voucher đã chọn</button></li>
+                                            @endif
+                                            <li><button type="button" class="dropdown-item text-danger" id="delete-vouchers">Xóa các sản phẩm đã chọn</button></li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                {{-- Bộ lọc --}}
+                                <div class="col-6 col-lg-2">
+                                    @if(request()->routeIs('admin.vouchers.list-vouchers-off'))
+                                        <a href="{{ route('admin.vouchers.list') }}" class="btn btn-outline-danger w-100">
+                                            <i class="bi bi-eye-fill me-1"></i>Voucher mở
+                                        </a>
+                                    @else
+                                        <a href="{{ route('admin.vouchers.list-vouchers-off') }}" class="btn btn-outline-secondary w-100">
+                                            <i class="bi bi-eye-slash-fill me-1"></i> Voucher đóng
+                                        </a>
+                                    @endif
+                                </div>
+                                {{-- Thêm mới --}}
+                                <div class="col-6 col-lg-2">
+                                    <a href="{{ route('admin.vouchers.form') }}" class="btn btn-primary w-100">
+                                        <i class="fa fa-plus"></i> Thêm mới
+                                    </a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                     <div class="card-body">
                         <div class="table-responsive">
                             <div id="add-row_wrapper" class="dataTables_wrapper container-fluid dt-bootstrap4">
-
                                 <div class="row">
                                     <div class="col-sm-12">
                                         @if($vouchers->isEmpty())
-                                            <tr>
-                                                <td colspan="9" class="text-center">Không có voucher nào.</td>
-                                            </tr>
+                                            <div class="text-center my-5 py-5">
+                                                <i class="fa fa-box-open fa-3x text-muted mb-3"></i>
+                                                <h5 class="text-muted">Không có voucher nào trong danh sách</h5>
+                                                <p>Hãy thêm voucher mới để bắt đầu quản lý.</p>
+                                                <a href="{{ route('admin.vouchers.form') }}" class="btn btn-primary mt-3">
+                                                    <i class="fa fa-plus"></i> Thêm voucher mới
+                                                </a>
+                                            </div>
                                         @else
-                                        <table id="add-row" class="display table table-striped table-hover dataTable" role="grid" aria-describedby="add-row_info">
-                                            <thead>
-                                                <tr>
-                                                    <th>#</th>
-                                                    <th>Ảnh</th>
-                                                    <th>Mã Voucher</th>
-                                                    <th>Tên Voucher</th>
-                                                    <th>Số lượng</th>
-                                                    <th>Bắt đầu</th>
-                                                    <th>Kết thúc</th>
-                                                    <th>Điều kiện</th>
-                                                    <th>Giá trị giảm</th>
-                                                    <th>Giảm tối đa</th>
-                                                    <th>Trạng thái</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                              
+                                            <table id="add-row" class="display table table-striped table-hover dataTable" role="grid" aria-describedby="add-row_info">
+                                                <thead>
+                                                    <tr>
+                                                        <th><input type="checkbox" id="checkAll"></th>
+                                                        <th>Ảnh</th>
+                                                        <th>Mã Voucher</th>
+                                                        <th>Tên Voucher</th>
+                                                        <th>Số lượng</th>
+                                                        <th>Bắt đầu</th>
+                                                        <th>Kết thúc</th>
+                                                        <th>Điều kiện</th>
+                                                        <th>Giá trị giảm</th>
+                                                        <th>Giảm tối đa</th>
+                                                        <th>Trạng thái</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
                                                     @foreach ( $vouchers as $vou )
-                                                        <tr role="row" class="odd">
-                                                            <td class="sorting_1">{{ $loop->iteration }}</td>
+                                                        <tr role="row" class="odd voucher-row">
                                                             <td>
-                                                            <img src="{{ asset('storage/' . ($vou->hinh_anh ?? 'vouchers/voucher-default.png')) }}" alt="{{ $vou->ten_voucher }}" width="80">
+                                                                <input type="checkbox" class="voucher-checkbox" value="{{ $vou->ma_voucher }}">
+                                                            </td> 
+                                                            <td>
+                                                                <a href="{{ route('admin.vouchers.edit',$vou->ma_voucher) }}" class="" data-bs-toggle="tooltip" title="{{ $vou->ten_voucher }}">
+                                                                    <img src="{{ asset('storage/' . ($vou->hinh_anh ?? 'vouchers/voucher-default.png')) }}" alt="{{ $vou->ten_voucher }}" style="width: 60px;">
+                                                                </a>
                                                             </td>
                                                             <td>{{ $vou->ma_voucher }}</td>
                                                             <td>{{ $vou->ten_voucher }}</td>
@@ -120,12 +176,6 @@
                                                                                 <i class="fa fa-edit"></i>
                                                                             </button>
                                                                         </form>
-                                                                        <form action="{{ route('admin.vouchers.archive-voucher',$vou->ma_voucher) }}" method="POST" class="archive-form">
-                                                                            @csrf
-                                                                            <button type="button" class="btn btn-icon btn-round btn-secondary voucher-archive-btn" data-bs-toggle="tooltip" title="Lưu trữ">
-                                                                                <i class="fa fa-bookmark"></i>
-                                                                            </button>
-                                                                        </form>
                                                                         <form action="{{ route('admin.vouchers.on-or-off-voucher',$vou->ma_voucher) }}" method="POST" class="hidden-or-acctive">
                                                                             @csrf    
                                                                             <button type="button" class="btn btn-icon btn-round btn-black voucher-hidden-btn" data-bs-toggle="tooltip" title="Đóng">
@@ -158,8 +208,8 @@
                                                             </td>
                                                         </tr>
                                                     @endforeach                                              
-                                            </tbody>
-                                        </table>
+                                                </tbody>
+                                            </table>
                                         @endif
                                     </div>
                                 </div>
@@ -183,4 +233,5 @@
 
 @push('scripts')
     <script src="{{ asset('admins/js/alert.js') }}"></script>
+    <script src="{{ asset('admins/js/admin-voucher.js') }}"></script>
 @endpush
