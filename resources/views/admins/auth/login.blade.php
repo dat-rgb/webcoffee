@@ -76,43 +76,29 @@
             <div class="card bg-glass">
             <div class="card-body px-5 py-5" style="height: 380px;">
                     <h3 class="text-center mb-4 fw-bold text-primary">Đăng nhập</h3>
-                    <form>
+                    <form method="POST" action="{{ route('admin.login') }}" id="login-form">
                         @csrf
                         <div class="mb-4">
-                            <input
-                                type="email"
-                                id="email"
-                                class="form-control form-control-lg"
-                                placeholder="Email"
-                                required
-                            />
+                            <input  type="email"  id="email"  name="email"  class="form-control form-control-lg"  placeholder="Email"  required/>
                         </div>
-
                         <div class="mb-4">
-                            <input
-                                type="password"
-                                id="password"
-                                class="form-control form-control-lg"
-                                placeholder="Mật khẩu"
-                                required
-                            />
+                            <input type="password"  id="password"  name="password"  class="form-control form-control-lg"  placeholder="Mật khẩu"  required/>
                         </div>
-
-                        <button
-                            type="submit"
-                            class="btn btn-primary w-100 btn-lg">
-                            Đăng nhập
-                        </button>
+                        <button type="submit"  class="btn btn-primary w-100 btn-lg">Đăng nhập</button>
                     </form>
                 </div>
-
             </div>
         </div>
       </div>
     </div>
   </section>
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <!-- Bootstrap JS Bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{{ asset('js/form-validate.js') }}"></script>
 </body>
 </html>

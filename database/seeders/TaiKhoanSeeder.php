@@ -19,7 +19,7 @@ class TaiKhoanSeeder extends Seeder
             ['email' => '', 'mat_khau' => '', 'loai_tai_khoan' => 0, 'trang_thai' => 1], // Guest
             
             // Admin
-            ['email' => 'admin@example.com', 'mat_khau' => Hash::make(' Admin@123'), 'loai_tai_khoan' => 1, 'trang_thai' => 1],
+            ['email' => 'admin@example.com', 'mat_khau' => Hash::make('Admin@123'), 'loai_tai_khoan' => 1, 'trang_thai' => 1],
 
             // Nhân viên 
             ['email' => 'nv3@example.com', 'mat_khau' => Hash::make('NhanVien@123'), 'loai_tai_khoan' => 2, 'trang_thai' => 1],

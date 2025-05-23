@@ -95,23 +95,26 @@ Route::prefix('tin-tuc')->group(function(){
     Route::get('/chi-tiet', [BlogController::class, 'blogDetail'])->name('blog.detail');
 });
 
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//Admin auth
-Route::prefix('admin/auth')->group(function(){
-    Route::get('/login',[AdminLoginController::class,'showLoginForm'])->name('admin.login.show');
-});
+//Khách hàng
 Route::prefix('customer')->middleware(KhachHangMiddleware::class)->group(function(){
     Route::get('/profile', [CustomerController::class, 'index'])->name('customer.index');
 });
+//End - User
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//Start - Admin
+//Admin auth
+Route::prefix('admin/auth')->group(function(){
+    Route::get('/login',[AdminLoginController::class,'showLoginForm'])->name('admin.login.show');
+    Route::post('/login',[AdminLoginController::class,'login'])->name('admin.login');
+});
+//Route Admin home
 Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function(){
     Route::get('', [AdminHomeController::class, 'index'])->name('admin');
 });
-
 //Route Products Admin
-Route::prefix('admin/products')->group(function(){
+Route::prefix('admin/products')->middleware(AdminMiddleware::class)->group(function(){
     Route::get('/',[AdminProductController::class,'listProducts'])->name('admin.products.list');
     Route::get('/hidden',[AdminProductController::class,'listProductsHidden'])->name('admin.products.hidden.list');
     Route::get('/add-product',[AdminProductController::class,'showProductForm'])->name('admin.products.form');
@@ -128,7 +131,7 @@ Route::prefix('admin/products')->group(function(){
     Route::get('/delete',[AdminProductController::class,'listProductSortDelete'])->name('admin.products.list.delete');
 });
 //Route Categories Admin
-Route::prefix('admin/categories')->name('admins.category.')->group(function () {
+Route::prefix('admin/categories')->middleware(AdminMiddleware::class)->name('admins.category.')->group(function () {
     Route::get('/', action: [AdminCategoryController::class, 'index'])->name('index');
     Route::get('/create', [AdminCategoryController::class, 'create'])->name('create');
     Route::post('/', [AdminCategoryController::class, 'store'])->name('store');
@@ -141,7 +144,7 @@ Route::prefix('admin/categories')->name('admins.category.')->group(function () {
 
 });
 //Route Material Admin
-Route::prefix('admin/materials')->name('admins.material.')->group(function () {
+Route::prefix('admin/materials')->middleware(AdminMiddleware::class)->name('admins.material.')->group(function () {
     Route::get('/', [AdminMaterialController::class, 'index'])->name('index');
     Route::get('/create', [AdminMaterialController::class, 'create'])->name('create');
     Route::post('/', [AdminMaterialController::class, 'store'])->name('store');
@@ -157,7 +160,7 @@ Route::prefix('admin/materials')->name('admins.material.')->group(function () {
 
 });
 //Route Vouchers Admin
-Route::prefix('admin/vouchers')->name('admin.vouchers.')->group(function(){
+Route::prefix('admin/vouchers')->middleware(AdminMiddleware::class)->name('admin.vouchers.')->group(function(){
     Route::get('',[AdminVoucherController::class,'listVouchers'])->name('list');
     Route::get('/list-vouchers-off',[AdminVoucherController::class,'listVouchersOff'])->name('list-vouchers-off');
     Route::get('/add-voucher',[AdminVoucherController::class,'showVoucherForm'])->name('form');
@@ -173,7 +176,7 @@ Route::prefix('admin/vouchers')->name('admin.vouchers.')->group(function(){
 
 });
 //Route Supplier Admin
-Route::prefix('admin/suppliers')->name('admins.supplier.')->group(function () {
+Route::prefix('admin/suppliers')->middleware(AdminMiddleware::class)->name('admins.supplier.')->group(function () {
     Route::get('/', [AdminSupplierController::class, 'index'])->name('index');
     Route::get('/create', [AdminSupplierController::class, 'create'])->name('create');
     Route::post('/store', [AdminSupplierController::class, 'store'])->name('store');
@@ -186,7 +189,7 @@ Route::prefix('admin/suppliers')->name('admins.supplier.')->group(function () {
     Route::post('/toggle-status/{id}', [AdminSupplierController::class, 'toggleStatus'])->name('toggleStatus');
 });
 //Route NhanVien
-Route::prefix('admin/nhanviens')->name('admins.nhanvien.')->group(function () {
+Route::prefix('admin/nhanviens')->middleware(AdminMiddleware::class)->name('admins.nhanvien.')->group(function () {
     Route::get('/', [AdminNhanVienController::class, 'index'])->name('index');
     Route::get('/create', [AdminNhanVienController::class, 'create'])->name('create');
     Route::post('/store', [AdminNhanVienController::class, 'store'])->name('store');

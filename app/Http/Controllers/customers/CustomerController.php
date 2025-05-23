@@ -17,7 +17,6 @@ class CustomerController extends Controller
             ->where('ma_tai_khoan', $user->ma_tai_khoan)
             ->first();
 
-
         $viewData = [
             'title' => 'Xin chào ' . ($taiKhoan->khachHang->ten_khach_hang ?? 'bạn') . ' | CMDT Coffee & Tea',
             'taiKhoan' => $taiKhoan

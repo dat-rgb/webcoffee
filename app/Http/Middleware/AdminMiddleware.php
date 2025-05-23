@@ -16,14 +16,16 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $user = Auth::user();
-
+        $user = Auth::guard('admin')->user(); 
         if (!$user) {
             return redirect()->route('admin.login.show');
-        } else if ($user->trang_thai == 3) {
+        }
+
+        if ($user->loai_tai_khoan == 3) {
             toastr()->error('Bạn không có quyền truy cập trang này.');
             return redirect()->route('admin.login.show');
         }
-        return redirect()->route('admin.login.show');
+
+        return $next($request);
     }
 }
