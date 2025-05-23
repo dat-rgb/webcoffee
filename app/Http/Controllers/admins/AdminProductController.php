@@ -37,17 +37,30 @@ class AdminProductController extends Controller
         return $ingredients;
     }
     //lấy ds sản phẩm theo trạng thái
-    public function getProductsByStatus($status) {
-        return SanPham::with('danhMuc')
+    public function getProductsByStatus($status, $search = null) {
+        $query = SanPham::with('danhMuc')
             ->where('trang_thai', $status)
-            ->orderBy('id', 'desc')
-            ->paginate(10);
+            ->orderBy('id', 'desc');
+
+            if ($search) {
+                $query->where(function($q) use ($search) {
+                    $q->where('ten_san_pham', 'like', "%{$search}%")
+                    ->orWhere('ma_san_pham', 'like', "%{$search}%")
+                    ->orWhereHas('danhMuc', function($q2) use ($search) {
+                        $q2->where('ten_danh_muc', 'like', "%{$search}%");
+                    })
+                    ->orWhere('mo_ta', 'like', "%{$search}%"); // thêm search mô tả sản phẩm
+                });
+            }
+
+        return $query->paginate(10);
     }
-    //hiển thị ds sản phẩm
+
+    // Hiển thị danh sách sản phẩm (trạng thái 1)
     public function listProducts(Request $request) {
-        $products = $this->getProductsByStatus(1);
-
-
+        $search = $request->input('search');
+        $products = $this->getProductsByStatus(1, $search);
+        $categories = $this->getCategory();
         $sizesMap = [];
         foreach ($products as $pro) {
             $sizesMap[$pro->ma_san_pham] = $this->getSizeProduct($pro->ma_san_pham);
@@ -57,28 +70,34 @@ class AdminProductController extends Controller
             'title' => 'Quản lý sản phẩm | CDMT Coffee & Tea',
             'subtitle' => 'Danh sách sản phẩm',
             'products' => $products,
-            'sizesMap' => $sizesMap
+            'sizesMap' => $sizesMap,
+            'search' => $search // truyền lại để giữ giá trị input search trên view (nếu muốn)
         ];
 
         return view('admins.products.index', $viewData);
     }
-    //hiển thị danh sách sản phẩm ẩn
-    public function listProductsHidden(){
-        $products = $this->getProductsByStatus(2);
 
-        $sizesMap = [];
-        foreach ($products as $pro) {
-            $sizesMap[$pro->ma_san_pham] = $this->getSizeProduct($pro->ma_san_pham);
-        }
-        $viewData = [
-            'title' => 'Quản lý sản phẩm | CDMT Coffee & Tea',
-            'subtitle' => 'Sản phẩm đã ẩn',
-            'products' => $products,
-            'sizesMap' => $sizesMap
-        ];
-
-        return view('admins.products.index', $viewData);
+// Hiển thị danh sách sản phẩm ẩn (trạng thái 2)
+public function listProductsHidden(Request $request){
+    $search = $request->input('search');
+    $products = $this->getProductsByStatus(2, $search);
+    $categories = $this->getCategory();
+    $sizesMap = [];
+    foreach ($products as $pro) {
+        $sizesMap[$pro->ma_san_pham] = $this->getSizeProduct($pro->ma_san_pham);
     }
+
+    $viewData = [
+        'title' => 'Quản lý sản phẩm | CDMT Coffee & Tea',
+        'subtitle' => 'Sản phẩm đã ẩn',
+        'products' => $products,
+        'sizesMap' => $sizesMap,
+        'search' => $search
+    ];
+
+    return view('admins.products.index', $viewData);
+}
+
     //show form 
     public function showProductForm(){
 
@@ -539,19 +558,31 @@ class AdminProductController extends Controller
         return response()->json(['message' => 'Xóa sản phẩm thành công!']);
     }
     //show list products sort delete
-    public function listProductSortDelete()
+    public function listProductSortDelete(Request $request)
     {
-        $deletedProducts = SanPham::onlyTrashed()
+        $search = $request->input('search');
+
+        $deletedProductsQuery = SanPham::onlyTrashed()
             ->with('danhMuc')
-            ->orderByDesc('deleted_at')
-            ->paginate(10);
+            ->orderByDesc('deleted_at');
+
+        if ($search) {
+            $deletedProductsQuery->where(function($q) use ($search) {
+                $q->where('ten_san_pham', 'like', "%{$search}%")
+                ->orWhere('ma_san_pham', 'like', "%{$search}%");
+            });
+        }
+
+        $deletedProducts = $deletedProductsQuery->paginate(10);
 
         $viewData = [
             'title' => 'Quản lý sản phẩm | CDMT Coffee & Tea',
             'subtitle' => 'Danh sách sản phẩm đã xóa',
             'products' => $deletedProducts,
+            'search' => $search, // Để giữ giá trị input search trên view nếu cần
         ];
 
         return view('admins.products.product_delete', $viewData);
     }
+
 }

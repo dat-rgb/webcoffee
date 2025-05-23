@@ -33,6 +33,13 @@
                 <li class="nav-item">
                     <a href="{{ route('admin.products.list') }}">Sản phẩm</a>
                 </li>
+                <li class="separator">
+                    <i class="icon-arrow-right"></i>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('admin.products.list.delete') }}">Sản phẩm đã xóa</a>
+                </li>
+                
             </ul>
         </div>
 
@@ -40,19 +47,23 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <div class="d-flex align-items-center">
-                            <h4 class="card-title">{{ $subtitle }}</h4>
-                        </div>
                         <div class="form-group mb-3">
                             <div class="row g-2 align-items-center">
-                                <div class="col-12 col-md-6 col-lg-5">
+                                <form action="{{ url()->current() }}" method="GET" class="col-12 col-md-6 col-lg-5">
                                     <div class="input-group">
-                                        <input type="text" class="form-control" placeholder="Tìm kiếm sản phẩm...">
-                                        <button  class="input-group-text bg-white">
+                                        <input 
+                                        type="text" 
+                                        name="search" 
+                                        class="form-control" 
+                                        placeholder="Nhập tên hoặc mã sản phẩm để tìm kiếm..." 
+                                        value="{{ request('search') }}" 
+                                        autocomplete="off"
+                                        >
+                                        <button type="submit" class="input-group-text bg-white">
                                             <i class="fa fa-search text-muted"></i>
                                         </button>
                                     </div>
-                                </div>
+                                </form>
 
                                 <div class="col-6 col-md-3 col-lg-2">
                                     <div class="dropdown">
