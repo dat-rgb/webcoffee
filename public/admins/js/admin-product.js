@@ -46,80 +46,84 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-// 
 document.addEventListener('DOMContentLoaded', function () {
     const checkAll = document.getElementById('checkAll');
     const checkboxes = document.querySelectorAll('.product-checkbox');
     const hideButton = document.getElementById('hide-products');
     const showButton = document.getElementById('show-products');
+    const deleteButton = document.getElementById('delete-products');
+    const restoreButton = document.getElementById('restore-products');
+    const forceDeleteButton = document.getElementById('force-delete-products'); // nút xóa vĩnh viễn
 
-    // Kiểm tra tồn tại nút "Chọn tất cả"
     if (checkAll) {
-        // Sự kiện chọn tất cả
-        checkAll.addEventListener('change', function () {
+        checkAll.addEventListener('change', () => {
             checkboxes.forEach(cb => cb.checked = checkAll.checked);
         });
 
-        // Tự động cập nhật trạng thái "Chọn tất cả" nếu người dùng chọn từng checkbox
         checkboxes.forEach(cb => {
-            cb.addEventListener('change', function () {
+            cb.addEventListener('change', () => {
                 checkAll.checked = Array.from(checkboxes).every(cb => cb.checked);
             });
         });
     }
 
-    // Nút ẩn sản phẩm
-    if (hideButton) {
-        hideButton.addEventListener('click', function () {
+    function handleBulkButton(button, action, confirmMessage = null) {
+        if (!button) return;
+        button.addEventListener('click', () => {
             const selectedIds = getSelectedProductIds();
-            if (selectedIds.length === 0) {
-                showWarning('Vui lòng chọn ít nhất 1 sản phẩm.');
-                return;
+            if (selectedIds.length === 0) return showWarning('Vui lòng chọn ít nhất 1 sản phẩm.');
+
+            if (confirmMessage) {
+                Swal.fire({
+                    title: confirmMessage.title,
+                    text: confirmMessage.text,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: confirmMessage.confirmText,
+                    cancelButtonText: 'Hủy'
+                }).then(result => {
+                    if (result.isConfirmed) performBulkAction(selectedIds, action);
+                });
+            } else {
+                performBulkAction(selectedIds, action);
             }
-            performBulkAction(selectedIds, 'hide');
         });
     }
 
-    // Nút hiển thị sản phẩm
-    if (showButton) {
-        showButton.addEventListener('click', function () {
-            const selectedIds = getSelectedProductIds();
-            if (selectedIds.length === 0) {
-                showWarning('Vui lòng chọn ít nhất 1 sản phẩm.');
-                return;
-            }
-            performBulkAction(selectedIds, 'show');
-        });
-    }
+    handleBulkButton(hideButton, 'hide');
+    handleBulkButton(showButton, 'show');
+    handleBulkButton(deleteButton, 'delete', {
+        title: 'Bạn có chắc muốn xoá?',
+        text: 'Thao tác này không thể hoàn tác!',
+        confirmText: 'Xoá'
+    });
+    handleBulkButton(restoreButton, 'restore', {
+        title: 'Khôi phục sản phẩm?',
+        text: 'Các sản phẩm đã chọn sẽ được khôi phục!',
+        confirmText: 'Khôi phục'
+    });
+    handleBulkButton(forceDeleteButton, 'force-delete', {
+        title: 'Bạn có chắc muốn xóa vĩnh viễn?',
+        text: 'Thao tác này không thể hoàn tác!',
+        confirmText: 'Xóa vĩnh viễn'
+    });
 
-    // Lấy danh sách ID sản phẩm được chọn
     function getSelectedProductIds() {
-        return Array.from(checkboxes)
-            .filter(cb => cb.checked)
-            .map(cb => cb.value); // Sử dụng value thay vì data-id
+        return Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
     }
 
-    // Hiển thị cảnh báo
     function showWarning(message) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Cảnh báo',
-            text: message
-        });
+        Swal.fire({ icon: 'warning', title: 'Cảnh báo', text: message });
     }
 
-    // Gửi request AJAX thực hiện hành động ẩn/hiện
     function performBulkAction(selectedIds, action) {
-        // Hiển thị loading trước khi gửi AJAX
         Swal.fire({
             title: 'Đang xử lý...',
             allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
+            didOpen: () => Swal.showLoading()
         });
-    
-        // Gửi AJAX sau một khoảng delay nhỏ (nếu bạn muốn rõ hiệu ứng loading)
+
         setTimeout(() => {
             $.ajax({
                 url: '/admin/products/bulk-action',
@@ -130,21 +134,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     action: action
                 },
                 success: function (response) {
-                    if (response.status === 'success') {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Thành công',
-                            text: response.message || 'Đã thực hiện thao tác thành công.'
-                        }).then(() => {
-                            location.reload();
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Lỗi',
-                            text: response.message || 'Thao tác không thành công.'
-                        });
-                    }
+                    Swal.fire({
+                        icon: response.status === 'success' ? 'success' : 'error',
+                        title: response.status === 'success' ? 'Thành công' : 'Lỗi',
+                        text: response.message || 'Đã thực hiện thao tác.'
+                    }).then(() => {
+                        if (response.status === 'success') location.reload();
+                    });
                 },
                 error: function () {
                     Swal.fire({
@@ -154,6 +150,61 @@ document.addEventListener('DOMContentLoaded', function () {
                     });
                 }
             });
-        }, 800); // Chờ 800ms để hiệu ứng loading hiển thị rõ hơn
-    }    
+        }, 800);
+    }
 });
+
+
+// sort-delete
+$(document).ready(function() {
+    $('.acctive-form').on('submit', function(e) {
+      e.preventDefault(); // chặn form submit mặc định
+  
+      const form = this;
+  
+      Swal.fire({
+        title: 'Bạn có chắc muốn xóa tạm không?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Hủy',
+        reverseButtons: true
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire({
+            title: 'Đang xử lý...',
+            allowOutsideClick: false,
+            didOpen: () => {
+              Swal.showLoading();
+            }
+          });
+  
+          // Delay 800ms trước khi gọi ajax, để loading hiện rõ
+          setTimeout(() => {
+            $.ajax({
+              url: $(form).attr('action'),
+              method: $(form).find('input[name="_method"]').val() || $(form).attr('method'),
+              data: $(form).serialize(),
+              success: function(response) {
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Thành công',
+                  text: response.message || 'Đã thực hiện thao tác thành công.'
+                }).then(() => {
+                  location.reload();
+                });
+              },
+              error: function(xhr) {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Lỗi',
+                  text: xhr.responseJSON?.message || 'Có lỗi xảy ra, thử lại nhé!'
+                });
+              }
+            });
+          }, 800); 
+        }
+      });
+    });
+});
+  

@@ -63,9 +63,11 @@
                                             <li>
                                                 <button type="button" class="dropdown-item" id="hide-products">Ẩn các sản phẩm đã chọn</button>
                                             </li>
-                                    
                                             <li>
                                                 <button type="button" class="dropdown-item" id="show-products">Hiển thị các sản phẩm đã chọn</button>
+                                            </li>
+                                            <li>
+                                                <button type="button" class="dropdown-item text-danger" id="delete-products">Xóa các sản phẩm đã chọn</button>
                                             </li>
                                         </ul>
                                     </div>
@@ -115,7 +117,7 @@
                                                                 <input type="checkbox" class="product-checkbox" value="{{ $pro->ma_san_pham }}">
                                                             </td> 
                                                             <td>
-                                                                <a href="{{ route('admin.product.edit.form',$pro->ma_san_pham) }}" class="">
+                                                                <a href="{{ route('admin.product.edit.form',$pro->ma_san_pham) }}" class="" data-bs-toggle="tooltip" title="{{ $pro->ten_san_pham }}">
                                                                     <img src="{{ $pro->hinh_anh ? asset('storage/' . $pro->hinh_anh) : asset('images/no_product_image.png') }}" alt="{{ $pro->ten_san_pham }}" width="80">
                                                                 </a>                                                            
                                                             </td>

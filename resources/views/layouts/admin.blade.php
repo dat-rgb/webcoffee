@@ -142,6 +142,11 @@
                         <span class="sub-item">Sản phẩm ẩn</span>
                       </a>
                     </li>
+                    <li>
+                      <a href="{{ route('admin.products.list.delete') }}">
+                        <span class="sub-item">Danh sách sản phẩm đã xóa</span>
+                      </a>
+                    </li>
                   </ul>
                 </div>
               </li>
