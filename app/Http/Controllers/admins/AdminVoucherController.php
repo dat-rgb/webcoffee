@@ -11,10 +11,12 @@ class AdminVoucherController extends Controller
 {
     public function listVouchers(){
 
-        $vouchers = KhuyenMai::where('trang_thai', '!=',3)->paginate(10);
+        $vouchers = KhuyenMai::where('trang_thai', 1)
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
 
         $viewData = [
-            'title' => 'Vouchers || CDMT Coffee & Tea',
+            'title' => 'Vouchers | CDMT Coffee & Tea',
             'subtitle' => 'Danh sách vouchers',
             'vouchers' => $vouchers
         ];
@@ -22,29 +24,20 @@ class AdminVoucherController extends Controller
     }
     public function listVouchersOff(){
 
-        $vouchers = KhuyenMai::where('trang_thai', 2)->paginate(10);
+        $vouchers = KhuyenMai::where('trang_thai', 2)
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
 
         $viewData = [
-            'title' => 'Vouchers || CDMT Coffee & Tea',
+            'title' => 'Vouchers |CDMT Coffee & Tea',
             'subtitle' => 'Danh sách vouchers đóng',
-            'vouchers' => $vouchers
-        ];
-        return view('admins.vouchers.index', $viewData);
-    }
-    public function listVouchersArchive(){
-
-        $vouchers = KhuyenMai::where('trang_thai', 3)->paginate(10);
-
-        $viewData = [
-            'title' => 'Vouchers || CDMT Coffee & Tea',
-            'subtitle' => 'Danh sách vouchers lưu trữ',
             'vouchers' => $vouchers
         ];
         return view('admins.vouchers.index', $viewData);
     }
     public function showVoucherForm(){
         $viewData = [
-            'title' => 'Thêm Voucher || CDMT Coffee & Tea',
+            'title' => 'Thêm Voucher | CDMT Coffee & Tea',
             'subtitle' => 'Thêm voucher'
         ];
         return view('admins.vouchers.voucher_form', $viewData);
@@ -137,60 +130,17 @@ class AdminVoucherController extends Controller
             toastr()->error('Voucher không tồn tại.');
             return redirect()->back();
         }
-        if($voucher->trang_thai == 3){
-            toastr()->error('Không thể đóng voucher đã lưu trữ.');
-            return redirect()->back();
-        }
         if($voucher->trang_thai == 1){
             $voucher->update(['trang_thai'=>2]);
             toastr()->success('Voucher đã được đóng');
-        }else{
+        }
+        else if($voucher->trang_thai == 2)
+        {
             $voucher->update(['trang_thai'=>1]);
             toastr()->success('Voucher đã được mở');
         }
 
         return redirect()->back();
-    }
-    public function voucherArchive($id){
-        $voucher = KhuyenMai::where('ma_voucher',$id)->first();
-
-        if (!$voucher) {
-            toastr()->error('Voucher không tồn tại');
-            return redirect()->back();
-        }
-
-        if ($voucher->trang_thai == 2) {
-            toastr()->error('Không thể lưu trữ Voucher đã đóng');
-            return redirect()->back();
-        }
-
-        if ($voucher->trang_thai == 1) {
-            $voucher->update(['trang_thai' => 3]);
-            toastr()->success('Voucher đã được lưu trữ');
-        } else {
-            $voucher->update(['trang_thai' => 1]);
-            toastr()->success('Voucher đã được mở');
-        }
-
-        return redirect()->back();
-    }
-    public function deleteVoucher($id)
-    {
-        $voucher = KhuyenMai::where('ma_voucher', $id)->first();
-
-        if (!$voucher) {
-            toastr()->error('Voucher không tồn tại');
-            return redirect()->back();
-        }
-
-        if ($voucher->trang_thai != 3) {
-            toastr()->error('Không thể xóa Voucher này. Hãy lưu trữ!');
-            return redirect()->back();
-        } else {
-            $voucher->delete();
-            toastr()->success('Xóa voucher thành công');
-            return redirect()->back();
-        }
     }
     public function editVoucherForm($id){
         $voucher = KhuyenMai::where('ma_voucher', $id)->first();
@@ -200,13 +150,12 @@ class AdminVoucherController extends Controller
             return redirect()->back();
         }
         $viewData = [
-            'title' => 'Vouchers || CDMT Coffee & Tea',
+            'title' => 'Vouchers | CDMT Coffee & Tea',
             'subtitle' => 'Chỉnh sửa voucher ' . $voucher->ma_voucher,
             'voucher' => $voucher
         ];
         return view('admins.vouchers.voucher_edit', $viewData);
     }   
-
     public function editVoucher(Request $request, $id) {
         // Validate dữ liệu
         $request->validate([
@@ -298,5 +247,52 @@ class AdminVoucherController extends Controller
         // Trả về thông báo thành công và chuyển hướng
         toastr()->success('Cập nhật voucher thành công.');
         return redirect()->route('admin.vouchers.list');
+    }
+    public function bulkAction(Request $request)
+    {
+        $action = $request->input('action');
+        $voucherId = $request->input('selected_vouchers', []);
+
+        if (empty($voucherId)) {
+            return response()->json(['status' => 'error', 'message' => 'Vui lòng chọn ít nhất một sản phẩm']);
+        }
+
+        if ($action === 'restore') {
+            $vouchers = KhuyenMai::onlyTrashed()->whereIn('ma_voucher', $voucherId)->get();
+            foreach ($vouchers as $voucher) {
+                $voucher->restore();
+            }
+        } elseif ($action === 'force-delete') {
+            $vouchers = KhuyenMai::onlyTrashed()->whereIn('ma_voucher', $voucherId)->get();
+            foreach ($vouchers as $voucher) {
+                $voucher->forceDelete();
+            }
+        } else {
+            $vouchers = KhuyenMai::whereIn('ma_voucher', $voucherId)->get();
+            foreach ($vouchers as $voucher) {
+                if ($action === 'hide') {
+                    $voucher->update(['trang_thai' => 2]);
+                } elseif ($action === 'show') {
+                    $voucher->update(['trang_thai' => 1]);
+                } elseif ($action === 'delete') {
+                    $voucher->delete(); // Xoá mềm
+                }
+            }
+        }
+
+        return response()->json(['status' => 'success', 'message' => 'Đã thực hiện thao tác thành công']);
+    }
+    public function showDeletedVouchers()
+    {
+        $deletedVouchers = KhuyenMai::onlyTrashed()
+            ->orderBy('deleted_at', 'desc')
+            ->paginate(10);
+
+        $viewData = [
+            'title' => 'Vouchers | CDMT Coffee & Tea',
+            'subtitle' => 'Danh sách vouchers đóng',
+            'vouchers' => $deletedVouchers
+        ];
+        return view('admins.vouchers.delete_list', $viewData);
     }
 }

@@ -23,6 +23,7 @@ return new class extends Migration
             $table->float('gia_tri_giam')->default(0); // nếu GTG > 100: [thành tiền - GTG], nếu GTG < 100: [thành tiền - thành tiền*(GTG/100)]
             $table->float('giam_gia_max')->default(0); // Giảm tối đa
             $table->integer('trang_thai')->default(0); // 1: hoạt động, 
+            $table->softDeletes();
             $table->timestamps();
         });
     }

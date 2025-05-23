@@ -71,16 +71,15 @@
                                 <div class="col-6 col-lg-2">
                                     <div class="dropdown w-100">
                                         <button class="btn btn-outline-primary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown">
-                                            Thao tác nhanh
+                                            Thao tác 
                                         </button>
                                         <ul class="dropdown-menu">
                                             @if(request()->routeIs('admin.products.hidden.list'))
                                                 <li><button type="button" class="dropdown-item" id="show-products">Hiển thị các sản phẩm đã chọn</button></li>
-                                                <li><button type="button" class="dropdown-item text-danger" id="delete-products">Xóa các sản phẩm đã chọn</button></li>
                                             @else
                                                 <li><button type="button" class="dropdown-item" id="hide-products">Ẩn các sản phẩm đã chọn</button></li>
-                                                <li><button type="button" class="dropdown-item text-danger" id="delete-products">Xóa các sản phẩm đã chọn</button></li>
                                             @endif
+                                            <li><button type="button" class="dropdown-item text-danger" id="delete-products">Xóa các sản phẩm đã chọn</button></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -137,7 +136,7 @@
                                                 </thead>
                                                 <tbody>
                                                     @foreach ( $products as $pro )
-                                                        <tr role="" class=" product-row">
+                                                        <tr role="" class="product-row">
                                                             <td>
                                                                 <input type="checkbox" class="product-checkbox" value="{{ $pro->ma_san_pham }}">
                                                             </td> 
