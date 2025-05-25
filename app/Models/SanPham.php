@@ -21,12 +21,13 @@ class SanPham extends Model
         'thu_tu',
         'hot',
         'is_new',
+        'san_pham_dong_goi',
         'mo_ta',
         'hinh_anh',
         'luot_xem',
         'rating',
         'ma_danh_muc',
-        'trang_thai'    
+        'trang_thai'
     ];
 
     public function danhMuc()

@@ -27,11 +27,23 @@ function selectStore(storeId) {
                 $('#selectedStoreId').val(data.store_id);
                 location.reload();
             } else {
-                alert('Có lỗi xảy ra, vui lòng thử lại.');
+                // ❌ lỗi do thiếu hàng hoặc cửa hàng
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Không thể chọn cửa hàng',
+                    text: data.message || 'Có lỗi xảy ra, vui lòng thử lại.',
+                    confirmButtonColor: '#d33',
+                });
             }
         },
         error: function() {
-            alert('Lỗi kết nối, vui lòng thử lại.');
+            // ❌ lỗi kết nối server
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi kết nối',
+                text: 'Không thể kết nối tới máy chủ. Vui lòng thử lại sau.',
+                confirmButtonColor: '#d33',
+            });
         }
     });
 }
