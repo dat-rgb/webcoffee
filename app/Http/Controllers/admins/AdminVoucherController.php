@@ -51,7 +51,6 @@ class AdminVoucherController extends Controller
             'search' => $search,
         ]);
     }
-
     public function showDeletedVouchers(Request $request) {
         $search = $request->input('search');
 
