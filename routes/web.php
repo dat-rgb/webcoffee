@@ -18,9 +18,11 @@ use App\Http\Controllers\customers\CustomerController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\payments\PaymentController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\staffs\StaffHomeController;
 use App\Http\Controllers\StoreController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\KhachHangMiddleware;
+use App\Http\Middleware\NhanVienMiddleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -100,15 +102,16 @@ Route::prefix('customer')->middleware(KhachHangMiddleware::class)->group(functio
     Route::get('/profile', [CustomerController::class, 'index'])->name('customer.index');
 });
 //End - User
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//Start - Admin
-//Admin auth
-Route::prefix('admin/auth')->group(function(){
+//auth adim & staff
+Route::prefix('auth')->group(function(){
     Route::get('/login',[AdminLoginController::class,'showLoginForm'])->name('admin.login.show');
     Route::post('/login',[AdminLoginController::class,'login'])->name('admin.login');
+    Route::post('/logout',[AdminLoginController::class,'logout'])->name('admin.logout');
 });
+///////////////////////////////////////////////////////////////////////////////////////////
+//Start - Admin
 //Route Admin home
 Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function(){
     Route::get('', [AdminHomeController::class, 'index'])->name('admin');
@@ -209,4 +212,11 @@ Route::prefix('admin/nhanviens')->middleware(AdminMiddleware::class)->name('admi
 
 });
 
+///////////////////////////////////////////////////////////////////////////
+//Start - Staff
+//Route Staff home  
+Route::prefix('staff')->middleware(NhanVienMiddleware::class)->group(function(){
+    Route::get('', [StaffHomeController::class, 'index'])->name('staff');
+});
 
+//End - Staff

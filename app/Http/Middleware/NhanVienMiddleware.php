@@ -16,6 +16,16 @@ class NhanVienMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
+        $user = Auth::guard('staff')->user(); 
+        if (!$user) {
+            return redirect()->route('admin.login.show');
+        }
+
+        if ($user->loai_tai_khoan == 3) {
+            toastr()->error('Bạn không có quyền truy cập trang này.');
+            return redirect()->route('admin.login.show');
+        }
+
         return $next($request);
     }
 }
