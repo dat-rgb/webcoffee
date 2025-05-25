@@ -93,7 +93,7 @@
 										<div class="current-list-item">
 											<a href="#"><i class="fas fa-user"></i> {{ Auth::user()->khachHang->ho_ten_khach_hang ?? 'Nhân viên' }}</a>
 											<ul class="sub-menu">
-												<li><a href="#"><i class="fas fa-user-circle" style="margin-right:6px;"></i>Hồ sơ</a></li>
+												<li><a href="{{ route('customer.index') }}"><i class="fas fa-user-circle" style="margin-right:6px;"></i>Hồ sơ</a></li>
 												<li><a href="#"><i class="fas fa-map-marker-alt" style="margin-right:6px;"></i>Sổ địa chỉ</a></li>
 												<li><a href="#"><i class="fas fa-heart" style="margin-right:6px;"></i>Yêu thích</a></li>
 												<li><a href="#"><i class="fas fa-receipt" style="margin-right:6px;"></i>Lịch sử mua hàng</a></li>

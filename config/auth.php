@@ -40,6 +40,10 @@ return [
             'driver' => 'session',
             'provider' => 'tai_khoans',
         ],
+        'admin' => [
+            'driver' => 'session',
+            'provider' => 'admins',
+        ],
     ],
 
     /*
@@ -64,7 +68,10 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\TaiKhoan::class,
         ],
-
+        'admins' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\TaiKhoan::class,
+        ],
         // 'users' => [
         //     'driver' => 'database',
         //     'table' => 'users',

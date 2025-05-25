@@ -9,31 +9,68 @@ use Illuminate\Http\Request;
 
 class AdminVoucherController extends Controller
 {
-    public function listVouchers(){
+    public function listVouchers(Request $request) {
+        $search = $request->input('search');
 
-        $vouchers = KhuyenMai::where('trang_thai', 1)
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+        $query = KhuyenMai::where('trang_thai', 1);
 
-        $viewData = [
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('ten_voucher', 'like', "%$search%")
+                ->orWhere('ma_voucher', 'like', "%$search%");
+            });
+        }
+
+        $vouchers = $query->orderBy('created_at', 'desc')->paginate(10)->appends(['search' => $search]);
+
+        return view('admins.vouchers.index', [
             'title' => 'Vouchers | CDMT Coffee & Tea',
             'subtitle' => 'Danh sách vouchers',
-            'vouchers' => $vouchers
-        ];
-        return view('admins.vouchers.index', $viewData);
+            'vouchers' => $vouchers,
+            'search' => $search,
+        ]);
     }
-    public function listVouchersOff(){
+    public function listVouchersOff(Request $request) {
+        $search = $request->input('search');
 
-        $vouchers = KhuyenMai::where('trang_thai', 2)
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+        $query = KhuyenMai::where('trang_thai', 2);
 
-        $viewData = [
-            'title' => 'Vouchers |CDMT Coffee & Tea',
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('ten_voucher', 'like', "%$search%")
+                ->orWhere('ma_voucher', 'like', "%$search%");
+            });
+        }
+
+        $vouchers = $query->orderBy('created_at', 'desc')->paginate(10)->appends(['search' => $search]);
+
+        return view('admins.vouchers.index', [
+            'title' => 'Vouchers | CDMT Coffee & Tea',
             'subtitle' => 'Danh sách vouchers đóng',
-            'vouchers' => $vouchers
-        ];
-        return view('admins.vouchers.index', $viewData);
+            'vouchers' => $vouchers,
+            'search' => $search,
+        ]);
+    }
+    public function showDeletedVouchers(Request $request) {
+        $search = $request->input('search');
+
+        $query = KhuyenMai::onlyTrashed();
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('ten_voucher', 'like', "%$search%")
+                ->orWhere('ma_voucher', 'like', "%$search%");
+            });
+        }
+
+        $deletedVouchers = $query->orderBy('deleted_at', 'desc')->paginate(10)->appends(['search' => $search]);
+
+        return view('admins.vouchers.delete_list', [
+            'title' => 'Vouchers | CDMT Coffee & Tea',
+            'subtitle' => 'Danh sách vouchers đã xoá',
+            'vouchers' => $deletedVouchers,
+            'search' => $search,
+        ]);
     }
     public function showVoucherForm(){
         $viewData = [
@@ -281,18 +318,5 @@ class AdminVoucherController extends Controller
         }
 
         return response()->json(['status' => 'success', 'message' => 'Đã thực hiện thao tác thành công']);
-    }
-    public function showDeletedVouchers()
-    {
-        $deletedVouchers = KhuyenMai::onlyTrashed()
-            ->orderBy('deleted_at', 'desc')
-            ->paginate(10);
-
-        $viewData = [
-            'title' => 'Vouchers | CDMT Coffee & Tea',
-            'subtitle' => 'Danh sách vouchers đóng',
-            'vouchers' => $deletedVouchers
-        ];
-        return view('admins.vouchers.delete_list', $viewData);
     }
 }
