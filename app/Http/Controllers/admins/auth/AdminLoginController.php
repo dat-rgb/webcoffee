@@ -46,11 +46,31 @@ class AdminLoginController extends Controller
             toastr()->warning('Tài khoản chưa được kích hoạt.');
             return redirect()->back();
         }
+        if($admin->loai_tai_khoan == 1){
+            Auth::guard('admin')->login($admin);
 
-        Auth::guard('admin')->login($admin);
+            $request->session()->regenerate();
+            toastr()->success('Đăng nhập thành công.');
+            return redirect()->route('admin');
+        }
+        else if($admin->loai_tai_khoan == 2){
+            Auth::guard('staff')->login($admin);
 
-        $request->session()->regenerate();
-        toastr()->success('Đăng nhập thành công.');
-        return redirect()->route('admin');
+            $request->session()->regenerate();
+            toastr()->success('Đăng nhập thành công.');
+            return redirect()->route('staff');
+        }
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+
+        $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
+
+        toastr()->success('Đăng xuất thành công.');
+        return redirect()->route('admin.login.show');
     }
 }

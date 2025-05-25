@@ -211,14 +211,14 @@ class CartController extends Controller
             if ($totalUsedIngredients[$idNL] > $stock) {
                 return [
                     'success' => false,
-                    'message' => "Nguyên liệu {$ingredient->ten_nguyen_lieu} không đủ, vui lòng giảm số lượng hoặc chọn sản phẩm khác."
+                    'message' => "Nguyên liệu không đủ cung cấp cho sản phẩm trong giỏ hàng, vui lòng giảm số lượng hoặc chọn sản phẩm khác."
                 ];
             }
         }
 
         // Giới hạn số lượng max 99
         $maxAllowedQuantity = 99;
-        if ($newQuantity > $maxAllowedQuantity) {
+        if ($newQuantity > $maxAllowedQuantity && $mode === 'add') {
             return [
                 'success' => false,
                 'message' => "Bạn chỉ có thể mua tối đa {$maxAllowedQuantity} sản phẩm cho mỗi loại."
@@ -230,7 +230,6 @@ class CartController extends Controller
             'message' => 'Đủ nguyên liệu trong kho.'
         ];
     }
-
     //add to cart
     public function addToCart(Request $request, $id)
     {

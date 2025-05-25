@@ -63,7 +63,7 @@
                         <!-- Nút Lưu & Hủy -->
                         <div class="mt-4 d-flex justify-content-center gap-3">
                             <button type="submit" class="btn btn-primary">Lưu</button>
-                            <button type="button" class="btn btn-secondary" onclick="window.history.back()">Hủy</button>
+                            <a href="{{ route('admin.products.list') }}" class="btn btn-secondary">Hủy</a>
                         </div>
                     </div>
                 </div>

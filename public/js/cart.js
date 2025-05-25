@@ -188,8 +188,8 @@ $('.add-to-cart').click(function(e){
                 message = xhr.responseText;
             }
             Swal.fire({
-                icon: 'error',
-                title: 'Lỗi',
+                icon: 'warning',
+                title: 'Thao tác không thực hiện',
                 text: message,
                 confirmButtonText: 'OK'
             });
@@ -232,7 +232,7 @@ $(document).on('change', '.change-size', function() {
             // đây mới là nơi nhận lỗi trả về từ backend dạng 400
             let res = xhr.responseJSON;
             if (res && res.error) {
-                Swal.fire('Lỗi', res.error, 'error').then(()=>{
+                Swal.fire('Thao tác không thực hiện', res.error, 'warning').then(()=>{
                     loadCart();
                 });
             } else {
