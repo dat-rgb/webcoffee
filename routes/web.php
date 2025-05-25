@@ -24,7 +24,7 @@ use App\Http\Middleware\KhachHangMiddleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-
+//Start - user
 //Route Home
 Route::prefix('/')->group(function(){
     Route::get('',[HomeController::class, 'home'])->name('home');
@@ -172,8 +172,6 @@ Route::prefix('admin/vouchers')->middleware(AdminMiddleware::class)->name('admin
     Route::post('/{id}/edit', [AdminVoucherController::class, 'editVoucher'])->name('update');
     Route::post('/bulk-action', [AdminVoucherController::class, 'bulkAction'])->name('bulk-action');
     Route::get('/deleted', [AdminVoucherController::class, 'showDeletedVouchers'])->name('deleted-list');
-
-
 });
 //Route Supplier Admin
 Route::prefix('admin/suppliers')->middleware(AdminMiddleware::class)->name('admins.supplier.')->group(function () {
@@ -196,14 +194,19 @@ Route::prefix('admin/nhanviens')->middleware(AdminMiddleware::class)->name('admi
     Route::get('/{ma_nhan_vien}/edit', [AdminNhanVienController::class, 'edit'])->name('edit');
     Route::put('/{ma_nhan_vien}', [AdminNhanVienController::class, 'update'])->name('update');
     Route::delete('/{ma_nhan_vien}', [AdminNhanVienController::class, 'destroy'])->name('destroy');
+  
     //Thử thách Admin phân công lịch làm việc
     Route::get('/phan-cong-lich', [AdminLichlamviecController::class, 'showForm'])->name('lich.showForm');
     Route::post('/phan-cong-lich', [AdminLichlamviecController::class, 'assignWork'])->name('lich.assignWork');
     Route::get('/lich-lam-viec', [AdminLichlamviecController::class, 'showLichTheoTuan'])->name('lich.tuan');
+  
     //Tạm nghỉ cho nhân viên
-    Route::post('/archive/{id}', action: [AdminNhanVienController::class, 'archive'])->name('archive');  // Lưu trữ
-    Route::get('/archived', [AdminNhanVienController::class, 'archived'])->name('archived');    // Danh sách lưu trữ
-    Route::patch('/restore/{id}', action: [AdminNhanVienController::class, 'restore'])->name('restore'); // Khôi phục
+    Route::post('/archive/{id}', action: [AdminNhanvienController::class, 'archive'])->name('archive');  // Lưu trữ
+    Route::get('/archived', [AdminNhanvienController::class, 'archived'])->name('archived');    // Danh sách lưu trữ
+    Route::patch('/restore/{id}', action: [AdminNhanvienController::class, 'restore'])->name('restore'); // Khôi phục
+    Route::patch('/restore-bulk', [AdminNhanvienController::class, 'bulkRestore'])->name('restore.bulk');
+    Route::patch('/archive/bulk', [AdminNhanvienController::class, 'archiveBulk'])->name('archive.bulk');
+
 });
 
 

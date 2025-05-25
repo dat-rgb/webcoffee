@@ -1,16 +1,22 @@
 @extends('layouts.admin')
-@section('title', 'Phân công lịch làm việc')
-{{-- @section('subtile',$subtitle) --}}
+@section('title', $title)
+@section('subtile',$subtitle)
 @section('content')
 
 <div class="container">
     <div class="page-header">
-        {{-- <h3 class="mb-3 fw-bold">{{ $subtitle }}</h3> --}}
+        <h3 class="mb-3 fw-bold">{{ $subtitle }}</h3>
         <ul class="mb-3 breadcrumbs">
             <li class="nav-home">
                 <a href="{{ route('admin') }}">
                     <i class="icon-home"></i>
                 </a>
+            </li>
+            <li class="separator">
+                <i class="icon-arrow-right"></i>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('admins.nhanvien.index') }}">Danh sách nhân viên</a>
             </li>
             <li class="separator">
                 <i class="icon-arrow-right"></i>
@@ -67,16 +73,6 @@
                         <br>
                         <span style="font-size: 0.75rem; color: gray;">({{ $nv->chucVu->ten_chuc_vu ?? '' }})</span>
                     </td>
-                    {{-- @foreach($tuanToi as $ngay)
-                        <td>
-                            <select name="work[{{ $nv->ma_nhan_vien }}][{{ $ngay->format('Y-m-d') }}]" class="form-select" >
-                                <option value="3">Nghỉ</option>
-                                <option value="1">Ca sáng</option>
-                                <option value="0">Ca tối</option>
-                                <option value="2">Full ca</option>
-                            </select>
-                        </td>
-                    @endforeach --}}
                     @foreach($tuanToi as $ngay)
                         @php
                             $selectedValue = old("work.{$nv->ma_nhan_vien}.{$ngay->format('Y-m-d')}");
@@ -98,13 +94,11 @@
                 @endforeach
             </tbody>
         </table>
-        <button type="submit" class="btn btn-primary lich-btn-update">Lưu phân công</button>
+        <button type="submit" class="btn btn-primary lich-btn-update">Lưu lịch phân công ca</button>
     </form>
     @endif
 </div>
 @endsection
-
-
 @push('scripts')
     <script src="{{ asset('admins/js/alert.js') }}"></script>
 @endpush

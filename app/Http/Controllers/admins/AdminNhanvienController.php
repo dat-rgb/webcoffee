@@ -10,6 +10,7 @@ use App\Models\CuaHang;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class AdminNhanvienController extends Controller
@@ -65,16 +66,13 @@ class AdminNhanvienController extends Controller
                 'required',
                 'regex:/^0\d{9}$/',
                 'unique:nhan_viens,so_dien_thoai',
-                //'max:10',
             ],
-            'trang_thai'=>'0',
             'ngay_sinh' => [
                 'required',
                 'date',
                 function ($attribute, $value, $fail) {
                     $birthDate = Carbon::parse($value);
                     $age = $birthDate->diffInYears(Carbon::now());
-
                     if ($age < 18) {
                         $fail('Tuổi nhân viên phải từ 18 tuổi trở lên.');
                     } elseif ($age > 40) {
@@ -96,30 +94,40 @@ class AdminNhanvienController extends Controller
             'so_dien_thoai.required' => 'Số điện thoại không được để trống.',
             'so_dien_thoai.regex' => 'Số điện thoại phải bắt đầu bằng số 0 và gồm 10 chữ số.',
             'so_dien_thoai.unique' => 'Số điện thoại đã được sử dụng.',
-            //'so_dien_thoai.max' =>'Số điện thoại chỉ được 10 số.'
         ]);
-        // Tạo tài khoản mới
-        $taiKhoan = TaiKhoan::create([
-            'email' => $request->email,
-            'password' => bcrypt('123456'), // hoặc random rồi gửi qua email nếu muốn
-            'vai_tro' => 'nhanvien', // nếu có cột vai trò
-            'trang_thai' => 1,
-        ]);
-        // Tạo nhân viên gắn với tài khoản
-        NhanVien::create([
-            'ma_nhan_vien' => $request->ma_nhan_vien,
-            'ma_chuc_vu' => $request->ma_chuc_vu,
-            'ma_tai_khoan' => $taiKhoan->ma_tai_khoan,
-            'ma_cua_hang' => $request->ma_cua_hang,
-            'ho_ten_nhan_vien' => $request->ho_ten_nhan_vien,
-            'gioi_tinh' => $request->gioi_tinh ?? null,
-            'ngay_sinh' => $request->ngay_sinh ?? null,
-            'so_dien_thoai' => $request->so_dien_thoai ?? null,
-            'dia_chi' => $request->dia_chi ?? null,
-            //'ca_lam' => 3,
-            'trang_thai' => 0,
-        ]);
-        toastr()->success('Thêm nhân viên và tạo tài khoản thành công!');
+
+        DB::beginTransaction(); // Bắt đầu transaction
+
+        try {
+            // Tạo tài khoản
+            $taiKhoan = TaiKhoan::create([
+                'email' => $request->email,
+                'password' => bcrypt('123456'), // có thể dùng Str::random() nếu muốn
+                'vai_tro' => 'nhanvien',
+                'trang_thai' => 1,// trang thái tài khoản là  1 là đag active , 0 là chờ kích hoạt
+            ]);
+
+            // Tạo nhân viên gắn với tài khoản
+            NhanVien::create([
+                'ma_nhan_vien' => $request->ma_nhan_vien,
+                'ma_chuc_vu' => $request->ma_chuc_vu,
+                'ma_tai_khoan' => $taiKhoan->ma_tai_khoan,
+                'ma_cua_hang' => $request->ma_cua_hang,
+                'ho_ten_nhan_vien' => $request->ho_ten_nhan_vien,
+                'gioi_tinh' => $request->gioi_tinh ?? null,
+                'ngay_sinh' => $request->ngay_sinh ?? null,
+                'so_dien_thoai' => $request->so_dien_thoai ?? null,
+                'dia_chi' => $request->dia_chi ?? null,
+                'trang_thai' => 0,
+            ]);
+
+            DB::commit(); // Hoàn tất transaction
+            toastr()->success('Thêm nhân viên và tạo tài khoản thành công!');
+        } catch (\Exception $e) {
+            DB::rollBack(); // Nếu có lỗi thì rollback toàn bộ
+            Log::error('Lỗi khi thêm nhân viên: ' . $e->getMessage());
+            toastr()->error('Thêm nhân viên thất bại. Vui lòng thử lại!');
+        }
         return redirect()->route('admins.nhanvien.index');
     }
     public function edit($ma_nhan_vien)
@@ -228,5 +236,54 @@ class AdminNhanvienController extends Controller
         toastr()->success('Khôi phục nhân viên thành công!');
         return redirect()->route('admins.nhanvien.index');
     }
+    public function bulkRestore(Request $request)
+    {
+        $maNhanViens = $request->input('selected_nhanviens');
+
+        if (!$maNhanViens || count($maNhanViens) == 0) {
+            toastr()->error('Vui lòng chọn ít nhất một nhân viên để khôi phục.');
+            return redirect()->back();
+        }
+
+        $restoredCount = 0;
+
+        foreach ($maNhanViens as $maNhanVien) {
+            $nhanVien = NhanVien::where('ma_nhan_vien', $maNhanVien)->first();
+            if ($nhanVien && $nhanVien->trang_thai != 0) {
+                $nhanVien->trang_thai = 0;
+                $nhanVien->save();
+                $restoredCount++;
+            }
+        }
+
+        toastr()->success("Đã khôi phục {$restoredCount} nhân viên.");
+        return redirect()->route('admins.nhanvien.archived');
+    }
+    public function archiveBulk(Request $request)
+    {
+        $maNhanViens = $request->input('selected_nhanviens');
+        if (!$maNhanViens || count($maNhanViens) === 0) {
+            //return redirect()->back()->with('error', 'Vui lòng chọn ít nhất một nhân viên.');
+            toastr()->error("Vui lòng chọn ít nhất một nhân viên.");
+            return redirect()->route('admins.nhanvien.index');
+        }
+        // Cập nhật trạng thái = 1 (tạm nghỉ)
+        NhanVien::whereIn('ma_nhan_vien', $maNhanViens)->update(['trang_thai' => 1]);
+        toastr()->success("Nhân viên được chọn đã đưa vào danh sách nghỉ");
+        return redirect()->route('admins.nhanvien.index');
+        //return redirect()->back()->with('success', 'Đã chuyển trạng thái nhân viên sang Tạm nghỉ.');
+    }
+    public function archived()
+    {
+        $nhanViens = NhanVien::with(['chucVu', 'taiKhoan', 'cuaHang'])
+            ->where('trang_thai', 1) // chỉ lấy nhân viên đã bị ẩn
+            ->get();
+            return view('admins.nhanvien.archive', [
+            'title' => 'Danh sách nhân viên ẩn',
+            'subtitle' => 'Nhân viên đã bị xóa tạm thời',
+            'nhanViens' => $nhanViens,
+        ]);
+    }
+
 
 }
