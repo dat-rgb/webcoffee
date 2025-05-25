@@ -186,20 +186,23 @@ Route::prefix('admin/suppliers')->name('admins.supplier.')->group(function () {
 });
 //Route NhanVien
 Route::prefix('admin/nhanviens')->name('admins.nhanvien.')->group(function () {
-    Route::get('/', [AdminNhanVienController::class, 'index'])->name('index');
-    Route::get('/create', [AdminNhanVienController::class, 'create'])->name('create');
-    Route::post('/store', [AdminNhanVienController::class, 'store'])->name('store');
-    Route::get('/{ma_nhan_vien}/edit', [AdminNhanVienController::class, 'edit'])->name('edit');
-    Route::put('/{ma_nhan_vien}', [AdminNhanVienController::class, 'update'])->name('update');
-    Route::delete('/{ma_nhan_vien}', [AdminNhanVienController::class, 'destroy'])->name('destroy');
+    Route::get('/', [AdminNhanvienController::class, 'index'])->name('index');
+    Route::get('/create', [AdminNhanvienController::class, 'create'])->name('create');
+    Route::post('/store', [AdminNhanvienController::class, 'store'])->name('store');
+    Route::get('/{ma_nhan_vien}/edit', [AdminNhanvienController::class, 'edit'])->name('edit');
+    Route::put('/{ma_nhan_vien}', [AdminNhanvienController::class, 'update'])->name('update');
+    Route::delete('/{ma_nhan_vien}', [AdminNhanvienController::class, 'destroy'])->name('destroy');
     //Thử thách Admin phân công lịch làm việc
     Route::get('/phan-cong-lich', [AdminLichlamviecController::class, 'showForm'])->name('lich.showForm');
     Route::post('/phan-cong-lich', [AdminLichlamviecController::class, 'assignWork'])->name('lich.assignWork');
     Route::get('/lich-lam-viec', [AdminLichlamviecController::class, 'showLichTheoTuan'])->name('lich.tuan');
     //Tạm nghỉ cho nhân viên
-    Route::post('/archive/{id}', action: [AdminNhanVienController::class, 'archive'])->name('archive');  // Lưu trữ
-    Route::get('/archived', [AdminNhanVienController::class, 'archived'])->name('archived');    // Danh sách lưu trữ
-    Route::patch('/restore/{id}', action: [AdminNhanVienController::class, 'restore'])->name('restore'); // Khôi phục
+    Route::post('/archive/{id}', action: [AdminNhanvienController::class, 'archive'])->name('archive');  // Lưu trữ
+    Route::get('/archived', [AdminNhanvienController::class, 'archived'])->name('archived');    // Danh sách lưu trữ
+    Route::patch('/restore/{id}', action: [AdminNhanvienController::class, 'restore'])->name('restore'); // Khôi phục
+    Route::patch('/restore-bulk', [AdminNhanvienController::class, 'bulkRestore'])->name('restore.bulk');
+    Route::patch('/archive/bulk', [AdminNhanvienController::class, 'archiveBulk'])->name('archive.bulk');
+
 });
 
 

@@ -20,51 +20,49 @@ class AdminLichlamviecController extends Controller
 
         $nhanViens = [];
         $tuanToi = [];
-
+        $lichPhanCong = collect();
+        // Mặc định tiêu đề
+        $title = 'Phân công lịch làm việc';
+        $subtitle = 'Vui lòng chọn cửa hàng.';
         if ($maCuaHang) {
-            // Sửa đoạn này: load thêm quan hệ chucVu
             $nhanViens = NhanVien::with('chucVu')
-            ->where('ma_cua_hang', $maCuaHang)
-            ->get();
-
-
+                ->where('ma_cua_hang', $maCuaHang)
+                ->get();
+            $title = 'Phân công lịch làm việc tuần sau';
+            $subtitle = 'Bảng phân công lịch làm việc tuần sau';
             $startDate = Carbon::now()->next(Carbon::MONDAY);
             for ($i = 0; $i < 7; $i++) {
                 $tuanToi[] = $startDate->copy()->addDays($i);
             }
-
             $maNhanViens = $nhanViens->pluck('ma_nhan_vien')->toArray();
             $dates = array_map(fn($d) => $d->format('Y-m-d'), $tuanToi);
-
-            // Lấy lịch phân công đã có cho tuần tới
             $lichPhanCong = Lichphancong::whereIn('ma_nhan_vien', $maNhanViens)
                 ->whereIn('ngay_lam', $dates)
                 ->get()
                 ->groupBy(['ma_nhan_vien', 'ngay_lam']);
-        } else {
-            $lichPhanCong = collect();
         }
-
-        return view('admins.nhanvien.lichlamviec', compact('cuaHangs', 'nhanViens', 'tuanToi', 'maCuaHang', 'lichPhanCong'));
+        return view('admins.nhanvien.lichlamviec', compact(
+            'cuaHangs',
+            'nhanViens',
+            'tuanToi',
+            'maCuaHang',
+            'lichPhanCong',
+            'title',
+            'subtitle'
+        ));
     }
-
-
-
     public function assignWork(Request $request)
     {
         $work = $request->input('work', []);
-
         // Kiểm tra mỗi nhân viên chỉ có tối đa 5 ngày làm việc (không tính ngày nghỉ)
         foreach ($work as $maNhanVien => $ngayLamViec) {
         $soNgayLam = 0;
-
         foreach ($ngayLamViec as $caLam) {
             // Ca làm hợp lệ là ca khác rỗng, khác null và khác '3' (nghỉ)
-            if ($caLam !== null && $caLam !== '' && $caLam != '3') {    
+            if ($caLam !== null && $caLam !== '' && $caLam != '3') {
                 $soNgayLam++;
             }
         }
-
         // Nếu số ngày làm < 5, nghĩa là nghỉ quá 2 ngày
         if ($soNgayLam < 5) {
             // Lấy họ tên nhân viên từ DB để hiển thị thông báo rõ ràng
@@ -74,10 +72,7 @@ class AdminLichlamviecController extends Controller
             return redirect()->back()->withErrors("Nhân viên $ho_ten_nhan_vien phải làm tối thiểu 5 ngày/tuần (tối đa được nghỉ 2 ngày).");
         }
     }
-
-
         // Lưu hoặc cập nhật lịch làm việc
-
         foreach ($work as $maNhanVien => $ngayLamViec) {
             foreach ($ngayLamViec as $ngay => $caLam) {
                 Lichphancong::updateOrCreate(
@@ -89,7 +84,6 @@ class AdminLichlamviecController extends Controller
         toastr()->success('Phân công lịch làm việc thành công!');
         return redirect()->route('admins.nhanvien.lich.tuan');
     }
-
     public function showLichTheoTuan(Request $request)
     {
         $weekOffset = (int)$request->input('week', 0); // 0: tuần này, 1: tuần sau, ...

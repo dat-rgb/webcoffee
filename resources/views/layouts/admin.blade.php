@@ -37,7 +37,7 @@
     <!-- CSS Just for demo purpose, don't include it in your project -->
     <link rel="stylesheet" href="{{ asset('admins/css/demo.css') }}" />
     @stack('styles')
-    
+
   </head>
   <body>
     <div class="wrapper">
@@ -246,30 +246,11 @@
                             </a>
                           </li>
                           <li>
-                            <a href="#">
-                                <span class="sub-item">phân công lịch làm</span>
-                            </a>
-                          </li>
-                          <li>
-                            <a href="#">
-                                <span class="sub-item">phân công lịch làm</span>
-                            </a>
-                          </li>
-                          <li>
-                            <a href="{{ route('admins.nhanvien.create') }}">
-                              <span class="sub-item">Thêm nhân viên mới</span>
-                            </a>
-                          </li>
-                          <li>
-                            <a href="#">
+                            <a href="{{ route('admins.nhanvien.archived') }}">
                                 <span class="sub-item">Danh sách nhân viên nghỉ việc</span>
                             </a>
                           </li>
-                          <li>
-                            <a href="#">
-                                <span class="sub-item">black list</span>
-                            </a>
-                          </li>
+
 
                         </ul>
                       </div>
