@@ -104,10 +104,9 @@ class AdminProductController extends Controller
         $categorys = $this->getCategory();
         $ingredients = $this->getIngredient();
         // Lấy mã lớn nhất hiện có (giả sử dạng: NL001, NL002, ...)
-        $lastItem = SanPham::orderByDesc('ma_san_pham')->first();
+        $lastItem = SanPham::withTrashed()->orderByDesc('ma_san_pham')->first();
 
         if ($lastItem) {
-            // Tách số phía sau
             $lastNumber = intval(substr($lastItem->ma_san_pham, 2));
             $newNumber = $lastNumber + 1;
         } else {
@@ -115,6 +114,7 @@ class AdminProductController extends Controller
         }
 
         $newCode = 'SP' . str_pad($newNumber, 8, '0', STR_PAD_LEFT);
+
 
         $viewData = [
             'title' => 'Thêm sản phẩm | CMDT Coffee & Tea',
@@ -154,8 +154,10 @@ class AdminProductController extends Controller
             'mo_ta.max' => 'Mô tả không quá 1000 ký tự.',
         ]);
 
-        $new = $request->is_new === 'New' ? 1 : 0;
-        $hot = $request->hot === 'Hot' ? 1 : 0;
+        $hot = $request->hot;
+        $new = $request->is_new;
+        $dong_goi = $request->san_pham_dong_goi;
+
         $slug = Str::slug($request->ten_san_pham);
 
         // Check slug trùng
@@ -185,6 +187,7 @@ class AdminProductController extends Controller
             'hinh_anh' => $imagePath,
             'hot' => $hot,
             'is_new' => $new,
+            'san_pham_dong_goi' => $dong_goi
         ]);
         toastr()->success('Thêm sản phẩm thành công.');
         return redirect()->route('admin.products.list');
@@ -540,8 +543,9 @@ class AdminProductController extends Controller
         $product->gia = $request->gia;
         $product->trang_thai = $request->trang_thai;
         $product->mo_ta = $request->mo_ta;
-        $product->hot = $request->hot === 'Hot' ? 1 : 0;
-        $product->is_new = $request->is_new === 'New' ? 1 : 0;
+        $product->hot = $request->hot;
+        $product->is_new = $request->is_new;
+        $product->san_pham_dong_goi = $request->san_pham_dong_goi;
 
         $product->save();
 

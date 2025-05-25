@@ -38,16 +38,16 @@
                                 <div class="billing-address-form">
                                     <form action="#">
                                         <p>
-                                            <input type="text" placeholder="Họ và tên" value="{{ $khach_hang->ho_ten_khach_hang ?? '' }}">
+                                            <input type="text" placeholder="Họ và tên" value="{{ Auth::user()->khachHang->ho_ten_khach_hang ?? '' }}">
                                         </p>
                                         <p>
-                                            <input type="email" placeholder="Email" value="{{ $email ?? '' }}">
+                                            <input type="email" placeholder="Email" value="{{ Auth::user()->email ?? '' }}">
                                         </p>
                                         <p>
-                                            <input type="text" placeholder="Địa chỉ" value="{{ $khach_hang->dia_chi ?? '' }}">
+                                            <input type="text" placeholder="Địa chỉ" value="{{ Auth::user()->khachHang->dia_chi ?? '' }}">
                                         </p>
                                         <p>
-                                            <input type="tel" placeholder="Số điện thoại" value="{{ $khach_hang->so_dien_thoai ?? '' }}">
+                                            <input type="tel" placeholder="Số điện thoại" value="{{ Auth::user()->khachHang->so_dien_thoai ?? '' }}">
                                         </p>
                                         <p>
                                             <textarea name="bill" id="bill" cols="30" rows="10" placeholder="Ghi chú"></textarea>
@@ -96,7 +96,7 @@
                                         <!-- Phần đến lấy tại cửa hàng -->
                                         <div class="store-info mt-3" id="pickupSection" style="display: none;">
                                             <div class="alert alert-info">
-                                                <strong>Địa điểm lấy hàng:</strong><br>
+                                                <strong>Nhận món tại địa chỉ:</strong><br>
                                                 Tên cửa hàng: <strong>{{ session('selected_store_name') }}</strong><br>
                                                 Địa chỉ: {{ session('selected_store_dia_chi') }}
                                             </div>
@@ -123,6 +123,13 @@
                                                 <label class="form-check-label" for="paymentMethodCOD">
                                                     <img src="{{ asset('images/cod.webp') }}" alt="COD" class="payment-image">
                                                     Thanh toán khi nhận hàng (COD)
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="paymentMethod" id="paymentMethodVNPAY" value="NAPAS247" required>
+                                                <label class="form-check-label" for="paymentMethodVNPAY">
+                                                    <img src="{{ asset('images/napas247.png') }}" alt="VNPAY" class="payment-image">
+                                                    Thanh toán trực tuyến Napas 247
                                                 </label>
                                             </div>
                                             <div class="form-check">

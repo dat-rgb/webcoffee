@@ -126,15 +126,28 @@
                                 <div class="form-group">
                                     <label class="form-label">Tags</label>
                                     <div class="selectgroup selectgroup-pills">
+                                        <!-- Hot -->
+                                        <input type="hidden" name="hot" value="0">
                                         <label class="selectgroup-item">
-                                            <input type="checkbox" name="hot" value="1" class="selectgroup-input" 
-                                                {{ old('hot', $product->hot) == 1 ? 'checked' : '' }}>
+                                            <input type="checkbox" name="hot" value="1" class="selectgroup-input"
+                                                {{ old('hot', $product->hot ?? 0) ? 'checked' : '' }}>
                                             <span class="selectgroup-button">Hot</span>
                                         </label>
+
+                                        <!-- New -->
+                                        <input type="hidden" name="is_new" value="0">
                                         <label class="selectgroup-item">
-                                            <input type="checkbox" name="is_new" value="1" class="selectgroup-input" 
-                                                {{ old('is_new', $product->is_new) == 1 ? 'checked' : '' }}>
+                                            <input type="checkbox" name="is_new" value="1" class="selectgroup-input"
+                                                {{ old('is_new', $product->is_new ?? 0) ? 'checked' : '' }}>
                                             <span class="selectgroup-button">New</span>
+                                        </label>
+
+                                        <!-- Đóng gói -->
+                                        <input type="hidden" name="san_pham_dong_goi" value="0">
+                                        <label class="selectgroup-item">
+                                            <input type="checkbox" name="san_pham_dong_goi" value="1" class="selectgroup-input"
+                                                {{ old('san_pham_dong_goi', $product->san_pham_dong_goi ?? 0) ? 'checked' : '' }}>
+                                            <span class="selectgroup-button">Đóng gói</span>
                                         </label>
                                     </div>
                                 </div>
