@@ -45,7 +45,7 @@ class PaymentController extends Controller
             'paymentMethod.required' => 'Vui lòng chọn phương thức thanh toán.',
             'shippingMethod.required' => 'Vui lòng chọn hình thức nhận hàng.',
         ]);
-        $address = $request->dia_chi .' '. $request->wardName .' '. $request-> districtName .' '. $request->provinceName;
+
         
         $customer = Auth::user();
         $khachHang = $customer->khachHang;
@@ -55,10 +55,16 @@ class PaymentController extends Controller
         }
 
         $customerId = $khachHang->ma_khach_hang;
-
+        $address = $request->dia_chi .' '. $request->wardName .' '. $request-> districtName .' '. $request->provinceName;
         $storeId = session('selected_store_id');
         if(!$storeId){
             return redirect()->back()->with('error', 'Vui lòng chọn cửa hàng.');
+        }
+
+        $storeCheck = $this->checkStore($storeId);
+
+        if (!$storeCheck['success']) {
+            return redirect()->back()->with('error', $storeCheck['message'] ?? 'Lỗi không xác định.');
         }
 
         if ($request->paymentMethod === 'COD') {
@@ -100,6 +106,7 @@ class PaymentController extends Controller
 
         return redirect()->back()->with('error', 'Phương thức thanh toán không hợp lệ.');
     }
+
     public function processCOD(array $data)
     {
         $maHoaDon = $this->generateMaHoaDon();
@@ -142,6 +149,67 @@ class PaymentController extends Controller
 
         return $maHoaDon;
     }
+
+    public function checkStore($storeId)
+    {
+        $cart = session()->get('cart', []);
+        if (!$storeId || empty($cart)) {
+            return [
+                'success' => false,
+                'message' => 'Không có thông tin cửa hàng hoặc giỏ hàng rỗng.'
+            ];
+        }
+
+        $totalUsedIngredients = [];
+
+        foreach ($cart as $item) {
+            $productId = $item['product_id'];
+            $sizeId = $item['size_id'];
+            $quantity = (int)$item['product_quantity'];
+
+            $ingredients = DB::table('thanh_phan_san_phams')
+                ->where('ma_san_pham', $productId)
+                ->where('ma_size', $sizeId)
+                ->get();
+
+            foreach ($ingredients as $ingredient) {
+                $idNL = $ingredient->ma_nguyen_lieu;
+                if (!isset($totalUsedIngredients[$idNL])) {
+                    $totalUsedIngredients[$idNL] = 0;
+                }
+                $totalUsedIngredients[$idNL] += $ingredient->dinh_luong * $quantity;
+            }
+        }
+
+        $ingredientStocks = DB::table('cua_hang_nguyen_lieus')
+            ->where('ma_cua_hang', $storeId)
+            ->pluck('so_luong_ton', 'ma_nguyen_lieu');
+
+        foreach ($totalUsedIngredients as $ingredientId => $requiredQty) {
+            $stock = $ingredientStocks[$ingredientId] ?? null;
+
+            if (is_null($stock) || $requiredQty > $stock) {
+                return [
+                    'success' => false,
+                    'message' => "Nguyên liệu mã $ingredientId không đủ tồn kho để thực hiện thanh toán."
+                ];
+            }
+        }
+
+        // Trừ nguyên liệu
+        foreach ($totalUsedIngredients as $ingredientId => $requiredQty) {
+            DB::table('cua_hang_nguyen_lieus')
+                ->where('ma_cua_hang', $storeId)
+                ->where('ma_nguyen_lieu', $ingredientId)
+                ->decrement('so_luong_ton', $requiredQty);
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Đủ nguyên liệu và đã trừ tồn kho.'
+        ];
+    }
+
     public function generateMaHoaDon(): string
     {
         do {
