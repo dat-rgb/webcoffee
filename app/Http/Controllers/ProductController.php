@@ -8,7 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 class ProductController extends Controller
 {
-    public function productList() {
+    public function productList() 
+    {
         $products = SanPham::with('danhMuc')
             ->where('trang_thai', 1)
             ->get();
@@ -127,5 +128,42 @@ class ProductController extends Controller
         ];
 
         return view('clients.pages.products.product_list', $viewData);
+    }
+
+    public function searchProduct(Request $request) {
+        $search = trim($request->input('search'));
+
+        $query = SanPham::with('danhMuc')->where('trang_thai', 1);
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('ten_san_pham', 'like', "%{$search}%")
+                ->orWhere('ma_san_pham', 'like', "%{$search}%")
+                ->orWhereHas('danhMuc', function ($q2) use ($search) {
+                    $q2->where('ten_danh_muc', 'like', "%{$search}%");
+                })
+                ->orWhere('mo_ta', 'like', "%{$search}%");
+            });
+        }
+
+        $products = $query->get(); // Hoặc paginate(12)
+
+        $categories = DanhMucSanPham::where('trang_thai', 1)->get();
+
+        $countCate = [];
+        foreach ($categories as $cate) {
+            $countCate[$cate->ma_danh_muc] = $products->where('ma_danh_muc', $cate->ma_danh_muc)->count();
+        }
+
+        $viewData = [
+            'title' => 'Kết quả tìm kiếm cho từ khóa "' . $search . '" | CMDT Coffee & Tea',
+            'subtitle' => 'Kết quả tìm kiếm cho từ khóa "' . $search . '"',
+            'products' => $products,
+            'categories' => $categories,
+            'countCate' => $countCate,
+            'search' => $search,
+        ];
+
+        return view('clients.pages.products.result_search', $viewData);
     }
 }

@@ -54,6 +54,8 @@ Route::prefix('products')->group(function(){
     Route::get('/',[ProductController::class, 'productList'])->name('product');
     Route::get('/categories-products/{id}',[ProductController::class,'listProductsByCategoryParent'])->name('product.category.list');
     Route::get('/product-detail/{slug}',[ProductController::class, 'productDetail'])->name('product.detail');
+    Route::get('/search', [ProductController::class, 'searchProduct'])->name('product.search');
+
 });
 
 //Route giỏ hàng
@@ -98,8 +100,6 @@ Route::prefix('payment')->group(function(){
     Route::get('/payos-return', [Napas247Controller::class, 'handleReturn'])->name('payos.return');
     Route::get('/payos-cancel', [Napas247Controller::class, 'handleCancel'])->name('payos.cancel');
     Route::get('/status/{orderCode}', [Napas247Controller::class, 'checkPaymentStatus']);
-
-
 });  
 
 //Tin tức
