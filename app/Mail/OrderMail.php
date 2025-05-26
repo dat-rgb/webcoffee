@@ -12,10 +12,15 @@ class OrderMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public $order_id;
     public $name;
     public $email;
     public $phone;
     public $address;
+    public $shippingMethod;
+    public $paymentMethod;
+    public $status;
+    public $statusPayment;
     public $order_time;
     public $cart;
     public $total;
@@ -23,11 +28,16 @@ class OrderMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct($name, $email, $phone, $address, $order_time, $cart, $total)
+    public function __construct($order_id, $name, $email, $phone, $shippingMethod, $paymentMethod, $status, $statusPayment, $address, $order_time, $cart, $total)
     {
+        $this->order_id = $order_id;
         $this->name = $name;
         $this->email = $email;
         $this->phone = $phone;
+        $this->shippingMethod = $shippingMethod;
+        $this->paymentMethod = $paymentMethod;
+        $this->status = $status;
+        $this->statusPayment = $statusPayment;
         $this->address = $address;
         $this->order_time = $order_time;
         $this->cart = $cart;
@@ -40,7 +50,7 @@ class OrderMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Xác nhận đơn hàng từ TeaHouse',
+            subject: 'Xác nhận đơn hàng từ CDMT Coffee & Tea',
         );
     }
 
@@ -52,9 +62,14 @@ class OrderMail extends Mailable
         return new Content(
             view: 'clients.emails.orderMail',
             with: [
+                'order_id' => $this->order_id,
                 'name' => $this->name,
                 'email' => $this->email,
                 'phone' => $this->phone,
+                'shippingMethod' => $this->shippingMethod,
+                'paymentMethod' => $this->paymentMethod,
+                'status' => $this->status,
+                'statusPayment' => $this->statusPayment,
                 'address' => $this->address,
                 'order_time' => $this->order_time,
                 'cart' => $this->cart,

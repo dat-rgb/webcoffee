@@ -1,28 +1,9 @@
 @extends('layouts.app')
 @section('title', $title)
-
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/cart.css') }}">
 @endpush
 @section('content')
-@if (session('error'))
-    <script>
-        Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            text: '{{ session('error') }}',
-        });
-    </script>
-@endif
-@if (session('success'))
-    <script>
-        Swal.fire({
-            icon: 'success',
-            title: 'Thành công!',
-            text: '{{ session('success') }}',
-        });
-    </script>
-@endif
 	<!-- breadcrumb-section -->
 	<div class="breadcrumb-section breadcrumb-bg">
 		<div class="container">

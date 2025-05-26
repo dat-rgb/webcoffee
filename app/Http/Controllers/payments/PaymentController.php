@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\payments;
 
 use App\Http\Controllers\Controller;
+use App\Models\HoaDon;
 use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -13,15 +14,6 @@ use App\Mail\OrderMail;
 
 class PaymentController extends Controller
 {
-    //client id: a1b56e20-cd8e-4983-9dec-ce312f04d1a8
-    //API Key:  2b21f66c-df9f-410b-b922-d630c0b9a673
-    //checksum Key: 87a5d3518ee609401391fa03fce7ac06352db8882ecef2553457a7fcd91e9a67
-    //
-    //Thục hiện:
-    //Add to cart 
-    //Checkout
-    //
-    
     public function payment(Request $request)
     {
         // Validate
@@ -49,14 +41,13 @@ class PaymentController extends Controller
         ]);
 
         
-        $customer = Auth::user();
-        $khachHang = $customer->khachHang;
+        $khachHang = optional(Auth::user())->khachHang;
+        $customerId = null;
 
-        if (!$khachHang) {
-            return redirect()->back()->with('error', 'Thông tin khách hàng chưa hợp lệ!');
-        }
+        if ($khachHang) {
+            $customerId = $khachHang->ma_khach_hang;
+        }   
 
-        $customerId = $khachHang->ma_khach_hang;
         $address = $request->dia_chi .' '. $request->wardName .' '. $request-> districtName .' '. $request->provinceName;
         $storeId = session('selected_store_id');
         if(!$storeId){
@@ -76,7 +67,7 @@ class PaymentController extends Controller
             }
 
             if($validated['shippingMethod'] == 'pickup'){
-                $address = session('selected_store_name').'-'.session('selected_store_dia_chi');
+                $address = session('selected_store_name').' - '.session('selected_store_dia_chi');
             }
 
             $orderData = [
@@ -99,28 +90,69 @@ class PaymentController extends Controller
             try {
                 $maHoaDon = $this->processCOD($orderData);
                
-                $this->sendEmail(
-                    $orderData['ten_khach_hang'],
-                    $orderData['email'],
-                    $orderData['so_dien_thoai'],
-                    $orderData['dia_chi'],
-                    $orderData['cart_items'],
-                    $orderData['tong_tien']
-                );
-                session()->forget('cart'); // Xóa giỏ hàng sau khi đặt thành công
-                return redirect()->route('cart')->with('success', 'Đặt hàng thành công! Mã đơn: ' . $maHoaDon);
+                    $orderData['maHoaDon'] = $maHoaDon;
+                    $orderData['trang_thai'] = 'Chờ xác nhận';
+                    $orderData['trang_thai_thanh_toan'] = 'Chưa thanh toán';
+
+                    $this->sendEmail(
+                        $orderData['maHoaDon'],
+                        $orderData['ten_khach_hang'],
+                        $orderData['email'],
+                        $orderData['so_dien_thoai'],
+                        $orderData['phuong_thuc_nhan_hang'],
+                        $orderData['phuong_thuc_thanh_toan'],
+                        $orderData['trang_thai'],
+                        $orderData['trang_thai_thanh_toan'],
+                        $orderData['dia_chi'],
+                        $orderData['cart_items'],
+                        $orderData['tong_tien'],
+                    );
+
+                session()->forget('cart'); 
+                toastr()->success('Đặt hàng thành công!');
+                return redirect()->route('cart');
             } catch (\Exception $e) {
                 // Ghi log nếu cần: Log::error($e->getMessage());
-                return redirect()->back()->with('error', 'Có lỗi xảy ra khi xử lý đơn hàng. Vui lòng thử lại sau!');
+                toastr()->error('Có lỗi xảy ra khi xử lý đơn hàng. Vui lòng thử lại sau! '. $e->getMessage());
+                return redirect()->back();
             }
         }
+        else if ($request->paymentMethod === 'NAPAS247') {
+            $napas = new Napas247Controller();
 
+            if($validated['shippingMethod'] == 'pickup'){
+                $address = session('selected_store_name').'-'.session('selected_store_dia_chi');
+            }
+
+            $cart = session('cart', []);
+            if (empty($cart)) {
+                return redirect()->back()->with('error', 'Giỏ hàng của bạn đang trống.');
+            }
+
+            $orderData = [
+                'ma_cua_hang' => $storeId,
+                'ma_khach_hang' => $customerId,
+                'ten_khach_hang' => $validated['ho_ten_khach_hang'],
+                'so_dien_thoai' => $validated['so_dien_thoai'],
+                'email' => $validated['email'],
+                'dia_chi' => $address,
+                'phuong_thuc_thanh_toan' => $validated['paymentMethod'],
+                'phuong_thuc_nhan_hang' => $validated['shippingMethod'],
+                'ghi_chu' => $validated['ghi_chu'] ?? '',
+                'tien_ship' => 0,
+                'khuyen_mai' => 0,
+                'giam_gia' => 0,
+                'tong_tien' => array_sum(array_column($cart, 'money')),
+                'cart_items' => $cart,
+            ];
+
+            return $napas->createPaymentLink($orderData); 
+        }
         return redirect()->back()->with('error', 'Phương thức thanh toán không hợp lệ.');
     }
-
     public function processCOD(array $data)
     {
-        $maHoaDon = $this->generateMaHoaDon();
+        $maHoaDon = HoaDon::generateMaHoaDon();
 
         DB::table('hoa_dons')->insert([
             'ma_hoa_don' => $maHoaDon,
@@ -160,7 +192,6 @@ class PaymentController extends Controller
 
         return $maHoaDon;
     }
-
     public function checkStore($storeId)
     {
         $cart = session()->get('cart', []);
@@ -220,13 +251,18 @@ class PaymentController extends Controller
             'message' => 'Đủ nguyên liệu và đã trừ tồn kho.'
         ];
     }
-    private function sendEmail($name, $email, $phone, $address, $cartItems, $tongTien)
+    private function sendEmail($order_id, $name, $email, $phone, $shippingMethod, $paymentMethod, $status, $statusPayment, $address, $cartItems, $tongTien)
     {
         try {
             Mail::to($email)->send(new OrderMail(
+                $order_id,
                 $name,
                 $email,
                 $phone,
+                $shippingMethod,
+                $paymentMethod,
+                $status,
+                $statusPayment,
                 $address,
                 now()->format('d/m/Y H:i'),
                 $cartItems,
@@ -236,17 +272,5 @@ class PaymentController extends Controller
             // Ghi log lỗi nếu cần
             \Log::error('Gửi mail thất bại: ' . $e->getMessage());
         }
-    }
-
-    public function generateMaHoaDon(): string
-    {
-        do {
-            $prefix = 'HD';
-            $datetime = now()->format('HisdmY');
-            $randomStr = strtoupper(Str::random(8));
-            $maHoaDon = $prefix . $datetime . $randomStr;
-        } while (DB::table('hoa_dons')->where('ma_hoa_don', $maHoaDon)->exists());
-
-        return $maHoaDon;
     }
 }

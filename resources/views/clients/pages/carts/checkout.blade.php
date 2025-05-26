@@ -5,24 +5,6 @@
 <link rel="stylesheet" href="{{ asset('css/checkout.css') }}">
 @endpush
 @section('content')
-@if (session('error'))
-    <script>
-        Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            text: '{{ session('error') }}',
-        });
-    </script>
-@endif
-@if (session('success'))
-    <script>
-        Swal.fire({
-            icon: 'success',
-            title: 'Thành công!',
-            text: '{{ session('success') }}',
-        });
-    </script>
-@endif
 <!-- breadcrumb-section -->
 <div class="breadcrumb-section breadcrumb-bg">
     <div class="container">
@@ -166,7 +148,7 @@
                                                     <input class="form-check-input" type="radio" name="paymentMethod" id="paymentMethodNapas247" value="NAPAS247" required>
                                                     <label class="form-check-label d-flex align-items-center gap-2" for="paymentMethodNapas247">
                                                     <img src="{{ asset('images/napas247.png') }}" alt="Napas247" style="width:40px; height:auto;">
-                                                    Thanh toán trực tuyến Napas 247
+                                                    Thanh toán trực tuyến Napas 247 (VietQR)
                                                     </label>
                                                 </div>
 

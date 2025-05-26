@@ -19,6 +19,7 @@ return new class extends Migration
             $table->char('ma_cua_hang', 10)->nullable(); 
             $table->char('ma_khach_hang', 10)->nullable(); 
             $table->string('ten_khach_hang', 255)->nullable();
+            $table->string('email', 255)->nullable();
             $table->char('so_dien_thoai', 10)->nullable();
             $table->string('dia_chi')->nullable();
             $table->float('tien_ship')->default(0);

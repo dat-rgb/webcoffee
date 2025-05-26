@@ -154,7 +154,7 @@
 		</div>
 	</div>
 	<!-- end search area -->
-
+	 
 	@yield('content')
 
 	<!-- footer -->
@@ -252,6 +252,8 @@
 	<!-- JS -->
 	<script src="{{ asset('js/store-popup.js') }}"></script>
 	<script src="{{ asset('js/cart.js') }}"></script>
+	<!--  -->
+	<script src="https://cdn.payos.vn/payos-checkout/v1/stable/payos-initialize.js"></script>
 	@stack('scripts')
 	<x-store-popup />
 </body>
