@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\OrderMail;
 
 class PaymentController extends Controller
 {
@@ -96,6 +98,15 @@ class PaymentController extends Controller
 
             try {
                 $maHoaDon = $this->processCOD($orderData);
+               
+                $this->sendEmail(
+                    $orderData['ten_khach_hang'],
+                    $orderData['email'],
+                    $orderData['so_dien_thoai'],
+                    $orderData['dia_chi'],
+                    $orderData['cart_items'],
+                    $orderData['tong_tien']
+                );
                 session()->forget('cart'); // Xóa giỏ hàng sau khi đặt thành công
                 return redirect()->route('cart')->with('success', 'Đặt hàng thành công! Mã đơn: ' . $maHoaDon);
             } catch (\Exception $e) {
@@ -208,6 +219,23 @@ class PaymentController extends Controller
             'success' => true,
             'message' => 'Đủ nguyên liệu và đã trừ tồn kho.'
         ];
+    }
+    private function sendEmail($name, $email, $phone, $address, $cartItems, $tongTien)
+    {
+        try {
+            Mail::to($email)->send(new OrderMail(
+                $name,
+                $email,
+                $phone,
+                $address,
+                now()->format('d/m/Y H:i'),
+                $cartItems,
+                $tongTien
+            ));
+        } catch (\Exception $e) {
+            // Ghi log lỗi nếu cần
+            \Log::error('Gửi mail thất bại: ' . $e->getMessage());
+        }
     }
 
     public function generateMaHoaDon(): string
