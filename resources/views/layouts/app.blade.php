@@ -91,7 +91,7 @@
 								@auth
 									<li>
 										<div class="current-list-item">
-											<a href="#"><i class="fas fa-user"></i> {{ Auth::user()->khachHang->ho_ten_khach_hang ?? 'Nhân viên' }}</a>
+											<a href="#"><i class="fas fa-user"></i> {{ Auth::user()->khachHang->ho_ten_khach_hang ?? 'Khách hàng' }}</a>
 											<ul class="sub-menu">
 												<li><a href="{{ route('customer.index') }}"><i class="fas fa-user-circle" style="margin-right:6px;"></i>Hồ sơ</a></li>
 												<li><a href="#"><i class="fas fa-map-marker-alt" style="margin-right:6px;"></i>Sổ địa chỉ</a></li>
@@ -154,7 +154,7 @@
 		</div>
 	</div>
 	<!-- end search area -->
-
+	 
 	@yield('content')
 
 	<!-- footer -->
@@ -252,6 +252,8 @@
 	<!-- JS -->
 	<script src="{{ asset('js/store-popup.js') }}"></script>
 	<script src="{{ asset('js/cart.js') }}"></script>
+	<!--  -->
+	<script src="https://cdn.payos.vn/payos-checkout/v1/stable/payos-initialize.js"></script>
 	@stack('scripts')
 	<x-store-popup />
 </body>

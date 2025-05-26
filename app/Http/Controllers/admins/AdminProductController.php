@@ -59,6 +59,7 @@ class AdminProductController extends Controller
     // Hiển thị danh sách sản phẩm (trạng thái 1)
     public function listProducts(Request $request) {
         $search = $request->input('search');
+        
         $products = $this->getProductsByStatus(1, $search);
         $categories = $this->getCategory();
         $sizesMap = [];

@@ -78,21 +78,73 @@ document.addEventListener("DOMContentLoaded", () => {
 //"selected_store_dia_chi" => "72, đường 37, phường Tân Kiểng, Quận 7, TP Hồ Chí Minh"
 //Nếu địa cách cửa hàng bán kính 5km shippingfee = 0 đ, hơn 5Km = 25.000 đ, hơn 10km = 50.000 đ.
 //sau đó cập nhật ajax lên 
-{/* <tbody class="checkout-details">
-<tr>
-    <td>Tạm tính: ({{ count(session('cart')) }} món)</td>
-    <td>
-        {{ number_format($total, 0, ',', '.') }} đ
-    </td>
-</tr>
-<tr>
-    <td>Shipping</td>
-    <td> 0 đ</td>
-</tr>
-<tr>
-    <td>Tổng cộng</td>
-    <td>
-        {{ number_format($total, 0, ',', '.') }} đ
-    </td>
-</tr>
-</tbody> */}
+
+$(document).ready(function(){
+    $('#check-out-form').submit(function (e) { 
+      let ho_ten_khach_hang = $('input[name="ho_ten_khach_hang"]').val().trim();
+      let email = $('input[name="email"]').val().trim();
+      let dia_chi = $('input[name="dia_chi"]').val().trim();
+      let so_dien_thoai = $('input[name="so_dien_thoai"]').val().trim();
+      let shippingMethod = $('input[name="shippingMethod"]:checked').val();
+      let province = $('input[name="provinceName"]').val().trim();
+      let district = $('input[name="districtName"]').val().trim();
+      let ward = $('input[name="wardName"]').val().trim();
+      let paymentMethod = $('input[name="paymentMethod"]:checked').val();
+  
+      // Bật/tắt required cho input địa chỉ theo shippingMethod
+      if(shippingMethod === "pickup"){
+        $('input[name="dia_chi"]').prop('required', false);
+        $('input[name="provinceName"]').prop('required', false);
+        $('input[name="districtName"]').prop('required', false);
+        $('input[name="wardName"]').prop('required', false);
+      } else {
+        $('input[name="dia_chi"]').prop('required', true);
+        $('input[name="provinceName"]').prop('required', true);
+        $('input[name="districtName"]').prop('required', true);
+        $('input[name="wardName"]').prop('required', true);
+      }
+  
+      let errorMessage = "";
+  
+      if(ho_ten_khach_hang === ""){
+        errorMessage += "Họ tên không được để trống.<br>";
+      }
+  
+      let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if(email === "" || !emailRegex.test(email)){
+        errorMessage += "Email không hợp lệ hoặc để trống.<br>";
+      }
+  
+      if(shippingMethod === "delivery" && dia_chi === ""){
+        errorMessage += "Địa chỉ nhận hàng không được để trống.<br>";
+      }
+  
+      let phoneRegex = /^[0-9]{9,11}$/;
+      if(!phoneRegex.test(so_dien_thoai)){
+        errorMessage += "Số điện thoại không hợp lệ.<br>";
+      }
+  
+      if(shippingMethod === "delivery"){
+        if(province === "" || district === "" || ward === ""){
+          errorMessage += "Vui lòng chọn đầy đủ tỉnh, quận, phường.<br>";
+        }
+      }
+  
+      if(!paymentMethod){
+        errorMessage += "Vui lòng chọn phương thức thanh toán.<br>";
+      }
+  
+      if(errorMessage !== ""){
+        e.preventDefault();
+        Swal.fire({
+          title: 'Lỗi!',
+          html: errorMessage,
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
+      }
+    });
+  });
+  
+  
+  

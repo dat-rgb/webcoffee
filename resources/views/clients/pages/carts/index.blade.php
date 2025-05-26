@@ -1,6 +1,5 @@
 @extends('layouts.app')
 @section('title', $title)
-
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/cart.css') }}">
 @endpush

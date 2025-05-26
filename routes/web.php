@@ -16,6 +16,7 @@ use App\Http\Controllers\clients\ForgotPasswordController;
 use App\Http\Controllers\clients\ResetPasswordController;
 use App\Http\Controllers\customers\CustomerController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\payments\Napas247Controller;
 use App\Http\Controllers\payments\PaymentController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\staffs\StaffHomeController;
@@ -90,6 +91,16 @@ Route::prefix('cart')->group(function(){
 
     Route::get('/check-out',[CartController::class,'checkout'])->name('cart.check-out');
 });
+
+//Route Payment
+Route::prefix('payment')->group(function(){
+    Route::post('/',[PaymentController::class,'payment'])->name('payment');
+    Route::get('/payos-return', [Napas247Controller::class, 'handleReturn'])->name('payos.return');
+    Route::get('/payos-cancel', [Napas247Controller::class, 'handleCancel'])->name('payos.cancel');
+    Route::get('/status/{orderCode}', [Napas247Controller::class, 'checkPaymentStatus']);
+
+
+});  
 
 //Tin tức
 Route::prefix('tin-tuc')->group(function(){

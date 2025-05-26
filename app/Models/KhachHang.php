@@ -14,8 +14,6 @@ class KhachHang extends Model
     // Tên bảng nếu không theo chuẩn Laravel (tự động số nhiều hóa tên model)
     protected $table = 'khach_hangs';
 
-    protected $primaryKey = 'ma_khach_hang';
-
     protected $fillable = [
         'ma_khach_hang',
         'ma_tai_khoan',
