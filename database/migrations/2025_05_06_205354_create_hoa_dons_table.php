@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('hoa_dons', function (Blueprint $table) {
             $table->id();
             $table->string('ma_hoa_don', 50)->unique();
-            $table->char('ma_nhan_vien', 10);  
+            $table->char('ma_nhan_vien', 10)->nullable();  
             $table->char('ma_voucher',50)->nullable();
-            $table->char('ma_khach_hang', 10); 
+            $table->char('ma_cua_hang', 10)->nullable(); 
+            $table->char('ma_khach_hang', 10)->nullable(); 
             $table->string('ten_khach_hang', 255)->nullable();
             $table->char('so_dien_thoai', 10)->nullable();
             $table->string('dia_chi')->nullable();
@@ -24,8 +25,10 @@ return new class extends Migration
             $table->float('khuyen_mai')->default(0); //
             $table->float('giam_gia')->default(0); //
             $table->float('tong_tien');
+            $table->string('phuong_thuc_nhan_hang',50); 
             $table->string('phuong_thuc_thanh_toan',50); // 0: cash, 1: VNPAY,...
             $table->string('ghi_chu')->nullable();
+            $table->integer('trang_thai_thanh_toan')->default(0); //0 chưa thanh toán, 1 đã thanh toán
             $table->integer('trang_thai')->default(0); // 0: đã gửi, 1: đã thanh toán || 2: chuẩn bị món, 3: giao món, 4: đã giao thành công || 5: hủy đơn,...
             $table->timestamp('ngay_lap_hoa_don')->default(DB::raw('CURRENT_TIMESTAMP')); // Sử dụng timestamp thay cho datetime
             $table->timestamps();
@@ -33,9 +36,9 @@ return new class extends Migration
             // Khóa ngoại
             $table->foreign('ma_voucher')->references('ma_voucher')->on('khuyen_mais')->onDelete('cascade');
             $table->foreign('ma_khach_hang')->references('ma_khach_hang')->on('khach_hangs')->onDelete('cascade');
+            $table->foreign('ma_cua_hang')->references('ma_cua_hang')->on('cua_hangs')->onDelete('cascade');
             $table->foreign('ma_nhan_vien')->references('ma_nhan_vien')->on('nhan_viens')->onDelete('cascade');
         });
-
     }
 
     /**

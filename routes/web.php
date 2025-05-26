@@ -91,6 +91,11 @@ Route::prefix('cart')->group(function(){
     Route::get('/check-out',[CartController::class,'checkout'])->name('cart.check-out');
 });
 
+//Route Payment
+Route::prefix('payment')->group(function(){
+    Route::post('/',[PaymentController::class,'payment'])->name('payment');
+});  
+
 //Tin tức
 Route::prefix('tin-tuc')->group(function(){
     Route::get('/', [BlogController::class, 'index'])->name('blog');

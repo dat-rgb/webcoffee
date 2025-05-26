@@ -6,7 +6,7 @@
     transition: border-color 0.3s ease;
 }
 .shipping-address-form select.form-select:focus {
-    border-color: #007bff;
+    border-color: #F28123;
     box-shadow: 0 0 5px rgba(0,123,255,.5);
     outline: none;
 }
@@ -33,80 +33,53 @@
     gap: 15px;
 }
 .card-details .form-check:hover {
-    border-color: #007bff;
+    border-color: #F28123;
     box-shadow: 0 0 8px rgba(0,123,255,0.3);
 }
-.card-details input[type="radio"] {
-    position: absolute;
-    left: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    opacity: 0;
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
+.payment-method-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
-.card-details input[type="radio"]:checked + label {
-    border-color: #007bff;
-    font-weight: 700;
-}
-.payment-image {
-    max-height: 35px;
-    object-fit: contain;
-    margin-right: 10px;
-}
-.form-check-label {
+
+.payment-item {
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 1.1rem;
-    user-select: none;
-}
-.shipping-method-group {
-    display: flex;
-    gap: 30px;
-    align-items: center;
+    border: 2px solid #ccc;
     padding: 10px;
-    flex-wrap: wrap;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
 }
 
-.shipping-method-option {
+.payment-item:hover {
+    border-color: #F28123;
+    background-color: #f1f9ff;
+}
+
+.payment-item input[type="radio"] {
+    margin-right: 15px;
+    transform: scale(1.2);
+    accent-color: #F28123;
+}
+
+.payment-content {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 10px 15px;
-    border: 2px solid transparent;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s ease;
 }
 
-.shipping-method-option input[type="radio"] {
-    display: none;
+.payment-content img {
+    height: 40px;
+    width: auto;
 }
 
-.shipping-method-option label {
-    margin: 0;
-    font-weight: 500;
-    cursor: pointer;
-    user-select: none;
+.payment-item input[type="radio"]:checked ~ .payment-content span {
+    font-weight: bold;
+    color: #F28123;
 }
 
-.shipping-method-option input:checked + label::before {
-    background-color: #007bff;
-    border-color: #007bff;
-}
 
-.shipping-method-option label::before {
-    content: "";
-    display: inline-block;
-    width: 18px;
-    height: 18px;
-    margin-right: 10px;
-    border-radius: 50%;
-    background-color: #fff;
-    vertical-align: middle;
-    transition: 0.2s;
-}
+
 
 
