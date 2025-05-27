@@ -13,6 +13,7 @@ use PayOS\PayOS;
 class Napas247Controller extends Controller
 {
     protected $payOS;
+    protected $webhookUrl;
 
     public function __construct()
     {
@@ -21,6 +22,8 @@ class Napas247Controller extends Controller
             env('PAYOS_API_KEY'),
             env('PAYOS_CHECKSUM_KEY')
         );
+
+        $this->webhookUrl = env('WEBHOOK_URL');
     }
 
     /**
@@ -47,7 +50,7 @@ class Napas247Controller extends Controller
             'khuyen_mai' => $orderData['khuyen_mai'],
             'giam_gia' => $orderData['giam_gia'],
             'tong_tien' => $orderData['tong_tien'],
-            'trang_thai_thanh_toan' => 1,
+            'trang_thai_thanh_toan' => 0, //chưa thanh toán
         ]);
 
         //Tạo transaction
@@ -60,7 +63,7 @@ class Napas247Controller extends Controller
             'dia_chi' => $hoaDon->dia_chi,
             'items_json' => json_encode($orderData['cart_items']),
             'payment_link' => null, // sẽ cập nhật sau khi có response
-            'trang_thai' => 'PENDING',
+            'trang_thai' => 'PENDING', //
         ]);
 
         // Tạo chi tiết hóa đơn
@@ -114,7 +117,11 @@ class Napas247Controller extends Controller
                 'items' => $items,
                 'expiredAt' => now()->addMinutes(30)->timestamp,
             ]);
-           
+
+            Transactions::where('ma_hoa_don', $maHoaDon)->update([
+                'payment_link' => $response['checkoutUrl'],
+            ]);
+
             session()->forget('cart');
 
             return redirect()->away($response['checkoutUrl']);
@@ -133,13 +140,18 @@ class Napas247Controller extends Controller
     public function getPaymentLinkInformation($orderCode)
     {
         try {
-            return $this->payOS->getPaymentLinkInformation($orderCode);
+            $info = $this->payOS->getPaymentLinkInformation($orderCode);
+
+            if (!isset($info['status']) || !isset($info['checkoutUrl'])) {
+                \Log::warning("Thiếu dữ liệu trong getPaymentLinkInformation cho orderCode: $orderCode", $info);
+            }
+
+            return $info;
         } catch (\Exception $e) {
-            \Log::error('PayOS getPaymentLinkInformation Error: ' . $e->getMessage());
+            \Log::error('PayOS getPaymentLinkInformation Error (orderCode: ' . $orderCode . '): ' . $e->getMessage());
             return null;
         }
     }
-
     public function checkPaymentStatus($orderCode)
     {
         $paymentInfo = $this->getPaymentLinkInformation($orderCode);
@@ -148,73 +160,82 @@ class Napas247Controller extends Controller
             return response()->json(['error' => 'Không lấy được thông tin thanh toán'], 404);
         }
 
-        // Ví dụ check trạng thái đã thanh toán
         if ($paymentInfo['status'] === 'PAID') {
-            // update database đơn hàng trạng thái thanh toán thành công
-            // ...
-
+            $this->updatePaymentSuccess($orderCode);
             return response()->json(['message' => 'Thanh toán thành công', 'data' => $paymentInfo]);
         }
 
         return response()->json(['message' => 'Thanh toán chưa hoàn thành', 'data' => $paymentInfo]);
     }
 
-    /**
-     * Hủy link thanh toán
-     * @param int|string $orderCode
-     * @param string $reason
-     * @return array|null
-     */
-    public function cancelPaymentLink($orderCode, $reason = 'User canceled')
-    {
-        try {
-            return $this->payOS->cancelPaymentLink($orderCode, $reason);
-        } catch (\Exception $e) {
-            \Log::error('PayOS cancelPaymentLink Error: ' . $e->getMessage());
-            return null;
-        }
-    }
-
-    /**
-     * Xác thực URL webhook
-     * @param string $url
-     * @return string|null
-     */
-    public function confirmWebhook($url)
-    {
-        try {
-            return $this->payOS->confirmWebhook($url);
-        } catch (\Exception $e) {
-            \Log::error('PayOS confirmWebhook Error: ' . $e->getMessage());
-            return null;
-        }
-    }
-
-    /**
-     * Xác minh dữ liệu webhook thanh toán
-     * @param array $data
-     * @return array|null
-     */
-    public function verifyPaymentWebhookData(array $data)
-    {
-        try {
-            return $this->payOS->verifyPaymentWebhookData($data);
-        } catch (\Exception $e) {
-            \Log::error('PayOS verifyPaymentWebhookData Error: ' . $e->getMessage());
-            return null;
-        }
-    }
-
     // Các method xử lý callback, trả về từ PayOS
     public function handleReturn(Request $request)
     {
-        // TODO: Xác thực dữ liệu callback, cập nhật trạng thái đơn hàng
+        $orderCode = $request->input('orderCode');
 
-        return redirect()->route('home')->with('success', 'Thanh toán thành công!');
+        if ($orderCode) {
+            $paymentInfo = $this->getPaymentLinkInformation(orderCode: $orderCode);
+            if ($paymentInfo && $paymentInfo['status'] === 'PAID') {
+                $this->updatePaymentSuccess($orderCode);
+            }
+        }
+
+        return redirect()->route('payment.checkout_status')->with('status', 'success');
     }
 
     public function handleCancel(Request $request)
     {
-        return redirect()->route('cart')->with('error', 'Bạn đã hủy thanh toán.');
+        $orderCode = $request->input('orderCode');
+
+        if ($orderCode) {
+            $maHoaDon = 'HD' . $orderCode;
+            $transaction = Transactions::where('ma_hoa_don', $maHoaDon)->first();
+
+            if ($transaction && $transaction->trang_thai !== 'SUCCESS') {
+                $transaction->trang_thai = 'CANCELLED';
+                $transaction->save();
+            }
+        }
+
+        return redirect()->route('payment.checkout_status')->with('status', 'cancel');
+    }
+
+    protected function updatePaymentSuccess($orderCode)
+    {
+        $maHoaDon = 'HD' . $orderCode;
+        $hoaDon = HoaDon::where('ma_hoa_don', $maHoaDon)->first();
+        $transaction = Transactions::where('ma_hoa_don', $maHoaDon)->first();
+       
+
+        if ($hoaDon && $hoaDon->trang_thai_thanh_toan != 1) {
+            $hoaDon->trang_thai_thanh_toan = 1; // Đã thanh toán
+            $hoaDon->trang_thai = 1;            // Đã xác nhận
+            $hoaDon->save();
+
+            $cartItems = json_decode($transaction->items_json ?? '[]', true);
+            
+            $sendEmail = new PaymentController();
+            $statusPayment = 'Đã thanh toán';
+            $status = 'Đã xác nhận';
+
+            $sendEmail->sendEmail(
+                $hoaDon->ma_hoa_don,
+                $hoaDon->ten_khach_hang,
+                $hoaDon->email,
+                $hoaDon->so_dien_thoai,
+                $hoaDon->phuong_thuc_nhan_hang,
+                $hoaDon->phuong_thuc_thanh_toan,
+                $hoaDon->$status,
+                $hoaDon->$statusPayment,
+                $hoaDon->dia_chi,
+                $cartItems,
+                $hoaDon->tong_tien
+            );
+        }
+
+        if ($transaction && $transaction->trang_thai != 'SUCCESS') {
+            $transaction->trang_thai = 'SUCCESS';
+            $transaction->save();
+        }
     }
 }

@@ -479,6 +479,10 @@ class CartController extends Controller
         $store = session('selected_store_id');
         $user = auth()->user();
 
+        if(!$cart){
+            
+            return redirect()->route('cart');
+        }
         if (!$store) {
             toastr()->error('Vui lòng chọn cửa hàng trước khi thanh toán');
             return redirect()->back();

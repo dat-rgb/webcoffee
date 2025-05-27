@@ -5,57 +5,39 @@
 @push('styles')
 <style>
 .product-image {
-  position: relative;
-  display: inline-block;
-}
-
-.product-image .icon-wrapper {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  z-index: 10;
-  display: flex;
-  gap: 5px; 
-}
-
-.product-image .hot-icon {
-  width: 40px;
-  height: 40px;
-}
-.product-lists {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px; /* khoảng cách giữa các item */
-}
-
-.single-product-item {
-    background: #fff;
-    border: 1px solid #eee;
-    padding: 15px;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-.single-product-item {
-    min-height: 100%;
-}
-.product-image {
     position: relative;
 }
 
-.hot-icon {
+.icon-wrapper {
     position: absolute;
-    top: 5px;
-    left: 5px;
-    width: 40px;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 4px;
+    z-index: 2;
 }
-.hot-icon.second {
-    left: 50px;
+
+.hot-icon {
+    width: 35px; 
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #fff;
+    background-color: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    transition: transform 0.2s ease-in-out;
+}
+
+.hot-icon:hover {
+    transform: scale(1.1);
+}
+.product-lists {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 20px;
 }
 
 </style>
-
 @endpush
 @section('content')
 <!-- breadcrumb-section -->
@@ -130,19 +112,19 @@
             <div class="col-lg-12">
                 <div class="logo-carousel-inner">
                     <div class="single-logo-item">
-                        <img src="img/company-logos/1.png" alt="">
+                        <img src="{{ asset('img/company-logos/1.png') }}" alt="">
                     </div>
                     <div class="single-logo-item">
-                        <img src="img/company-logos/2.png" alt="">
+                        <img src="{{ asset('img/company-logos/2.png') }}" alt="">
                     </div>
                     <div class="single-logo-item">
-                        <img src="img/company-logos/3.png" alt="">
+                        <img src="{{ asset('img/company-logos/3.png') }}" alt="">
                     </div>
                     <div class="single-logo-item">
-                        <img src="img/company-logos/4.png" alt="">
+                        <img src="{{ asset('img/company-logos/4.png') }}" alt="">
                     </div>
                     <div class="single-logo-item">
-                        <img src="img/company-logos/5.png" alt="">
+                        <img src="{{ asset('img/company-logos/5.png') }}" alt="">
                     </div>
                 </div>
             </div>

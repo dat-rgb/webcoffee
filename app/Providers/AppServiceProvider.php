@@ -7,6 +7,7 @@ use App\Http\ViewComposers\StoreComposer;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -27,5 +28,9 @@ class AppServiceProvider extends ServiceProvider
         View::composer('*', CategoryComposer::class);
         View::composer('*', StoreComposer::class);
 
+        if (app()->environment('local') && request()->server('HTTP_HOST') && str_contains(request()->server('HTTP_HOST'), 'ngrok-free.app')) {
+            URL::forceScheme('https');
+        } else {
+        }
     }
 }

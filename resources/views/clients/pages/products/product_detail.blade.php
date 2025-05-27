@@ -1,6 +1,5 @@
 @extends('layouts.app')
 @section('title', $title)
-
 @push('styles')
 <style>
 .size-label {
@@ -50,6 +49,23 @@
 }
 .star-gold {
     color: gold;
+}
+.more-products .single-product-item .product-image {
+  position: relative;
+  display: inline-block;
+}
+
+.more-products .single-product-item .product-image img.hot-icon {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 30px;       /* nhỏ hơn icon detail */
+  height: 30px;
+  z-index: 10;
+}
+
+.more-products .single-product-item .product-image img.hot-icon.second {
+  right: 40px;       /* khoảng cách để 2 icon không dính nhau */
 }
 
 </style>
@@ -173,10 +189,18 @@
             </div>
         </div>
         <div class="row">
-             @foreach ( $productRelate as  $pro)
+             @foreach ($productRelate as $pro)
                 <div class="col-lg-3 col-md-4 col-sm-6 text-center">
                     <div class="single-product-item">
                         <div class="product-image">
+                            @if ($pro->hot && $pro->is_new)
+                                <img src="{{ asset('images/product_hot.png') }}" alt="" class="hot-icon">
+                                <img src="{{ asset('images/product_new.png') }}" alt="" class="hot-icon second">
+                            @elseif ($pro->hot)
+                                <img src="{{ asset('images/product_hot.png') }}" alt="" class="hot-icon">
+                            @elseif ($pro->is_new)
+                                <img src="{{ asset('images/product_new.png') }}" alt="" class="hot-icon">
+                            @endif
                             <a href="{{ route('product.detail',$pro->slug) }}">
                                 <img src="{{ $pro->hinh_anh ? asset('storage/' . $pro->hinh_anh) : asset('images/no_product_image.png') }}" alt="">
                             </a>
@@ -189,6 +213,7 @@
         </div>
     </div>
 </div>
+
 <!-- end more products -->
 @endsection
 @push('scripts')
