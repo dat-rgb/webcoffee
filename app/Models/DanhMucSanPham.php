@@ -66,5 +66,17 @@ class DanhMucSanPham extends Model
             $child->archiveWithChildren(); // đệ quy
         }
     }
+    // Lấy tất cả con cháu (con, cháu, chắt...) dạng collection
+    public function getAllDescendants()
+    {
+        $descendants = collect();
+
+        foreach ($this->children as $child) {
+            $descendants->push($child);
+            $descendants = $descendants->merge($child->getAllDescendants());
+        }
+
+        return $descendants;
+    }
 
 }

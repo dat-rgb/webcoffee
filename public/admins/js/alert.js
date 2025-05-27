@@ -649,5 +649,105 @@ $(document).ready(function () {
     });
   });
 });
+//khôi phục nhân viên
+$(document).ready(function () {
+  $(".nhanvien-btn-update").on("click", function (e) {
+    e.preventDefault();
+
+    let form = $(this).closest("form"); // Tìm form gần nhất chứa nút
+
+    Swal.fire({
+      title: "Xác nhận khôi phục nhân viên ?",
+      text: "Danh sách nhân viên sẽ được cập nhật!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Xác nhận",
+      cancelButtonText: "Hủy",
+      buttonsStyling: false,
+      customClass: {
+        confirmButton: "btn btn-warning",
+        cancelButton: "btn btn-secondary",
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        form.submit(); // Gửi form
+      }
+    });
+  });
+});
 
 
+
+
+
+
+//ẩn, khôi phục, xóa danh mục
+$(document).ready(function () {
+    $(".btn-bulk-restore, .btn-bulk-delete, .btn-bulk-archive").on("click", function (e) {
+        e.preventDefault();
+        let button = $(this);
+        let form = button.closest("form");
+        let actionUrl = button.attr("formaction");
+
+        let checkedCount = form.find("input[name='selected_ids[]']:checked").length;
+        if (checkedCount === 0) {
+            Swal.fire({
+                title: "Không có danh mục nào được chọn!",
+                text: "Vui lòng chọn ít nhất một danh mục trước khi thực hiện thao tác.",
+                icon: "info",
+                confirmButtonText: "OK",
+                buttonsStyling: false,
+                customClass: {
+                    confirmButton: "btn btn-primary"
+                }
+            });
+            return; // Dừng ở đây, không tiếp tục
+        }
+        let config = {
+            ".btn-bulk-restore": {
+                title: "Xác nhận khôi phục danh mục?",
+                text: "Các danh mục đã chọn sẽ được khôi phục và hiển thị trở lại!",
+                icon: "warning",
+                confirmButton: "btn-warning"
+            },
+            ".btn-bulk-delete": {
+                title: "Xác nhận xóa vĩnh viễn danh mục?",
+                text: "Sau khi xóa, bạn sẽ không thể khôi phục lại các danh mục này!",
+                icon: "error",
+                confirmButton: "btn-danger"
+            },
+            ".btn-bulk-archive": {
+                title: "Xác nhận tạm xóa danh mục?",
+                text: "Các danh mục đã chọn sẽ bị tạm xóa khỏi danh sách hiển thị!",
+                icon: "warning",
+                confirmButton: "btn-warning"
+            }
+        };
+
+        let btnClass = "";
+        if (button.hasClass("btn-bulk-restore")) btnClass = ".btn-bulk-restore";
+        if (button.hasClass("btn-bulk-delete")) btnClass = ".btn-bulk-delete";
+        if (button.hasClass("btn-bulk-archive")) btnClass = ".btn-bulk-archive";
+
+        let alertConfig = config[btnClass];
+
+        Swal.fire({
+            title: alertConfig.title,
+            text: alertConfig.text,
+            icon: alertConfig.icon,
+            showCancelButton: true,
+            confirmButtonText: "Xác nhận",
+            cancelButtonText: "Hủy",
+            buttonsStyling: false,
+            customClass: {
+                confirmButton: `btn ${alertConfig.confirmButton} me-2`, // thêm margin-end
+                cancelButton: "btn btn-secondary ms-2", // thêm margin-start
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.attr("action", actionUrl);
+                form.submit();
+            }
+        });
+    });
+});

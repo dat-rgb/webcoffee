@@ -15,18 +15,36 @@ use Illuminate\Support\Str;
 
 class AdminNhanvienController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $nhanViens = NhanVien::with(['chucVu', 'taiKhoan', 'cuaHang'])
-            ->where('trang_thai', 0)
-            ->get();
+        $query = NhanVien::with(['chucVu', 'taiKhoan', 'cuaHang'])
+            ->where('trang_thai', 0);
 
-        $ViewData = [
+        if ($request->has('search')) {
+            $search = $request->input('search');
+
+            $query->where(function ($q) use ($search) {
+                $q->where('ho_ten_nhan_vien', 'LIKE', "%$search%")
+                ->orWhere('dia_chi', 'LIKE', "%$search%")
+                ->orWhere('ma_nhan_vien','LIKE',"%$search%")
+                ->orWhere('so_dien_thoai', 'LIKE', "%$search%")
+                ->orWhereHas('chucVu', function($q2) use ($search) {
+                    $q2->where('ten_chuc_vu', 'LIKE', "%$search%");
+                })
+                ->orWhereHas('cuaHang', function($q3) use ($search) {
+                    $q3->where('ten_cua_hang', 'LIKE', "%$search%");
+                });
+            });
+        }
+
+        $nhanViens = $query->get();
+
+        return view('admins.nhanvien.index', [
             'title' => 'Danh sách Nhân viên',
             'subtitle' => 'Quản lý danh sách nhân viên cửa hàng',
             'nhanViens' => $nhanViens,
-        ];
-        return view('admins.nhanvien.index', $ViewData);
+            'search' => $search ?? '',
+        ]);
     }
     public function create()
     {
@@ -104,6 +122,7 @@ class AdminNhanvienController extends Controller
                 'email' => $request->email,
                 'password' => bcrypt('123456'), // có thể dùng Str::random() nếu muốn
                 'vai_tro' => 'nhanvien',
+                'loai_tai_khoan'=>'2',//loai tai khoan khi tao là nhan vien
                 'trang_thai' => 1,// trang thái tài khoản là  1 là đag active , 0 là chờ kích hoạt
             ]);
 
@@ -209,6 +228,7 @@ class AdminNhanvienController extends Controller
         toastr()->success('Xóa nhân viên thành công!');
         return redirect()->route('admins.nhanvien.index');
     }
+    // thực thi lưu trữ nhân viên
     public function archive($ma_nhan_vien)
     {
         $nhanVien = NhanVien::find($ma_nhan_vien); // Tìm theo khóa chính
@@ -273,17 +293,91 @@ class AdminNhanvienController extends Controller
         return redirect()->route('admins.nhanvien.index');
         //return redirect()->back()->with('success', 'Đã chuyển trạng thái nhân viên sang Tạm nghỉ.');
     }
-    public function archived()
+    public function archived(Request $request)
     {
-        $nhanViens = NhanVien::with(['chucVu', 'taiKhoan', 'cuaHang'])
-            ->where('trang_thai', 1) // chỉ lấy nhân viên đã bị ẩn
-            ->get();
+        $search = $request->input('search');
+        $nhanViens = $this->getNhanVienByStatus(1,$search);
+
             return view('admins.nhanvien.archive', [
             'title' => 'Danh sách nhân viên ẩn',
-            'subtitle' => 'Nhân viên đã bị xóa tạm thời',
+            'subtitle' => 'Danh sách nhân viên nghỉ ',
             'nhanViens' => $nhanViens,
         ]);
     }
+
+
+    // Hàm chung để lấy nhân viên theo trạng thái + search
+    public static function getNhanVienByStatus($status, $search = null) {
+        $query = NhanVien::with(['chucVu', 'cuaHang']) // nhớ có quan hệ trong model
+            ->where('trang_thai', $status)
+            ->orderBy('ma_nhan_vien', 'desc');
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('ma_nhan_vien', 'like', "%{$search}%")
+                    ->orWhere('ho_ten_nhan_vien', 'like', "%{$search}%")
+                    ->orWhere('dia_chi', 'like', "%{$search}%")
+                    ->orWhere('so_dien_thoai', 'like', "%{$search}%")
+                    ->orWhereHas('chucVu', function($q2) use ($search) {
+                        $q2->where('ten_chuc_vu', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('cuaHang', function($q3) use ($search) {
+                        $q3->where('ten_cua_hang', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        return $query->paginate(10);
+    }
+    // Lấy danh sách tất cả chức vụ
+    public function getChucVu() {
+        return ChucVu::all();
+    }
+
+    // Lấy danh sách tất cả cửa hàng
+    public function getCuaHang() {
+        return CuaHang::all();
+    }
+
+
+    // Hiển thị danh sách nhân viên hoạt động
+    public function listNhanVien(Request $request) {
+        $search = $request->input('search');
+        $nhanviens = NhanVien::getNhanVienByStatus(1, $search);
+        $chucvus = $this->getChucVu();
+        $cuahangs = $this->getCuaHang();
+
+        $viewData = [
+            'title' => 'Quản lý nhân viên | CDMT Coffee & Tea',
+            'subtitle' => 'Danh sách nhân viên đang hoạt động',
+            'nhanviens' => $nhanviens,
+            'chucvus' => $chucvus,
+            'cuahangs' => $cuahangs,
+            'search' => $search
+        ];
+
+        return view('admins.nhanvien.index', $viewData);
+    }
+
+    // Hiển thị danh sách nhân viên tạm nghỉ
+    public function listNhanVienArchive(Request $request) {
+        $search = $request->input('search');
+        $nhanviens = NhanVien::getNhanVienByStatus(2, $search); // 2: tạm nghỉ
+        $chucvus = $this->getChucVu();
+        $cuahangs = $this->getCuaHang();
+
+        $viewData = [
+            'title' => 'Quản lý nhân viên | CDMT Coffee & Tea',
+            'subtitle' => 'Danh sách nhân viên tạm nghỉ',
+            'nhanviens' => $nhanviens,
+            'chucvus' => $chucvus,
+            'cuahangs' => $cuahangs,
+            'search' => $search
+        ];
+
+        return view('admins.nhanvien.archive', $viewData);
+    }
+
 
 
 }
