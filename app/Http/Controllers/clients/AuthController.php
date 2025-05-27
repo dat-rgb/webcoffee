@@ -91,6 +91,11 @@ class AuthController extends Controller
     }
 
     public function showLoginForm(){
+        
+        if (Auth::check()) {
+            return redirect()->route('home');
+        }
+
         $viewData = [
             'title'=> 'Đăng nhập | CMDT Coffee & Tea'   
         ];
@@ -99,6 +104,7 @@ class AuthController extends Controller
     }
     public function login(Request $request)
     {
+
         $request->validate([
             'email' => 'required|string|email|max:255',
             'password' => 'required|string|min:6',

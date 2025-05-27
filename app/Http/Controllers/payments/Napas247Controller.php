@@ -152,20 +152,38 @@ class Napas247Controller extends Controller
             return null;
         }
     }
+
     public function checkPaymentStatus($orderCode)
     {
         $paymentInfo = $this->getPaymentLinkInformation($orderCode);
 
         if (!$paymentInfo) {
-            return response()->json(['error' => 'Không lấy được thông tin thanh toán'], 404);
+            return response()->json([
+                'error' => 'Không lấy được thông tin thanh toán'
+            ], 404);
         }
 
-        if ($paymentInfo['status'] === 'PAID') {
-            $this->updatePaymentSuccess($orderCode);
-            return response()->json(['message' => 'Thanh toán thành công', 'data' => $paymentInfo]);
-        }
+        switch ($paymentInfo['status']) {
+            case 'PAID':
+                $this->updatePaymentSuccess($orderCode);
+                return response()->json([
+                    'message' => 'Thanh toán thành công',
+                    'data' => $paymentInfo
+                ]);
 
-        return response()->json(['message' => 'Thanh toán chưa hoàn thành', 'data' => $paymentInfo]);
+            case 'CANCELLED':
+                $this->updatePaymentCancel($orderCode);
+                return response()->json([
+                    'message' => 'Thanh toán đã bị hủy',
+                    'data' => $paymentInfo
+                ]);
+
+            default:
+                return response()->json([
+                    'message' => 'Thanh toán chưa hoàn thành',
+                    'data' => $paymentInfo
+                ]);
+        }
     }
 
     // Các method xử lý callback, trả về từ PayOS
@@ -181,23 +199,6 @@ class Napas247Controller extends Controller
         }
 
         return redirect()->route('checkout_status')->with('status', 'success');
-    }
-
-    public function handleCancel(Request $request)
-    {
-        $orderCode = $request->input('orderCode');
-
-        if ($orderCode) {
-            $maHoaDon = 'HD' . $orderCode;
-            $transaction = Transactions::where('ma_hoa_don', $maHoaDon)->first();
-
-            if ($transaction && $transaction->trang_thai !== 'SUCCESS') {
-                $transaction->trang_thai = 'CANCELLED';
-                $transaction->save();
-            }
-        }
-
-        return redirect()->route('checkout_status')->with('status', 'cancel');
     }
 
     protected function updatePaymentSuccess($orderCode)
@@ -236,6 +237,38 @@ class Napas247Controller extends Controller
         if ($transaction && $transaction->trang_thai != 'SUCCESS') {
             $transaction->trang_thai = 'SUCCESS';
             $transaction->save();
+        }
+    }
+    public function handleCancel(Request $request)
+    {
+        $orderCode = $request->input('orderCode');
+
+        if ($orderCode) {
+            $paymentInfo = $this->getPaymentLinkInformation(orderCode: $orderCode);
+            if ($paymentInfo && $paymentInfo['status'] === 'CANCELLED') {
+                $this->updatePaymentCancel($orderCode);
+            }
+        }
+
+        return redirect()->route('checkout_status')->with('status', 'cancel');
+    }
+    protected function updatePaymentCancel($orderCode)
+    {
+        $maHoaDon = 'HD' . $orderCode;
+
+        $hoaDon = HoaDon::where('ma_hoa_don', $maHoaDon)->first();
+
+        if ($hoaDon) {
+            $hoaDon->trang_thai_thanh_toan = 0; // Đã thanh toán
+            $hoaDon->trang_thai = 6;            // Đã hủy
+            $hoaDon->save();
+        }
+
+        $transaction = Transactions::where('ma_hoa_don', $maHoaDon)->first();
+        if ($transaction) {
+            $transaction->update([
+                'trang_thai' => 'CANCELLED'
+            ]);
         }
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\admins\AdminHomeController;
+use App\Http\Controllers\admins\AdminOrderController;
 use App\Http\Controllers\admins\AdminProductController;
 use App\Http\Controllers\admins\AdminCategoryController;
 use App\Http\Controllers\admins\AdminMaterialController;
@@ -225,6 +226,11 @@ Route::prefix('admin/nhanviens')->middleware(AdminMiddleware::class)->name('admi
     Route::patch('/restore-bulk', [AdminNhanvienController::class, 'bulkRestore'])->name('restore.bulk');
     Route::patch('/archive/bulk', [AdminNhanvienController::class, 'archiveBulk'])->name('archive.bulk');
 
+});
+
+//Route Order
+Route::prefix('admin/orders')->middleware(AdminMiddleware::class)->group(function(){
+    Route::get('/',[AdminOrderController::class,'index'])->name('admin.orders.list');
 });
 
 ///////////////////////////////////////////////////////////////////////////

@@ -14,6 +14,12 @@
         padding: 8px 10px;
         text-align: center;
     }
+    #add-row th:nth-child(7),
+    #add-row td:nth-child(7) {
+    min-width: 220px; /* Rộng ngang từ trái qua phải */
+    text-align: left;
+    white-space: normal;
+    }
 </style>
 @endpush
 
@@ -31,7 +37,7 @@
                     <i class="icon-arrow-right"></i>
                 </li>
                 <li class="nav-item">
-                    <a href="#">Đơn hàng</a>
+                    <a href="{{ route('admin.orders.list') }}">Đơn hàng</a>
                 </li>
                 @if(request()->routeIs('admin.products.hidden.list'))
                     <li class="separator">
@@ -71,15 +77,13 @@
                                 <div class="col-6 col-lg-2">
                                     <div class="dropdown w-100">
                                         <button class="btn btn-outline-primary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown">
-                                            Thao tác 
+                                            Cửa hàng 
                                         </button>
                                         <ul class="dropdown-menu">
-                                            @if(request()->routeIs('admin.products.hidden.list'))
-                                                <li><button type="button" class="dropdown-item" id="show-products">Hiển thị các sản phẩm đã chọn</button></li>
-                                            @else
-                                                <li><button type="button" class="dropdown-item" id="hide-products">Ẩn các sản phẩm đã chọn</button></li>
-                                            @endif
-                                            <li><button type="button" class="dropdown-item text-danger" id="delete-products">Xóa các sản phẩm đã chọn</button></li>
+                                            <li><button type="button" class="dropdown-item" id="show-products">Tên cửa hàng hoạt động 1</button></li>
+                                        
+                                            <li><button type="button" class="dropdown-item" id="hide-products">Tên cửa hàng hoạt động 2</button></li>
+                                        
                                         </ul>
                                     </div>
                                 </div>
@@ -105,7 +109,7 @@
                             </div>
                         </form>
                     </div>
-                    @if($products->isEmpty())
+                    @if($orders->isEmpty())
                         <div class="text-center my-5 py-5">
                             <i class="fa fa-box-open fa-3x text-muted mb-3"></i>
                             <h5 class="text-muted">Không có sản phẩm nào trong danh sách</h5>
@@ -121,104 +125,129 @@
                                     <div class="row">
                                         <div class="col-sm-12">
                                             <table id="add-row" class="display table table-striped table-hover dataTable" role="grid" aria-describedby="add-row_info">
-                                                <thead>
-                                                    <tr>
+                                                <thead class="align-middle text-center">
+                                                    <tr class="bg-light">
                                                         <th><input type="checkbox" id="checkAll"></th>
                                                         <th>Mã HĐ</th>
-                                                        <th>Ngày lặp HĐ</th>
+                                                        <th>Ngày lập HĐ</th>
                                                         <th>Khách hàng</th>
-                                                        <th>Khuyến mãi</th>
                                                         <th>Phí ship</th>
                                                         <th>Tổng tiền</th>
-                                                        <th>TT.thanh toán</th>
-                                                        <th>PT.thanh toán</th>
-                                                        <th>T.thái</th>
+                                                        <th>PT. nhận hàng</th>
+                                                        <th>
+                                                            PT. thanh toán<br>
+                                                            <form method="POST" class="mt-1">
+                                                                @csrf
+                                                                @method('PUT')
+                                                                <select name="pt_thanh_toan" class="form-select form-select-sm" onchange="this.form.submit()">
+                                                                    <option value="">Tất cả</option>
+                                                                    <option value="COD">Tiền mặt</option>
+                                                                    <option value="NAPAS247">Chuyển khoản</option>
+                                                                </select>
+                                                            </form>
+                                                        </th>
+                                                        <th>
+                                                            TT. thanh toán<br>
+                                                            <form method="POST" class="mt-1">
+                                                                @csrf
+                                                                @method('PUT')
+                                                                <select name="tt_thanh_toan" class="form-select form-select-sm" onchange="this.form.submit()">
+                                                                    <option value="">Tất cả</option>
+                                                                    <option value="0">Chờ thanh toán</option>
+                                                                    <option value="1">Đã thanh toán</option>
+                                                                </select>
+                                                            </form>
+                                                        </th>
+                                                        <th>
+                                                            Trạng thái<br>
+                                                            <form method="POST" class="mt-1">
+                                                                @csrf
+                                                                @method('PUT')
+                                                                <select name="trang_thai" class="form-select form-select-sm" onchange="this.form.submit()">
+                                                                    <option value="">Tất cả</option>
+                                                                    <option value="0">Chờ xác nhận</option>
+                                                                    <option value="1">Đã xác nhận</option>
+                                                                    <option value="2">Đang chuẩn bị</option>
+                                                                    <option value="3">Hoàn tất món</option>
+                                                                    <option value="4">Đang giao</option>
+                                                                    <option value="5">Đã nhận</option>
+                                                                </select>
+                                                            </form>
+                                                        </th>
                                                     </tr>
                                                 </thead>
+
                                                 <tbody>
-                                                    @foreach ( $products as $pro )
+                                                    @foreach ( $orders as $order )
                                                         <tr role="" class="product-row">
                                                             <td>
-                                                                <input type="checkbox" class="product-checkbox" value="{{ $pro->ma_san_pham }}">
+                                                                <input type="checkbox" class="product-checkbox" value="{{ $order->ma_hoa_don }}">
                                                             </td> 
                                                             <td>
-                                                                <a href="{{ route('admin.product.edit.form',$pro->ma_san_pham) }}" class="" data-bs-toggle="tooltip" title="{{ $pro->ten_san_pham }}">
-                                                                    <img src="{{ $pro->hinh_anh ? asset('storage/' . $pro->hinh_anh) : asset('images/no_product_image.png') }}" alt="{{ $pro->ten_san_pham }}" width="80">
-                                                                </a>                                                            
+                                                                <a href="#" class="" data-bs-toggle="tooltip" title="Chi tiết">{{ $order->ma_hoa_don }}</a>
                                                             </td>
-                                                            <td>{{ $pro->ma_san_pham }}</td>
-                                                            <td>{{ $pro->ten_san_pham }}</td>
-                                                            <td>{{ $pro->danhMuc->ten_danh_muc }}</td>
-                                                            <td>{{ number_format($pro->gia, 0, ',', '.') }}</td>
-                                                            @php
-                                                                $sizes = $sizesMap[$pro->ma_san_pham] ?? collect(); // dùng collect() để đảm bảo có thể count()
-                                                            @endphp
-                                                            <td style="min-width: 150px; max-width: 200px; width: 100px;">
-                                                                @if ($sizes->count())
-                                                                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-                                                                        @foreach ($sizes as $size)
-                                                                            <span style="background: #e0f7fa; color: #00796b;
-                                                                                        padding: 4px 8px; border-radius: 6px;
-                                                                                        font-size: 11px; font-weight: 500;
-                                                                                        white-space: nowrap;">
-                                                                                {{ $size->ten_size }}
-                                                                            </span>
-                                                                        @endforeach
-                                                                        <a href="{{ route('admin.products.ingredients.show',$pro->ma_san_pham) }}" class="" data-bs-toggle="tooltip" title="Xem chi tiết thành phần">chi tiết</a>
-                                                                    </div>
+                                                            <td>{{ $order->ngay_lap_hoa_don }}</td>
+                                                            <td>{{ $order->khachHang->ho_ten_khach_hang ?? 'Guest' }}</td>
+                                                            <td>{{ number_format($order->tien_ship) }}</td>
+                                                            <td>{{ number_format($order->tong_tien, 0, ',', '.') }}</td>
+                                                            <td>
+                                                                @if ($order->phuong_thuc_nhan_hang === 'pickup')
+                                                                    <span>Tại quán</span>
                                                                 @else
-                                                                    <span class="text-muted">
-                                                                        <a href="{{ route('admin.products.ingredients.form', $pro->slug) }} " data-bs-toggle="tooltip" title="Thêm thành phần sản phẩm">Thêm size.</a>
-                                                                    </span>
+                                                                    <span>Giao hàng đến: {{ $order->dia_chi }}</span>
                                                                 @endif
                                                             </td>
                                                             <td>
-                                                                @if ($pro->trang_thai == 1)
-                                                                    <span class="badge badge-success">Hiển thị</span>
-                                                                @elseif ($pro->trang_thai == 2)
-                                                                    <span class="badge badge-danger">Ẩn</span>
-                                                                @else
-                                                                    <span class="badge badge-secondary">Không xác định</span>
-                                                                @endif
+                                                                @if ($order->phuong_thuc_thanh_toan === 'COD')
+                                                                    <span>Tiền mặt</span>
+                                                                @elseif($order->phuong_thuc_thanh_toan === 'NAPAS247')
+                                                                    <span>Chuyển khoảng</span>
+                                                                @endif  
                                                             </td>
                                                             <td>
-                                                                <div style="display: inline-flex; gap: 2px;">
-                                                                    @for ($i = 1; $i <= 5; $i++)
-                                                                        @if ($i <= $pro->rating)
-                                                                            <i class="fas fa-star" style="color: gold;"></i>
-                                                                        @elseif ($i - 0.5 == $pro->rating)
-                                                                            <i class="fas fa-star-half-alt" style="color: gold;"></i>
-                                                                        @else
-                                                                            <i class="far fa-star" style="color: gold;"></i>
-                                                                        @endif
-                                                                    @endfor
-                                                                </div>
+                                                                @php
+                                                                    $payClass = $order->trang_thai_thanh_toan == 1 ? 'badge bg-success' : 'badge bg-warning text-dark';
+                                                                @endphp
+                                                                <span class="{{ $payClass }}">
+                                                                    @if ($order->trang_thai_thanh_toan == 0)
+                                                                    Chờ thanh toán
+                                                                    @else
+                                                                    Đã thanh toán
+                                                                    @endif
+                                                                </span>
                                                             </td>
+                                                            <td>
+                                                                <form action="" method="POST">
+                                                                    @csrf
+                                                                    @method('PUT')
+                                                                    <select name="trang_thai" class="form-select form-select-sm" onchange="this.form.submit()">
+                                                                        <option value="0" {{ $order->trang_thai == 0 ? 'selected' : '' }}>Chờ xác nhận</option>
+                                                                        <option value="1" {{ $order->trang_thai == 1 ? 'selected' : '' }}>Đã xác nhận</option>
+                                                                        <option value="2" {{ $order->trang_thai == 2 ? 'selected' : '' }}>Đang chuẩn bị</option>
+                                                                        <option value="3" {{ $order->trang_thai == 3 ? 'selected' : '' }}>Hoàn tất món</option>
+                                                                        <option value="4" {{ $order->trang_thai == 4 ? 'selected' : '' }}>Đang giao</option>
+                                                                        <option value="5" {{ $order->trang_thai == 5 ? 'selected' : '' }}>Đã nhận</option>
+                                                                    </select>
+                                                                </form>
+                                                            </td>
+
                                                             <td>
                                                                 <div class="form-button-action">
-                                                                    @if($pro->trang_thai == 1)
-                                                                        <a href="{{ route('admin.product.edit.form', $pro->ma_san_pham) }}" class="btn btn-icon btn-round btn-info" data-bs-toggle="tooltip" title="Chỉnh sửa">
-                                                                            <i class="fa fa-edit"></i>
-                                                                        </a>
-                                                                        <form action="{{ route('admin.product.hidde-or-acctive', $pro->ma_san_pham) }}" method="POST" class="hidden-or-acctive">
-                                                                            @csrf    
-                                                                            <button type="button" class="btn btn-icon btn-round btn-black hidden-btn" data-bs-toggle="tooltip" title="Ẩn">
-                                                                                <i class="fas fa-toggle-off text-white"></i>
-                                                                            </button>   
-                                                                        </form> 
-
-                                                                    @elseif($pro->trang_thai == 2)
-
-                                                                        <form action="{{ route('admin.product.hidde-or-acctive', $pro->ma_san_pham) }}" method="POST" class="acctive-form">
-                                                                            @csrf
-                                                                            <button type="button" class="btn btn-icon btn-round btn-warning acctive-btn" data-bs-toggle="tooltip" title="Hiển thị">
-                                                                                <i class="fas fa-toggle-on text-white"></i>
-                                                                            </button>
-                                                                        </form>
-                                                                        <button type="button" class="btn btn-icon btn-round btn-danger" data-bs-toggle="tooltip" title="Xóa">
-                                                                            <i class="fa fa-trash"></i>
+                                                                    <form action="{{ route('admin.product.hidde-or-acctive', $order->ma_hoa_don) }}" method="POST" class="hidden-or-acctive">
+                                                                        @csrf    
+                                                                        <button type="button" class="btn btn-icon btn-round btn-black hidden-btn" data-bs-toggle="tooltip" title="Ẩn">
+                                                                            <i class="fas fa-toggle-off text-white"></i>
+                                                                        </button>   
+                                                                    </form> 
+                                                                    <form action="{{ route('admin.product.hidde-or-acctive', $order->ma_hoa_don) }}" method="POST" class="acctive-form">
+                                                                        @csrf
+                                                                        <button type="button" class="btn btn-icon btn-round btn-warning acctive-btn" data-bs-toggle="tooltip" title="Hiển thị">
+                                                                            <i class="fas fa-toggle-on text-white"></i>
                                                                         </button>
-                                                                    @endif
+                                                                    </form>
+                                                                    <button type="button" class="btn btn-icon btn-round btn-danger" data-bs-toggle="tooltip" title="Xóa">
+                                                                        <i class="fa fa-trash"></i>
+                                                                    </button>
                                                                 </div>
                                                             </td>
                                                         </tr>
@@ -231,7 +260,7 @@
                                         <div class="col-sm-12 col-md-7">
                                             <div class="dataTables_paginate paging_simple_numbers" id="add-row_paginate">
                                                 <ul class="pagination">
-                                                    {{ $products->appends(request()->query())->links() }}
+                                                    
 
                                                 </ul>
                                             </div>

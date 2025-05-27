@@ -77,7 +77,7 @@ class PaymentController extends Controller
                 'so_dien_thoai' => $validated['so_dien_thoai'],
                 'email' => $validated['email'],
                 'dia_chi' => $address,
-                'phuong_thuc_thanh_toan' => $validated['paymentMethod'],
+                'phuong_thuc_thanh_toan' => 'COD',
                 'phuong_thuc_nhan_hang' => $validated['shippingMethod'],
                 'ghi_chu' => $validated['ghi_chu'] ?? '',
                 'tien_ship' => 0,
@@ -110,14 +110,14 @@ class PaymentController extends Controller
 
                 session()->forget('cart'); 
                 toastr()->success('Đặt hàng thành công!');
-                return redirect()->route('payment.checkout_status')->with('status', 'success');
+                return redirect()->route('checkout_status')->with('status', 'success');
             } catch (\Exception $e) {
                 // Ghi log nếu cần: Log::error($e->getMessage());
                 toastr()->error('Có lỗi xảy ra khi xử lý đơn hàng. Vui lòng thử lại sau! '. $e->getMessage());
                 return redirect()->back();
             }
         }
-        else if ($request->paymentMethod === 'NAPAS247') {
+        if ($request->paymentMethod === 'NAPAS247') {
             $napas = new Napas247Controller();
 
             if($validated['shippingMethod'] == 'pickup'){
@@ -136,7 +136,7 @@ class PaymentController extends Controller
                 'so_dien_thoai' => $validated['so_dien_thoai'],
                 'email' => $validated['email'],
                 'dia_chi' => $address,
-                'phuong_thuc_thanh_toan' => $validated['paymentMethod'],
+                'phuong_thuc_thanh_toan' => 'NAPAS247',
                 'phuong_thuc_nhan_hang' => $validated['shippingMethod'],
                 'ghi_chu' => $validated['ghi_chu'] ?? '',
                 'tien_ship' => 0,
