@@ -96,7 +96,7 @@
 												<li><a href="{{ route('customer.index') }}"><i class="fas fa-user-circle" style="margin-right:6px;"></i>Hồ sơ</a></li>
 												<li><a href="#"><i class="fas fa-map-marker-alt" style="margin-right:6px;"></i>Sổ địa chỉ</a></li>
 												<li><a href="#"><i class="fas fa-heart" style="margin-right:6px;"></i>Yêu thích</a></li>
-												<li><a href="#"><i class="fas fa-receipt" style="margin-right:6px;"></i>Lịch sử mua hàng</a></li>
+												<li><a href="{{ route('customer.order.history') }}"><i class="fas fa-receipt" style="margin-right:6px;"></i>Lịch sử mua hàng</a></li>
 												<li><a href="#"><i class="fas fa-eye" style="margin-right:6px;"></i>Sản phẩm đã xem</a></li>
 												<li>
 													<button type="button" id="logout-btn" style="color: #fff; background: #e74c3c; border-radius: 8px; padding: 8px 16px; border: none; font-weight: 500;">

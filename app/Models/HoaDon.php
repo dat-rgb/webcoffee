@@ -30,15 +30,24 @@ class HoaDon extends Model
         'trang_thai_thanh_toan',
     ];
     
-    // Liên kết chi tiết hóa đơn nếu cần
-    public function chiTietHoaDons()
+    public function khachHang()
+    {
+        return $this->belongsTo(KhachHang::class, 'ma_khach_hang', 'ma_khach_hang');
+    }
+
+    public function chiTietHoaDon()
     {
         return $this->hasMany(ChiTietHoaDon::class, 'ma_hoa_don', 'ma_hoa_don');
     }
 
-    public function khachHang()
+    public function khuyenMai()
     {
-        return $this->belongsTo(KhachHang::class, 'ma_khach_hang', 'ma_khach_hang');
+        return $this->belongsTo(KhuyenMai::class, 'ma_khuyen_mai', 'ma_khuyen_mai');
+    }
+
+    public function transaction()
+    {
+        return $this->hasOne(Transactions::class, 'ma_hoa_don', 'ma_hoa_don');
     }
 
     public static function generateMaHoaDon(): string

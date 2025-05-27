@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
 
 class Transactions extends Model
 {
@@ -19,4 +21,8 @@ class Transactions extends Model
         'payment_link',
         'trang_thai',
     ];
+    public function hoaDon(): BelongsTo
+    {
+        return $this->belongsTo(HoaDon::class, 'ma_hoa_don', 'ma_hoa_don');
+    }
 }

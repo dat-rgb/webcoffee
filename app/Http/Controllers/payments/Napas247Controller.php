@@ -259,8 +259,8 @@ class Napas247Controller extends Controller
         $hoaDon = HoaDon::where('ma_hoa_don', $maHoaDon)->first();
 
         if ($hoaDon) {
-            $hoaDon->trang_thai_thanh_toan = 0; // Đã thanh toán
-            $hoaDon->trang_thai = 6;            // Đã hủy
+            $hoaDon->trang_thai_thanh_toan = 0; // chờ thanh toán
+            $hoaDon->trang_thai = 5;            // Đã hủy
             $hoaDon->save();
         }
 
