@@ -180,7 +180,7 @@ class Napas247Controller extends Controller
             }
         }
 
-        return redirect()->route('payment.checkout_status')->with('status', 'success');
+        return redirect()->route('checkout_status')->with('status', 'success');
     }
 
     public function handleCancel(Request $request)
@@ -197,7 +197,7 @@ class Napas247Controller extends Controller
             }
         }
 
-        return redirect()->route('payment.checkout_status')->with('status', 'cancel');
+        return redirect()->route('checkout_status')->with('status', 'cancel');
     }
 
     protected function updatePaymentSuccess($orderCode)
