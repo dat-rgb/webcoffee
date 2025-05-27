@@ -29,6 +29,17 @@ class HoaDon extends Model
         'tong_tien',
         'trang_thai_thanh_toan',
     ];
+    
+    // Liên kết chi tiết hóa đơn nếu cần
+    public function chiTietHoaDons()
+    {
+        return $this->hasMany(ChiTietHoaDon::class, 'ma_hoa_don', 'ma_hoa_don');
+    }
+
+    public function khachHang()
+    {
+        return $this->belongsTo(KhachHang::class, 'ma_khach_hang', 'ma_khach_hang');
+    }
 
     public static function generateMaHoaDon(): string
     {
@@ -41,11 +52,5 @@ class HoaDon extends Model
         } while (self::where('ma_hoa_don', $maHoaDon)->exists());
 
         return $maHoaDon;
-    }
-    
-    // Liên kết chi tiết hóa đơn nếu cần
-    public function chiTietHoaDons()
-    {
-        return $this->hasMany(ChiTietHoaDon::class, 'ma_hoa_don', 'ma_hoa_don');
     }
 }

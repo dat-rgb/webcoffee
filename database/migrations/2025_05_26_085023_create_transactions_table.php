@@ -27,7 +27,6 @@ return new class extends Migration
             $table->foreign('ma_hoa_don')->references('ma_hoa_don')->on('hoa_dons')->onDelete('cascade');
 
         });
-
     }
 
     /**
