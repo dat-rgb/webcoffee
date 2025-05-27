@@ -110,7 +110,7 @@ class PaymentController extends Controller
 
                 session()->forget('cart'); 
                 toastr()->success('Đặt hàng thành công!');
-                return redirect()->route('cart');
+                return redirect()->route('payment.checkout_status')->with('status', 'success');
             } catch (\Exception $e) {
                 // Ghi log nếu cần: Log::error($e->getMessage());
                 toastr()->error('Có lỗi xảy ra khi xử lý đơn hàng. Vui lòng thử lại sau! '. $e->getMessage());
@@ -251,7 +251,7 @@ class PaymentController extends Controller
             'message' => 'Đủ nguyên liệu và đã trừ tồn kho.'
         ];
     }
-    private function sendEmail($order_id, $name, $email, $phone, $shippingMethod, $paymentMethod, $status, $statusPayment, $address, $cartItems, $tongTien)
+    public function sendEmail($order_id, $name, $email, $phone, $shippingMethod, $paymentMethod, $status, $statusPayment, $address, $cartItems, $tongTien)
     {
         try {
             Mail::to($email)->send(new OrderMail(
@@ -272,5 +272,12 @@ class PaymentController extends Controller
             // Ghi log lỗi nếu cần
             \Log::error('Gửi mail thất bại: ' . $e->getMessage());
         }
+    }
+
+    public function checkoutStatus(){
+        $viewData = [
+            'title' => 'Trạng thái thanh toán',    
+        ];
+        return view('clients.pages.payments.checkout_status', $viewData);
     }
 }

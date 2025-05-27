@@ -100,6 +100,7 @@ Route::prefix('payment')->group(function(){
     Route::get('/payos-return', [Napas247Controller::class, 'handleReturn'])->name('payos.return');
     Route::get('/payos-cancel', [Napas247Controller::class, 'handleCancel'])->name('payos.cancel');
     Route::get('/status/{orderCode}', [Napas247Controller::class, 'checkPaymentStatus']);
+    Route::get('/checkout-status',[PaymentController::class,'checkoutStatus'])->name('checkout_status');
 });  
 
 //Tin tức

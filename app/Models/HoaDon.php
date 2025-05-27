@@ -32,16 +32,17 @@ class HoaDon extends Model
 
     public static function generateMaHoaDon(): string
     {
+        $prefix = 'HD';
+
         do {
-            $prefix = 'HD';
-            $datetime = now()->format('HisdmY');
-            $randomStr = strtoupper(Str::random(3));
-            $maHoaDon = $prefix . $datetime . $randomStr;
+            $datetime = now()->format('ymdHis');
+            $randomDigits = str_pad(mt_rand(0, 9999), 4, '0', STR_PAD_LEFT);
+            $maHoaDon = $prefix . $datetime . $randomDigits;
         } while (self::where('ma_hoa_don', $maHoaDon)->exists());
 
         return $maHoaDon;
     }
-
+    
     // Liên kết chi tiết hóa đơn nếu cần
     public function chiTietHoaDons()
     {

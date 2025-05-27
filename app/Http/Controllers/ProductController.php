@@ -41,6 +41,10 @@ class ProductController extends Controller
             ->where('trang_thai',1)
             ->first();
 
+        if(!$product){
+            return redirect()->route('product');
+        }
+        
         $productRelate = SanPham::where('ma_danh_muc', $product->ma_danh_muc)
             ->where('trang_thai',1)
             ->where('id', '!=', $product->id)
