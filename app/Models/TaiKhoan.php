@@ -16,7 +16,7 @@ class TaiKhoan extends Authenticatable
         'email',
         'mat_khau',
         'qr_token',
-        'loai_tai_khoan',
+        'loai_tai_khoan',//
         'trang_thai',
         'activation_token'
     ];
@@ -34,8 +34,8 @@ class TaiKhoan extends Authenticatable
     {
         return $this->hasOne(KhachHang::class, 'ma_tai_khoan', 'ma_tai_khoan');
     }
-  
-    public function nhanVien()
+
+        public function nhanVien()
     {
         return $this->hasOne(NhanVien::class, 'ma_tai_khoan', 'ma_tai_khoan');
     }

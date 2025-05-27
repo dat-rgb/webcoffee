@@ -74,9 +74,9 @@
                         <div class="mb-3">
                             <label class="form-label">Giới tính</label>
                             <select name="gioi_tinh" class="form-select" required>
-                                <option value="0" {{ $nhanVien->gioi_tinh == 0 ? 'selected' : '' }}>Nam</option>
-                                <option value="1" {{ $nhanVien->gioi_tinh == 1 ? 'selected' : '' }}>Nữ</option>
-                                <option value="2" {{ $nhanVien->gioi_tinh == 2 ? 'selected' : '' }}>Khác</option>
+                                <option value="0" {{ $nhanVien->gioi_tinh == 1 ? 'selected' : '' }}>Nam</option>
+                                <option value="1" {{ $nhanVien->gioi_tinh == 0 ? 'selected' : '' }}>Nữ</option>
+                                {{-- <option value="2" {{ $nhanVien->gioi_tinh == 2 ? 'selected' : '' }}>Khác</option> --}}
                             </select>
                         </div>
 

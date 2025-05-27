@@ -27,6 +27,10 @@ class AppServiceProvider extends ServiceProvider
         Paginator::useBootstrapFive();
         View::composer('*', CategoryComposer::class);
         View::composer('*', StoreComposer::class);
+        if (app()->environment('local') && request()->server('HTTP_HOST') && str_contains(request()->server('HTTP_HOST'), 'ngrok-free.app')) {
+            URL::forceScheme('https');
+        } else {
+        }
 
         if (app()->environment('local') && request()->server('HTTP_HOST') && str_contains(request()->server('HTTP_HOST'), 'ngrok-free.app')) {
             URL::forceScheme('https');

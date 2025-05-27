@@ -156,6 +156,11 @@ Route::prefix('admin/categories')->middleware(AdminMiddleware::class)->name('adm
     Route::post('/{id}/archive', [AdminCategoryController::class, 'archive'])->name('archive');
     Route::get('/archive', [AdminCategoryController::class, 'archiveIndex'])->name('archive.index'); // Hiển thị danh mục lưu trữ
     Route::post('/{id}/restore', [AdminCategoryController::class, 'restore'])->name('restore');
+    //route for checkbox
+    Route::post('/bulk-archive', [AdminCategoryController::class, 'bulkArchive'])->name('bulk-archive');
+    Route::post('/bulk-restore', [AdminCategoryController::class, 'bulkRestore'])->name('bulk-restore');
+    Route::post('/bulk-delete', [AdminCategoryController::class, 'bulkDelete'])->name('bulk-delete');
+
 
 });
 //Route Material Admin
@@ -209,12 +214,10 @@ Route::prefix('admin/nhanviens')->middleware(AdminMiddleware::class)->name('admi
     Route::get('/{ma_nhan_vien}/edit', [AdminNhanVienController::class, 'edit'])->name('edit');
     Route::put('/{ma_nhan_vien}', [AdminNhanVienController::class, 'update'])->name('update');
     Route::delete('/{ma_nhan_vien}', [AdminNhanVienController::class, 'destroy'])->name('destroy');
-  
     //Thử thách Admin phân công lịch làm việc
     Route::get('/phan-cong-lich', [AdminLichlamviecController::class, 'showForm'])->name('lich.showForm');
     Route::post('/phan-cong-lich', [AdminLichlamviecController::class, 'assignWork'])->name('lich.assignWork');
     Route::get('/lich-lam-viec', [AdminLichlamviecController::class, 'showLichTheoTuan'])->name('lich.tuan');
-  
     //Tạm nghỉ cho nhân viên
     Route::post('/archive/{id}', action: [AdminNhanvienController::class, 'archive'])->name('archive');  // Lưu trữ
     Route::get('/archived', [AdminNhanvienController::class, 'archived'])->name('archived');    // Danh sách lưu trữ
@@ -226,7 +229,7 @@ Route::prefix('admin/nhanviens')->middleware(AdminMiddleware::class)->name('admi
 
 ///////////////////////////////////////////////////////////////////////////
 //Start - Staff
-//Route Staff home  
+//Route Staff home
 Route::prefix('staff')->middleware(NhanVienMiddleware::class)->group(function(){
     Route::get('', [StaffHomeController::class, 'index'])->name('staff');
 });

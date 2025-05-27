@@ -20,8 +20,8 @@
 @section('content')
     <div class="page-inner">
         <div class="page-header">
-            <h3 class="fw-bold mb-3">{{ $subtitle }}</h3>
-            <ul class="breadcrumbs mb-3">
+            <h3 class="mb-3 fw-bold">{{ $subtitle }}</h3>
+            <ul class="mb-3 breadcrumbs">
                 <li class="nav-home">
                     <a href="{{ route('admin') }}">
                         <i class="icon-home"></i>
@@ -53,15 +53,15 @@
                                 {{-- Tìm kiếm --}}
                                 <div class="col-12 col-lg-4">
                                     <div class="input-group">
-                                        <input 
-                                            type="text" 
-                                            name="search" 
-                                            class="form-control" 
-                                            placeholder="Nhập tên hoặc mã sản phẩm để tìm kiếm..." 
-                                            value="{{ request('search') }}" 
+                                        <input
+                                            type="text"
+                                            name="search"
+                                            class="form-control"
+                                            placeholder="Nhập tên hoặc mã sản phẩm để tìm kiếm..."
+                                            value="{{ request('search') }}"
                                             autocomplete="off"
                                         >
-                                        <button type="submit" class="input-group-text bg-white">
+                                        <button type="submit" class="bg-white input-group-text">
                                             <i class="fa fa-search text-muted"></i>
                                         </button>
                                     </div>
@@ -71,7 +71,7 @@
                                 <div class="col-6 col-lg-2">
                                     <div class="dropdown w-100">
                                         <button class="btn btn-outline-primary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown">
-                                            Thao tác 
+                                            Thao tác
                                         </button>
                                         <ul class="dropdown-menu">
                                             @if(request()->routeIs('admin.products.hidden.list'))
@@ -106,11 +106,11 @@
                         </form>
                     </div>
                     @if($products->isEmpty())
-                        <div class="text-center my-5 py-5">
-                            <i class="fa fa-box-open fa-3x text-muted mb-3"></i>
+                        <div class="py-5 my-5 text-center">
+                            <i class="mb-3 fa fa-box-open fa-3x text-muted"></i>
                             <h5 class="text-muted">Không có sản phẩm nào trong danh sách</h5>
                             <p>Hãy thêm sản phẩm mới để bắt đầu quản lý kho hàng.</p>
-                            <a href="{{ route('admin.products.form') }}" class="btn btn-primary mt-3">
+                            <a href="{{ route('admin.products.form') }}" class="mt-3 btn btn-primary">
                                 <i class="fa fa-plus"></i> Thêm sản phẩm mới
                             </a>
                         </div>
@@ -120,7 +120,7 @@
                                 <div id="add-row_wrapper" class="dataTables_wrapper container-fluid dt-bootstrap4">
                                     <div class="row">
                                         <div class="col-sm-12">
-                                            <table id="add-row" class="display table table-striped table-hover dataTable" role="grid" aria-describedby="add-row_info">
+                                            <table id="add-row" class="table display table-striped table-hover dataTable" role="grid" aria-describedby="add-row_info">
                                                 <thead>
                                                     <tr>
                                                         <th><input type="checkbox" id="checkAll"></th>
@@ -139,11 +139,11 @@
                                                         <tr role="" class="product-row">
                                                             <td>
                                                                 <input type="checkbox" class="product-checkbox" value="{{ $pro->ma_san_pham }}">
-                                                            </td> 
+                                                            </td>
                                                             <td>
                                                                 <a href="{{ route('admin.product.edit.form',$pro->ma_san_pham) }}" class="" data-bs-toggle="tooltip" title="{{ $pro->ten_san_pham }}">
                                                                     <img src="{{ $pro->hinh_anh ? asset('storage/' . $pro->hinh_anh) : asset('images/no_product_image.png') }}" alt="{{ $pro->ten_san_pham }}" width="80">
-                                                                </a>                                                            
+                                                                </a>
                                                             </td>
                                                             <td>{{ $pro->ma_san_pham }}</td>
                                                             <td>{{ $pro->ten_san_pham }}</td>
@@ -200,18 +200,18 @@
                                                                             <i class="fa fa-edit"></i>
                                                                         </a>
                                                                         <form action="{{ route('admin.product.hidde-or-acctive', $pro->ma_san_pham) }}" method="POST" class="hidden-or-acctive">
-                                                                            @csrf    
+                                                                            @csrf
                                                                             <button type="button" class="btn btn-icon btn-round btn-black hidden-btn" data-bs-toggle="tooltip" title="Ẩn">
-                                                                                <i class="fas fa-toggle-off text-white"></i>
-                                                                            </button>   
-                                                                        </form> 
+                                                                                <i class="text-white fas fa-toggle-off"></i>
+                                                                            </button>
+                                                                        </form>
 
                                                                     @elseif($pro->trang_thai == 2)
 
                                                                         <form action="{{ route('admin.product.hidde-or-acctive', $pro->ma_san_pham) }}" method="POST" class="acctive-form">
                                                                             @csrf
                                                                             <button type="button" class="btn btn-icon btn-round btn-warning acctive-btn" data-bs-toggle="tooltip" title="Hiển thị">
-                                                                                <i class="fas fa-toggle-on text-white"></i>
+                                                                                <i class="text-white fas fa-toggle-on"></i>
                                                                             </button>
                                                                         </form>
                                                                         <button type="button" class="btn btn-icon btn-round btn-danger" data-bs-toggle="tooltip" title="Xóa">
@@ -238,7 +238,7 @@
                                     </div>
                                 </div> <!-- end dataTables_wrapper -->
                             </div> <!-- end table-responsive -->
-                        </div> <!-- end card-body -->   
+                        </div> <!-- end card-body -->
                     @endif
                 </div> <!-- end card -->
             </div>

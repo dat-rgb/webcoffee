@@ -4,7 +4,22 @@
 
 @section('content')
 <div class="container mt-4">
-    <h2 class="mb-4">Chỉnh sửa danh mục</h2>
+    <div class="page-header">
+            {{-- <h3 class="mb-3 fw-bold">{{ $subtitle }}</h3> --}}
+            <ul class="mb-3 breadcrumbs">
+                <li class="nav-home">
+                    <a href="{{ route('admin') }}">
+                        <i class="icon-home"></i>
+                    </a>
+                </li>
+                <li class="separator">
+                    <i class="icon-arrow-right"></i>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('admins.nhanvien.index') }}">Danh sách nhân viên cửa hàng</a>
+                </li>
+            </ul>
+        </div>
 
     {{-- Hiển thị lỗi nếu có --}}
     @if ($errors->any())
@@ -35,8 +50,7 @@
         <select class="form-control" name="danh_muc_cha_id" id="danh_muc_cha_id">
             <option value="">-- Không có (danh mục gốc) --</option>
             @foreach($categories as $cat)
-                {{-- Không cho chọn chính nó làm cha --}}
-                @if($cat->ma_danh_muc != $category->ma_danh_muc)
+                @if($cat->ma_danh_muc != $category->ma_danh_muc && !in_array($cat->ma_danh_muc, $descendantIds))
                     <option value="{{ $cat->ma_danh_muc }}"
                         {{ $category->danh_muc_cha_id == $cat->ma_danh_muc ? 'selected' : '' }}>
                         {{ $cat->ten_danh_muc }}
