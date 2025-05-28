@@ -106,7 +106,7 @@ Route::prefix('payment')->group(function(){
     Route::get('/checkout-status',[PaymentController::class,'checkoutStatus'])->name('checkout_status');
 });  
 
-//Tin tức
+//Tin tức   
 Route::prefix('tin-tuc')->group(function(){
     Route::get('/', [BlogController::class, 'index'])->name('blog');
     Route::get('/chi-tiet', [BlogController::class, 'blogDetail'])->name('blog.detail');
@@ -119,8 +119,12 @@ Route::prefix('customer')->middleware(KhachHangMiddleware::class)->group(functio
     Route::get('/favorites',[CustomerFavoriteController::class,'showFavorite'])->name('favorite.show');
     Route::put('/profile/update',[CustomerController::class,'updateInfo'])->name('customer.update');
     Route::post('/store/address',[CustomerController::class,'storeAddress'])->name('customer.address.store');
+    
 });
+
 Route::post('/favorite/toggle/{id}', [CustomerFavoriteController::class, 'favoriteProduct'])->name('favorite.toggle');
+Route::get('api/dia-chi', [CustomerController::class, 'getDiaChi'])->name('api.diachi');
+
 //End - User
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -248,3 +252,6 @@ Route::prefix('staff')->middleware(NhanVienMiddleware::class)->group(function(){
 });
 
 //End - Staff
+
+
+

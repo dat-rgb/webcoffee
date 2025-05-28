@@ -152,7 +152,6 @@ class Napas247Controller extends Controller
             return null;
         }
     }
-
     public function checkPaymentStatus($orderCode)
     {
         $paymentInfo = $this->getPaymentLinkInformation($orderCode);
@@ -185,7 +184,6 @@ class Napas247Controller extends Controller
                 ]);
         }
     }
-
     // Các method xử lý callback, trả về từ PayOS
     public function handleReturn(Request $request)
     {
@@ -200,7 +198,6 @@ class Napas247Controller extends Controller
 
         return redirect()->route('checkout_status')->with('status', 'success');
     }
-
     protected function updatePaymentSuccess($orderCode)
     {
         $maHoaDon = 'HD' . $orderCode;

@@ -82,15 +82,20 @@
                         </div>
                     </form>
                 </div>
-
                 <!-- địa chỉ -->
                 <div class="bg-white border rounded shadow-sm p-4 mt-4">
                     <h4 class="mb-4">Sổ địa chỉ</h4>
 
                     @forelse ($kh->diaChis ?? [] as $diaChi)
                         <div class="border rounded p-3 mb-3 {{ $diaChi->mac_dinh ? 'border-primary' : '' }}">
-                            <p class="mb-1"><strong>Địa chỉ:</strong> {{ $diaChi->dia_chi }}</p>
-                            <p class="mb-1">{{ $diaChi->phuong_xa }}, {{ $diaChi->quan_huyen }}, {{ $diaChi->tinh_thanh }}</p>
+                            <p class="mb-1"><strong>Địa chỉ:</strong> 
+                                {{ implode(', ', array_filter([
+                                    $diaChi->dia_chi,
+                                    $diaChi->phuong_xa,
+                                    $diaChi->quan_huyen,
+                                    $diaChi->tinh_thanh
+                                ])) }}
+                            </p>
                             @if($diaChi->mac_dinh)
                                 <span class="badge bg-primary">Mặc định</span>
                             @endif
@@ -98,6 +103,7 @@
                     @empty
                         <p class="text-muted">Bạn chưa có địa chỉ nào.</p>
                     @endforelse
+
                     <!-- nút mở modal -->
                     <button type="button" class="btn btn-outline-primary btn-sm mt-2" data-toggle="modal" data-target="#addAddressModal">
                         <i class="fa fa-plus"></i> Thêm địa chỉ mới
@@ -122,21 +128,22 @@
                                 <input type="text" class="form-control" id="diaChi" name="diaChi" required>
                             </div>
                             <div class="form-group">
-                                <label for="phuongXa">Phường/Xã</label>
-                                <input type="text" class="form-control" id="phuongXa" name="phuongXa" required>
+    <label for="tinhThanh">Tỉnh/Thành phố</label>
+    <select class="form-control" id="tinhThanh" name="tinhThanh" required>
+        <option value="">-- Chọn tỉnh/thành phố --</option>
+    </select>
                             </div>
                             <div class="form-group">
                                 <label for="quanHuyen">Quận/Huyện</label>
-                                <input type="text" class="form-control" id="quanHuyen" name="quanHuyen" required>
+                                <select class="form-control" id="quanHuyen" name="quanHuyen" required>
+                                    <option value="">-- Chọn quận/huyện --</option>
+                                </select>
                             </div>
                             <div class="form-group">
-                                <label for="tinhThanh">Tỉnh/Thành phố</label>
-                                <input type="text" class="form-control" id="tinhThanh" name="tinhThanh" required>
-                            </div>
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="macDinh" name="macDinh" value="1">
-                                <label class="form-check-label" for="macDinh">Đặt làm địa chỉ mặc định</label>
-                            </div>
+                                <label for="phuongXa">Phường/Xã</label>
+                                <select class="form-control" id="phuongXa" name="phuongXa" required>
+                                    <option value="">-- Chọn phường/xã --</option>
+                                </select>
                             </div>
                             <div class="modal-footer">
                             <button type="submit" class="btn btn-primary">Lưu địa chỉ</button>
@@ -154,5 +161,67 @@
 @endsection
 
 @push('scripts')
-    <script src="{{ asset('js/customer/customer-validate.js') }}"></script>
+<script src="{{ asset('js/customer/customer-validate.js') }}"></script>
+<script>
+$('#addAddressModal').on('shown.bs.modal', function () {
+    console.log('Modal opened');
+    let $tinh = $('#tinhThanh');
+    let $huyen = $('#quanHuyen');
+    let $xa = $('#phuongXa');
+
+    // Nếu chưa có tỉnh trong select thì mới load
+    if ($tinh.children('option').length <= 1) {
+        $.get('{{ route("api.diachi") }}', function (res) {
+            $tinh.empty().append('<option value="">-- Chọn tỉnh/thành phố --</option>');
+            $.each(res.tinhTP, function(i, item) {
+                $tinh.append(`<option value="${item.code}">${item.name}</option>`);
+            });
+        });
+    }
+
+    // Reset các dropdown huyện, xã mỗi lần mở modal
+    $huyen.empty().append('<option value="">-- Chọn quận/huyện --</option>');
+    $xa.empty().append('<option value="">-- Chọn phường/xã --</option>');
+});
+
+// Khi chọn tỉnh, load quận/huyện
+$('#tinhThanh').on('change', function () {
+    let provinceId = $(this).val();
+    let $huyen = $('#quanHuyen');
+    let $xa = $('#phuongXa');
+
+    if (!provinceId) {
+        $huyen.empty().append('<option value="">-- Chọn quận/huyện --</option>');
+        $xa.empty().append('<option value="">-- Chọn phường/xã --</option>');
+        return;
+    }
+
+    $.get('/api/dia-chi?province=' + provinceId, function (data) {
+        $huyen.empty().append('<option value="">-- Chọn quận/huyện --</option>');
+        $.each(data.quanHuyen, function(i, item) {
+            $huyen.append(`<option value="${item.code}">${item.name}</option>`);
+        });
+        $xa.empty().append('<option value="">-- Chọn phường/xã --</option>');
+    });
+});
+
+// Khi chọn quận/huyện, load phường/xã
+$('#quanHuyen').on('change', function () {
+    let districtId = $(this).val();
+    let $xa = $('#phuongXa');
+
+    if (!districtId) {
+        $xa.empty().append('<option value="">-- Chọn phường/xã --</option>');
+        return;
+    }
+
+    $.get('/api/dia-chi?district=' + districtId, function (data) {
+        $xa.empty().append('<option value="">-- Chọn phường/xã --</option>');
+        $.each(data.phuongXa, function(i, item) {
+            $xa.append(`<option value="${item.code}">${item.name}</option>`);
+        });
+    });
+});
+</script>
+
 @endpush

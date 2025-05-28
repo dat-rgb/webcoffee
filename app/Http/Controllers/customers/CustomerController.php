@@ -10,10 +10,43 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Carbon\Carbon;
-
+use NguyenAry\VietnamAddressAPI\Address;
 
 class CustomerController extends Controller
 {
+    public function getDiaChi(Request $request)
+    {
+        if ($request->has('province')) {
+            $districts = collect(Address::getDistrictsByProvinceId($request->province))->map(function ($item, $key) {
+                return [
+                    'code' => $key,
+                    'name' => $item['name']
+                ];
+            })->values();
+
+            return response()->json(['quanHuyen' => $districts]);
+        }
+
+        if ($request->has('district')) {
+            $wards = collect(Address::getWardsByDistrictId($request->district))->map(function ($item, $key) {
+                return [
+                    'code' => $key,
+                    'name' => $item['name']
+                ];
+            })->values();
+
+            return response()->json(['phuongXa' => $wards]);
+        }
+
+        $provinces = collect(Address::getProvinces())->map(function ($item, $key) {
+            return [
+                'code' => $key,
+                'name' => $item['name']
+            ];
+        })->values();
+
+        return response()->json(['tinhTP' => $provinces]);
+    }
     public function index()
     {
         $user = Auth::user(); // Tài khoản đang đăng nhập
@@ -29,7 +62,39 @@ class CustomerController extends Controller
 
         return view('clients.customers.index', $viewData);
     }
+    public function storeAddress(Request $request)
+    {
+        $taiKhoan = Auth::user();
+        $khachHang = $taiKhoan->khachHang;
 
+        $request->validate([
+            'diaChi' => 'required|string|max:255',
+            'phuongXa' => 'required|string|max:255',
+            'quanHuyen' => 'required|string|max:255',
+            'tinhThanh' => 'required|string|max:255',
+            'macDinh' => 'nullable|boolean',
+        ], [
+            'diaChi.required' => 'Vui lòng nhập địa chỉ.',
+            'phuongXa.required' => 'Vui lòng nhập phường/xã.',
+            'quanHuyen.required' => 'Vui lòng nhập quận/huyện.',
+            'tinhThanh.required' => 'Vui lòng nhập tỉnh/thành phố.',
+        ]);
+
+        if ($request->macDinh) {
+            // Nếu chọn làm mặc định, reset tất cả địa chỉ hiện tại
+            $khachHang->diaChis()->update(['mac_dinh' => 0]);
+        }
+
+        $khachHang->diaChis()->create([
+            'dia_chi' => $request->diaChi,
+            'phuong_xa' => $request->phuongXa,
+            'quan_huyen' => $request->quanHuyen,
+            'tinh_thanh' => $request->tinhThanh,
+            'mac_dinh' => $request->macDinh ? 1 : 0,
+        ]);
+        toastr()->success('Đã thêm địa chỉ mới thành công.');
+        return redirect()->back();
+    }
     public function updateInfo(Request $request)
     {
         $taiKhoan = Auth::user();
@@ -82,40 +147,6 @@ class CustomerController extends Controller
         $khachHang->save();
 
         toastr()->success('Đã cập nhật thông tin thành công.');
-        return redirect()->back();
-    }
-
-    public function storeAddress(Request $request)
-    {
-        $taiKhoan = Auth::user();
-        $khachHang = $taiKhoan->khachHang;
-
-        $request->validate([
-            'diaChi' => 'required|string|max:255',
-            'phuongXa' => 'required|string|max:255',
-            'quanHuyen' => 'required|string|max:255',
-            'tinhThanh' => 'required|string|max:255',
-            'macDinh' => 'nullable|boolean',
-        ], [
-            'diaChi.required' => 'Vui lòng nhập địa chỉ.',
-            'phuongXa.required' => 'Vui lòng nhập phường/xã.',
-            'quanHuyen.required' => 'Vui lòng nhập quận/huyện.',
-            'tinhThanh.required' => 'Vui lòng nhập tỉnh/thành phố.',
-        ]);
-
-        if ($request->macDinh) {
-            // Nếu chọn làm mặc định, reset tất cả địa chỉ hiện tại
-            $khachHang->diaChis()->update(['mac_dinh' => 0]);
-        }
-
-        $khachHang->diaChis()->create([
-            'dia_chi' => $request->diaChi,
-            'phuong_xa' => $request->phuongXa,
-            'quan_huyen' => $request->quanHuyen,
-            'tinh_thanh' => $request->tinhThanh,
-            'mac_dinh' => $request->macDinh ? 1 : 0,
-        ]);
-        toastr()->success('Đã thêm địa chỉ mới thành công.');
         return redirect()->back();
     }
 }
