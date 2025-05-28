@@ -251,7 +251,7 @@ class Napas247Controller extends Controller
 
         return redirect()->route('checkout_status')->with('status', 'cancel');
     }
-   protected function updatePaymentCancel($orderCode)
+    protected function updatePaymentCancel($orderCode)
     {
         $maHoaDon = 'HD' . $orderCode;
 
