@@ -14,7 +14,9 @@
 	<!-- google font -->
 	<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css?family=Poppins:400,700&display=swap" rel="stylesheet">
-	
+	<!-- toastr CSS -->
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+
 	<!-- fontawesome -->
 	<link rel="stylesheet" href="{{ asset('css/all.min.css') }}">
 	<!-- bootstrap -->
@@ -96,7 +98,7 @@
 												<li><a href="{{ route('customer.index') }}"><i class="fas fa-user-circle" style="margin-right:6px;"></i>Hồ sơ</a></li>
 												<li><a href="#"><i class="fas fa-map-marker-alt" style="margin-right:6px;"></i>Sổ địa chỉ</a></li>
 												<li><a href="#"><i class="fas fa-heart" style="margin-right:6px;"></i>Yêu thích</a></li>
-												<li><a href="#"><i class="fas fa-receipt" style="margin-right:6px;"></i>Lịch sử mua hàng</a></li>
+												<li><a href="{{ route('customer.order.history') }}"><i class="fas fa-receipt" style="margin-right:6px;"></i>Lịch sử mua hàng</a></li>
 												<li><a href="#"><i class="fas fa-eye" style="margin-right:6px;"></i>Sản phẩm đã xem</a></li>
 												<li>
 													<button type="button" id="logout-btn" style="color: #fff; background: #e74c3c; border-radius: 8px; padding: 8px 16px; border: none; font-weight: 500;">
@@ -232,6 +234,8 @@
 	 
 	<!-- jquery -->
 	<script src="{{ asset('js/jquery-1.11.3.min.js') }}"></script>	
+	<!-- toastr JS -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 	<!-- bootstrap -->
 	<script src="{{ asset('bootstrap/js/bootstrap.min.js') }}"></script>
 	<!-- count down -->

@@ -1,74 +1,7 @@
 @extends('layouts.app')
 @section('title', $title)
 @push('styles')
-<style>
-.size-label {
-    background-color: #fff;
-    color: #333;
-    border: 1px solid #ccc;
-    padding: 10px 16px;
-    border-radius: 6px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: inline-block;
-    margin-right: 10px; /* thêm khoảng cách ngang */
-    margin-top: 10px;
-    margin-bottom: 10px; /* thêm khoảng cách dọc */
-    max-width: 100%;
-    box-sizing: border-box;
-    white-space: normal; /* cho phép xuống dòng */
-}
-
-/* Thu nhỏ font trên màn hình bé hơn 480px */
-@media (max-width: 480px) {
-    .size-label {
-        font-size: 14px;
-        padding: 8px 12px;
-    }
-}
-.single-product-img {
-    position: relative;
-    display: inline-block;
-}
-
-.single-product-img img.hot-icon {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    width: 50px;       /* tăng size */
-    height: 50px;      /* tăng size */
-    z-index: 10;
-}
-
-.single-product-img img.hot-icon.second {
-    right: 60px;       /* tăng khoảng cách để rộng hơn theo size mới */
-}
-.star-big {
-    font-size: 20px; /* hoặc bạn muốn lớn cỡ nào thì chỉnh */
-}
-.star-gold {
-    color: gold;
-}
-.more-products .single-product-item .product-image {
-  position: relative;
-  display: inline-block;
-}
-
-.more-products .single-product-item .product-image img.hot-icon {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  width: 30px;       /* nhỏ hơn icon detail */
-  height: 30px;
-  z-index: 10;
-}
-
-.more-products .single-product-item .product-image img.hot-icon.second {
-  right: 40px;       /* khoảng cách để 2 icon không dính nhau */
-}
-
-</style>
+<link rel="stylesheet" href="{{ asset('css/product_detail.css') }}">
 @endpush
 @section('content')
 
@@ -156,7 +89,17 @@
                                 </div> 
                             @endif
                         </form>
-                        <p><strong>Tag: </strong>{{ $product->danhMuc->ten_danh_muc }}</p>
+                        <div style="display: flex; align-items: center; gap: 20px;">
+                            <p style="margin: 0;">
+                                <strong>Danh mục: </strong>{{ $product->danhMuc->ten_danh_muc }}
+                            </p>
+                            <span id="btnHeartToggle" role="button" tabindex="0" aria-label="Yêu thích sản phẩm"
+                                style="cursor:pointer; font-size:36px; user-select:none;">
+                                <i class="{{ $isFavorited ? 'fas text-danger' : 'far text-secondary' }} fa-heart"></i>
+                            </span>
+
+                        </div>
+
                         <p><strong>Mô tả: </strong>{{ $product->mo_ta }}</p>
                         @for ($i = 1; $i <= 5; $i++)
                             @if ($i <= $product->rating)
@@ -213,9 +156,71 @@
         </div>
     </div>
 </div>
-
 <!-- end more products -->
 @endsection
-@push('scripts')
 
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const btnHeart = document.getElementById('btnHeartToggle');
+
+    function toggleFavorite() {
+        const icon = btnHeart.querySelector('i');
+
+        fetch('{{ route("favorite.toggle", ["id" => $product->ma_san_pham]) }}', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ product_id: "{{ $product->ma_san_pham }}" })
+        })
+        .then(response => response.json())
+        .then(data => {
+    if (data.success) {
+        icon.classList.toggle('far', !data.favorited);
+        icon.classList.toggle('fas', data.favorited);
+
+        icon.classList.toggle('text-secondary', !data.favorited);
+        icon.classList.toggle('text-danger', data.favorited);
+
+        toastr.options = {
+            "closeButton": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "timeOut": "3000",
+        };
+
+        toastr[data.favorited ? 'success' : 'info'](data.message);
+    } else {
+        toastr.options = {
+            "closeButton": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "timeOut": "5000",
+        };
+        toastr.error(data.message || 'Có lỗi xảy ra');
+    }
+})
+        .catch(() => {
+            toastr.options = {
+                "closeButton": true,
+                "progressBar": true,
+                "positionClass": "toast-top-right",
+                "timeOut": "5000",
+            };
+            toastr.error('Không thể kết nối đến máy chủ');
+        });
+    }
+
+    btnHeart.addEventListener('click', toggleFavorite);
+    btnHeart.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleFavorite();
+        }
+    });
+});
+</script>
 @endpush

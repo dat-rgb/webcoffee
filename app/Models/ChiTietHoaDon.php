@@ -34,6 +34,6 @@ class ChiTietHoaDon extends Model
     // Quan hệ với SanPham
     public function sanPham()
     {
-        return $this->belongsTo(SanPham::class, 'ma_san_pham', 'ma_san_pham');
+        return $this->belongsTo(SanPham::class, 'ma_san_pham', 'ma_san_pham')->select(['ma_san_pham', 'hinh_anh']);
     }
 }
