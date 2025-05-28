@@ -4,7 +4,10 @@ namespace App\Http\Controllers\payments;
 
 use App\Http\Controllers\Controller;
 use App\Models\ChiTietHoaDon;
+use App\Models\CuaHangNguyenLieu;
 use App\Models\HoaDon;
+use App\Models\Sizes;
+use App\Models\ThanhPhanSanPham;
 use App\Models\Transactions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -25,7 +28,6 @@ class Napas247Controller extends Controller
 
         $this->webhookUrl = env('WEBHOOK_URL');
     }
-
     /**
      * Tạo link thanh toán cho đơn hàng
      * @param array $orderData
@@ -249,23 +251,49 @@ class Napas247Controller extends Controller
 
         return redirect()->route('checkout_status')->with('status', 'cancel');
     }
-    protected function updatePaymentCancel($orderCode)
+   protected function updatePaymentCancel($orderCode)
     {
         $maHoaDon = 'HD' . $orderCode;
 
         $hoaDon = HoaDon::where('ma_hoa_don', $maHoaDon)->first();
 
-        if ($hoaDon) {
-            $hoaDon->trang_thai_thanh_toan = 0; // chờ thanh toán
-            $hoaDon->trang_thai = 5;            // Đã hủy
-            $hoaDon->save();
-        }
+        if (!$hoaDon) return;
 
-        $transaction = Transactions::where('ma_hoa_don', $maHoaDon)->first();
-        if ($transaction) {
-            $transaction->update([
-                'trang_thai' => 'CANCELLED'
-            ]);
+        // Update trạng thái hóa đơn
+        $hoaDon->trang_thai_thanh_toan = 0; // Chờ thanh toán
+        $hoaDon->trang_thai = 5; // Đã hủy
+        $hoaDon->save();
+
+        // Update trạng thái giao dịch
+        Transactions::where('ma_hoa_don', $maHoaDon)->update([
+            'trang_thai' => 'CANCELLED'
+        ]);
+
+        // Lấy chi tiết hóa đơn
+        $chiTietHoaDons = ChiTietHoaDon::where('ma_hoa_don', $maHoaDon)->get();
+
+        foreach ($chiTietHoaDons as $chiTiet) {
+            $maSanPham = $chiTiet->ma_san_pham;
+
+            $maSize = Sizes::where('ten_size', $chiTiet->ten_size)->value('ma_size');
+            if (!$maSize) {
+                // Size không tồn tại, bỏ qua
+                continue;
+            }
+
+            $thanhPhanNLs = ThanhPhanSanPham::where('ma_san_pham', $maSanPham)
+                ->where('ma_size', $maSize)
+                ->get();
+
+            foreach ($thanhPhanNLs as $tp) {
+                $soLuongHoanTra = $tp->dinh_luong * $chiTiet->so_luong;
+
+                // Cập nhật tồn kho bằng query builder vì composite key
+                DB::table('cua_hang_nguyen_lieus')
+                    ->where('ma_cua_hang', $hoaDon->ma_cua_hang)
+                    ->where('ma_nguyen_lieu', $tp->ma_nguyen_lieu)
+                    ->increment('so_luong_ton', $soLuongHoanTra);
+            }
         }
     }
 }
