@@ -1,3 +1,4 @@
+<!-- Toggle menu button (mobile) -->
 <div class="text-right d-block d-lg-none toggle-menu-wrapper">
     <button class="btn btn-sm btn-outline-dark"
             type="button"
@@ -9,100 +10,131 @@
     </button>
 </div>
 
-
 <!-- Sidebar menu -->
 <div class="col-lg-4 mb-4">
     <div class="collapse d-lg-block" id="accountMenu">
-        <div class="p-4 border rounded-lg shadow bg-white">
-            <h5 class="mb-4 text-uppercase font-weight-bold">Tài khoản của bạn</h5>
-            <ul class="list-unstyled mb-0">
-                <li class="mb-2">
-                    <a href="{{ route('customer.index') }}" class="sidebar-link">
-                        <i class="fas fa-user text-primary"></i>
-                        <span>Hồ sơ</span>
+        <div class="p-3 border rounded shadow-sm">
+            <h5 class="mb-3 text-uppercase font-weight-bold">Tài khoản của bạn</h5>
+            <ul class="sidebar-menu list-unstyled mb-0">
+                <li class="sidebar-item {{ request()->routeIs('customer.index') ? 'active' : '' }}">
+                    <a href="{{ route('customer.index') }}">
+                        <i class="fas fa-user"></i> Hồ sơ
                     </a>
                 </li>
-                <li class="mb-2">
-                    <a href="#" class="sidebar-link">
-                        <i class="far fa-address-book text-success"></i>
-                        <span>Sổ địa chỉ</span>
+                <li class="sidebar-item">
+                    <a href="#">
+                        <i class="far fa-address-book"></i> Sổ địa chỉ
                     </a>
                 </li>
-                <li class="mb-2">
-                    <a href="#" class="sidebar-link">
-                        <i class="fas fa-heart text-danger"></i>
-                        <span>Sản phẩm yêu thích</span>
+                <li class="sidebar-item {{ request()->routeIs('favorite.show') ? 'active' : '' }}">
+                    <a href="{{ route('favorite.show') }}">
+                        <i class="fas fa-heart"></i> Sản phẩm yêu thích
                     </a>
                 </li>
-                <li class="mb-2">
-                    <a href="{{ route('customer.order.history') }}" class="sidebar-link">
-                        <i class="fas fa-history text-info"></i>
-                        <span>Lịch sử mua hàng</span>
+                <li class="sidebar-item {{ request()->routeIs('customer.order.history') ? 'active' : '' }}">
+                    <a href="{{ route('customer.order.history') }}">
+                        <i class="fas fa-history"></i> Lịch sử mua hàng
                     </a>
                 </li>
-                <li class="mb-2">
-                    <a href="#" class="sidebar-link">
-                        <i class="fas fa-eye text-warning"></i>
-                        <span>Sản phẩm đã xem</span>
+                <li class="sidebar-item">
+                    <a href="#">
+                        <i class="fas fa-eye"></i> Sản phẩm đã xem
                     </a>
                 </li>
-                <li>
-                    <a href="#" class="sidebar-link">
-                        <i class="fas fa-key text-secondary"></i>
-                        <span>Đổi mật khẩu</span>
+                <li class="sidebar-item">
+                    <a href="#">
+                        <i class="fas fa-key"></i> Đổi mật khẩu
                     </a>
                 </li>
             </ul>
         </div>
     </div>
 </div>
+
 <style>
-    .toggle-menu-wrapper {
-    margin-top: 0.5rem; /* hoặc 0 nếu muốn sát */
-    margin-bottom: 0.5rem; /* giảm margin dưới nếu muốn */
+/* Toggle button margin */
+.toggle-menu-wrapper {
+    margin: 0.5rem 0;
 }
 
-    .sidebar-link {
+/* Sidebar menu base */
+.sidebar-menu {
     display: flex;
-    align-items: center;
-    padding: 10px 16px;
-    background-color: #fff;
-    border-radius: 0.5rem;
-    color: #343a40;
-    transition: all 0.2s ease-in-out;
-    font-weight: 500;
-    text-decoration: none;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding-left: 0;
+    margin-bottom: 0;
 }
 
-.sidebar-link i {
-    font-size: 1.1rem;
-    margin-right: 10px;
-    width: 22px;
+/* Kiểu danh sách ngang (dạng tab) */
+@media (min-width: 992px) {
+    .sidebar-menu {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+
+/* Sidebar item */
+.sidebar-item {
+    list-style: none;
+    flex: 1 1 auto;
     text-align: center;
 }
 
-.sidebar-link:hover {
-    background-color: #f8f9fa;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-    color: #000;
-    text-decoration: none;
+@media (min-width: 992px) {
+    .sidebar-item {
+        flex: none;
+        text-align: left;
+    }
 }
 
+.sidebar-item a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    background-color: transparent; /* Không nền */
+    border-radius: 0.5rem;
+    color: #495057;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+@media (min-width: 992px) {
+    .sidebar-item a {
+        justify-content: flex-start;
+    }
+}
+
+.sidebar-item a i {
+    margin-right: 10px;
+    font-size: 1.1rem;
+    width: 22px;
+    text-align: center;
+    color: #6c757d;
+}
+
+/* Hover */
+.sidebar-item a:hover {
+    background-color: #e9ecef;
+    color: #212529;
+}
+
+/* Active */
+.sidebar-item.active a {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.sidebar-item.active a i {
+    color: #fff;
+}
+
+/* Responsive - collapse behavior */
 @media (max-width: 991.98px) {
     #accountMenu.collapse:not(.show) {
         display: none;
     }
 }
-
-@media (max-width: 767.98px) {
-    .sidebar-link {
-        font-size: 0.95rem;
-        padding: 10px 12px;
-    }
-
-    .sidebar-link i {
-        font-size: 1rem;
-    }
-}
-
 </style>

@@ -116,7 +116,7 @@ Route::prefix('tin-tuc')->group(function(){
 Route::prefix('customer')->middleware(KhachHangMiddleware::class)->group(function(){
     Route::get('/profile', [CustomerController::class, 'index'])->name('customer.index');
     Route::get('/order-history',[CustomerOrderController::class,'index'])->name('customer.order.history');
-   
+    Route::get('/favorites',[CustomerFavoriteController::class,'showFavorite'])->name('favorite.show');
 });
 Route::post('/favorite/toggle/{id}', [CustomerFavoriteController::class, 'favoriteProduct'])->name('favorite.toggle');
 //End - User

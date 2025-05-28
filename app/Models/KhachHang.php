@@ -30,6 +30,11 @@ class KhachHang extends Model
     {
         return $this->belongsTo(TaiKhoan::class, 'ma_tai_khoan', 'ma_tai_khoan');
     }
+    
+    public function yeuThichSanPhams()
+    {
+        return $this->hasMany(SanPhamYeuThich::class, 'ma_khach_hang', 'ma_khach_hang');
+    }
 
     public static function generateMaKhachHang()
     {

@@ -9,18 +9,24 @@ class SanPhamYeuThich extends Model
 {
     protected $table = 'san_pham_yeu_thichs';
 
-    // Bảng không có cột id mặc định
     public $incrementing = false;
     protected $primaryKey = null;
 
-    // hoặc nếu bảng có khóa chính là tổ hợp 2 cột
-    // thì phải override 1 số method khác, hoặc dùng composite key package
 
     public $timestamps = true;
 
     protected $fillable = ['ma_khach_hang', 'ma_san_pham'];
 
-    // Thay đổi delete để dùng điều kiện
+    public function khachHang()
+    {
+        return $this->belongsTo(KhachHang::class, 'ma_khach_hang', 'ma_khach_hang');
+    }
+
+    public function sanPham()
+    {
+        return $this->belongsTo(SanPham::class, 'ma_san_pham', 'ma_san_pham');
+    }
+    
     public function delete()
     {
         return self::where('ma_khach_hang', $this->ma_khach_hang)
