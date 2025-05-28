@@ -219,9 +219,12 @@
                             </tbody>
                         </table>
                         <div class="mt-4 text-end">
-                            <a href="{{ route('cart') }}" class="boxed-btn">Giỏ hàng</a>
-                            <button type="submit" class="btn boxed-btn">Thanh toán</button>
-
+                            <a href="{{ route('cart') }}" class="boxed-btn">
+                                <i class="fas fa-arrow-left me-1"></i> Giỏ hàng
+                            </a>
+                            <button type="submit" class="boxed-btn black btn-check-out">
+                                <i class="fas fa-credit-card"></i> Đặt hàng
+                            </button>
                         </div>
                     </div>
                 </div>
