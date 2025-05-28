@@ -34,6 +34,11 @@ class SanPham extends Model
     {
         return $this->belongsTo(DanhMucSanPham::class, 'ma_danh_muc'); 
     }
+    
+    public function duocYeuThich()
+    {
+        return $this->hasMany(SanPhamYeuThich::class, 'ma_san_pham', 'ma_san_pham');
+    }
 
    // SanPham.php
     public function sizes()
