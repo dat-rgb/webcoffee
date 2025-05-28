@@ -24,9 +24,3 @@ class KhachHangMiddleware
         return $next($request);
     }
 }
-//guest->mail->thông báo kèm mã đơn hàng->nhập mã đơn hàng tra cứu,...
-//hóa đơn: -> trạng thái & trạng thái thanh toán
-//mã hóa đơn string 50 -> 'HD000000' + hh:mm:ss:DD:MM:yyyy:
-//thống kê
-//transaction [momo, vnpay, paypal,..]
-//

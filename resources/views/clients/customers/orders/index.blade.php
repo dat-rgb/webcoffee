@@ -23,7 +23,6 @@
     <div class="container">
         <div class="row">
             @include('clients.customers.sub_layout_customer')
-            <h5 class="mb-4 fw-bold">Đơn hàng của bạn</h5>
             <div class="col-lg-8">
 
                 @if($orders->isEmpty())

@@ -16,6 +16,7 @@ use App\Http\Controllers\clients\AuthController;
 use App\Http\Controllers\clients\ForgotPasswordController;
 use App\Http\Controllers\clients\ResetPasswordController;
 use App\Http\Controllers\customers\CustomerController;
+use App\Http\Controllers\customers\CustomerFavoriteController;
 use App\Http\Controllers\customers\CustomerOrderController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\payments\Napas247Controller;
@@ -115,7 +116,9 @@ Route::prefix('tin-tuc')->group(function(){
 Route::prefix('customer')->middleware(KhachHangMiddleware::class)->group(function(){
     Route::get('/profile', [CustomerController::class, 'index'])->name('customer.index');
     Route::get('/order-history',[CustomerOrderController::class,'index'])->name('customer.order.history');
+   
 });
+Route::post('/favorite/toggle/{id}', [CustomerFavoriteController::class, 'favoriteProduct'])->name('favorite.toggle');
 //End - User
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

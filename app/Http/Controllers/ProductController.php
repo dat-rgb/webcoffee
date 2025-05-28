@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DanhMucSanPham;
 use App\Models\SanPham;
+use App\Models\SanPhamYeuThich;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 class ProductController extends Controller
@@ -64,12 +65,25 @@ class ProductController extends Controller
             toastr()->error('Sản phẩm không tồn tại.');
             return redirect()->back();
         }
+        $isFavorited = false;
+
+        if (auth()->check()) {
+            $user = auth()->user();
+            $khachHang = $user->khachHang;
+
+            if ($khachHang) {
+                $isFavorited = SanPhamYeuThich::where('ma_khach_hang', $khachHang->ma_khach_hang)
+                    ->where('ma_san_pham', $product->ma_san_pham)
+                    ->exists();
+            }
+        }
 
         $viewData = [
             'title'=> $product->ten_san_pham . ' | CMDT Coffee & Tea',
             'product' => $product,
             'productRelate' => $productRelate,
-            'sizes' => $sizes
+            'sizes' => $sizes,
+            'isFavorited' => $isFavorited
         ];
 
         return view('clients.pages.products.product_detail', $viewData);
