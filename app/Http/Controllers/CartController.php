@@ -480,7 +480,6 @@ class CartController extends Controller
         $user = auth()->user();
 
         if(!$cart){
-            
             return redirect()->route('cart');
         }
         if (!$store) {
@@ -508,7 +507,7 @@ class CartController extends Controller
                 $cart[$cartKey] = $item;
                 session()->put('cart', $cart);
 
-                toastr()->error("Giá của sản phẩm '{$product->ten_san_pham}' đã thay đổi. Đã cập nhật lại trong giỏ hàng.");
+                toastr()->warning("Giá của sản phẩm trong giỏ hàng đã thay đổi. Đã cập nhật lại trong giỏ hàng.");
                 return redirect()->back();
             }
         }

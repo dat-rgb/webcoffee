@@ -21,7 +21,7 @@ class AdminOrderController extends Controller
 
     public function getOrderByStatus($status, $search = null, $maCuaHang = null)
     {
-        $query = HoaDon::with(['khachHang', 'chiTietHoaDons']);
+        $query = HoaDon::with(['khachHang', 'chiTietHoaDon']);
 
         if ($status !== null) {
             $query->where('trang_thai', $status);

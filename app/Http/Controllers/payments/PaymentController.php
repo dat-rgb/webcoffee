@@ -4,6 +4,8 @@ namespace App\Http\Controllers\payments;
 
 use App\Http\Controllers\Controller;
 use App\Models\HoaDon;
+use App\Models\SanPham;
+use App\Models\Sizes;
 use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -60,6 +62,13 @@ class PaymentController extends Controller
             return redirect()->back()->with('error', $storeCheck['message'] ?? 'Lỗi không xác định.');
         }
 
+        if ($this->checkCartPrices()) {
+            toastr()->warning('Một số sản phẩm đã được cập nhật giá. Vui lòng kiểm tra lại giỏ hàng!');
+            return redirect()->route('cart');
+        }
+        
+        $this->subtractIngredients($storeId, $storeCheck['usedIngredients']);
+
         if ($request->paymentMethod === 'COD') {
             $cart = session('cart', []);
             if (empty($cart)) {
@@ -92,7 +101,7 @@ class PaymentController extends Controller
                
                     $orderData['maHoaDon'] = $maHoaDon;
                     $orderData['trang_thai'] = 'Chờ xác nhận';
-                    $orderData['trang_thai_thanh_toan'] = 'Chưa thanh toán';
+                    $orderData['trang_thai_thanh_toan'] = 'Thanh toán khi nhận hàng';
 
                     $this->sendEmail(
                         $orderData['maHoaDon'],
@@ -195,13 +204,6 @@ class PaymentController extends Controller
     public function checkStore($storeId)
     {
         $cart = session()->get('cart', []);
-        if (!$storeId || empty($cart)) {
-            return [
-                'success' => false,
-                'message' => 'Không có thông tin cửa hàng hoặc giỏ hàng rỗng.'
-            ];
-        }
-
         $totalUsedIngredients = [];
 
         foreach ($cart as $item) {
@@ -216,10 +218,7 @@ class PaymentController extends Controller
 
             foreach ($ingredients as $ingredient) {
                 $idNL = $ingredient->ma_nguyen_lieu;
-                if (!isset($totalUsedIngredients[$idNL])) {
-                    $totalUsedIngredients[$idNL] = 0;
-                }
-                $totalUsedIngredients[$idNL] += $ingredient->dinh_luong * $quantity;
+                $totalUsedIngredients[$idNL] = ($totalUsedIngredients[$idNL] ?? 0) + $ingredient->dinh_luong * $quantity;
             }
         }
 
@@ -229,27 +228,50 @@ class PaymentController extends Controller
 
         foreach ($totalUsedIngredients as $ingredientId => $requiredQty) {
             $stock = $ingredientStocks[$ingredientId] ?? null;
-
             if (is_null($stock) || $requiredQty > $stock) {
                 return [
                     'success' => false,
-                    'message' => "Nguyên liệu mã $ingredientId không đủ tồn kho để thực hiện thanh toán."
+                    'message' => "Nguyên liệu không đủ cung cấp cho sản phẩm của bạn. Hãy chọn cửa hàng khác!"
                 ];
             }
         }
 
-        // Trừ nguyên liệu
-        foreach ($totalUsedIngredients as $ingredientId => $requiredQty) {
+        return ['success' => true, 'usedIngredients' => $totalUsedIngredients];
+    }
+    public function checkCartPrices() {
+        $cart = session('cart', []);
+        foreach ($cart as $item) {
+            $product = SanPham::where('ma_san_pham', $item['product_id'])->first();
+            $size = Sizes::where('ma_size', $item['size_id'])->first();
+
+            $expectedPrice = $product->gia;
+            $expectedSizePrice = $size->gia_size;
+
+            if (
+                round($item['product_price'], 0) != round($expectedPrice, 0) ||
+                round($item['size_price'], 0) != round($expectedSizePrice, 0)
+            ) {
+                $cartKey = $item['product_id'] . '_' . $item['size_id'];
+                $item['product_price'] = $expectedPrice;
+                $item['size_price'] = $expectedSizePrice;
+                $item['money'] = ($expectedPrice + $expectedSizePrice) * $item['product_quantity'];
+
+                $cart[$cartKey] = $item;
+                session()->put('cart', $cart);
+
+                toastr()->warning("Giá của sản phẩm trong giỏ hàng đã thay đổi. Đã cập nhật lại trong giỏ hàng.");
+                return redirect()->back();
+            }
+        }
+    }
+    public function subtractIngredients($storeId, $usedIngredients)
+    {
+        foreach ($usedIngredients as $ingredientId => $requiredQty) {
             DB::table('cua_hang_nguyen_lieus')
                 ->where('ma_cua_hang', $storeId)
                 ->where('ma_nguyen_lieu', $ingredientId)
                 ->decrement('so_luong_ton', $requiredQty);
         }
-
-        return [
-            'success' => true,
-            'message' => 'Đủ nguyên liệu và đã trừ tồn kho.'
-        ];
     }
     public function sendEmail($order_id, $name, $email, $phone, $shippingMethod, $paymentMethod, $status, $statusPayment, $address, $cartItems, $tongTien)
     {
@@ -273,7 +295,6 @@ class PaymentController extends Controller
             \Log::error('Gửi mail thất bại: ' . $e->getMessage());
         }
     }
-
     public function checkoutStatus(){
         $viewData = [
             'title' => 'Trạng thái thanh toán',    
