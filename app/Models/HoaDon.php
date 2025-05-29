@@ -15,6 +15,7 @@ class HoaDon extends Model
     protected $fillable = [
         'ma_hoa_don',
         'ma_khach_hang',
+        'ma_voucher',
         'ma_cua_hang',
         'ten_khach_hang',
         'so_dien_thoai',

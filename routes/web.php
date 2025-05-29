@@ -95,6 +95,7 @@ Route::prefix('cart')->group(function(){
     });
 
     Route::get('/check-out',[CartController::class,'checkout'])->name('cart.check-out');
+    Route::get('/voucher/check', [CartController::class, 'check']);
 });
 
 //Route Payment
@@ -236,7 +237,6 @@ Route::prefix('admin/nhanviens')->middleware(AdminMiddleware::class)->name('admi
     Route::patch('/restore/{id}', action: [AdminNhanvienController::class, 'restore'])->name('restore'); // Khôi phục
     Route::patch('/restore-bulk', [AdminNhanvienController::class, 'bulkRestore'])->name('restore.bulk');
     Route::patch('/archive/bulk', [AdminNhanvienController::class, 'archiveBulk'])->name('archive.bulk');
-
 });
 
 //Route Order

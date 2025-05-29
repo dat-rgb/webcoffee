@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CuaHang;
 use App\Models\KhachHang;
+use App\Models\KhuyenMai;
 use App\Models\SanPham;
 use App\Models\Sizes;
 use Illuminate\Http\Request;
@@ -473,6 +474,39 @@ class CartController extends Controller
             'error' => 'Sản phẩm không tồn tại trong giỏ hàng.'
         ], 400);
     }
+    public function getVoucher(){
+        $vouchers = KhuyenMai::where('trang_thai',1)->get();
+        return $vouchers;
+    }
+    public function check(Request $request)
+    {
+        $code = $request->input('code');
+        $voucher = KhuyenMai::where('ma_voucher', $code)
+            ->whereNull('deleted_at')
+            ->whereDate('ngay_bat_dau', '<=', now())
+            ->whereDate('ngay_ket_thuc', '>=', now())
+            ->first();
+
+        if (!$voucher) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Voucher không tồn tại hoặc đã hết hạn.'
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'voucher' => [
+                'ma_voucher' => $voucher->ma_voucher,
+                'ten_voucher' => $voucher->ten_voucher,
+                'gia_tri_giam' => $voucher->gia_tri_giam,
+                'giam_gia_max' => $voucher->giam_gia_max,
+                'dieu_kien_ap_dung' => $voucher->dieu_kien_ap_dung,
+                'hinh_anh' => $voucher->hinh_anh,
+                'ngay_ket_thuc' => \Carbon\Carbon::parse($voucher->ngay_ket_thuc)->format('d/m/Y')
+            ]
+        ]);
+    }
     //check out page
     public function checkout() {
         $cart = session()->get('cart', []);
@@ -541,18 +575,29 @@ class CartController extends Controller
             }
         }
 
-        $total = array_sum(array_column($cart, 'money'));
+        $subTotal = array_sum(array_column($cart, 'money'));
+        
+        $shippingFee = 0;
+        if($subTotal < 200000){
+            $shippingFee = 30000;
+        }
+        $total = $subTotal + $shippingFee;
+
         $cartCount = count($cart);
+        $vouchers = $this->getVoucher();
 
         return view('clients.pages.carts.checkout', [
             'title' => 'Check out | CMDT Coffee & Tea',
             'cart' => $cart,
             'productSizes' => $productSizes,
+            'subTotal' => $subTotal,
+            'shippingFee' => $shippingFee,
             'total' => $total,
             'cartCount' => $cartCount,
             'ma_tai_khoan' => $ma_tai_khoan,
             'khach_khach' => $khach_hang,
-            'email' => $email
+            'email' => $email,
+            'vouchers' => $vouchers
         ]);
     }
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ChiTietHoaDon;
 use App\Models\CuaHangNguyenLieu;
 use App\Models\HoaDon;
+use App\Models\KhuyenMai;
 use App\Models\Sizes;
 use App\Models\ThanhPhanSanPham;
 use App\Models\Transactions;
@@ -40,6 +41,7 @@ class Napas247Controller extends Controller
         $hoaDon = HoaDon::create([
             'ma_hoa_don' => $maHoaDon,
             'ma_khach_hang' => $orderData['ma_khach_hang'],
+          'ma_voucher' => !empty($orderData['ma_voucher']) ? $orderData['ma_voucher'] : null,
             'ma_cua_hang' => $orderData['ma_cua_hang'],
             'ten_khach_hang' => $orderData['ten_khach_hang'],
             'so_dien_thoai' => $orderData['so_dien_thoai'],
@@ -47,14 +49,15 @@ class Napas247Controller extends Controller
             'dia_chi' => $orderData['dia_chi'],
             'phuong_thuc_thanh_toan' => $orderData['phuong_thuc_thanh_toan'],
             'phuong_thuc_nhan_hang' => $orderData['phuong_thuc_nhan_hang'],
-            'ghi_chu' => $orderData['ghi_chu'],
-            'tien_ship' => $orderData['tien_ship'],
-            'khuyen_mai' => $orderData['khuyen_mai'],
-            'giam_gia' => $orderData['giam_gia'],
+            'tien_ship' => $orderData['tien_ship'] ?? 0,
+            'khuyen_mai' => $orderData['khuyen_mai'] ?? 0,
+            'giam_gia' => $orderData['giam_gia'] ?? 0,
             'tong_tien' => $orderData['tong_tien'],
-            'trang_thai_thanh_toan' => 0, //chưa thanh toán
+            'trang_thai_thanh_toan' => 0,
+            'trang_thai' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
-
         //Tạo transaction
         Transactions::create([
             'ma_hoa_don' => $maHoaDon,
@@ -117,7 +120,7 @@ class Napas247Controller extends Controller
                 'buyerPhone' => $hoaDon->so_dien_thoai,
                 'buyerAddress' => $hoaDon->dia_chi,
                 'items' => $items,
-                'expiredAt' => now()->addMinutes(30)->timestamp,
+                'expiredAt' => now()->addMinutes(15)->timestamp,
             ]);
 
             Transactions::where('ma_hoa_don', $maHoaDon)->update([
@@ -133,7 +136,6 @@ class Napas247Controller extends Controller
             return redirect()->back();
         }
     }
-
     /**
      * Lấy thông tin link thanh toán
      * @param int|string $orderCode
@@ -256,9 +258,16 @@ class Napas247Controller extends Controller
         $maHoaDon = 'HD' . $orderCode;
 
         $hoaDon = HoaDon::where('ma_hoa_don', $maHoaDon)->first();
-
+        //dd('mã hóa đơn nhận được khi cancel: '.$hoaDon);
         if (!$hoaDon) return;
 
+        if ($hoaDon->ma_voucher) {
+            $voucher = KhuyenMai::where('ma_voucher', $hoaDon->ma_voucher)->first();
+            if ($voucher) {
+                $voucher->increment('so_luong', 1);
+            }
+        }
+        
         // Update trạng thái hóa đơn
         $hoaDon->trang_thai_thanh_toan = 0; // Chờ thanh toán
         $hoaDon->trang_thai = 5; // Đã hủy
