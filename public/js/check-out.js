@@ -108,44 +108,43 @@ $(document).ready(function(){
     let errorMessage = "";
 
     if(ho_ten_khach_hang === ""){
-      errorMessage += "Họ tên không được để trống.<br>";
+      errorMessage += "- Họ tên không được để trống.<br>";
     }
 
     let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if(email === "" || !emailRegex.test(email)){
-      errorMessage += "Email không hợp lệ hoặc để trống.<br>";
+      errorMessage += "- Email không hợp lệ hoặc để trống.<br>";
     }
 
     if(shippingMethod === "delivery" && dia_chi === ""){
-      errorMessage += "Địa chỉ nhận hàng không được để trống.<br>";
+      errorMessage += "- Địa chỉ nhận hàng không được để trống.<br>";
     }
 
     let phoneRegex = /^[0-9]{9,11}$/;
     if(!phoneRegex.test(so_dien_thoai)){
-      errorMessage += "Số điện thoại không hợp lệ.<br>";
+      errorMessage += "- Số điện thoại không hợp lệ.<br>";
     }
 
     if(shippingMethod === "delivery"){
       if(province === "" || district === "" || ward === ""){
-        errorMessage += "Vui lòng chọn đầy đủ tỉnh, quận, phường.<br>";
+        errorMessage += "- Vui lòng chọn đầy đủ tỉnh, quận, phường.<br>";
       }
     }
 
     if(!paymentMethod){
-      errorMessage += "Vui lòng chọn phương thức thanh toán.<br>";
+      errorMessage += "- Vui lòng chọn phương thức thanh toán.<br>";
     }
 
     if(errorMessage !== ""){
       Swal.fire({
-        title: 'Lỗi!',
+        title: 'Thiếu thông tin!',
         html: errorMessage,
-        icon: 'error',
+        icon: 'warning',
         confirmButtonText: 'OK'
       });
       return; // dừng nếu có lỗi
     }
 
-    // ✅ Nếu mọi thứ OK → hỏi xác nhận đặt hàng
     Swal.fire({
       title: 'Xác nhận đặt hàng?',
       text: 'Bạn có chắc chắn muốn đặt đơn hàng này?',
@@ -170,6 +169,50 @@ $(document).ready(function(){
     });
   });
 });
+
+// Tính lại giá khi áp dụng voucher
+$(document).ready(function () {
+  $(document).on('change', '.voucher-radio', function () {
+    const giaTriGiam = parseFloat($(this).data('gia-tri-giam'));
+    const giamGiaMax = parseFloat($(this).data('giam-gia-max'));
+    const dieuKien = parseFloat($(this).data('dieu-kien'));
+
+    let subtotal = parseFloat($('#subtotal').text().replace(/\./g, '').replace(' đ', ''));
+    let shippingFee = parseFloat($('#shippingFee').text().replace(/\./g, '').replace(' đ', ''));
+
+    if (subtotal < dieuKien) {
+      Swal.fire({
+          icon: 'warning',
+          title: 'Không thể áp dụng voucher!',
+          text: 'Đơn hàng chưa đủ điều kiện để sử dụng voucher này.',
+      });
+      $(this).prop('checked', false);
+      return;
+    }
+  
+    let discount = 0;
+    if (giaTriGiam <= 100) {
+        discount = subtotal * (giaTriGiam / 100);
+        if (discount > giamGiaMax) discount = giamGiaMax;
+    } else {
+        discount = giaTriGiam;
+    }
+    
+
+    let total = subtotal + shippingFee - discount;
+    if (total < 0) total = 0;
+
+    function formatCurrency(num) {
+      return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " đ";
+    }
+
+    $('#total').text(formatCurrency(total));
+    $('#discount').text(formatCurrency(discount));
+  });
+});
+
+
+
 
   
   

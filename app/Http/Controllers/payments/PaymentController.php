@@ -4,6 +4,7 @@ namespace App\Http\Controllers\payments;
 
 use App\Http\Controllers\Controller;
 use App\Models\HoaDon;
+use App\Models\KhuyenMai;
 use App\Models\SanPham;
 use App\Models\Sizes;
 use Auth;
@@ -18,6 +19,7 @@ class PaymentController extends Controller
 {
     public function payment(Request $request)
     {
+        //dd($request->all());
         // Validate
         $validated = $request->validate([
             'ho_ten_khach_hang' => 'required|string|min:2|max:255',
@@ -45,7 +47,6 @@ class PaymentController extends Controller
         
         $khachHang = optional(Auth::user())->khachHang;
         $customerId = null;
-
         if ($khachHang) {
             $customerId = $khachHang->ma_khach_hang;
         }   
@@ -57,7 +58,6 @@ class PaymentController extends Controller
         }
 
         $storeCheck = $this->checkStore($storeId);
-
         if (!$storeCheck['success']) {
             return redirect()->back()->with('error', $storeCheck['message'] ?? 'Lỗi không xác định.');
         }
@@ -66,22 +66,62 @@ class PaymentController extends Controller
             toastr()->warning('Một số sản phẩm đã được cập nhật giá. Vui lòng kiểm tra lại giỏ hàng!');
             return redirect()->route('cart');
         }
-        
+
+        $cart = session('cart', []);
+        if (empty($cart)) {
+            return redirect()->back()->with('error', 'Giỏ hàng của bạn đang trống.');
+        }
+
+        $shippingFee = $request->shippingFee ?? 0;
+        $subTotal = array_sum(array_column($cart, 'money'));
+        $discount = 0;
+        $voucherCode = $request->voucher ?? null;
+        $voucher = null;
+
+        if ($voucherCode) {
+            $voucher = KhuyenMai::where('ma_voucher', $voucherCode)->first();
+            if (!$voucher) {
+                toastr()->warning('Voucher không tồn tại.');
+                return redirect()->back();
+            }
+
+            if ($voucher->so_luong <= 0) {
+                toastr()->warning('Voucher đã hết lược sử dụng.');
+                return redirect()->back();
+            }
+
+            if (now()->lt($voucher->ngay_bat_dau) || now()->gt($voucher->ngay_ket_thuc)) {
+                toastr()->warning('Voucher đã hết hạn.');
+                return redirect()->back();
+            }
+
+            // Áp dụng giảm giá
+            $discount = $voucher->gia_tri_giam <= 100
+                ? $subTotal * ($voucher->gia_tri_giam / 100)
+                : $voucher->gia_tri_giam;
+
+            $discount = min($discount, $subTotal);
+
+            // Trừ 1 lượt sử dụng
+            $voucher->so_luong -= 1;
+            $voucher->save();
+
+        }
+      
+        $total = $subTotal + $shippingFee - $discount;
+
+        if($validated['shippingMethod'] == 'pickup'){
+            $address = 'Đến lấy tại cửa hàng: ' . session('selected_store_name').' - '.session('selected_store_dia_chi');
+        }
+
         $this->subtractIngredients($storeId, $storeCheck['usedIngredients']);
 
         if ($request->paymentMethod === 'COD') {
-            $cart = session('cart', []);
-            if (empty($cart)) {
-                return redirect()->back()->with('error', 'Giỏ hàng của bạn đang trống.');
-            }
-
-            if($validated['shippingMethod'] == 'pickup'){
-                $address = session('selected_store_name').' - '.session('selected_store_dia_chi');
-            }
 
             $orderData = [
                 'ma_cua_hang' => $storeId,
                 'ma_khach_hang' => $customerId,
+                'ma_voucher' => $voucherCode ?: null,
                 'ten_khach_hang' => $validated['ho_ten_khach_hang'],
                 'so_dien_thoai' => $validated['so_dien_thoai'],
                 'email' => $validated['email'],
@@ -89,12 +129,14 @@ class PaymentController extends Controller
                 'phuong_thuc_thanh_toan' => 'COD',
                 'phuong_thuc_nhan_hang' => $validated['shippingMethod'],
                 'ghi_chu' => $validated['ghi_chu'] ?? '',
-                'tien_ship' => 0,
-                'khuyen_mai' => 0,
-                'giam_gia' => 0,
-                'tong_tien' => array_sum(array_column($cart, 'money')),
+                'tien_ship' => $shippingFee,
+                'khuyen_mai' => $voucher ? $voucher->gia_tri_giam : 0,
+                'giam_gia' => $discount,
+                'tong_tien' => $total,
                 'cart_items' => $cart,
             ];
+
+            //dd($orderData);
 
             try {
                 $maHoaDon = $this->processCOD($orderData);
@@ -129,18 +171,10 @@ class PaymentController extends Controller
         if ($request->paymentMethod === 'NAPAS247') {
             $napas = new Napas247Controller();
 
-            if($validated['shippingMethod'] == 'pickup'){
-                $address = session('selected_store_name').'-'.session('selected_store_dia_chi');
-            }
-
-            $cart = session('cart', []);
-            if (empty($cart)) {
-                return redirect()->back()->with('error', 'Giỏ hàng của bạn đang trống.');
-            }
-
             $orderData = [
                 'ma_cua_hang' => $storeId,
                 'ma_khach_hang' => $customerId,
+                'ma_voucher' => $voucherCode ?: null,
                 'ten_khach_hang' => $validated['ho_ten_khach_hang'],
                 'so_dien_thoai' => $validated['so_dien_thoai'],
                 'email' => $validated['email'],
@@ -148,13 +182,13 @@ class PaymentController extends Controller
                 'phuong_thuc_thanh_toan' => 'NAPAS247',
                 'phuong_thuc_nhan_hang' => $validated['shippingMethod'],
                 'ghi_chu' => $validated['ghi_chu'] ?? '',
-                'tien_ship' => 0,
-                'khuyen_mai' => 0,
-                'giam_gia' => 0,
-                'tong_tien' => array_sum(array_column($cart, 'money')),
+                'tien_ship' => $shippingFee,
+                'khuyen_mai' => $voucher ? $voucher->gia_tri_giam : 0,
+                'giam_gia' => $discount,
+                'tong_tien' => $total,
                 'cart_items' => $cart,
             ];
-
+            
             return $napas->createPaymentLink($orderData); 
         }
         return redirect()->back()->with('error', 'Phương thức thanh toán không hợp lệ.');
@@ -166,8 +200,10 @@ class PaymentController extends Controller
         DB::table('hoa_dons')->insert([
             'ma_hoa_don' => $maHoaDon,
             'ma_cua_hang' => $data['ma_cua_hang'],
+            'ma_voucher' => $data['ma_voucher'] ?: null,
             'ma_khach_hang' => $data['ma_khach_hang'],
             'ten_khach_hang' => $data['ten_khach_hang'],  
+            'email' => $data['email'],
             'so_dien_thoai' => $data['so_dien_thoai'],
             'dia_chi' => $data['dia_chi'],
             'phuong_thuc_thanh_toan' => $data['phuong_thuc_thanh_toan'],
