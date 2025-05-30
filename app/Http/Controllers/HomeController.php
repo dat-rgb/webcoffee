@@ -27,7 +27,6 @@ class HomeController extends Controller
         $viewData = [
             'title'=> 'Liên Hệ | CMDT Coffee & Tea'   
         ];
-
         return view('clients.pages.contact', $viewData);
     }
 }

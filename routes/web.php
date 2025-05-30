@@ -242,6 +242,8 @@ Route::prefix('admin/nhanviens')->middleware(AdminMiddleware::class)->name('admi
 //Route Order
 Route::prefix('admin/orders')->middleware(AdminMiddleware::class)->group(function(){
     Route::get('/',[AdminOrderController::class,'index'])->name('admin.orders.list');
+    Route::get('/{id}/detail', [AdminOrderController::class, 'detail'])->name('admin.orders.detail');
+    Route::post('/filter', [AdminOrderController::class, 'filter'])->name('admin.orders.filter');
 });
 
 ///////////////////////////////////////////////////////////////////////////
