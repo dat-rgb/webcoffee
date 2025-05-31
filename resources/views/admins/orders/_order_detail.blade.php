@@ -75,9 +75,14 @@
 
 <div class="order-details">
     <p><strong>Mã Hóa Đơn:</strong> {{ $order->ma_hoa_don }}</p>
-    <p><strong>Cửa hàn:</strong> {{ $order->ma_cua_hang }}</p>
-    <p><strong>Ngày lập:</strong> {{ $order->created_at->format('d/m/Y H:i:s') }}</p>
-    <p><strong>Khách hàng:</strong> {{ optional($order->khachHang)->ho_ten_khach_hang ?: 'Guest - ' . $order->ten_khach_hang }}</p>
+    <p><strong>Cửa hàng:</strong> {{ $order->ma_cua_hang }}</p>
+    <p><strong>Ngày lập:</strong> {{ $order->created_at->format('d/m/Y H:i:s') }}</p>   
+    @if($order->ma_khach_hang)
+        <p><strong>Khách hàng:</strong> {{ $order->ten_khach_hang }}</p>
+        <p><strong>Điểm hiện tại:</strong> {{ $order->khachHang->diem_thanh_vien }} - <strong>Hạng:</strong> {{$order->khachHang->hang_thanh_vien }}</p>
+    @else   
+        <p><strong>Khách hàng:</strong> {{ 'Guest - ' . $order->ten_khach_hang }}</p>
+    @endif
     <p><strong>Số điện thoại:</strong> {{ $order->so_dien_thoai }}</p>
     <p><strong>Email:</strong> {{ $order->email }}</p>
     <p><strong>Phương thức thanh toán:</strong>

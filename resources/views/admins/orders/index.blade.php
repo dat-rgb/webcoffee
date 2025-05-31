@@ -144,22 +144,19 @@
                                                     <div id="order-detail-content"></div>
                                                     </div>
                                                 </div>
-                                                </div>
+                                            </div>
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
                         @endif
                     @endif
-
                 </div> <!-- end card -->
             </div>
         </div>
     </div>
 @endsection
 @push('scripts')
-    <script src="{{ asset('admins/js/alert.js') }}"></script>
-    <script src="{{ asset('admins/js/admin-product.js') }}"></script>
     <script>
        $(document).ready(function () {
             const maCuaHang = "{{ request('ma_cua_hang') }}";
@@ -225,6 +222,6 @@
                 .catch(() => {
                     modalBody.html(`<p class="text-danger">Lỗi tải dữ liệu chi tiết!</p>`);
                 });
-        });
+            });
     </script>
 @endpush
