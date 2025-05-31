@@ -17,7 +17,7 @@ class StaffHomeController extends Controller
         $nhanVien = NhanVien::with(['taiKhoan', 'chucVu', 'cuaHang'])
             ->where('ma_tai_khoan', $taiKhoanId)
             ->first();
-
+       
         $viewData = [
             'title' => 'Trang chủ | CDMT Coffee & Tea',
             'subtitle' => 'Nhân viên',

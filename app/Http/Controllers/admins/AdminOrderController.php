@@ -79,7 +79,6 @@ class AdminOrderController extends Controller
 
         return view('admins.orders._order_tbody', compact('orders'));
     }
-
     public function detail($id)
     {
         $order = HoaDon::with(['khachHang', 'chiTietHoaDon'])->where('ma_hoa_don',$id)->first();

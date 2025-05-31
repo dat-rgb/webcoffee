@@ -23,6 +23,7 @@ use App\Http\Controllers\payments\Napas247Controller;
 use App\Http\Controllers\payments\PaymentController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\staffs\StaffHomeController;
+use App\Http\Controllers\staffs\StaffOrderController;
 use App\Http\Controllers\StoreController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\KhachHangMiddleware;
@@ -251,6 +252,14 @@ Route::prefix('admin/orders')->middleware(AdminMiddleware::class)->group(functio
 //Route Staff home
 Route::prefix('staff')->middleware(NhanVienMiddleware::class)->group(function(){
     Route::get('', [StaffHomeController::class, 'index'])->name('staff');
+});
+
+Route::prefix('staff/orders')->middleware(NhanVienMiddleware::class)->group(function(){
+    Route::get('/', [StaffOrderController::class, 'orderStore'])->name('staff.orders.list');
+    Route::get('/{id}/detail', [StaffOrderController::class, 'detail'])->name('staff.orders.detail');
+    Route::post('/filter', [StaffOrderController::class, 'filter'])->name('staff.orders.filter');
+    Route::post('/details-multi', [StaffOrderController::class, 'detailsMulti']);
+    Route::post('/update-status', [StaffOrderController::class, 'updateStatusOrder'])->name('staff.orders.updateStatus');
 });
 
 //End - Staff
