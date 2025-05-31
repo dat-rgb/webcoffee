@@ -294,7 +294,7 @@
                           </li>
                           <li>
                             <a href="{{ route('admin.vouchers.list-vouchers-off') }}">
-                                <span class="sub-item">Voucher đóng</span>
+                                <span class="sub-item">Voucher đã ẩn</span>
                             </a>
                           </li>
                           <li>

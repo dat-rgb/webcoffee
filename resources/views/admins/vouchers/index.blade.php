@@ -32,7 +32,7 @@
                         <i class="icon-arrow-right"></i>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ route('admin.vouchers.list-vouchers-off') }}">Vouchers đóng</a>
+                        <a href="{{ route('admin.vouchers.list-vouchers-off') }}">Vouchers ẩn</a>
                     </li>
                 @endif
             </ul>
@@ -69,9 +69,9 @@
                                         </button>
                                         <ul class="dropdown-menu">
                                             @if(request()->routeIs('admin.vouchers.list-vouchers-off'))
-                                                <li><button type="button" class="dropdown-item" id="show-vouchers">Mở các voucher đã chọn</button></li>
+                                                <li><button type="button" class="dropdown-item" id="show-vouchers">Hiển thị các voucher đã chọn</button></li>
                                             @else
-                                                <li><button type="button" class="dropdown-item" id="hide-vouchers">Đóng các voucher đã chọn</button></li>
+                                                <li><button type="button" class="dropdown-item" id="hide-vouchers">Ẩn các voucher đã chọn</button></li>
                                             @endif
                                             <li><button type="button" class="dropdown-item text-danger" id="delete-vouchers">Xóa các sản phẩm đã chọn</button></li>
                                         </ul>
@@ -82,11 +82,11 @@
                                 <div class="col-6 col-lg-2">
                                     @if(request()->routeIs('admin.vouchers.list-vouchers-off'))
                                         <a href="{{ route('admin.vouchers.list') }}" class="btn btn-outline-danger w-100">
-                                            <i class="bi bi-eye-fill me-1"></i>Voucher mở
+                                            <i class="bi bi-eye-fill me-1"></i>Voucher hiển thị
                                         </a>
                                     @else
                                         <a href="{{ route('admin.vouchers.list-vouchers-off') }}" class="btn btn-outline-secondary w-100">
-                                            <i class="bi bi-eye-slash-fill me-1"></i> Voucher đóng
+                                            <i class="bi bi-eye-slash-fill me-1"></i> Voucher ẩn
                                         </a>
                                     @endif
                                 </div>
@@ -158,11 +158,9 @@
                                                             <td>Tối đa {{ number_format($vou->giam_gia_max, 0, ',', '.') }}</td>
                                                             <td>
                                                                 @if ($vou->trang_thai == 1)
-                                                                    <span class="badge badge-success">Mở</span>
+                                                                    <span class="badge badge-success">Hiển thị</span>
                                                                 @elseif ($vou->trang_thai == 2)
-                                                                    <span class="badge badge-danger">Đóng</span>
-                                                                @elseif ($vou->trang_thai == 3)
-                                                                    <span class="badge badge-warning">Lưu trữ</span>
+                                                                    <span class="badge badge-danger">Ẩn</span>
                                                                 @else
                                                                     <span class="badge badge-secondary">Không xác định</span>
                                                                 @endif
@@ -178,7 +176,7 @@
                                                                         </form>
                                                                         <form action="{{ route('admin.vouchers.on-or-off-voucher',$vou->ma_voucher) }}" method="POST" class="hidden-or-acctive">
                                                                             @csrf    
-                                                                            <button type="button" class="btn btn-icon btn-round btn-black voucher-hidden-btn" data-bs-toggle="tooltip" title="Đóng">
+                                                                            <button type="button" class="btn btn-icon btn-round btn-black voucher-hidden-btn" data-bs-toggle="tooltip" title="ẩn">
                                                                                 <i class="fas fa-toggle-off text-white"></i>
                                                                             </button>   
                                                                         </form>
@@ -232,6 +230,6 @@
 @endsection
 
 @push('scripts')
-    <script src="{{ asset('admins/js/alert.js') }}"></script>
+    <!-- <script src="{{ asset('admins/js/alert.js') }}"></script> -->
     <script src="{{ asset('admins/js/admin-voucher.js') }}"></script>
 @endpush

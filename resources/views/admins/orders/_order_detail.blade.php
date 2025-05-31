@@ -114,6 +114,10 @@
                 @break
             @case(3)
                 <span class="status status-3">Đang giao</span>
+                <p><strong>Thông tin giao hàng:</strong></p>
+                <p>Người nhận: {{ $order->giaoHang->ho_ten_ ?? 'Chưa có' }}</p>
+                <p>Số điện thoại: {{ $order->giaoHang->so_dien_thoai ?? 'Chưa có' }}</p>
+                <p>Địa chỉ: {{ $order->giaoHang->dia_chi ?? 'Chưa có' }}</p>
                 @break
             @case(4)
                 <span class="status status-4">Đã nhận</span>
@@ -154,7 +158,7 @@
 
     <div class="order-summary">
         <p><strong>Tạm tính:</strong> <span>{{ number_format($order->tong_tien - $order->tien_ship - $order->giamn_gia,0,',','.') }} đ</span></p>
-        <p><strong>Giảm giá:</strong> <span>{{ number_format($order->giamn_gia,0,',','.') }} đ</span></p>
+        <p><strong>Giảm giá:</strong> <span>{{ number_format($order->giam_gia,0,',','.') }} đ</span></p>
         <p><strong>Phí ship:</strong> <span>{{ number_format($order->tien_ship,0,',','.') }} đ</span></p>
         <p><strong>Thành tiền:</strong> <span class="text-danger fw-bold">{{ number_format($order->tong_tien,0,',','.') }} đ</span></p>
     </div>
