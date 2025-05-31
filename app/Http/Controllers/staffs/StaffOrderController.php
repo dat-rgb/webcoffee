@@ -79,36 +79,11 @@ class StaffOrderController extends Controller
     }
     public function detail($id)
     {
-        $order = HoaDon::with(['khachHang', 'chiTietHoaDon'])->where('ma_hoa_don',$id)->first();
+        $order = HoaDon::with(['khachHang', 'chiTietHoaDon','khuyenMai','giaoHang','lichSuHuyDonHang'])->where('ma_hoa_don',$id)->first();
         return view('staffs.orders._order_detail', compact('order'));
     }
-    public function detailsMulti(Request $request) {
-        \Log::info('Request maHoaDons:', $request->all());
 
-        $orderIds = $request->input('maHoaDons');
-
-        if (!$orderIds || !is_array($orderIds)) {
-            return response()->json(['error' => 'Invalid order IDs'], 400);
-        }
-
-        $orders = HoaDon::with(['khachHang', 'chiTietHoaDon'])
-            ->whereIn('ma_hoa_don', $orderIds)
-            ->get();
-
-        return response()->json(['orders' => $orders]);
-    }
-
-
-
-
-        //Nhân viên bán hàng hoặc quản lý cửa hàng thực hiện chức năng cập nhật trạng thái đơn hàng được miêu tả như sau:
-        //Xử lý update trạng thái: 0:Chờ xác nhận, 1:đã xác nhận, 2:Đã Hoàn tất đơn hàng, 3:Đang giao đơn hàng (nếu deliver)/Chờ nhận đơn hàng(nếu pickup), 4:Đã nhận, 5:Đã hủy.
-        //Điều kiện update: 
-        //  - update: theo hướng tăng dần từ status 0 -> status 4. ví dụ: HĐ (hóa đơn) có status = 0, thì không thể lặp tức cập nhật sang status 2 hoặc 3 hoặc 4. Và không được về lại trạng thái vừa cập nhập, ví dụ, status = 1 => status = 2 thì status = 2 không => status = 1 (not)
-        //  - update: khi update status = 3, phải lưu thông tin người giao hàng, ví dụ (số điện thoại, họ tên người giao hàng vào table).
-        //  - update: khi update tatus = 5, phải lưu thông tin lý do hủy đơn (đối với nhân viên hoặc quản lý thực hiện thao tác này).
-        //  - Các HĐ sau khi được update status sẽ có mã nhân viên thực hiện, ban đầu khách hàng order (ma_nha_vien = null).
-
+    
     public function updateStatusOrder(Request $request)
     {
         try {
@@ -175,15 +150,20 @@ class StaffOrderController extends Controller
             'cancel_reason' => 'required|string',
         ]);
 
+        // Chỉ xử lý khi status gửi vào là yêu cầu hủy
         if ($status === 5) {
+            $oldStatus = $order->trang_thai;
+
             // Cập nhật trạng thái và nhân viên hủy
             $order->update([
                 'trang_thai' => 5,
                 'ma_nhan_vien' => $nhanVien->ma_nhan_vien,
             ]);
 
-            // Gọi hàm cộng lại nguyên liệu + voucher
-            $this->restoreIngredientsAndVoucher($order);
+            // Rollback nguyên liệu và voucher nếu đơn chưa xử lý
+            if ($oldStatus === 1) {
+                $this->restoreIngredientsAndVoucher($order);
+            }
 
             // Lưu lịch sử hủy đơn
             $lichSu = new LichSuHuyDonHang();
@@ -192,6 +172,14 @@ class StaffOrderController extends Controller
             $lichSu->thoi_gian_huy = now();
             $lichSu->ma_nhan_vien = $nhanVien->ma_nhan_vien;
             $lichSu->save();
+
+            // Nếu đơn có giao hàng thì cập nhật trạng thái giao hàng
+            $giaoHang = GiaoHang::where('ma_hoa_don', $order->ma_hoa_don)->first();
+            if ($giaoHang) {
+                $giaoHang->update([
+                    'trang_thai' => 2, // Giao hàng không thành công
+                ]);
+            }
         }
     }
     public function restoreIngredientsAndVoucher($hoaDon)

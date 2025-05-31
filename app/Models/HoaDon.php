@@ -14,6 +14,7 @@ class HoaDon extends Model
 
     protected $fillable = [
         'ma_hoa_don',
+        'ma_nhan_vien',
         'ma_khach_hang',
         'ma_voucher',
         'ma_cua_hang',
@@ -49,6 +50,16 @@ class HoaDon extends Model
     public function transaction()
     {
         return $this->hasOne(Transactions::class, 'ma_hoa_don', 'ma_hoa_don');
+    }
+
+    public function giaoHang()
+    {
+        return $this->hasOne(GiaoHang::class, 'ma_hoa_don', 'ma_hoa_don');
+    }
+
+    public function lichSuHuyDonHang()
+    {
+        return $this->hasMany(LichSuHuyDonHang::class, 'ma_hoa_don', 'ma_hoa_don');
     }
 
     public static function generateMaHoaDon(): string

@@ -79,19 +79,22 @@
     <!-- Cột trái -->
     <div style="flex: 1 1 300px;">
         <div style="margin-bottom: 12px;">
-        <strong>Mã Hóa Đơn:</strong> <span>{{ $order->ma_hoa_don }}</span>
+            <strong>Mã Hóa Đơn:</strong> <span>{{ $order->ma_hoa_don }}</span>
         </div>
         <div style="margin-bottom: 12px;">
-        <strong>Cửa hàng:</strong> <span>{{ $order->ma_cua_hang }}</span>
+            <strong>Cửa hàng:</strong> <span>{{ $order->ma_cua_hang }}</span>
         </div>
         <div style="margin-bottom: 12px;">
-        <strong>Ngày lập:</strong> <span>{{ $order->created_at->format('d/m/Y H:i:s') }}</span>
+            <strong>Nhân viên:</strong> <span>{{ $order->ma_nhan_vien ?? 'Chưa có nhân viên xác nhận' }}</span>
         </div>
         <div style="margin-bottom: 12px;">
-        <strong>Số điện thoại:</strong> <span>{{ $order->so_dien_thoai }}</span>
+            <strong>Ngày lập:</strong> <span>{{ $order->created_at->format('d/m/Y H:i:s') }}</span>
         </div>
         <div style="margin-bottom: 12px;">
-        <strong>Email:</strong> <span>{{ $order->email }}</span>
+            <strong>Số điện thoại:</strong> <span>{{ $order->so_dien_thoai }}</span>
+        </div>
+        <div style="margin-bottom: 12px;">
+            <strong>Email:</strong> <span>{{ $order->email }}</span>
         </div>
     </div>
 
@@ -128,25 +131,61 @@
         </div>
 
         <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
-        <strong>Trạng thái đơn hàng:</strong>
-        @php
-            $statusColors = [
-            0 => '#ff9800', 1 => '#2196f3', 2 => '#4caf50',
-            3 => '#03a9f4', 4 => '#2e7d32', 5 => '#f44336',
-            'default' => '#9e9e9e',
-            ];
-            $statusTexts = [
-            0 => 'Chờ xác nhận', 1 => 'Đã xác nhận', 2 => 'Hoàn tất đơn hàng',
-            3 => 'Đang giao', 4 => 'Đã nhận', 5 => 'Đã hủy',
-            ];
-            $st = $order->trang_thai;
-            $color = $statusColors[$st] ?? $statusColors['default'];
-            $text = $statusTexts[$st] ?? 'Không xác định';
-        @endphp
-        <span style="padding: 6px 14px; border-radius: 20px; background-color: {{ $color }}; color: white; font-weight: 600;">
-            {{ $text }}
-        </span>
+            <strong>Trạng thái đơn hàng:</strong>
+            @php
+                $statusColors = [
+                0 => '#ff9800', 1 => '#2196f3', 2 => '#4caf50',
+                3 => '#03a9f4', 4 => '#2e7d32', 5 => '#f44336',
+                'default' => '#9e9e9e',
+                ];
+                $statusTexts = [
+                0 => 'Chờ xác nhận', 1 => 'Đã xác nhận', 2 => 'Hoàn tất đơn hàng',
+                3 => 'Đang giao', 4 => 'Đã nhận', 5 => 'Đã hủy',
+                ];
+                $st = $order->trang_thai;
+                $color = $statusColors[$st] ?? $statusColors['default'];
+                $text = $statusTexts[$st] ?? 'Không xác định';
+            @endphp
+            <span style="padding: 6px 14px; border-radius: 20px; background-color: {{ $color }}; color: white; font-weight: 600;">
+                {{ $text }}
+            </span>
         </div>
+        @if ($order->trang_thai === 3)
+            <div style="margin-bottom: 6px;">
+                <strong>Shipper: </strong> <span>{{ $order->giaoHang->ho_ten_shipper ?? 'Chưa có' }}</span>
+            </div>
+            <div style="margin-bottom: 12px; font-size: 0.9em; color: #555; display: flex; gap: 15px;">
+                <span>Số điện thoại: {{ $order->giaoHang->so_dien_thoai ?? 'Chưa có' }}</span>
+                <span>Trạng thái: 
+                    @if ( $order->giaoHang->trang_thai === 0)
+                        Đang giao hàng    
+                    @elseif ( $order->giaoHang->trang_thai === 1)       
+                        Giao hàng thàng công
+                    @elseif ( $order->giaoHang->trang_thai === 2)   
+                        Giao hàng không thành công
+                    @endif
+                </span>
+            </div>
+        @elseif($order->trang_thai === 5)
+            @php
+                $huy = $order->lichSuHuyDonHang->first();
+            @endphp
+
+            @if ($order->trang_thai === 5 && $huy)
+                <div style="margin-bottom: 6px;">
+                    <strong>Người hủy: </strong> <span>
+                        @if ($huy->ma_khach_hang === null)
+                            {{ $huy->ma_nhan_vien ? 'Nhân viên ' . $huy->ma_nhan_vien : 'Không xác định' }}
+                        @else
+                            Khách hàng
+                        @endif
+                    </span>
+                </div>
+                <div style="margin-bottom: 12px; font-size: 0.9em; color: #555; display: flex; gap: 15px;">
+                    <span>Lý do hủy: {{ $huy->ly_do_huy }}</span>
+                </div>
+            @endif
+        @endif
     </div>
     </div>
     <h6 class="mt-4 mb-3"><strong>Chi tiết đơn hàng:</strong></h6>
@@ -183,7 +222,7 @@
     </div>
     <div class="order-summary mt-3" style="max-width: 320px; margin-left: auto; font-size: 1rem;">
         <p class="d-flex justify-content-between"><strong>Tạm tính:</strong> <span>{{ number_format($order->tong_tien - $order->tien_ship - $order->giamn_gia, 0, ',', '.') }} đ</span></p>
-        <p class="d-flex justify-content-between"><strong>Giảm giá:</strong> <span>- {{ number_format($order->giamn_gia, 0, ',', '.') }} đ</span></p>
+        <p class="d-flex justify-content-between"><strong>Giảm giá:</strong> <span>- {{ number_format($order->giam_gia, 0, ',', '.') }} đ</span></p>
         <p class="d-flex justify-content-between"><strong>Phí ship:</strong> <span>{{ number_format($order->tien_ship, 0, ',', '.') }} đ</span></p>
         <hr>
         <p class="d-flex justify-content-between fw-bold fs-5 text-danger"><strong>Thành tiền:</strong> <span>{{ number_format($order->tong_tien, 0, ',', '.') }} đ</span></p>
