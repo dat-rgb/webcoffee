@@ -36,6 +36,11 @@ class KhachHang extends Model
         return $this->hasMany(SanPhamYeuThich::class, 'ma_khach_hang', 'ma_khach_hang');
     }
 
+    public function diaChis()
+    {
+        return $this->hasMany(DiaChi::class, 'ma_khach_hang', 'ma_khach_hang');
+    }
+
     public static function generateMaKhachHang()
     {
         $nextId = static::max('id') + 1;

@@ -16,7 +16,7 @@
 	<link href="https://fonts.googleapis.com/css?family=Poppins:400,700&display=swap" rel="stylesheet">
 	<!-- toastr CSS -->
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
-
+	<link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
 	<!-- fontawesome -->
 	<link rel="stylesheet" href="{{ asset('css/all.min.css') }}">
 	<!-- bootstrap -->
@@ -236,6 +236,7 @@
 	<script src="{{ asset('js/jquery-1.11.3.min.js') }}"></script>	
 	<!-- toastr JS -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
 	<!-- bootstrap -->
 	<script src="{{ asset('bootstrap/js/bootstrap.min.js') }}"></script>
 	<!-- count down -->

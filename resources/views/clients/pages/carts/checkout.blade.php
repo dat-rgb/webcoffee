@@ -40,22 +40,17 @@
                                         <div class="billing-address-form">
                                             <div class="form-group mb-3">
                                                 <label for="ho_ten_khach_hang">Họ và tên</label>
-                                                <input type="text" id="ho_ten_khach_hang" name="ho_ten_khach_hang" class="form-control" placeholder="Họ và tên" value="{{ Auth::user()->khachHang->ho_ten_khach_hang ?? '' }}" required>
+                                                <input type="text" id="ho_ten_khach_hang" name="ho_ten_khach_hang" class="form-control" placeholder="Họ và tên" value="{{ Auth::user()->khachHang->ho_ten_khach_hang ?? '' }}" >
                                             </div>
 
                                             <div class="form-group mb-3">
                                                 <label for="email">Email</label>
-                                                <input type="email" id="email" name="email"class="form-control" placeholder="Email" value="{{ Auth::user()->email ?? '' }}" required>
+                                                <input type="email" id="email" name="email"class="form-control" placeholder="Email" value="{{ Auth::user()->email ?? '' }}" >
                                             </div>
-
-                                            <!-- <div class="form-group mb-3">
-                                                <label for="dia_chi">Địa chỉ</label>
-                                                <input type="text" id="dia_chi" name="dia_chi" class="form-control" placeholder="Địa chỉ" value="{{ Auth::user()->khachHang->dia_chi ?? '' }}" required>
-                                            </div> -->
 
                                             <div class="form-group mb-3">
                                                 <label for="so_dien_thoai">Số điện thoại</label>
-                                                <input type="tel" id="so_dien_thoai" name="so_dien_thoai" class="form-control" placeholder="Số điện thoại" value="{{ Auth::user()->khachHang->so_dien_thoai ?? '' }}" required>
+                                                <input type="tel" id="so_dien_thoai" name="so_dien_thoai" class="form-control" placeholder="Số điện thoại" value="{{ Auth::user()->khachHang->so_dien_thoai ?? '' }}" >
                                             </div>
 
                                             <div class="form-group mb-3">
@@ -137,7 +132,7 @@
                                         <div class="card-details">
                                             <div class="d-flex flex-column gap-3">
                                                 <div class="form-check d-flex align-items-center gap-2">
-                                                    <input class="form-check-input" type="radio" name="paymentMethod" id="paymentMethodCOD" value="COD" required>
+                                                    <input class="form-check-input" type="radio" name="paymentMethod" id="paymentMethodCOD" value="COD" >
                                                     <label class="form-check-label d-flex align-items-center gap-2" for="paymentMethodCOD">
                                                     <img src="{{ asset('images/cod.webp') }}" alt="COD" style="width:40px; height:auto;">
                                                     Thanh toán khi nhận hàng (COD)
@@ -145,7 +140,7 @@
                                                 </div>
 
                                                 <div class="form-check d-flex align-items-center gap-2">
-                                                    <input class="form-check-input" type="radio" name="paymentMethod" id="paymentMethodNapas247" value="NAPAS247" required>
+                                                    <input class="form-check-input" type="radio" name="paymentMethod" id="paymentMethodNapas247" value="NAPAS247" >
                                                     <label class="form-check-label d-flex align-items-center gap-2" for="paymentMethodNapas247">
                                                     <img src="{{ asset('images/napas247.png') }}" alt="Napas247" style="width:40px; height:auto;">
                                                     Thanh toán trực tuyến Napas 247 (VietQR)
@@ -153,7 +148,7 @@
                                                 </div>
 
                                                 <div class="form-check d-flex align-items-center gap-2">
-                                                    <input class="form-check-input" type="radio" name="paymentMethod" id="paymentMethodVNPAY" value="VNPAY" required>
+                                                    <input class="form-check-input" type="radio" name="paymentMethod" id="paymentMethodVNPAY" value="VNPAY" >
                                                     <label class="form-check-label d-flex align-items-center gap-2" for="paymentMethodVNPAY">
                                                     <img src="{{ asset('images/vnpay.webp') }}" alt="VNPAY" style="width:40px; height:auto;">
                                                     Thanh toán trực tuyến VNPAY
@@ -161,6 +156,82 @@
                                                 </div>
                                             </div>
                                         </div>  
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Voucher -->
+                            <div class="card single-accordion">
+                                <div class="card-header" id="headingThree">
+                                    <h5 class="mb-0">
+                                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseVoucher" aria-expanded="false" aria-controls="collapseVoucher">
+                                       Voucher
+                                    </button>
+                                    </h5>
+                                </div>
+                                <div id="collapseVoucher" aria-labelledby="headingVoucher" data-parent="#accordionExample">
+                                    <div class="card-body">
+                                        <div class="card-details">
+                                            <h5 class="mb-3">
+                                                <i class="fa fa-ticket text-danger"></i> Chọn hoặc nhập mã giảm giá
+                                            </h5>
+                                            <!-- Nhập mã voucher -->
+                                            <div class="input-group mb-4">
+                                                <input type="text" class="form-control" id="voucherCodeInput" placeholder="Nhập mã voucher...">
+                                                <div class="input-group-append">
+                                                    <button type="button" id="checkVoucherBtn" class="btn btn-outline-primary">Áp dụng</button>
+                                                </div>
+                                            </div>
+
+                                            <!-- Khu vực để append voucher nếu hợp lệ -->
+                                            <div id="manualVoucherContainer"></div>
+
+                                            <!-- Danh sách voucher -->
+                                            @foreach($vouchers as $voucher)
+                                                @php
+                                                    $isDisabled = $subTotal < $voucher->dieu_kien_ap_dung;
+                                                    $reason = null;
+
+                                                    if ($isDisabled) {
+                                                        $reason = 'Không thể áp dụng, đơn hàng chưa đủ điều kiện';
+                                                    }
+                                                @endphp
+
+                                                <div class="custom-control custom-radio mb-2 p-2 border rounded d-flex align-items-center {{ $isDisabled ? 'bg-light text-muted' : 'bg-white' }}">
+                                                    <input type="radio"
+                                                        class="custom-control-input voucher-radio"
+                                                        name="voucher"
+                                                        id="voucher{{ $voucher->ma_voucher }}"
+                                                        value="{{ $voucher->ma_voucher }}"
+                                                        data-gia-tri-giam="{{ $voucher->gia_tri_giam }}"
+                                                        data-giam-gia-max="{{ $voucher->giam_gia_max }}"
+                                                        data-dieu-kien="{{ $voucher->dieu_kien_ap_dung }}"
+                                                        {{ $isDisabled ? 'disabled' : '' }}>
+                                                    <label class="custom-control-label d-flex align-items-center w-100" for="voucher{{ $voucher->ma_voucher }}">
+                                                        <span class="radio-custom mr-3"></span>
+                                                        <img src="{{ asset('storage/' . ($voucher->hinh_anh ?? 'vouchers/voucher-default.png')) }}"
+                                                            alt="{{ $voucher->ten_voucher }}"
+                                                            style="width: 60px; height: 60px; object-fit: cover; {{ $isDisabled ? 'opacity: 0.5;' : '' }}">
+                                                        <div class="d-flex flex-column">
+                                                            <span class="font-weight-bold {{ $isDisabled ? 'text-muted' : 'text-dark' }}">{{ $voucher->ten_voucher }}</span>
+                                                            <small>
+                                                                Giảm 
+                                                                @if($voucher->gia_tri_giam < 100)
+                                                                    {{ $voucher->gia_tri_giam }}%
+                                                                @else
+                                                                    {{ number_format($voucher->gia_tri_giam, 0, ',', '.') }}đ
+                                                                @endif
+                                                                (Tối đa {{ number_format($voucher->giam_gia_max, 0, ',', '.') }}đ) | 
+                                                                ĐH từ {{ number_format($voucher->dieu_kien_ap_dung, 0, ',', '.') }}đ | 
+                                                                HSD: {{ \Carbon\Carbon::parse($voucher->ngay_ket_thuc)->format('d/m/Y') }}
+                                                            </small>
+                                                            @if($isDisabled && $reason)
+                                                                <small class="text-danger mt-1">{{ $reason }}</small>
+                                                            @endif
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                            @endforeach
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -177,51 +248,55 @@
                                 </tr>
                             </thead>
                             <tbody class="order-details-body">
-                            @foreach ($cart as $item)
-                                <tr>
-                                    <td>
-                                        <div style="display: flex; align-items: center; gap: 10px;">
-                                            <div class="product-img">
-                                                <img src="{{ $item['product_image'] ? asset('storage/' . $item['product_image']) : asset('images/no_product_image.png') }}" style="width: 50px; height: auto;">
+                                @foreach ($cart as $item)
+                                    <tr>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 10px;">
+                                                <div class="product-img">
+                                                    <img src="{{ $item['product_image'] ? asset('storage/' . $item['product_image']) : asset('images/no_product_image.png') }}" style="width: 50px; height: auto;">
+                                                </div>
+                                                <div class="product-info">
+                                                    <span>{{ $item['product_name'] }} </span><br>
+                                                    <span>
+                                                        {{ $item['size_name'] }} x {{ $item['product_quantity'] }} 
+                                                        <a href="{{ route('cart') }}" class=""></a>
+                                                    </span>
+                                                </div>
                                             </div>
-                                            <div class="product-info">
-                                                <span>{{ $item['product_name'] }} </span><br>
-                                                <span>
-                                                    {{ $item['size_name'] }} x {{ $item['product_quantity'] }} 
-                                                    <a href="{{ route('cart') }}" class=""></a>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        {{ number_format($item['money'],0,',','.') }} đ
-                                    </td>
-                                </tr>
-                            @endforeach
+                                        </td>
+                                        <td>
+                                            {{ number_format($item['money'],0,',','.') }} đ
+                                        </td>
+                                    </tr>
+                                @endforeach
                             </tbody>
                             <tbody class="checkout-details">
                                 <tr>
                                     <td>Tạm tính: ({{ count(session('cart', [])) }} món)</td>
-                                    <td>
-                                        {{ number_format($total, 0, ',', '.') }} đ
-                                    </td>
+                                    <td id="subtotal">{{ number_format($subTotal, 0, ',', '.') }} đ</td>
                                 </tr>
                                 <tr>
-                                    <td>Shipping</td>
-                                    <td> 0 đ</td>
+                                    <td>Shipping:</td>
+                                    <td id="shippingFee" name="shippingFee">{{ number_format($shippingFee, 0, ',', '.') }} đ</td>
+                                    <input type="hidden" name="shippingFee" value="{{ $shippingFee }}">
                                 </tr>
                                 <tr>
-                                    <td>Tổng cộng</td>
-                                    <td>
-                                        {{ number_format($total, 0, ',', '.') }} đ
-                                    </td>
+                                    <td>Giảm giá:</td>
+                                    <td id="discount" name="discount">0 đ</td> 
+                                </tr>
+                                <tr>
+                                    <td>Tổng cộng:</td>
+                                    <td id="total">{{ number_format($total, 0, ',', '.') }} đ</td>
                                 </tr>
                             </tbody>
                         </table>
                         <div class="mt-4 text-end">
-                            <a href="{{ route('cart') }}" class="boxed-btn">Giỏ hàng</a>
-                            <button type="submit" class="btn boxed-btn">Thanh toán</button>
-
+                            <a href="{{ route('cart') }}" class="boxed-btn">
+                                <i class="fas fa-arrow-left me-1"></i> Giỏ hàng
+                            </a>
+                            <button type="submit" class="boxed-btn black btn-check-out">
+                                <i class="fas fa-credit-card"></i> Đặt hàng
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -232,4 +307,67 @@
 @endsection
 @push('scripts')
 <script src="{{ asset('js/check-out.js') }}"></script>
+<script>
+$(document).ready(function () {
+    $('#checkVoucherBtn').on('click', function () {
+        //e.preventDefault(); 
+        let code = $('#voucherCodeInput').val().trim();
+        if (!code) return Swal.fire('Lỗi', 'Vui lòng nhập mã voucher', 'warning');
+
+        $.ajax({
+            url: '/cart/voucher/check',
+            type: 'GET',
+            data: { code: code },
+            success: function (res) {
+                if (!res.success) {
+                    Swal.fire('Không hợp lệ', res.message || 'Mã không tồn tại hoặc đã hết hạn', 'error');
+                    return;
+                }
+                // Nếu hợp lệ → render như một voucher bình thường
+                const v = res.voucher;
+                const isDisabled = false;
+                const reason = null;
+
+                const html = `
+                <div class="custom-control custom-radio mb-2 p-2 border rounded d-flex align-items-center bg-white">
+                    <input type="radio"
+                        class="custom-control-input voucher-radio"
+                        name="voucher"
+                        id="voucher${v.ma_voucher}"
+                        value="${v.ma_voucher}"
+                        data-gia-tri-giam="${v.gia_tri_giam}"
+                        data-giam-gia-max="${v.giam_gia_max}"
+                        data-dieu-kien="${v.dieu_kien_ap_dung}">
+                    <label class="custom-control-label d-flex align-items-center w-100" for="voucher${v.ma_voucher}">
+                        <span class="radio-custom mr-3"></span>
+                        <img src="/storage/${v.hinh_anh || 'vouchers/voucher-default.png'}"
+                            alt="${v.ten_voucher}" style="width: 60px; height: 60px; object-fit: cover;">
+                        <div class="d-flex flex-column">
+                            <span class="font-weight-bold text-dark">${v.ten_voucher}</span>
+                            <small>
+                                Giảm ${v.gia_tri_giam < 100 ? v.gia_tri_giam + '%' : new Intl.NumberFormat().format(v.gia_tri_giam) + 'đ'}
+                                (Tối đa ${new Intl.NumberFormat().format(v.giam_gia_max)}đ) |
+                                ĐH từ ${new Intl.NumberFormat().format(v.dieu_kien_ap_dung)}đ |
+                                HSD: ${v.ngay_ket_thuc}
+                            </small>
+                        </div>
+                    </label>
+                </div>`;
+
+                $('#manualVoucherContainer').html(html);
+                $('#voucherCodeInput').val('');
+
+                // Kích hoạt lại sự kiện tính toán
+                $('.voucher-radio').off('change').on('change', function () {
+                    $('.voucher-radio').trigger('change'); // hoặc gọi lại hàm xử lý bạn đã viết
+                });
+                //Swal.fire('Thành công', 'Áp dụng voucher thành công!', 'success');
+            },
+            error: function () {
+                Swal.fire('Lỗi server', 'Vui lòng thử lại sau.', 'error');
+            }
+        });
+    });
+});
+</script>
 @endpush    

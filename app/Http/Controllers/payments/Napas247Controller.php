@@ -4,7 +4,11 @@ namespace App\Http\Controllers\payments;
 
 use App\Http\Controllers\Controller;
 use App\Models\ChiTietHoaDon;
+use App\Models\CuaHangNguyenLieu;
 use App\Models\HoaDon;
+use App\Models\KhuyenMai;
+use App\Models\Sizes;
+use App\Models\ThanhPhanSanPham;
 use App\Models\Transactions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -25,7 +29,6 @@ class Napas247Controller extends Controller
 
         $this->webhookUrl = env('WEBHOOK_URL');
     }
-
     /**
      * Tạo link thanh toán cho đơn hàng
      * @param array $orderData
@@ -38,6 +41,7 @@ class Napas247Controller extends Controller
         $hoaDon = HoaDon::create([
             'ma_hoa_don' => $maHoaDon,
             'ma_khach_hang' => $orderData['ma_khach_hang'],
+          'ma_voucher' => !empty($orderData['ma_voucher']) ? $orderData['ma_voucher'] : null,
             'ma_cua_hang' => $orderData['ma_cua_hang'],
             'ten_khach_hang' => $orderData['ten_khach_hang'],
             'so_dien_thoai' => $orderData['so_dien_thoai'],
@@ -45,14 +49,15 @@ class Napas247Controller extends Controller
             'dia_chi' => $orderData['dia_chi'],
             'phuong_thuc_thanh_toan' => $orderData['phuong_thuc_thanh_toan'],
             'phuong_thuc_nhan_hang' => $orderData['phuong_thuc_nhan_hang'],
-            'ghi_chu' => $orderData['ghi_chu'],
-            'tien_ship' => $orderData['tien_ship'],
-            'khuyen_mai' => $orderData['khuyen_mai'],
-            'giam_gia' => $orderData['giam_gia'],
+            'tien_ship' => $orderData['tien_ship'] ?? 0,
+            'khuyen_mai' => $orderData['khuyen_mai'] ?? 0,
+            'giam_gia' => $orderData['giam_gia'] ?? 0,
             'tong_tien' => $orderData['tong_tien'],
-            'trang_thai_thanh_toan' => 0, //chưa thanh toán
+            'trang_thai_thanh_toan' => 0,
+            'trang_thai' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
-
         //Tạo transaction
         Transactions::create([
             'ma_hoa_don' => $maHoaDon,
@@ -115,7 +120,7 @@ class Napas247Controller extends Controller
                 'buyerPhone' => $hoaDon->so_dien_thoai,
                 'buyerAddress' => $hoaDon->dia_chi,
                 'items' => $items,
-                'expiredAt' => now()->addMinutes(30)->timestamp,
+                'expiredAt' => now()->addMinutes(15)->timestamp,
             ]);
 
             Transactions::where('ma_hoa_don', $maHoaDon)->update([
@@ -131,7 +136,6 @@ class Napas247Controller extends Controller
             return redirect()->back();
         }
     }
-
     /**
      * Lấy thông tin link thanh toán
      * @param int|string $orderCode
@@ -152,7 +156,6 @@ class Napas247Controller extends Controller
             return null;
         }
     }
-
     public function checkPaymentStatus($orderCode)
     {
         $paymentInfo = $this->getPaymentLinkInformation($orderCode);
@@ -185,7 +188,6 @@ class Napas247Controller extends Controller
                 ]);
         }
     }
-
     // Các method xử lý callback, trả về từ PayOS
     public function handleReturn(Request $request)
     {
@@ -200,7 +202,6 @@ class Napas247Controller extends Controller
 
         return redirect()->route('checkout_status')->with('status', 'success');
     }
-
     protected function updatePaymentSuccess($orderCode)
     {
         $maHoaDon = 'HD' . $orderCode;
@@ -257,18 +258,51 @@ class Napas247Controller extends Controller
         $maHoaDon = 'HD' . $orderCode;
 
         $hoaDon = HoaDon::where('ma_hoa_don', $maHoaDon)->first();
+        //dd('mã hóa đơn nhận được khi cancel: '.$hoaDon);
+        if (!$hoaDon) return;
 
-        if ($hoaDon) {
-            $hoaDon->trang_thai_thanh_toan = 0; // chờ thanh toán
-            $hoaDon->trang_thai = 5;            // Đã hủy
-            $hoaDon->save();
+        if ($hoaDon->ma_voucher) {
+            $voucher = KhuyenMai::where('ma_voucher', $hoaDon->ma_voucher)->first();
+            if ($voucher) {
+                $voucher->increment('so_luong', 1);
+            }
         }
+        
+        // Update trạng thái hóa đơn
+        $hoaDon->trang_thai_thanh_toan = 0; // Chờ thanh toán
+        $hoaDon->trang_thai = 5; // Đã hủy
+        $hoaDon->save();
 
-        $transaction = Transactions::where('ma_hoa_don', $maHoaDon)->first();
-        if ($transaction) {
-            $transaction->update([
-                'trang_thai' => 'CANCELLED'
-            ]);
+        // Update trạng thái giao dịch
+        Transactions::where('ma_hoa_don', $maHoaDon)->update([
+            'trang_thai' => 'CANCELLED'
+        ]);
+
+        // Lấy chi tiết hóa đơn
+        $chiTietHoaDons = ChiTietHoaDon::where('ma_hoa_don', $maHoaDon)->get();
+
+        foreach ($chiTietHoaDons as $chiTiet) {
+            $maSanPham = $chiTiet->ma_san_pham;
+
+            $maSize = Sizes::where('ten_size', $chiTiet->ten_size)->value('ma_size');
+            if (!$maSize) {
+                // Size không tồn tại, bỏ qua
+                continue;
+            }
+
+            $thanhPhanNLs = ThanhPhanSanPham::where('ma_san_pham', $maSanPham)
+                ->where('ma_size', $maSize)
+                ->get();
+
+            foreach ($thanhPhanNLs as $tp) {
+                $soLuongHoanTra = $tp->dinh_luong * $chiTiet->so_luong;
+
+                // Cập nhật tồn kho bằng query builder vì composite key
+                DB::table('cua_hang_nguyen_lieus')
+                    ->where('ma_cua_hang', $hoaDon->ma_cua_hang)
+                    ->where('ma_nguyen_lieu', $tp->ma_nguyen_lieu)
+                    ->increment('so_luong_ton', $soLuongHoanTra);
+            }
         }
     }
 }

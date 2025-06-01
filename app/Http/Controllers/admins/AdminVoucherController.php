@@ -46,7 +46,7 @@ class AdminVoucherController extends Controller
 
         return view('admins.vouchers.index', [
             'title' => 'Vouchers | CDMT Coffee & Tea',
-            'subtitle' => 'Danh sách vouchers đóng',
+            'subtitle' => 'Danh sách vouchers đã ẩn',
             'vouchers' => $vouchers,
             'search' => $search,
         ]);
