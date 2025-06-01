@@ -120,43 +120,49 @@
     <div class="row">
         @include('clients.customers.sub_layout_customer')
         <div class="col-lg-7 col-md-4">
-            <div class="row product-lists">
-                @foreach ($favorites as $pro)
-                <div class="col-lg-4 col-md-6 col-sm-6 text-center mb-4">  <!-- mỗi sản phẩm chiếm 1/3 hàng -->
-                    <div class="single-product-item">
-                        <div class="product-image position-relative">
-                            <div class="icon-wrapper">
-                                @if ($pro->sanPham->hot && $pro->sanPham->is_new)
-                                    <img src="{{ asset('images/product_hot.png') }}" alt="" class="hot-icon">
-                                    <img src="{{ asset('images/product_new.png') }}" alt="" class="hot-icon second">
-                                @elseif($pro->sanPham->hot)
-                                    <img src="{{ asset('images/product_hot.png') }}" alt="" class="hot-icon">
-                                @elseif($pro->sanPham->is_new)
-                                    <img src="{{ asset('images/product_new.png') }}" alt="" class="hot-icon">
-                                @endif
-                            </div>
-
-                            <!-- Nút Xóa -->
-                            <form method="POST" action="" class="remove-favorite-form" onsubmit="return confirm('Bạn có chắc muốn xóa sản phẩm này khỏi yêu thích?');" style="position:absolute; top:5px; left:5px; z-index: 3;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger" style="padding: 2px 6px; font-size: 12px; border-radius: 50%;" title="Xóa khỏi yêu thích">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </form>
-
-                            <a href="{{ route('product.detail',$pro->sanPham->slug) }}">
-                                <img src="{{ $pro->sanPham->hinh_anh ? asset('storage/' . $pro->sanPham->hinh_anh) : asset('images/no_product_image.png') }}" alt="">
-                            </a>
-                        </div>
-                        <p>{{ $pro->sanPham->ten_san_pham }}</p>
-                        <a href="{{ route('product.detail',$pro->sanPham->slug) }}" class="cart-btn">
-                            <i class="fas fa-shopping-cart"></i> Đặt mua
-                        </a>
-                    </div>  
+            @if($favorites->isEmpty())
+                <div>
+                    <p class="text-center text-muted">Chưa có sản phẩm trong danh sách yêu thích của bạn. <a href="{{ route('product') }}">Khám phá ngay</a></p>
                 </div>
-                @endforeach
-            </div>
+            @else
+                <div class="row product-lists">
+                    @foreach ($favorites as $pro)
+                    <div class="col-lg-4 col-md-6 col-sm-6 text-center mb-4">  <!-- mỗi sản phẩm chiếm 1/3 hàng -->
+                        <div class="single-product-item">
+                            <div class="product-image position-relative">
+                                <div class="icon-wrapper">
+                                    @if ($pro->sanPham->hot && $pro->sanPham->is_new)
+                                        <img src="{{ asset('images/product_hot.png') }}" alt="" class="hot-icon">
+                                        <img src="{{ asset('images/product_new.png') }}" alt="" class="hot-icon second">
+                                    @elseif($pro->sanPham->hot)
+                                        <img src="{{ asset('images/product_hot.png') }}" alt="" class="hot-icon">
+                                    @elseif($pro->sanPham->is_new)
+                                        <img src="{{ asset('images/product_new.png') }}" alt="" class="hot-icon">
+                                    @endif
+                                </div>
+
+                                <!-- Nút Xóa -->
+                                <form method="POST" action="" class="remove-favorite-form" onsubmit="return confirm('Bạn có chắc muốn xóa sản phẩm này khỏi yêu thích?');" style="position:absolute; top:5px; left:5px; z-index: 3;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger" style="padding: 2px 6px; font-size: 12px; border-radius: 50%;" title="Xóa khỏi yêu thích">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </form>
+
+                                <a href="{{ route('product.detail',$pro->sanPham->slug) }}">
+                                    <img src="{{ $pro->sanPham->hinh_anh ? asset('storage/' . $pro->sanPham->hinh_anh) : asset('images/no_product_image.png') }}" alt="">
+                                </a>
+                            </div>
+                            <p>{{ $pro->sanPham->ten_san_pham }}</p>
+                            <a href="{{ route('product.detail',$pro->sanPham->slug) }}" class="cart-btn">
+                                <i class="fas fa-shopping-cart"></i> Đặt mua
+                            </a>
+                        </div>  
+                    </div>
+                    @endforeach
+                </div>
+            @endif
         </div>
     </div>
 </div>

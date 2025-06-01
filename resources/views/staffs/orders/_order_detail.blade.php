@@ -85,7 +85,7 @@
             <strong>Cửa hàng:</strong> <span>{{ $order->ma_cua_hang }}</span>
         </div>
         <div style="margin-bottom: 12px;">
-            <strong>Nhân viên:</strong> <span>{{ $order->ma_nhan_vien ?? 'Chưa có nhân viên xác nhận' }}</span>
+            <strong>Nhân viên:</strong> <span>{{ $order->ma_nhan_vien ?? '' }}</span>
         </div>
         <div style="margin-bottom: 12px;">
             <strong>Ngày lập:</strong> <span>{{ $order->created_at->format('d/m/Y H:i:s') }}</span>
