@@ -199,6 +199,32 @@
                 </div>
               </li>
               <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#materials">
+                  <i class="fas fa-laptop"></i>
+                  <p>Cửa hàng nguyên liệu</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse" id="materials">
+                  <ul class="nav nav-collapse">
+                    <li>
+                      <a href="{{ route('admins.shopmaterial.index') }}">
+                        <span class="sub-item">Kho cửa hàng nguyên liệu</span>
+                      </a>
+                    </li>
+                    {{-- <li>
+                      <a href="{{ route('admins.material.create') }}">
+                        <span class="sub-item">Nhập nguyên liệu</span>
+                      </a>
+                    </li> --}}
+                    <li>
+                        <a href="#">
+                            <span class="sub-item">Kho cửa hàng nguyên liệu ẩn</span>
+                        </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#suppliers">
                   <i class="fas fa-warehouse"></i>
                   <p>Nhà cung cấp</p>
@@ -622,7 +648,7 @@
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="#">Account Setting</a>
                         <div class="dropdown-divider"></div>
-                      
+
                         <button type="button" id="logout-btn" class="dropdown-item">
                             <i class="fas fa-sign-out-alt" style="margin-right:6px;"></i>Đăng xuất
                         </button>
@@ -669,7 +695,7 @@
   <script src="{{ asset('admins/js/kaiadmin.min.js') }}"></script>
   <!-- Kaiadmin DEMO methods, don't include it in your project! -->
   <script src="{{ asset('admins/js/setting-demo2.js') }}"></script>
-  <script src="{{ asset('js/sweet-alert.js') }}"></script> 
+  <script src="{{ asset('js/sweet-alert.js') }}"></script>
   @stack('scripts')
 
   </body>
