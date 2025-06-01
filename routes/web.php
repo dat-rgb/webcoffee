@@ -9,6 +9,7 @@ use App\Http\Controllers\admins\AdminVoucherController;
 use App\Http\Controllers\admins\AdminSupplierController;
 use App\Http\Controllers\admins\AdminNhanvienController;
 use App\Http\Controllers\admins\AdminLichlamviecController;
+use App\Http\Controllers\admins\AdminShopmaterialController;
 use App\Http\Controllers\admins\auth\AdminLoginController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CartController;
@@ -106,7 +107,7 @@ Route::prefix('payment')->group(function(){
     Route::get('/payos-cancel', [Napas247Controller::class, 'handleCancel'])->name('payos.cancel');
     Route::get('/status/{orderCode}', [Napas247Controller::class, 'checkPaymentStatus']);
     Route::get('/checkout-status',[PaymentController::class,'checkoutStatus'])->name('checkout_status');
-});  
+});
 
 //Tin tức   
 Route::prefix('tin-tuc')->group(function(){
@@ -246,6 +247,22 @@ Route::prefix('admin/orders')->middleware(AdminMiddleware::class)->group(functio
     Route::get('/{id}/detail', [AdminOrderController::class, 'detail'])->name('admin.orders.detail');
     Route::post('/filter', [AdminOrderController::class, 'filter'])->name('admin.orders.filter');
 });
+
+//Route AdminShopMaterial
+Route::prefix('admin/shop-materials')->middleware(AdminMiddleware::class)->name('admins.shopmaterial.')->group(function(){
+    Route::get('/', [AdminShopmaterialController::class, 'index'])->name('index');
+    Route::get('/create', [AdminShopmaterialController::class, 'create'])->name('create');
+    Route::post('/store', [AdminShopmaterialController::class, 'store'])->name('store');
+    Route::get('/{id}/edit', [AdminShopmaterialController::class, 'edit'])->name('edit');
+    Route::put('/{id}/update', [AdminShopmaterialController::class, 'update'])->name('update');
+    Route::delete('/{id}', [AdminShopmaterialController::class, 'destroy'])->name('destroy');
+    Route::get('/import-page', [AdminShopmaterialController::class, 'showImportPage'])->name('showImportPage');
+    Route::post('/import', [AdminShopmaterialController::class, 'import'])->name('import');
+});
+
+
+
+
 
 ///////////////////////////////////////////////////////////////////////////
 //Start - Staff
