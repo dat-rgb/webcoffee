@@ -221,7 +221,7 @@
         </table>
     </div>
     <div class="order-summary mt-3" style="max-width: 320px; margin-left: auto; font-size: 1rem;">
-        <p class="d-flex justify-content-between"><strong>Tạm tính:</strong> <span>{{ number_format($order->tong_tien - $order->tien_ship - $order->giamn_gia, 0, ',', '.') }} đ</span></p>
+        <p class="d-flex justify-content-between"><strong>Tạm tính:</strong> <span>{{ number_format($order->tong_tien - $order->giamn_gia, 0, ',', '.') }} đ</span></p>
         <p class="d-flex justify-content-between"><strong>Giảm giá:</strong> <span>- {{ number_format($order->giam_gia, 0, ',', '.') }} đ</span></p>
         <p class="d-flex justify-content-between"><strong>Phí ship:</strong> <span>{{ number_format($order->tien_ship, 0, ',', '.') }} đ</span></p>
         <hr>

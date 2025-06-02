@@ -18,6 +18,7 @@ use App\Http\Controllers\clients\ResetPasswordController;
 use App\Http\Controllers\customers\CustomerController;
 use App\Http\Controllers\customers\CustomerFavoriteController;
 use App\Http\Controllers\customers\CustomerOrderController;
+use App\Http\Controllers\dashboards\AdminDashboardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\payments\Napas247Controller;
 use App\Http\Controllers\payments\PaymentController;
@@ -247,6 +248,10 @@ Route::prefix('admin/orders')->middleware(AdminMiddleware::class)->group(functio
     Route::post('/filter', [AdminOrderController::class, 'filter'])->name('admin.orders.filter');
 });
 
+
+Route::prefix('admin/dashboard')->group(function() {
+    Route::get('/', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+});
 ///////////////////////////////////////////////////////////////////////////
 //Start - Staff
 //Route Staff home
