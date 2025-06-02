@@ -110,8 +110,9 @@
     </div>
 @endsection
 @push('scripts')
-<script src="{{ asset('staffs/staff-orders.js') }}"></script>
 <script>
+const maCuaHang = "{{ Auth::guard('staff')->user()->nhanvien->ma_cua_hang }}";
+
 document.querySelectorAll('.order-status-select').forEach(select => {
     // Lấy trạng thái cũ từ attribute hoặc option selected
     let previousValue = parseInt(select.getAttribute('data-previous') || select.value);
@@ -297,4 +298,5 @@ function updateOrderStatus(orderId, status, extraData = {}, selectElement = null
     });
 }
 </script>
+<script src="{{ asset('staffs/staff-orders.js') }}"></script>
 @endpush

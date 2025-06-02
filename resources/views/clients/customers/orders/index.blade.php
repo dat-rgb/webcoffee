@@ -110,13 +110,13 @@
                                                 <span class="badge bg-primary text-white">Đã xác nhận</span>
                                                 @break
                                             @case(2)
-                                                <span class="badge bg-info text-dark">Đang chuẩn bị</span>
+                                                <span class="badge bg-info text-dark">Hoàn tất đơn hàng</span>
                                                 @break
                                             @case(3)
                                                 <span class="badge bg-info text-white">Đang giao</span>
                                                 @break
                                             @case(4)
-                                                <span class="badge bg-success text-white">Hoàn tất</span>
+                                                <span class="badge bg-success text-white">Đã nhận</span>
                                                 @break
                                             @case(5)
                                                 <span class="badge bg-danger text-white">Đã hủy</span>

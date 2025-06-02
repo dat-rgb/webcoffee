@@ -85,7 +85,7 @@
                 <div class="collapse" id="dashboard">
                   <ul class="nav nav-collapse">
                     <li>
-                      <a href="#">
+                      <a href="{{ route('admin.dashboard') }}">
                         <span class="sub-item">Dashboard</span>
                       </a>
                     </li>
@@ -276,8 +276,6 @@
                                 <span class="sub-item">Danh sách nhân viên nghỉ việc</span>
                             </a>
                           </li>
-
-
                         </ul>
                       </div>
                     </li>

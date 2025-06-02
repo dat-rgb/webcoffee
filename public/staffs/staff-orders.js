@@ -1,44 +1,44 @@
-$(document).ready(function () {
-    const maCuaHang = "{{ request('ma_cua_hang') }}";
+$(function() {
+    function filterOrders() {
+        let ptThanhToan = $('#pt_thanh_toan').val();
+        let trangThai = $('#trang_thai').val();
+        let search = $('#searchInput').val();
 
-    function fetchOrders() {
         $.ajax({
-            url: "{{ route('staff.orders.filter') }}",
-            method: "POST",
+            url: "{{ route('staff.orders.filter') }}", // thay bằng route đúng của bạn
+            type: 'GET',
             data: {
-                _token: "{{ csrf_token() }}",
-                ma_cua_hang: maCuaHang,
-                pt_thanh_toan: $('#pt_thanh_toan').val(),
-                tt_thanh_toan: $('#tt_thanh_toan').val(),
-                trang_thai: $('#trang_thai').val(),
-                search: $('#searchInput').val()
+                pt_thanh_toan: ptThanhToan,
+                trang_thai: trangThai,
+                search: search
             },
-            success: function (res) {
+            success: function(res) {
                 $('#order-tbody').html(res);
             },
-            error: function () {
-                alert('Có lỗi xảy ra khi tìm kiếm hoặc lọc đơn hàng.');
+            error: function() {
+                alert('Lấy dữ liệu thất bại, thử lại nhé!');
             }
         });
     }
 
-    // Bắt sự kiện lọc
-    $('#pt_thanh_toan, #tt_thanh_toan, #trang_thai').on('change', fetchOrders);
+    // Lọc khi đổi select trong thead
+    $('#pt_thanh_toan, #trang_thai').change(function() {
+        filterOrders();
+    });
 
-    // Bắt sự kiện Enter
-    $('#searchInput').on('keypress', function (e) {
-        if (e.which === 13) {
-            e.preventDefault();
-            fetchOrders();
+    // Lọc khi bấm nút search hoặc enter trong input search
+    $('#searchBtn').click(function() {
+        filterOrders();
+    });
+
+    $('#searchInput').on('keypress', function(e) {
+        if (e.which == 13) { // Enter key
+            e.preventDefault(); // ngăn form submit reload trang
+            filterOrders();
         }
     });
-
-    // Bắt sự kiện click nút tìm
-    $('#searchBtn').on('click', function () {
-        fetchOrders();
-    });
-
 });
+
 
 // order-detail-btn
 $(document).on('click', '.order-detail-btn', function () {
@@ -62,5 +62,5 @@ $(document).on('click', '.order-detail-btn', function () {
         .catch(() => {
             modalBody.html(`<p class="text-danger">Lỗi tải dữ liệu chi tiết!</p>`);
         });
-    });
+});
 

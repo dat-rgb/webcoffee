@@ -11,7 +11,7 @@
                                 @if( request()->pt_thanh_toan == "COD")
                                     Tiền mặt
                                 @elseif (request()->pt_thanh_toan == "NAPAS247")
-                                    Chuyển khoảng
+                                    Chuyển khoản
                                 @endif
                             </strong></li>
                     @endif
@@ -62,7 +62,7 @@
                 @if( $order->phuong_thuc_thanh_toan === "COD")
                     Thanh toán khi nhận hàng (COD)
                 @elseif ($order->phuong_thuc_thanh_toan === "NAPAS247")
-                    Chuyển khoảng
+                    Chuyển khoản
                 @endif
             </td>
             <td class="text-start">
