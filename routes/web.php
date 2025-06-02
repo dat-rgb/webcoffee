@@ -9,6 +9,7 @@ use App\Http\Controllers\admins\AdminVoucherController;
 use App\Http\Controllers\admins\AdminSupplierController;
 use App\Http\Controllers\admins\AdminNhanvienController;
 use App\Http\Controllers\admins\AdminLichlamviecController;
+use App\Http\Controllers\admins\AdminShopmaterialController;
 use App\Http\Controllers\admins\auth\AdminLoginController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CartController;
@@ -107,7 +108,7 @@ Route::prefix('payment')->group(function(){
     Route::get('/payos-cancel', [Napas247Controller::class, 'handleCancel'])->name('payos.cancel');
     Route::get('/status/{orderCode}', [Napas247Controller::class, 'checkPaymentStatus']);
     Route::get('/checkout-status',[PaymentController::class,'checkoutStatus'])->name('checkout_status');
-});  
+});
 
 //Tin tức   
 Route::prefix('tin-tuc')->group(function(){
@@ -160,6 +161,7 @@ Route::prefix('admin/products')->middleware(AdminMiddleware::class)->group(funct
     Route::delete('/{slug}/sort-delete',[AdminProductController::class,'sortDelete'])->name('admin.product.sort-delete');
     Route::get('/delete',[AdminProductController::class,'listProductSortDelete'])->name('admin.products.list.delete');
 });
+
 //Route Categories Admin
 Route::prefix('admin/categories')->middleware(AdminMiddleware::class)->name('admins.category.')->group(function () {
     Route::get('/', action: [AdminCategoryController::class, 'index'])->name('index');
@@ -175,8 +177,6 @@ Route::prefix('admin/categories')->middleware(AdminMiddleware::class)->name('adm
     Route::post('/bulk-archive', [AdminCategoryController::class, 'bulkArchive'])->name('bulk-archive');
     Route::post('/bulk-restore', [AdminCategoryController::class, 'bulkRestore'])->name('bulk-restore');
     Route::post('/bulk-delete', [AdminCategoryController::class, 'bulkDelete'])->name('bulk-delete');
-
-
 });
 //Route Material Admin
 Route::prefix('admin/materials')->middleware(AdminMiddleware::class)->name('admins.material.')->group(function () {
@@ -192,8 +192,8 @@ Route::prefix('admin/materials')->middleware(AdminMiddleware::class)->name('admi
     Route::post('/{id}/toggle-status', [AdminMaterialController::class, 'toggleStatus'])->name('toggleStatus');
     Route::post('/{id}/archive', action: [AdminMaterialController::class, 'archive'])->name('archive');
     Route::get('/archive', [AdminMaterialController::class, 'archiveIndex'])->name('archive.index');
-
 });
+
 //Route Vouchers Admin
 Route::prefix('admin/vouchers')->middleware(AdminMiddleware::class)->name('admin.vouchers.')->group(function(){
     Route::get('',[AdminVoucherController::class,'listVouchers'])->name('list');
@@ -208,6 +208,7 @@ Route::prefix('admin/vouchers')->middleware(AdminMiddleware::class)->name('admin
     Route::post('/bulk-action', [AdminVoucherController::class, 'bulkAction'])->name('bulk-action');
     Route::get('/deleted', [AdminVoucherController::class, 'showDeletedVouchers'])->name('deleted-list');
 });
+
 //Route Supplier Admin
 Route::prefix('admin/suppliers')->middleware(AdminMiddleware::class)->name('admins.supplier.')->group(function () {
     Route::get('/', [AdminSupplierController::class, 'index'])->name('index');
@@ -221,7 +222,8 @@ Route::prefix('admin/suppliers')->middleware(AdminMiddleware::class)->name('admi
     Route::patch('/restore/{id}', [AdminSupplierController::class, 'restore'])->name('restore'); // Khôi phục
     Route::post('/toggle-status/{id}', [AdminSupplierController::class, 'toggleStatus'])->name('toggleStatus');
 });
-//Route NhanVien
+
+//Route Admin NhanVien
 Route::prefix('admin/nhanviens')->middleware(AdminMiddleware::class)->name('admins.nhanvien.')->group(function () {
     Route::get('/', [AdminNhanVienController::class, 'index'])->name('index');
     Route::get('/create', [AdminNhanVienController::class, 'create'])->name('create');
@@ -241,17 +243,30 @@ Route::prefix('admin/nhanviens')->middleware(AdminMiddleware::class)->name('admi
     Route::patch('/archive/bulk', [AdminNhanvienController::class, 'archiveBulk'])->name('archive.bulk');
 });
 
-//Route Order
+//Route Admin Order
 Route::prefix('admin/orders')->middleware(AdminMiddleware::class)->group(function(){
     Route::get('/',[AdminOrderController::class,'index'])->name('admin.orders.list');
     Route::get('/{id}/detail', [AdminOrderController::class, 'detail'])->name('admin.orders.detail');
     Route::post('/filter', [AdminOrderController::class, 'filter'])->name('admin.orders.filter');
 });
 
-
+//Route Admin Dashboard
 Route::prefix('admin/dashboard')->group(function() {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
 });
+
+//Route Admin Shop Material
+Route::prefix('admin/shop-materials')->middleware(AdminMiddleware::class)->name('admins.shopmaterial.')->group(function(){
+    Route::get('/', [AdminShopmaterialController::class, 'index'])->name('index');
+    Route::get('/create', [AdminShopmaterialController::class, 'create'])->name('create');
+    Route::post('/store', [AdminShopmaterialController::class, 'store'])->name('store');
+    Route::get('/{id}/edit', [AdminShopmaterialController::class, 'edit'])->name('edit');
+    Route::put('/{id}/update', [AdminShopmaterialController::class, 'update'])->name('update');
+    Route::delete('/{id}', [AdminShopmaterialController::class, 'destroy'])->name('destroy');
+    Route::get('/import-page', [AdminShopmaterialController::class, 'showImportPage'])->name('showImportPage');
+    Route::post('/import', [AdminShopmaterialController::class, 'import'])->name('import');
+});
+
 ///////////////////////////////////////////////////////////////////////////
 //Start - Staff
 //Route Staff home
