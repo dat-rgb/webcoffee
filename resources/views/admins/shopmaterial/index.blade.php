@@ -24,7 +24,7 @@
                     </ul>
                 </div>
 
-                {{-- Dropdown chọn cửa hàng --}}
+                {{-- Dropdown chọn cửa hàng
                 <div class="card-header">
                     <form action="{{ url()->current() }}" method="GET" class="flex-wrap d-flex align-items-center justify-content-between">
                         <div class="mb-2 mb-lg-0" style="min-width: 250px;">
@@ -53,12 +53,66 @@
                                 class="btn btn-primary"
                                 {{ !request('ma_cua_hang') ? 'disabled' : '' }}
                                 onclick="{{ !request('ma_cua_hang') ? 'return alert(\'Vui lòng chọn cửa hàng trước.\')' : '' }}">
-                            <i class="fa fa-plus"></i> Nhập nguyên liệu
+                            <i class="fas fa-file-import"></i> Nhập nguyên liệu
                         </button>
                     </form>
+                    <form id="exportMaterialsForm" action="{{ route('admins.shopmaterial.showExportPage') }}" method="GET">
+                        <button type="submit"
+                                class="btn btn-primary"
+                                {{ !request('ma_cua_hang') ? 'disabled' : '' }}
+                                onclick="{{ !request('ma_cua_hang') ? 'return alert(\'Vui lòng chọn cửa hàng trước.\')' : '' }}">
+                            <i class="fas fa-file-export"></i> Xuất nguyên liệu
+                        </button>
+                    </form>
+
+
+
+
+
+
+
+                </div> --}}
+                <div class="flex-wrap gap-3 card-header d-flex align-items-center justify-content-between">
+
+                    <form action="{{ url()->current() }}" method="GET" class="gap-3 d-flex align-items-center" style="min-width: 250px;">
+                        <select name="ma_cua_hang" class="form-select" onchange="this.form.submit()" required>
+                            @if(!request('ma_cua_hang'))
+                                <option value="" selected disabled>-- Chọn cửa hàng --</option>
+                            @endif
+                            @foreach($stores as $store)
+                                <option value="{{ $store->ma_cua_hang }}"
+                                    {{ request('ma_cua_hang') == $store->ma_cua_hang ? 'selected' : '' }}>
+                                    {{ $store->ten_cua_hang }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </form>
+                    <div class="gap-2 d-flex align-items-center">
+                        <a href="#"
+                        class="btn btn-primary {{ !request('ma_cua_hang') ? 'disabled' : '' }}"
+                        onclick="{{ !request('ma_cua_hang') ? 'return alert(\'Vui lòng chọn cửa hàng trước.\')' : '' }}">
+                            <i class="fa fa-plus"></i> Thêm nguyên liệu
+                        </a>
+
+                        <form id="selectMaterialsForm" action="{{ route('admins.shopmaterial.showImportPage') }}" method="GET">
+                            <button type="submit"
+                                    class="btn btn-primary"
+                                    {{ !request('ma_cua_hang') ? 'disabled' : '' }}
+                                    onclick="{{ !request('ma_cua_hang') ? 'return alert(\'Vui lòng chọn cửa hàng trước.\')' : '' }}">
+                                <i class="fas fa-file-import"></i> Nhập nguyên liệu
+                            </button>
+                        </form>
+
+                        <form id="exportMaterialsForm" action="{{ route('admins.shopmaterial.showExportPage') }}" method="GET">
+                            <button type="submit"
+                                    class="btn btn-primary"
+                                    {{ !request('ma_cua_hang') ? 'disabled' : '' }}
+                                    onclick="{{ !request('ma_cua_hang') ? 'return alert(\'Vui lòng chọn cửa hàng trước.\')' : '' }}">
+                                <i class="fas fa-file-export"></i> Xuất nguyên liệu
+                            </button>
+                        </form>
+                    </div>
                 </div>
-
-
                 {{-- Hiển thị danh sách kho --}}
                 <div class="card-body">
                     @if(!request('ma_cua_hang'))
@@ -146,7 +200,177 @@
 @push('scripts')
 <script src="{{ asset('admins/js/alert.js') }}"></script>
 <script src="{{ asset('admins/js/admin-category.js') }}"></script>
+
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+    // Các biến chung cho checkbox
+    const checkAll = document.getElementById('checkAll');
+    const checkboxes = document.querySelectorAll('input[name="materials[]"]');
+
+    // Lưu checkbox đã chọn trong localStorage theo key riêng cho import và export
+    let selectedMaterialsImport = JSON.parse(localStorage.getItem('selectedMaterialsImport')) || [];
+    let selectedMaterialsExport = JSON.parse(localStorage.getItem('selectedMaterialsExport')) || [];
+
+    // Đánh dấu checkbox với selectedMaterialsImport
+    checkboxes.forEach(cb => {
+        cb.checked = selectedMaterialsImport.includes(cb.value) || selectedMaterialsExport.includes(cb.value);
+    });
+
+    // Cập nhật checkbox toàn chọn
+    function updateCheckAll() {
+        checkAll.checked = checkboxes.length > 0 && [...checkboxes].every(cb => cb.checked);
+    }
+    updateCheckAll();
+
+    // Xử lý checkbox thay đổi
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', function () {
+            // Theo mặc định cập nhật selectedMaterialsImport, bạn có thể tùy chỉnh nếu muốn
+            // Ví dụ: nếu muốn dùng chung 1 danh sách cho cả 2, thì dùng chung 1 key localStorage.
+            if (this.checked) {
+                if (!selectedMaterialsImport.includes(this.value)) {
+                    selectedMaterialsImport.push(this.value);
+                }
+                if (!selectedMaterialsExport.includes(this.value)) {
+                    selectedMaterialsExport.push(this.value);
+                }
+            } else {
+                selectedMaterialsImport = selectedMaterialsImport.filter(v => v !== this.value);
+                selectedMaterialsExport = selectedMaterialsExport.filter(v => v !== this.value);
+            }
+            localStorage.setItem('selectedMaterialsImport', JSON.stringify(selectedMaterialsImport));
+            localStorage.setItem('selectedMaterialsExport', JSON.stringify(selectedMaterialsExport));
+            updateCheckAll();
+        });
+    });
+
+    // Xử lý checkAll
+    checkAll.addEventListener('change', function () {
+        if (this.checked) {
+            selectedMaterialsImport = [...checkboxes].map(cb => cb.value);
+            selectedMaterialsExport = [...checkboxes].map(cb => cb.value);
+        } else {
+            selectedMaterialsImport = [];
+            selectedMaterialsExport = [];
+        }
+        checkboxes.forEach(cb => cb.checked = this.checked);
+        localStorage.setItem('selectedMaterialsImport', JSON.stringify(selectedMaterialsImport));
+        localStorage.setItem('selectedMaterialsExport', JSON.stringify(selectedMaterialsExport));
+    });
+
+    // Click trên dòng toggle checkbox
+    const rows = document.querySelectorAll('table tbody tr');
+    rows.forEach(row => {
+        row.addEventListener('click', function (e) {
+            if (['A','BUTTON'].includes(e.target.tagName) || e.target.type === 'checkbox' || e.target.closest('.form-button-action')) {
+                return;
+            }
+            const checkbox = row.querySelector('input[type="checkbox"]');
+            if (checkbox) {
+                checkbox.checked = !checkbox.checked;
+                if (checkbox.checked) {
+                    if (!selectedMaterialsImport.includes(checkbox.value)) {
+                        selectedMaterialsImport.push(checkbox.value);
+                    }
+                    if (!selectedMaterialsExport.includes(checkbox.value)) {
+                        selectedMaterialsExport.push(checkbox.value);
+                    }
+                } else {
+                    selectedMaterialsImport = selectedMaterialsImport.filter(v => v !== checkbox.value);
+                    selectedMaterialsExport = selectedMaterialsExport.filter(v => v !== checkbox.value);
+                }
+                localStorage.setItem('selectedMaterialsImport', JSON.stringify(selectedMaterialsImport));
+                localStorage.setItem('selectedMaterialsExport', JSON.stringify(selectedMaterialsExport));
+                updateCheckAll();
+            }
+        });
+    });
+
+    // Xử lý form import
+    const importForm = document.getElementById('selectMaterialsForm');
+    if (importForm) {
+        importForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const selectedMaterials = JSON.parse(localStorage.getItem('selectedMaterialsImport')) || [];
+
+            if (selectedMaterials.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Chưa chọn nguyên liệu',
+                    text: 'Vui lòng chọn ít nhất 1 nguyên liệu để nhập.',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+
+            // Xóa các hidden input cũ nếu có
+            const oldInputs = importForm.querySelectorAll('input[name="materials[]"]');
+            oldInputs.forEach(input => input.remove());
+
+            // Tạo hidden input cho từng nguyên liệu
+            selectedMaterials.forEach(id => {
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'materials[]';
+                hiddenInput.value = id;
+                importForm.appendChild(hiddenInput);
+            });
+
+            localStorage.removeItem('selectedMaterialsImport');
+            importForm.submit();
+        });
+    }
+
+    // Xử lý form export tương tự
+    const exportForm = document.getElementById('exportMaterialsForm');
+    if (exportForm) {
+        exportForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const selectedMaterials = JSON.parse(localStorage.getItem('selectedMaterialsExport')) || [];
+
+            if (selectedMaterials.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Chưa chọn nguyên liệu',
+                    text: 'Vui lòng chọn ít nhất 1 nguyên liệu để xuất.',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+
+            // Xóa các hidden input cũ nếu có
+            const oldInputs = exportForm.querySelectorAll('input[name="materials[]"]');
+            oldInputs.forEach(input => input.remove());
+
+            // Tạo hidden input cho từng nguyên liệu
+            selectedMaterials.forEach(id => {
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'materials[]';
+                hiddenInput.value = id;
+                exportForm.appendChild(hiddenInput);
+            });
+
+            localStorage.removeItem('selectedMaterialsExport');
+            exportForm.submit();
+        });
+    }
+
+    // Nếu reload F5 → clear localStorage
+    const navEntry = performance.getEntriesByType("navigation")[0];
+    if (navEntry && navEntry.type === "reload") {
+        localStorage.removeItem('selectedMaterialsImport');
+        localStorage.removeItem('selectedMaterialsExport');
+        console.log('Reload detected, cleared selectedMaterials');
+    }
+});
+
+</script>
+@endpush
+
+{{-- <script>
 document.addEventListener('DOMContentLoaded', function () {
     const checkAll = document.getElementById('checkAll');
     const checkboxes = document.querySelectorAll('input[name="materials[]"]');
@@ -260,7 +484,4 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log('Reload detected, cleared selectedMaterials');
     }
 });
-</script>
-@endpush
-
-
+</script> --}}

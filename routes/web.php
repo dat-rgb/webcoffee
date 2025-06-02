@@ -265,6 +265,11 @@ Route::prefix('admin/shop-materials')->middleware(AdminMiddleware::class)->name(
     Route::delete('/{id}', [AdminShopmaterialController::class, 'destroy'])->name('destroy');
     Route::get('/import-page', [AdminShopmaterialController::class, 'showImportPage'])->name('showImportPage');
     Route::post('/import', [AdminShopmaterialController::class, 'import'])->name('import');
+<<<<<<< HEAD
+    Route::get('/export-page',[AdminShopmaterialController::class,'showExportPage'])->name('showExportPage');
+    Route::post('/export',[AdminShopmaterialController::class,'export'])->name('export');
+=======
+>>>>>>> 8e941f4ebc1f535d3eb4618a9a414e4ec94baa0f
 });
 
 ///////////////////////////////////////////////////////////////////////////

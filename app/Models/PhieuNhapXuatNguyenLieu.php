@@ -21,6 +21,7 @@ class PhieuNhapXuatNguyenLieu extends Model
         'han_su_dung',
         'so_luong',
         'dinh_luong',
+        'so_luong_ton_truoc',
         'don_vi',
         'gia_tien',
         'tong_tien',
