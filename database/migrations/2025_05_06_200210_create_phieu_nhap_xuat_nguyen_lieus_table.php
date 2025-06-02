@@ -24,6 +24,7 @@ return new class extends Migration
             $table->dateTime('han_su_dung')->nullable();
             $table->float('so_luong');
             $table->float('dinh_luong');
+            $table->float(column: 'so_luong_ton_truoc'); // đây là lưu lại số lượng tồn của nguyên liệu đó trước nhập vào
             $table->string('don_vi', 50);
             $table->float('gia_tien')->default(0)->nullable();
             $table->float('tong_tien')->default(0)->nullable();
@@ -38,6 +39,10 @@ return new class extends Migration
         });
 
     }
+    //kiểm tra lại số lượng đã dùng của lô = tồn kho - tồn trước
+    //if số lượng đã dùng nhỏ hơn số lượng nhập thì đag dùng thì chx dùng  //hủy, xuát
+    //if số lượng đã dùng bằng số lượng nhập thì đã dùng hết
+    //if số lượng đã dùng lớn hơn số lượng nhập thì đã dùng qua lô khác
 
     /**
      * Reverse the migrations.

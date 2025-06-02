@@ -5,10 +5,9 @@
 <div class="page-inner">
     @if ($materials->isEmpty())
         <div class="alert alert-warning">
-            Không có nguyên liệu nào để nhập.
+            Không có nguyên liệu nào để xuất.
         </div>
     @else
-    <!-- Đặt ngay đây, trước <form> -->
         @if ($errors->any())
             <div class="alert alert-danger">
                 <ul>
@@ -18,7 +17,7 @@
                 </ul>
             </div>
         @endif
-        <form action="{{ route('admins.shopmaterial.import') }}" method="POST">
+        <form action="{{ route('admins.shopmaterial.export') }}" method="POST">
             @csrf
             <div class="card">
                 <div class="shadow-sm card rounded-4">
@@ -28,10 +27,10 @@
                         @endphp
                         @if (optional($firstMaterial->cuaHang)->ten_cua_hang)
                             <h3 class="fw-bold">
-                                Nhập nguyên liệu vào kho cửa hàng {{ $firstMaterial->cuaHang->ten_cua_hang }}
+                                Xuất nguyên liệu khỏi kho cửa hàng {{ $firstMaterial->cuaHang->ten_cua_hang }}
                             </h3>
                             <h5>
-                                Ngày nhập: {{ $today }}
+                                Ngày xuất: {{ $today }}
                             </h5>
                             <h5>
                                 Số lô: {{ $soLo }}
@@ -39,7 +38,7 @@
                             <input type="hidden" name="soLo" value="{{ $soLo }}">
                         @else
                             <h3 class="fw-bold">
-                                Nhập nguyên liệu vào kho (Không xác định)
+                                Xuất nguyên liệu khỏi kho (Không xác định)
                             </h3>
                             <h5>
                                 Ngày hiện tại: {{ $today }}
@@ -53,7 +52,7 @@
                                     <tr>
                                         <th class="px-2 py-2">Mã nguyên liệu</th>
                                         <th class="px-2 py-2">Tên nguyên liệu</th>
-                                        <th class="px-2 py-2">Định lương</th>
+                                        <th class="px-2 py-2">Định lượng</th>
                                         <th class="px-2 py-2">Số lượng tồn</th>
                                         <th class="px-2 py-2">Số lượng tối đa</th>
                                         <th class="px-2 py-2" style="white-space: nowrap;">
@@ -76,34 +75,37 @@
                                         <td class="px-2 py-2">{{ $material->so_luong_ton_max .' '. $material->don_vi }}</td>
                                         <td class="px-2 py-2">
                                             @php
-                                                $maxImport = $material->so_luong_ton_max - $material->so_luong_ton;
-                                                if ($maxImport < 1) $maxImport = 0;
+                                                $maxExport = $material->so_luong_ton;
                                             @endphp
-                                            @if ($maxImport == 0)
-                                                <input type="hidden" name="import[{{ $material->ma_cua_hang }}][{{ $material->ma_nguyen_lieu }}]" value="0">
+                                            @if ($maxExport == 0)
+                                                <input type="hidden" name="export[{{ $material->ma_cua_hang }}][{{ $material->ma_nguyen_lieu }}]" value="0">
                                             @endif
                                             <input
                                                 type="number"
-                                                name="import[{{ $material->ma_cua_hang }}][{{ $material->ma_nguyen_lieu }}]"
+                                                name="export[{{ $material->ma_cua_hang }}][{{ $material->ma_nguyen_lieu }}]"
                                                 class="form-control form-control-sm"
                                                 step="any"
                                                 min="0.01"
-                                                max="{{ $maxImport }}"
-                                                {{ $maxImport == 0 ? 'disabled' : '' }}
+                                                max="{{ $maxExport }}"
+                                                {{ $maxExport == 0 ? 'disabled' : '' }}
                                             >
                                         </td>
-                                        <td>
+                                        {{-- <td>
                                             <input type="date"
                                             name="nsx[{{ $material->ma_cua_hang }}][{{ $material->ma_nguyen_lieu }}]"
                                             class="form-control form-control-sm"
-                                            value="{{ old('nsx.'.$material->ma_cua_hang.'.'.$material->ma_nguyen_lieu) }}">
+                                            value="{{ old('nsx.'.$material->ma_cua_hang.'.'.$material->ma_nguyen_lieu, $material->ngay_san_xuat) }}">
+
                                         </td>
                                         <td>
                                             <input type="date"
                                             name="hsd[{{ $material->ma_cua_hang }}][{{ $material->ma_nguyen_lieu }}]"
                                             class="form-control form-control-sm"
-                                            value="{{ old('hsd.'.$material->ma_cua_hang.'.'.$material->ma_nguyen_lieu) }}">
-                                        </td>
+                                            value="{{ old('hsd.'.$material->ma_cua_hang.'.'.$material->ma_nguyen_lieu, $material->han_su_dung) }}">
+
+                                        </td> --}}
+                                        <td>{{ \Carbon\Carbon::parse($material->ngay_san_xuat)->format('d/m/Y') }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($material->han_su_dung)->format('d/m/Y') }}</td>
                                         <td class="px-2 py-2" style="width: 200px;">
                                             <input type="text" name="note[{{ $material->ma_cua_hang }}][{{ $material->ma_nguyen_lieu }}]" class="form-control form-control-sm" placeholder="nhập...">
                                         </td>
@@ -117,19 +119,18 @@
                         </div>
                     </div>
                     <div class="card-footer text-end">
-                        <button type="submit" class="btn btn-success">Xác nhận nhập hàng</button>
+                        <button type="submit" class="btn btn-danger">Xác nhận xuất hàng</button>
                         <a href="{{ route('admins.shopmaterial.index') }}" class="btn btn-secondary">Quay lại</a>
                     </div>
                 </div>
-
             </div>
         </form>
     @endif
 </div>
 @endsection
+
 @push('scripts')
 <script src="{{ asset('admins/js/alert.js') }}"></script>
-{{--<script src="{{ asset('admins/js/admin-category.js') }}"></script> --}}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -159,4 +160,6 @@
     });
 </script>
 @endpush
+
+
 
