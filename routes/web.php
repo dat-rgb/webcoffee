@@ -24,6 +24,7 @@ use App\Http\Controllers\payments\Napas247Controller;
 use App\Http\Controllers\payments\PaymentController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\staffs\StaffHomeController;
+use App\Http\Controllers\staffs\StaffOrderController;
 use App\Http\Controllers\StoreController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\KhachHangMiddleware;
@@ -96,6 +97,7 @@ Route::prefix('cart')->group(function(){
     });
 
     Route::get('/check-out',[CartController::class,'checkout'])->name('cart.check-out');
+    Route::get('/voucher/check', [CartController::class, 'check']);
 });
 
 //Route Payment
@@ -107,7 +109,7 @@ Route::prefix('payment')->group(function(){
     Route::get('/checkout-status',[PaymentController::class,'checkoutStatus'])->name('checkout_status');
 });
 
-//Tin tức
+//Tin tức   
 Route::prefix('tin-tuc')->group(function(){
     Route::get('/', [BlogController::class, 'index'])->name('blog');
     Route::get('/chi-tiet', [BlogController::class, 'blogDetail'])->name('blog.detail');
@@ -118,8 +120,14 @@ Route::prefix('customer')->middleware(KhachHangMiddleware::class)->group(functio
     Route::get('/profile', [CustomerController::class, 'index'])->name('customer.index');
     Route::get('/order-history',[CustomerOrderController::class,'index'])->name('customer.order.history');
     Route::get('/favorites',[CustomerFavoriteController::class,'showFavorite'])->name('favorite.show');
+    Route::put('/profile/update',[CustomerController::class,'updateInfo'])->name('customer.update');
+    Route::post('/store/address',[CustomerController::class,'storeAddress'])->name('customer.address.store');
+    
 });
+
 Route::post('/favorite/toggle/{id}', [CustomerFavoriteController::class, 'favoriteProduct'])->name('favorite.toggle');
+Route::get('api/dia-chi', [CustomerController::class, 'getDiaChi'])->name('api.diachi');
+
 //End - User
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -231,22 +239,14 @@ Route::prefix('admin/nhanviens')->middleware(AdminMiddleware::class)->name('admi
     Route::patch('/restore/{id}', action: [AdminNhanvienController::class, 'restore'])->name('restore'); // Khôi phục
     Route::patch('/restore-bulk', [AdminNhanvienController::class, 'bulkRestore'])->name('restore.bulk');
     Route::patch('/archive/bulk', [AdminNhanvienController::class, 'archiveBulk'])->name('archive.bulk');
-
 });
 
 //Route Order
 Route::prefix('admin/orders')->middleware(AdminMiddleware::class)->group(function(){
     Route::get('/',[AdminOrderController::class,'index'])->name('admin.orders.list');
+    Route::get('/{id}/detail', [AdminOrderController::class, 'detail'])->name('admin.orders.detail');
+    Route::post('/filter', [AdminOrderController::class, 'filter'])->name('admin.orders.filter');
 });
-
-///////////////////////////////////////////////////////////////////////////
-//Start - Staff
-//Route Staff home
-Route::prefix('staff')->middleware(NhanVienMiddleware::class)->group(function(){
-    Route::get('', [StaffHomeController::class, 'index'])->name('staff');
-});
-
-//End - Staff
 
 //Route AdminShopMaterial
 Route::prefix('admin/shop-materials')->middleware(AdminMiddleware::class)->name('admins.shopmaterial.')->group(function(){
@@ -258,7 +258,33 @@ Route::prefix('admin/shop-materials')->middleware(AdminMiddleware::class)->name(
     Route::delete('/{id}', [AdminShopmaterialController::class, 'destroy'])->name('destroy');
     Route::get('/import-page', [AdminShopmaterialController::class, 'showImportPage'])->name('showImportPage');
     Route::post('/import', [AdminShopmaterialController::class, 'import'])->name('import');
+<<<<<<< HEAD
     Route::get('/export-page',[AdminShopmaterialController::class,'showExportPage'])->name('showExportPage');
     Route::post('/export',[AdminShopmaterialController::class,'export'])->name('export');
+=======
+>>>>>>> 8e941f4ebc1f535d3eb4618a9a414e4ec94baa0f
 });
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////////
+//Start - Staff
+//Route Staff home
+Route::prefix('staff')->middleware(NhanVienMiddleware::class)->group(function(){
+    Route::get('', [StaffHomeController::class, 'index'])->name('staff');
+});
+
+Route::prefix('staff/orders')->middleware(NhanVienMiddleware::class)->group(function(){
+    Route::get('/', [StaffOrderController::class, 'orderStore'])->name('staff.orders.list');
+    Route::get('/{id}/detail', [StaffOrderController::class, 'detail'])->name('staff.orders.detail');
+    Route::post('/filter', [StaffOrderController::class, 'filter'])->name('staff.orders.filter');
+    Route::post('/details-multi', [StaffOrderController::class, 'detailsMulti']);
+    Route::post('/update-status', [StaffOrderController::class, 'updateStatusOrder'])->name('staff.orders.updateStatus');
+});
+
+//End - Staff
+
+
 
