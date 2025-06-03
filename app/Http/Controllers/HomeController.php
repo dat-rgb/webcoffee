@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Blog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 class HomeController extends Controller
@@ -15,9 +16,12 @@ class HomeController extends Controller
         return view('clients.pages.home', $viewData);
     }
 
-    public function about(){
+    public function about() {
+        $blog = Blog::with('danhMuc')->where('ma_danh_muc_blog', 1)->first(); 
+
         $viewData = [
-            'title'=> 'Giới thiệu | CMDT Coffee & Tea'   
+            'title' => 'Giới thiệu | CMDT Coffee & Tea',
+            'blog'  => $blog,
         ];
 
         return view('clients.pages.about', $viewData);

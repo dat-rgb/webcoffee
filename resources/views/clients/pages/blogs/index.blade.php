@@ -1,5 +1,8 @@
 @extends('layouts.app')
 @section('title', $title)
+@push('styles')
+
+@endpush
 @section('content')
 <!-- breadcrumb-section -->
 <div class="breadcrumb-section breadcrumb-bg">
@@ -7,8 +10,8 @@
         <div class="row">
             <div class="col-lg-8 offset-lg-2 text-center">
                 <div class="breadcrumb-text">
-                    <p>Tin Tức</p>
-                    <h1>Chuyện Nhà Coffee</h1>
+                    <p>Coffee & Tea</p>
+                    <h1>Chuyện Nhà CDMT</h1>
                 </div>
             </div>
         </div>
@@ -18,93 +21,49 @@
 
 <!-- latest news -->
 <div class="latest-news mt-150 mb-150">
+    @if(!$blogs)
+    <div class="container d-flex justify-content-center align-items-center">
+        <div class="col-md-12 text-center">
+           <h5>Nội dung đang được cập nhật...</h5>
+        </div>
+    </div>
+    @else
     <div class="container">
         <div class="row">
-            <div class="col-lg-4 col-md-6">
-                <div class="single-latest-news">
-                    <a href="{{ route('blog.detail') }}"><div class="latest-news-bg news-bg-1"></div></a>
-                    <div class="news-text-box">
-                        <h3><a href="{{ route('blog.detail') }}">You will vainly look for fruit on it in autumn.</a></h3>
-                        <p class="blog-meta">
-                            <span class="author"><i class="fas fa-user"></i> Admin</span>
-                            <span class="date"><i class="fas fa-calendar"></i> 27 December, 2019</span>
-                        </p>
-                        <p class="excerpt">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatibus laborum autem, dolores inventore, beatae nam.</p>
-                        <a href="{{ route('blog.detail') }}" class="read-more-btn">read more <i class="fas fa-angle-right"></i></a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6">
-                <div class="single-latest-news">
-                    <a href="{{ route('blog.detail') }}"><div class="latest-news-bg news-bg-2"></div></a>
-                    <div class="news-text-box">
-                        <h3><a href="{{ route('blog.detail') }}">A man's worth has its season, like tomato.</a></h3>
-                        <p class="blog-meta">
-                            <span class="author"><i class="fas fa-user"></i> Admin</span>
-                            <span class="date"><i class="fas fa-calendar"></i> 27 December, 2019</span>
-                        </p>
-                        <p class="excerpt">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatibus laborum autem, dolores inventore, beatae nam.</p>
-                        <a href="{{ route('blog.detail') }}" class="read-more-btn">read more <i class="fas fa-angle-right"></i></a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6">
-                <div class="single-latest-news">
-                    <a href="{{ route('blog.detail') }}"><div class="latest-news-bg news-bg-3"></div></a>
-                    <div class="news-text-box">
-                        <h3><a href="{{ route('blog.detail') }}">Good thoughts bear good fresh juicy fruit.</a></h3>
-                        <p class="blog-meta">
-                            <span class="author"><i class="fas fa-user"></i> Admin</span>
-                            <span class="date"><i class="fas fa-calendar"></i> 27 December, 2019</span>
-                        </p>
-                        <p class="excerpt">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatibus laborum autem, dolores inventore, beatae nam.</p>
-                        <a href="{{ route('blog.detail') }}" class="read-more-btn">read more <i class="fas fa-angle-right"></i></a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6">
-                <div class="single-latest-news">
-                    <a href="{{ route('blog.detail') }}"><div class="latest-news-bg news-bg-4"></div></a>
-                    <div class="news-text-box">
-                        <h3><a href="{{ route('blog.detail') }}">Fall in love with the fresh orange</a></h3>
-                        <p class="blog-meta">
-                            <span class="author"><i class="fas fa-user"></i> Admin</span>
-                            <span class="date"><i class="fas fa-calendar"></i> 27 December, 2019</span>
-                        </p>
-                        <p class="excerpt">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatibus laborum autem, dolores inventore, beatae nam.</p>
-                        <a href="{{ route('blog.detail') }}" class="read-more-btn">read more <i class="fas fa-angle-right"></i></a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6">
-                <div class="single-latest-news">
-                    <a href="{{ route('blog.detail') }}"><div class="latest-news-bg news-bg-5"></div></a>
-                    <div class="news-text-box">
-                        <h3><a href="{{ route('blog.detail') }}">Why the berries always look delecious</a></h3>
-                        <p class="blog-meta">
-                            <span class="author"><i class="fas fa-user"></i> Admin</span>
-                            <span class="date"><i class="fas fa-calendar"></i> 27 December, 2019</span>
-                        </p>
-                        <p class="excerpt">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatibus laborum autem, dolores inventore, beatae nam.</p>
-                        <a href="{{ route('blog.detail') }}" class="read-more-btn">read more <i class="fas fa-angle-right"></i></a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6">
-                <div class="single-latest-news">
-                    <a href="{{ route('blog.detail') }}"><div class="latest-news-bg news-bg-6"></div></a>
-                    <div class="news-text-box">
-                        <h3><a href="{{ route('blog.detail') }}">Love for fruits are genuine of John Doe</a></h3>
-                        <p class="blog-meta">
-                            <span class="author"><i class="fas fa-user"></i> Admin</span>
-                            <span class="date"><i class="fas fa-calendar"></i> 27 December, 2018</span>
-                        </p>
-                        <p class="excerpt">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatibus laborum autem, dolores inventore, beatae nam.</p>
-                        <a href="{{ route('blog.detail') }}" class="read-more-btn">read more <i class="fas fa-angle-right"></i></a>
-                    </div>
+            <div class="col-md-12">
+                <div class="product-filters">
+                    <ul>
+                        <li class="active" data-filter="*">All</li>
+                        @foreach ($danhMucBlog as $dm)
+                            <li data-filter=".{{ $dm->ma_danh_muc_blog }}" >
+                                {{ $dm->ten_danh_muc_blog }}
+                            </li>
+                        @endforeach
+                    </ul>
                 </div>
             </div>
         </div>
+        <div class="row">
+            @foreach ($blogs as $blog)
+                <div class="col-lg-4 col-md-6">
+                    <div class="single-latest-news">
+                        <a href="{{ route('blog.detail', $blog->slug) }}">
+                            <div class="latest-news-bg" style="background-image: url('{{ asset('storage/' . $blog->hinh_anh) }}'); height: 250px; background-size: cover; background-position: center;"></div>
+                        </a>
+                        <div class="news-text-box">
+                            <h3><a href="{{ route('blog.detail', $blog->slug) }}">{{ $blog->tieu_de }}</a></h3>
+                            <p class="blog-meta">
+                                <span class="author"><i class="fas fa-user"></i> {{ $blog->tac_gia }}</span>
+                                <span class="date"><i class="fas fa-calendar"></i> {{ \Carbon\Carbon::parse($blog->ngay_dang)->format('d/m/Y') }}</span>
+                            </p>
+                            <p class="excerpt">{!! \Str::limit(strip_tags($blog->noi_dung), 100) !!}</p>
+                            <a href="{{ route('blog.detail', $blog->slug) }}" class="read-more-btn">Xem thêm <i class="fas fa-angle-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+
 
         <div class="row">
             <div class="container">
@@ -124,6 +83,7 @@
             </div>
         </div>
     </div>
+    @endif
 </div>
 <!-- end latest news -->
 @endsection

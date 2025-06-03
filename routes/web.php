@@ -1,4 +1,5 @@
 <?php
+use App\Http\Controllers\admins\AdminBlogController;
 use App\Http\Controllers\admins\AdminHomeController;
 use App\Http\Controllers\admins\AdminOrderController;
 use App\Http\Controllers\admins\AdminProductController;
@@ -111,9 +112,9 @@ Route::prefix('payment')->group(function(){
 });
 
 //Tin tức   
-Route::prefix('tin-tuc')->group(function(){
+Route::prefix('blog')->group(function(){
     Route::get('/', [BlogController::class, 'index'])->name('blog');
-    Route::get('/chi-tiet', [BlogController::class, 'blogDetail'])->name('blog.detail');
+    Route::get('/{slug}', [BlogController::class, 'detail'])->name('blog.detail');    
 });
 
 //Khách hàng
@@ -270,6 +271,13 @@ Route::prefix('admin/shop-materials')->middleware(AdminMiddleware::class)->name(
 
 });
 
+//Route Admin Blog
+Route::prefix('admin/blog')->middleware(AdminMiddleware::class)->group(function(){
+    Route::get('/',[AdminBlogController::class,'index'])->name('admin.blog.index');
+    Route::get('/add-blog',[AdminBlogController::class,'showFormBlog'])->name('admin.blog.form');
+    Route::post('/add-blog',[AdminBlogController::class,'add'])->name('admin.blog.add');
+});
+
 ///////////////////////////////////////////////////////////////////////////
 //Start - Staff
 //Route Staff home
@@ -284,7 +292,7 @@ Route::prefix('staff/orders')->middleware(NhanVienMiddleware::class)->group(func
     Route::post('/update-status', [StaffOrderController::class, 'updateStatusOrder'])->name('staff.orders.updateStatus');
 });
 
-//Route Admin Dashboard
+//Route Staff Dashboard
 Route::prefix('staff/dashboard')->group(function() {
     Route::get('/', [StaffDashboardController::class, 'index'])->name('staff.dashboard');
 });

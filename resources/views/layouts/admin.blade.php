@@ -1,43 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>@yield('title',"Admin CDMT Coffee & Tea")</title>
-    <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport"/>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+      <title>@yield('title',"Admin CDMT Coffee & Tea")</title>
+      <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport"/>
+      <meta name="csrf-token" content="{{ csrf_token() }}">
+      <link rel="icon" href="{{ asset('admins/img/kaiadmin/favicon.ico') }}" type="image/x-icon"/>
+      <!-- Fonts and icons -->
+      <script src="{{ asset('admins/js/plugin/webfont/webfont.min.js') }}"></script>
+      <script>
+        WebFont.load({
+          google: { families: ["Public Sans:300,400,500,600,700"] },
+          custom: {
+            families: [
+              "Font Awesome 5 Solid",
+              "Font Awesome 5 Regular",
+              "Font Awesome 5 Brands",
+              "simple-line-icons",
+            ],
+            urls: ["{{ asset('admins/css/fonts.min.css') }}"],
+          },
+          active: function () {
+            sessionStorage.fonts = true;
+          },
+        });
+      </script>
+      <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+        
+      <!-- CSS Files -->
+      <link rel="stylesheet" href="{{ asset('admins/css/bootstrap.min.css') }}" />
+      <link rel="stylesheet" href="{{ asset('admins/css/plugins.min.css') }}" />
+      <link rel="stylesheet" href="{{ asset('admins/css/kaiadmin.min.css') }}" />
 
-    <link rel="icon" href="{{ asset('admins/img/kaiadmin/favicon.ico') }}" type="image/x-icon"/>
-    <!-- Fonts and icons -->
-    <script src="{{ asset('admins/js/plugin/webfont/webfont.min.js') }}"></script>
-    <script>
-      WebFont.load({
-        google: { families: ["Public Sans:300,400,500,600,700"] },
-        custom: {
-          families: [
-            "Font Awesome 5 Solid",
-            "Font Awesome 5 Regular",
-            "Font Awesome 5 Brands",
-            "simple-line-icons",
-          ],
-          urls: ["{{ asset('admins/css/fonts.min.css') }}"],
-        },
-        active: function () {
-          sessionStorage.fonts = true;
-        },
-      });
-    </script>
-
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
-
-    <!-- CSS Files -->
-    <link rel="stylesheet" href="{{ asset('admins/css/bootstrap.min.css') }}" />
-    <link rel="stylesheet" href="{{ asset('admins/css/plugins.min.css') }}" />
-    <link rel="stylesheet" href="{{ asset('admins/css/kaiadmin.min.css') }}" />
-
-    <!-- CSS Just for demo purpose, don't include it in your project -->
-    <link rel="stylesheet" href="{{ asset('admins/css/demo.css') }}" />
-    @stack('styles')
-
+      <!-- CSS Just for demo purpose, don't include it in your project -->
+      <link rel="stylesheet" href="{{ asset('admins/css/demo.css') }}" />
+      @stack('styles')
   </head>
   <body>
     <div class="wrapper">
@@ -337,7 +334,7 @@
                       <div class="collapse" id="subnav4">
                         <ul class="nav nav-collapse subnav">
                           <li>
-                            <a href="#">
+                            <a href="{{ route('admin.blog.index') }}">
                               <span class="sub-item">Danh sách blog</span>
                             </a>
                           </li>
