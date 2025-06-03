@@ -109,7 +109,7 @@ Route::prefix('payment')->group(function(){
     Route::get('/checkout-status',[PaymentController::class,'checkoutStatus'])->name('checkout_status');
 });
 
-//Tin tức   
+//Tin tức
 Route::prefix('tin-tuc')->group(function(){
     Route::get('/', [BlogController::class, 'index'])->name('blog');
     Route::get('/chi-tiet', [BlogController::class, 'blogDetail'])->name('blog.detail');
@@ -122,7 +122,7 @@ Route::prefix('customer')->middleware(KhachHangMiddleware::class)->group(functio
     Route::get('/favorites',[CustomerFavoriteController::class,'showFavorite'])->name('favorite.show');
     Route::put('/profile/update',[CustomerController::class,'updateInfo'])->name('customer.update');
     Route::post('/store/address',[CustomerController::class,'storeAddress'])->name('customer.address.store');
-    
+
 });
 
 Route::post('/favorite/toggle/{id}', [CustomerFavoriteController::class, 'favoriteProduct'])->name('favorite.toggle');
@@ -258,11 +258,9 @@ Route::prefix('admin/shop-materials')->middleware(AdminMiddleware::class)->name(
     Route::delete('/{id}', [AdminShopmaterialController::class, 'destroy'])->name('destroy');
     Route::get('/import-page', [AdminShopmaterialController::class, 'showImportPage'])->name('showImportPage');
     Route::post('/import', [AdminShopmaterialController::class, 'import'])->name('import');
-<<<<<<< HEAD
     Route::get('/export-page',[AdminShopmaterialController::class,'showExportPage'])->name('showExportPage');
     Route::post('/export',[AdminShopmaterialController::class,'export'])->name('export');
-=======
->>>>>>> 8e941f4ebc1f535d3eb4618a9a414e4ec94baa0f
+
 });
 
 
