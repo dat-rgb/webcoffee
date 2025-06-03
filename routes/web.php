@@ -20,6 +20,7 @@ use App\Http\Controllers\customers\CustomerController;
 use App\Http\Controllers\customers\CustomerFavoriteController;
 use App\Http\Controllers\customers\CustomerOrderController;
 use App\Http\Controllers\dashboards\AdminDashboardController;
+use App\Http\Controllers\dashboards\StaffDashboardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\payments\Napas247Controller;
 use App\Http\Controllers\payments\PaymentController;
@@ -281,6 +282,10 @@ Route::prefix('staff/orders')->middleware(NhanVienMiddleware::class)->group(func
     Route::post('/update-status', [StaffOrderController::class, 'updateStatusOrder'])->name('staff.orders.updateStatus');
 });
 
+//Route Admin Dashboard
+Route::prefix('staff/dashboard')->group(function() {
+    Route::get('/', [StaffDashboardController::class, 'index'])->name('staff.dashboard');
+});
 //End - Staff
 
 
