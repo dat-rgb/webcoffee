@@ -83,7 +83,7 @@
                   <div class="collapse" id="dashboard">
                     <ul class="nav nav-collapse">
                       <li>
-                        <a href="#">
+                        <a href="{{ route('staff.dashboard') }}">
                           <span class="sub-item">{{ Auth::guard('staff')->user()->nhanvien->cuaHang->ten_cua_hang }}</span>
                         </a>
                       </li>

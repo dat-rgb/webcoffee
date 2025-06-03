@@ -34,6 +34,7 @@ class StaffOrderController extends Controller
 
         $orders = HoaDon::with(['khachHang', 'chiTietHoaDon'])
             ->where('ma_cua_hang', $nhanVien->ma_cua_hang)
+            ->orderByDesc('ngay_lap_hoa_don')
             ->get();
 
         return view('staffs.orders.index', [
@@ -43,47 +44,42 @@ class StaffOrderController extends Controller
         ]); 
     }
     public function filter(Request $request)
-    {
-        $query = HoaDon::with(['khachHang', 'chiTietHoaDon']);
+{
+    $nhanVien = Auth::guard('staff')->user()->nhanvien ?? null;
+    $query = HoaDon::query();
 
-        if ($request->filled('ma_cua_hang')) {
-            $query->where('ma_cua_hang', $request->ma_cua_hang);
-        } else {
-            // Nếu không có cửa hàng thì trả về rỗng luôn
-            return response()->json('');
-        }
-
-        if ($request->filled('pt_thanh_toan')) {
-            $query->where('phuong_thuc_thanh_toan', $request->pt_thanh_toan);
-        }
-
-        if ($request->filled('tt_thanh_toan')) {
-            $query->where('trang_thai_thanh_toan', $request->tt_thanh_toan);
-        }
-
-        if ($request->filled('trang_thai')) {
-            $query->where('trang_thai', $request->trang_thai);
-        }
-
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('ma_hoa_don', 'like', "%$search%")
-                ->orWhere('ten_khach_hang', 'like', "%$search%");
-            });
-        }
-
-        $orders = $query->get();
-
-        return view('staffs.orders._order_tbody', compact('orders'));
+    if ($nhanVien && $nhanVien->ma_cua_hang) {
+        $query->where('ma_cua_hang', $nhanVien->ma_cua_hang);
     }
+
+    if ($request->pt_thanh_toan) {
+        $query->where('phuong_thuc_thanh_toan', $request->pt_thanh_toan);
+    }
+
+    if (is_numeric($request->trang_thai)) {
+        $query->where('trang_thai', $request->trang_thai);
+    }
+
+    if ($request->search) {
+        $search = $request->search;
+        $query->where(function($q) use ($search) {
+            $q->where('ma_hoa_don', 'like', "%$search%")
+              ->orWhere('ten_khach_hang', 'like', "%$search%");
+        });
+    }
+
+    $orders = $query->latest()->get();
+
+    return view('staffs.orders._order_tbody', compact('orders'))->render();
+}
+
     public function detail($id)
     {
         $order = HoaDon::with(['khachHang', 'chiTietHoaDon','khuyenMai','giaoHang','lichSuHuyDonHang'])->where('ma_hoa_don',$id)->first();
         return view('staffs.orders._order_detail', compact('order'));
     }
 
-    
+
     public function updateStatusOrder(Request $request)
     {
         try {
