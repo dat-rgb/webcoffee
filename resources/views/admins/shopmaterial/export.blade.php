@@ -4,8 +4,8 @@
 @section('content')
 <div class="page-inner">
     @if ($materials->isEmpty())
-        <div class="alert alert-warning">
-            Không có nguyên liệu nào để xuất.
+            <div class="alert alert-warning">
+                Không có nguyên liệu nào để xuất.
         </div>
     @else
         @if ($errors->any())
@@ -55,12 +55,13 @@
                                         <th class="px-2 py-2">Định lượng</th>
                                         <th class="px-2 py-2">Số lượng tồn</th>
                                         <th class="px-2 py-2">Số lượng tối đa</th>
+                                        <th>Số lô còn hàng và số lượng hàng của lô đó</th>
                                         <th class="px-2 py-2" style="white-space: nowrap;">
-                                            Số lượng <br>
+                                            Số lượng xuất <br>
                                             <small>(kg, lít, gói, túi, thùng)</small>
                                         </th>
-                                        <th class="px-2 py-2">NSX</th>
-                                        <th class="px-2 py-2">HSD</th>
+                                        {{-- <th class="px-2 py-2">NSX</th> --}}
+                                        {{-- <th class="px-2 py-2">HSD(của lô hàng xa nhất)</th> --}}
                                         <th class="px-2 py-2" style="width: 200px;">Ghi chú</th>
                                         <th class="px-2 py-2">Hành động</th>
                                     </tr>
@@ -73,6 +74,23 @@
                                         <td class="px-2 py-2">{{ $material->nguyenLieu->so_luong .' '. $material->nguyenLieu->don_vi }}</td>
                                         <td class="px-2 py-2">{{ $material->so_luong_ton .' '. $material->don_vi }}</td>
                                         <td class="px-2 py-2">{{ $material->so_luong_ton_max .' '. $material->don_vi }}</td>
+                                        <td class="px-2 py-2 text-start">
+                                            @if(!empty($material->available_batches))
+                                                <ul class="mb-0">
+                                                    @foreach ($material->available_batches as $lo)
+                                                        <li>
+                                                            Lô: <strong>{{ $lo['so_lo'] }}</strong> -
+                                                            Còn lại: <strong>{{ $lo['con_lai'] }} {{ $material->nguyenLieu->don_vi }}</strong> -
+                                                            HSD: <strong>{{ \Carbon\Carbon::parse($lo['han_su_dung'])->format('d/m/Y') }}</strong>
+                                                        </li>
+
+                                                    @endforeach
+                                                </ul>
+                                            @else
+                                                <span class="text-danger">Không còn lô hàng</span>
+                                            @endif
+                                        </td>
+
                                         <td class="px-2 py-2">
                                             @php
                                                 $maxExport = $material->so_luong_ton;
@@ -90,22 +108,18 @@
                                                 {{ $maxExport == 0 ? 'disabled' : '' }}
                                             >
                                         </td>
-                                        {{-- <td>
-                                            <input type="date"
-                                            name="nsx[{{ $material->ma_cua_hang }}][{{ $material->ma_nguyen_lieu }}]"
-                                            class="form-control form-control-sm"
-                                            value="{{ old('nsx.'.$material->ma_cua_hang.'.'.$material->ma_nguyen_lieu, $material->ngay_san_xuat) }}">
+                                        {{-- <td class="px-2 py-2">
+                                            @php
+                                                $lastImport = $material->phieuNhapXuat()
+                                                    ->where('loai_phieu', 0)
+                                                    ->latest('ngay_tao_phieu')
+                                                    ->first();
 
-                                        </td>
-                                        <td>
-                                            <input type="date"
-                                            name="hsd[{{ $material->ma_cua_hang }}][{{ $material->ma_nguyen_lieu }}]"
-                                            class="form-control form-control-sm"
-                                            value="{{ old('hsd.'.$material->ma_cua_hang.'.'.$material->ma_nguyen_lieu, $material->han_su_dung) }}">
-
+                                                $hsd = $lastImport?->han_su_dung ?? $material->han_su_dung;
+                                            @endphp
+                                            {{ \Carbon\Carbon::parse($hsd)->format('d/m/Y') }}
                                         </td> --}}
-                                        <td>{{ \Carbon\Carbon::parse($material->ngay_san_xuat)->format('d/m/Y') }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($material->han_su_dung)->format('d/m/Y') }}</td>
+
                                         <td class="px-2 py-2" style="width: 200px;">
                                             <input type="text" name="note[{{ $material->ma_cua_hang }}][{{ $material->ma_nguyen_lieu }}]" class="form-control form-control-sm" placeholder="nhập...">
                                         </td>

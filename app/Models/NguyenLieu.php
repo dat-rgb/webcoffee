@@ -13,7 +13,7 @@ class NguyenLieu extends Model
         'ten_nguyen_lieu',
         'slug',
         'ma_nha_cung_cap',
-        'so_luong',
+        'so_luong',//đay la dinh luong
         'gia',
         'loai_nguyen_lieu',
         'don_vi',

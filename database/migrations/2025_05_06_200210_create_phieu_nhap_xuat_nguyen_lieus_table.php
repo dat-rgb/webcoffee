@@ -42,7 +42,7 @@ return new class extends Migration
     //kiểm tra lại số lượng đã dùng của lô = tồn kho - tồn trước
     //if số lượng đã dùng nhỏ hơn số lượng nhập thì đag dùng thì chx dùng  //hủy, xuát
     //if số lượng đã dùng bằng số lượng nhập thì đã dùng hết
-    //if số lượng đã dùng lớn hơn số lượng nhập thì đã dùng qua lô khác
+    //if số lượng đã dùng lớn hơn số lượng nhập thì đã dùng qua lô khác 
 
     /**
      * Reverse the migrations.
