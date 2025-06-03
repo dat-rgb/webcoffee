@@ -58,7 +58,6 @@
 <!-- products -->
 <div class="product-section mt-150 mb-150">
     <div class="container">
-
         <div class="row">
             <div class="col-md-12">
                 <div class="product-filters">
@@ -75,7 +74,7 @@
                 </div>
             </div>
         </div>
-
+        <!-- Lỗi ở class product-list -->
         <div class="row product-lists">
             @foreach ( $products as  $pro)
                 <div class="col-lg-3 col-md-4 col-sm-6 text-center {{ $pro->danhMuc->ma_danh_muc ?? '' }}">
