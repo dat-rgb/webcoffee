@@ -124,7 +124,10 @@ Route::prefix('customer')->middleware(KhachHangMiddleware::class)->group(functio
     Route::get('/favorites',[CustomerFavoriteController::class,'showFavorite'])->name('favorite.show');
     Route::put('/profile/update',[CustomerController::class,'updateInfo'])->name('customer.update');
     Route::post('/store/address',[CustomerController::class,'storeAddress'])->name('customer.address.store');
+<<<<<<< HEAD
     Route::get('/yeu-thich/danh-sach', [CustomerController::class, 'showFavorite'])->name('favorite.list');
+=======
+>>>>>>> 2aaf1bd2e111835913bcfa6aec3730450beb6e82
 
 });
 
