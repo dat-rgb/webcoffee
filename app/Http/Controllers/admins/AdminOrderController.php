@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\DB;
 
 class AdminOrderController extends Controller
 {
-
     public function getStore(){
         return CuaHang::where('trang_thai',1)->get();
     }
@@ -20,14 +19,12 @@ class AdminOrderController extends Controller
     {
         $cuaHang = $this->getStore();
 
-        $orders = collect(); // mặc định rỗng
+        $orders = collect(); 
 
-        // Nếu có chọn mã cửa hàng
         if ($request->filled('ma_cua_hang')) {
             $query = HoaDon::with(['khachHang', 'chiTietHoaDon'])
                 ->where('ma_cua_hang', $request->ma_cua_hang);
 
-            // Nếu có search mã đơn hàng
             if ($request->filled('search')) {
                 $query->where('ma_hoa_don', 'like', '%'.$request->search.'%');
             }
@@ -51,7 +48,6 @@ class AdminOrderController extends Controller
         if ($request->filled('ma_cua_hang')) {
             $query->where('ma_cua_hang', $request->ma_cua_hang);
         } else {
-            // Nếu không có cửa hàng thì trả về rỗng luôn
             return response()->json('');
         }
 

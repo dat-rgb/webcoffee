@@ -13,7 +13,6 @@ class AdminLoginController extends Controller
     public function showLoginForm(){
         return view('admins.auth.login');
     }
-
     public function login(Request $request)
     {
         $request->validate([
@@ -61,7 +60,6 @@ class AdminLoginController extends Controller
             return redirect()->route('staff');
         }
     }
-
     public function logout(Request $request)
     {
         Auth::logout();

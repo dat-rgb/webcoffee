@@ -20,8 +20,7 @@ class CustomerOrderController extends Controller
 
         $customerId = $khachHang->ma_khach_hang;
 
-        // Lấy đơn hàng với chi tiết hóa đơn + sản phẩm + transaction
-        $orders = HoaDon::with(['chiTietHoaDon.sanPham', 'transaction'])
+        $orders = HoaDon::with(['chiTietHoaDon.sanPham', 'transaction','giaoHang'])
             ->where('ma_khach_hang', $customerId)
             ->orderByDesc('created_at')
             ->get();
@@ -30,5 +29,9 @@ class CustomerOrderController extends Controller
             'title' => 'Đơn hàng của bạn',
             'orders' => $orders,
         ]);
+    }
+
+    public function orderCancel($orderId){
+        
     }
 }

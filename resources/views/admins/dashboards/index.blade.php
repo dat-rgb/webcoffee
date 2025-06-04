@@ -117,28 +117,26 @@
             <div class="card card-round">
                 <div class="card-header">
                     <div class="card-head-row">
-                        <div class="card-title">Top 5 sản phẩm bán chạy trong tháng</div>
-                        <div class="card-tools">
-                            <a href="#" class="btn btn-label-success btn-round btn-sm me-2">
-                                <span class="btn-label">
-                                <i class="fa fa-pencil"></i>
-                                </span>
-                                Xem chi tiết
-                            </a>
-                            <a href="#" class="btn btn-label-info btn-round btn-sm">
-                                <span class="btn-label">
-                                <i class="fa fa-print"></i>
-                                </span>
-                                Print
+                        <div class="card-title">Doanh thu {{ \Carbon\Carbon::now()->year }}</div>
+                        <div class="card-tools d-flex align-items-center justify-content-end gap-2">
+                            <!-- Dropdown chọn khoảng thời gian -->
+                            <select id="doanhThuOption" class="form-select form-select-sm w-auto">
+                                <option value="month" selected>Theo tháng</option>
+                                <option value="quarter">Theo quý</option>
+                                <option value="year">Theo năm</option>
+                            </select>
+
+                            <a href="#" class="btn btn-label-success btn-round btn-sm">
+                                <span class="btn-label"><i class="fa fa-file-export"></i></span>
+                                Xuất
                             </a>
                         </div>
                     </div>
                 </div>
                 <div class="card-body">
                     <div class="chart-container" style="min-height: 375px"><div class="chartjs-size-monitor" style="position: absolute; inset: 0px; overflow: hidden; pointer-events: none; visibility: hidden; z-index: -1;"><div class="chartjs-size-monitor-expand" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:1000000px;height:1000000px;left:0;top:0"></div></div><div class="chartjs-size-monitor-shrink" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:200%;height:200%;left:0; top:0"></div></div></div>
-                        <canvas id="horizontalBarChartTopSanPham" height="400"></canvas>
+                        <canvas id="barChartDoanhTungThangTheoNam" height="400"></canvas>
                     </div>
-                    <div id="myChartTopSanPham"></div>
                 </div>
             </div>
         </div>
@@ -154,19 +152,16 @@
                     <div class="mb-4 mt-2">
                         <h1>{{ number_format($doanhThuNgay,0,',','.') }} đ</h1>
                     </div>
-                    <div class="pull-in"><div class="chartjs-size-monitor" style="position: absolute; inset: 0px; overflow: hidden; pointer-events: none; visibility: hidden; z-index: -1;"><div class="chartjs-size-monitor-expand" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:1000000px;height:1000000px;left:0;top:0"></div></div><div class="chartjs-size-monitor-shrink" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:200%;height:200%;left:0; top:0"></div></div></div>
-                        <canvas id="tangTruongDoanhThu" width="301" height="187" style="display: block; height: 150px; width: 241px;" class="chartjs-render-monitor"></canvas>
-                    </div>
                 </div>
             </div>
             <div class="card card-round">
                 <div class="card-body pb-0">
                     <div class="h1 fw-bold float-end text-primary"> {{ $tangTruongNgay['ty_le'] }}%</div>
-                    <h2 class="mb-2">{{ $hoaDonNgay }}</h2>
-                    <p class="text-muted">Hóa đơn: {{ \Carbon\Carbon::now()->format('d/m/Y') }}</p>
-                    <div class="pull-in sparkline-fix">
-                        <div id="lineChart"><canvas width="243" height="70" style="display: inline-block; width: 243.462px; height: 70px; vertical-align: top;"></canvas></div>
+                    <div class="card-head-row">
+                        <div class="card-title">Hóa đơn hôm nay</div>
                     </div>
+                    <h2 class="mb-2">{{ $hoaDonNgay }}</h2>
+                    <p class="text-muted">Ngày: {{ \Carbon\Carbon::now()->format('d/m/Y') }}</p>
                 </div>
             </div>
         </div>
@@ -176,39 +171,53 @@
         <div class="col-md-6">
             <div class="card">
                   <div class="card-header">
-                    <div class="card-title">Hóa đơn</div>
+                        <div class="card-title">Hóa đơn theo trạng thái</div>
                   </div>
                   <div class="card-body">
-                    <div class="chart-container">
-                        <div class="chartjs-size-monitor" style="position: absolute; inset: 0px; overflow: hidden; pointer-events: none; visibility: hidden; z-index: -1;">
-                            <div class="chartjs-size-monitor-expand" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;">
-                                <div style="position:absolute;width:1000000px;height:1000000px;left:0;top:0">
-
+                        <div class="chart-container">
+                            <div class="chartjs-size-monitor" style="position: absolute; inset: 0px; overflow: hidden; pointer-events: none; visibility: hidden; z-index: -1;">
+                                <div class="chartjs-size-monitor-expand" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;">
+                                    <div style="position:absolute;width:1000000px;height:1000000px;left:0;top:0"></div>
                                 </div>
-                            </div>
-                            <div class="chartjs-size-monitor-shrink" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:200%;height:200%;left:0; top:0">
+                                <div class="chartjs-size-monitor-shrink" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;">
+                                <div style="position:absolute;width:200%;height:200%;left:0; top:0"></div>
                             </div>
                         </div>
-                    </div>
-                      <canvas id="pieChartHoaDon" style="width: 341px; height: 300px; display: block;" width="426" height="375" class="chartjs-render-monitor"></canvas>
-                    </div>
+                            <canvas id="pieChartHoaDon" style="width: 341px; height: 300px; display: block;" width="426" height="375" class="chartjs-render-monitor"></canvas>
+                        </div>
                   </div>
             </div>
         </div>
-         <!-- Doanh thu -->
+        <!-- Sản phẩm bán chạy -->
         <div class="col-md-6">
             <div class="card">
-                <div class="card-header">
-                    <div class="card-title">Doanh thu từng tháng trong năm {{ \Carbon\Carbon::now()->year }}</div>
+                 <div class="card-header">
+                    <div class="card-head-row">
+                        <div class="card-title">Sản phẩm bán chạy {{ \Carbon\Carbon::now()->year }}</div>
+                        <div class="card-tools d-flex align-items-center justify-content-end gap-2">
+                            <!-- Dropdown chọn khoảng thời gian -->
+                            <select id="doanhThuOption" class="form-select form-select-sm w-auto">
+                                <option value="month" selected>Theo tháng</option>
+                                <option value="quarter">Theo quý</option>
+                                <option value="year">Theo năm</option>
+                            </select>
+
+                            <a href="#" class="btn btn-label-success btn-round btn-sm">
+                                <span class="btn-label"><i class="fa fa-file-export"></i></span>
+                                Xuất
+                            </a>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="chart-container"><div class="chartjs-size-monitor" style="position: absolute; inset: 0px; overflow: hidden; pointer-events: none; visibility: hidden; z-index: -1;"><div class="chartjs-size-monitor-expand" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:1000000px;height:1000000px;left:0;top:0"></div></div><div class="chartjs-size-monitor-shrink" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:200%;height:200%;left:0; top:0"></div></div></div>
-                        <canvas id="barChartDoanhTungThangTheoNam" width="426" height="375" style="display: block; height: 300px; width: 341px;" class="chartjs-render-monitor"></canvas>
+                        <canvas id="horizontalBarChartTopSanPham" width="426" height="375" style="display: block; height: 300px; width: 341px;" class="chartjs-render-monitor"></canvas>
                     </div>
+                    <div id="myChartTopSanPham"></div>
                 </div>
             </div>
         </div>
-    </di>
+    </div>
 </div>
 @endsection
 
@@ -307,49 +316,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    //Doanh thu hôm nay (Card) - Tăng trưởng theo tháng
-    const tangTruongDoanhThu = document.getElementById('tangTruongDoanhThu').getContext('2d');
-    const mytangTruongDoanhThu = new Chart(tangTruongDoanhThu, {
-        type: 'line',
-        data: {
-            labels: @json($labelsChart),
-            datasets: [{
-                label: "Tăng trưởng doanh thu theo tháng",
-                fill: true,
-                backgroundColor: "rgba(255,255,255,0.2)",
-                borderColor: "#fff",
-                pointBorderColor: "#fff",
-                pointBackgroundColor: "#fff",
-                data: @json($dataChart)
-            }]
-        },
-        options: {
-            maintainAspectRatio: false,
-            legend: { display: false },
-            animation: { easing: "easeInOutBack" },
-            scales: {
-                yAxes: [{
-                    display: false,
-                    ticks: {
-                        beginAtZero: true,
-                        maxTicksLimit: 10,
-                        padding: 0
-                    },
-                    gridLines: { display: false }
-                }],
-                xAxes: [{
-                    display: false,
-                    gridLines: { zeroLineColor: "transparent" },
-                    ticks: {
-                        padding: -20,
-                        fontColor: "rgba(255,255,255,0.2)",
-                        fontStyle: "bold"
-                    }
-                }]
-            }
-        }
-    });
- 
     //Top sản phẩm
     var topSanPhamData = @json($topSPBanChay);
     let labels = topSanPhamData.map(sp => sp.ten_san_pham);

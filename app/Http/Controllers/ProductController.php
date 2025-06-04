@@ -15,7 +15,6 @@ class ProductController extends Controller
             ->where('trang_thai', 1)
             ->get();
             
-
         $categories = DanhMucSanPham::where('trang_thai', 1)->get(); 
 
         $countCate = [];
@@ -88,7 +87,7 @@ class ProductController extends Controller
 
         return view('clients.pages.products.product_detail', $viewData);
     }
-
+    
     public function listProductsByCategoryParent($slug) {
         // Lấy danh mục cha cùng toàn bộ con cháu đệ quy
         $categoryParent = DanhMucSanPham::with('childrenRecursive')

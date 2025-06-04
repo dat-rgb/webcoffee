@@ -94,8 +94,8 @@ class DashboardServiceController extends Controller
         }
 
         // Tạo query chung, lọc trạng thái (nếu cần) và mã cửa hàng
-        $baseQueryNow  = HoaDon::query()->where('trang_thai', 4);
-        $baseQueryPrev = HoaDon::query()->where('trang_thai', 4);
+        $baseQueryNow  = HoaDon::query();
+        $baseQueryPrev = HoaDon::query();
 
         if ($ma_cua_hang) {
             $baseQueryNow->where('ma_cua_hang', $ma_cua_hang);

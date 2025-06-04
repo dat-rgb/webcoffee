@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\DB;
 
 class CartController extends Controller
 {
-    //Hiển thị cart
     public function cart(){
         $cart = session()->get('cart', []);  
         $productSizes = [];

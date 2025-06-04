@@ -49,8 +49,7 @@ class CustomerController extends Controller
     }
     public function index()
     {
-        $user = Auth::user(); // Tài khoản đang đăng nhập
-
+        $user = Auth::user(); 
         $taiKhoan = TaiKhoan::with(['khachHang.diaChis']) // lấy cả địa chỉ
             ->where('ma_tai_khoan', $user->ma_tai_khoan)
             ->first();

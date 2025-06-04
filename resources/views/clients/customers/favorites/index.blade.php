@@ -97,7 +97,29 @@
 .cart-btn:hover {
   background-color: #e65c00;
 }
+/* Màu toast success - xanh lá đẹp */
+.toast-success {
+    background-color: #38a169 !important; /* xanh lá tươi */
+    color: #fff !important;
+}
 
+/* Màu toast error - đỏ cam rực */
+.toast-error {
+    background-color: #e53e3e !important; /* đỏ rực */
+    color: #fff !important;
+}
+
+/* Màu toast warning - vàng đậm */
+.toast-warning {
+    background-color: #dd6b20 !important;
+    color: #fff !important;
+}
+
+/* Màu toast info - xanh dương */
+.toast-info {
+    background-color: #3182ce !important;
+    color: #fff !important;
+}
 </style>
 @endpush
 @section('content')
@@ -109,7 +131,7 @@
                     <p>CDMT Coffee & Tea</p>
                     <h1>Favorites</h1>
                 </div>
-            </div>
+            </div>  
         </div>
     </div>
 </div>
@@ -140,16 +162,20 @@
                                         <img src="{{ asset('images/product_new.png') }}" alt="" class="hot-icon">
                                     @endif
                                 </div>
-
                                 <!-- Nút Xóa -->
-                                <form method="POST" action="" class="remove-favorite-form" onsubmit="return confirm('Bạn có chắc muốn xóa sản phẩm này khỏi yêu thích?');" style="position:absolute; top:5px; left:5px; z-index: 3;">
+                                <form method="POST" action="{{ route('favorite.toggle', $pro->ma_san_pham) }}"
+                                    class="remove-favorite-form"
+                                    data-name="{{ $pro->sanPham->ten_san_pham }}"
+                                    style="position:absolute; top:5px; left:5px; z-index: 3;">
                                     @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger" style="padding: 2px 6px; font-size: 12px; border-radius: 50%;" title="Xóa khỏi yêu thích">
+                                    <button type="submit"
+                                            class="btn btn-sm btn-danger btn-remove-favorite"
+                                            data-id="{{ $pro->ma_san_pham }}"
+                                            style="padding: 2px 6px; font-size: 12px; border-radius: 50%;"
+                                            title="Xóa khỏi yêu thích">
                                         <i class="fas fa-times"></i>
                                     </button>
                                 </form>
-
                                 <a href="{{ route('product.detail',$pro->sanPham->slug) }}">
                                     <img src="{{ $pro->sanPham->hinh_anh ? asset('storage/' . $pro->sanPham->hinh_anh) : asset('images/no_product_image.png') }}" alt="">
                                 </a>
@@ -168,7 +194,51 @@
 </div>
 
 
-
 </div>
 <!-- end products -->
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const removeForms = document.querySelectorAll('.remove-favorite-form');
+
+    removeForms.forEach(form => {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            const url = form.getAttribute('action');
+            const productName = form.getAttribute('data-product-name');
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': formData.get('_token'),
+                },
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Sau khi xoá → reload trang + toast
+                    localStorage.setItem('favorite_deleted', productName);
+                    location.reload();
+                } else {
+                    throw new Error('Lỗi khi xoá');
+                }
+            })
+            .catch(() => {
+                toastr.error('Đã xảy ra lỗi khi xoá sản phẩm');
+            });
+        });
+    });
+
+    // Show toast nếu vừa reload
+    const deletedProduct = localStorage.getItem('favorite_deleted');
+    if (deletedProduct) {
+        toastr.success(`Đã xoá khỏi danh sách yêu thích`);
+        localStorage.removeItem('favorite_deleted');
+    }
+});
+</script>
+@endpush
