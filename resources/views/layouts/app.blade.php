@@ -12,8 +12,7 @@
 	<!-- favicon -->
 	<link rel="shortcut icon" type="image/png" href="{{ asset('img/favicon.png') }}">
 	<!-- google font -->
-	<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700" rel="stylesheet">
-	<link href="https://fonts.googleapis.com/css?family=Poppins:400,700&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600&family=Roboto+Slab:wght@600&display=swap" rel="stylesheet">
 	<!-- toastr CSS -->
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
 	<link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />

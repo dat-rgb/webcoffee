@@ -41,6 +41,9 @@ Route::prefix('/')->group(function(){
     Route::get('/gioi-thieu', [HomeController::class, 'about'])->name('about');
     Route::get('/lien-he', [HomeController::class, 'contact'])->name('contact');
     Route::post('/select-store', [StoreController::class, 'selectStore'])->name('select.store');
+    Route::get('/tra-cuu-don-hang', [CustomerOrderController::class, 'showFormTraCuuDonHang'])->name('traCuuDonHang.show');
+    Route::post('/tra-cuu-don-hang', [CustomerOrderController::class, 'traCuuDonHang'])->name('traCuuDonHang.search');
+
     //Auth Clients
     Route::get('/login',[AuthController::class,'showLoginForm'])->name('login');
     Route::post('/login',[AuthController::class,'login'])->name('login.post');
