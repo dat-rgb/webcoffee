@@ -37,30 +37,81 @@ class AdminShopmaterialController extends Controller
             'materials' => $materials,
             'stores' => $stores,
             'title' => 'Quản lý cửa hàng nguyên liệu',
-            'subtitle' => 'Danh sách nguyên liệu và quản lý'
+            'subtitle' => 'Quản lý danh sách nguyên vật liệu của cửa hàng'
         ]);
     }
-    public function create()
+    public function create(Request $request)
     {
-        return view('admins.shopmaterial.create', [
-            'title' => 'Thêm nguyên liệu mới',
-            'subtitle' => 'Điền thông tin nguyên liệu'
-        ]);
+        $title = 'Thêm nguyên liệu';
+        $subtitle = 'Thêm nguyên liệu vào kho';
+        if (!$request->has('ma_cua_hang')) {
+            toastr()->error('Vui lòng chọn cửa hàng!');
+            return redirect()->route('admins.shopmaterial.index');
+        }
+
+        $maCuaHang = $request->ma_cua_hang;
+
+        // Lấy danh sách mã nguyên liệu đã có trong kho cửa hàng này
+        $nguyenLieuDaCo = CuaHangNguyenLieu::where('ma_cua_hang', $maCuaHang)
+            ->pluck('ma_nguyen_lieu')
+            ->toArray();
+
+        // Lấy danh sách nguyên liệu CHƯA có trong cửa hàng và còn hoạt động
+        $materials = NguyenLieu::where('trang_thai', 1)
+            ->whereNotIn('ma_nguyen_lieu', $nguyenLieuDaCo)
+            ->get();
+
+        $tenCuaHang = CuaHang::where('ma_cua_hang', $maCuaHang)->value('ten_cua_hang');
+        $viewData = [
+            'title' => $title,
+            'subtitle' => $subtitle,
+            'materials' => $materials,
+            'ma_cua_hang' => $maCuaHang,
+            'ten_cua_hang' => $tenCuaHang,
+        ];
+
+        return view('admins.shopmaterial.create', $viewData);
     }
+
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'na me' => 'required|string|max:255',
-            'quantity' => 'required|integer|min:0',
-            'supplier' => 'nullable|string|max:255',
+        //dd($request->all());
+        $request->validate([
+            'ma_cua_hang' => 'required|exists:cua_hangs,ma_cua_hang',
+            'ma_nguyen_lieu' => 'required|exists:nguyen_lieus,ma_nguyen_lieu',
+            'so_luong_ton_min' => 'required|numeric|min:0',
+            'so_luong_ton_max' => 'required|numeric|min:0',
+        ], [
+            'ma_nguyen_lieu.required' => 'Vui lòng chọn nguyên liệu.',
+            'ma_nguyen_lieu.exists' => 'Nguyên liệu không tồn tại.',
+            'ma_cua_hang.exists' => 'Cửa hàng không hợp lệ.',
+            'so_luong_ton_min.required' => 'Vui lòng nhập số lượng tồn tối thiểu.',
+            'so_luong_ton_max.required' => 'Vui lòng nhập số lượng tồn tối đa.',
         ]);
 
-        NguyenLieu::create($validated);
+        // Kiểm tra nếu đã có nguyên liệu đó trong kho
 
-        toastr()->success('Nguyên liệu đã được thêm.');
 
-        return redirect()->route('admins.shopmaterial.index');
+        $nguyenLieu = NguyenLieu::where('ma_nguyen_lieu',$request->ma_nguyen_lieu)->first();
+        if (!$nguyenLieu ) {
+            return back()->withErrors(['Nguyên liệu không tồn tại.']);
+        }
+        //dd($nguyenLieu);
+
+        CuaHangNguyenLieu::create([
+            'ma_cua_hang' => $request->ma_cua_hang,
+            'ma_nguyen_lieu' => $request->ma_nguyen_lieu,
+            'so_luong_ton' => 0,
+            'so_luong_ton_min' => $request->so_luong_ton_min,
+            'so_luong_ton_max' => $request->so_luong_ton_max,
+            'don_vi' => 'g',
+        ]);
+        toastr()->success('Đã thêm nguyên liệu vào kho.');
+        return redirect()->route('admins.shopmaterial.index', ['ma_cua_hang' => $request->ma_cua_hang]);
+
     }
+
+
     public function edit($id)
     {
         $material = NguyenLieu::findOrFail($id);
@@ -276,17 +327,32 @@ class AdminShopmaterialController extends Controller
                 // Gán available_batches nhưng không dựa vào số lượng nhập
                 $phieuNhaps = PhieuNhapXuatNguyenLieu::where('ma_cua_hang', $maCuaHang)
                     ->where('ma_nguyen_lieu', $maNguyenLieu)
-                    ->where('loai_phieu', 0)
-                    ->orderBy('ma_phieu', 'asc')
+                    ->where('loai_phieu', 0) // phiếu nhập
+                    ->orderBy('han_su_dung', 'asc')
                     ->get();
 
-                $material->available_batches = $phieuNhaps->map(function ($lo) {
-                    return [
-                        'so_lo' => $lo->so_lo,
-                        'con_lai' => $lo->dinh_luong - ($lo->so_luong_xuat_di ?? 0),
-                        'han_su_dung' => $lo->han_su_dung,
-                    ];
-                });
+                $material->available_batches = $phieuNhaps->map(function ($lo) use ($maCuaHang, $maNguyenLieu) {
+                    // Tính tổng số lượng đã xuất cho lô này
+                    $soLuongDaXuat = PhieuNhapXuatNguyenLieu::where('ma_cua_hang', $maCuaHang)
+                        ->where('ma_nguyen_lieu', $maNguyenLieu)
+                        ->where('loai_phieu', 1) // phiếu xuất
+                        ->where('so_lo', $lo->so_lo)
+                        ->sum('dinh_luong');
+
+                    $conLai = $lo->dinh_luong - $soLuongDaXuat;
+
+                    if ($conLai > 0) {
+                        return [
+                            'so_lo' => $lo->so_lo,
+                            'con_lai' => $conLai,
+                            'han_su_dung' => $lo->han_su_dung,
+                        ];
+                    }
+
+                    return null;
+                })->filter()->values();
+
+
 
                 $materials->push($material);
             }
@@ -331,9 +397,10 @@ class AdminShopmaterialController extends Controller
 
                         $phieuNhapList = PhieuNhapXuatNguyenLieu::where('ma_cua_hang', $maCuaHang)
                             ->where('ma_nguyen_lieu', $maNguyenLieu)
-                            ->where('loai_phieu', 0)
+                            ->where('loai_phieu', 0) // phiếu nhập
                             ->where('han_su_dung', '>=', $now)
-                            ->orderBy('ngay_san_xuat')
+                            ->orderBy('han_su_dung', 'asc')       // ưu tiên hạn sử dụng gần nhất trước
+                            ->orderBy('ngay_tao_phieu', 'asc')    // ưu tiên phiếu nhập cũ hơn
                             ->get();
 
                         $tongTon = 0;
@@ -439,6 +506,9 @@ class AdminShopmaterialController extends Controller
             ])->withInput();
         }
     }
+
+
+
 
 
 
