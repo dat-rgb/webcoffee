@@ -44,34 +44,34 @@ class StaffOrderController extends Controller
         ]); 
     }
     public function filter(Request $request)
-{
-    $nhanVien = Auth::guard('staff')->user()->nhanvien ?? null;
-    $query = HoaDon::query();
+    {
+        $nhanVien = Auth::guard('staff')->user()->nhanvien ?? null;
+        $query = HoaDon::query();
 
-    if ($nhanVien && $nhanVien->ma_cua_hang) {
-        $query->where('ma_cua_hang', $nhanVien->ma_cua_hang);
+        if ($nhanVien && $nhanVien->ma_cua_hang) {
+            $query->where('ma_cua_hang', $nhanVien->ma_cua_hang);
+        }
+
+        if ($request->pt_thanh_toan) {
+            $query->where('phuong_thuc_thanh_toan', $request->pt_thanh_toan);
+        }
+
+        if (is_numeric($request->trang_thai)) {
+            $query->where('trang_thai', $request->trang_thai);
+        }
+
+        if ($request->search) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('ma_hoa_don', 'like', "%$search%")
+                ->orWhere('ten_khach_hang', 'like', "%$search%");
+            });
+        }
+
+        $orders = $query->latest()->get();
+
+        return view('staffs.orders._order_tbody', compact('orders'))->render();
     }
-
-    if ($request->pt_thanh_toan) {
-        $query->where('phuong_thuc_thanh_toan', $request->pt_thanh_toan);
-    }
-
-    if (is_numeric($request->trang_thai)) {
-        $query->where('trang_thai', $request->trang_thai);
-    }
-
-    if ($request->search) {
-        $search = $request->search;
-        $query->where(function($q) use ($search) {
-            $q->where('ma_hoa_don', 'like', "%$search%")
-              ->orWhere('ten_khach_hang', 'like', "%$search%");
-        });
-    }
-
-    $orders = $query->latest()->get();
-
-    return view('staffs.orders._order_tbody', compact('orders'))->render();
-}
 
     public function detail($id)
     {
