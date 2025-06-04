@@ -43,7 +43,7 @@ Route::prefix('/')->group(function(){
     Route::post('/select-store', [StoreController::class, 'selectStore'])->name('select.store');
     Route::get('/tra-cuu-don-hang', [CustomerOrderController::class, 'showFormTraCuuDonHang'])->name('traCuuDonHang.show');
     Route::post('/tra-cuu-don-hang', [CustomerOrderController::class, 'traCuuDonHang'])->name('traCuuDonHang.search');
-
+    Route::post('/orders/{orderId}/cancel', [CustomerOrderController::class, 'cancelOrderByCustomer'])->name('customer.orders.cancel');
     //Auth Clients
     Route::get('/login',[AuthController::class,'showLoginForm'])->name('login');
     Route::post('/login',[AuthController::class,'login'])->name('login.post');

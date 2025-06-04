@@ -212,8 +212,45 @@
                     </tbody>
                 </table>
             </div>
+            <div>
+                @if ($order->trang_thai < 2)
+                <form id="cancelOrderForm" action="{{ route('customer.orders.cancel', $order->ma_hoa_don) }}" method="POST" style="display: none;">
+                    @csrf
+                    <input type="hidden" name="cancel_reason" id="lyDoHuyInput">
+                </form>
+                <!-- Nút hủy dùng để kích hoạt SweetAlert -->
+                <button type="button" class="btn btn-danger" onclick="showCancelPrompt()">
+                    <i class="bi bi-x-circle"></i> Hủy đơn hàng
+                </button>
+                @endif
+            </div>
         </div>
         @endisset
     </div>
 </div>
 @endsection
+@push('scripts')
+<script>
+    function showCancelPrompt() {
+        Swal.fire({
+            title: 'Bạn muốn hủy đơn?',
+            input: 'text',
+            inputLabel: 'Nhập lý do hủy',
+            inputPlaceholder: 'Ví dụ: Đặt nhầm, không cần nữa...',
+            showCancelButton: true,
+            confirmButtonText: 'Xác nhận hủy',
+            cancelButtonText: 'Đóng',
+            inputValidator: (value) => {
+                if (!value) {
+                    return 'Vui lòng nhập lý do!';
+                }
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('lyDoHuyInput').value = result.value;
+                document.getElementById('cancelOrderForm').submit();
+            }
+        });
+    }
+</script>
+@endpush
