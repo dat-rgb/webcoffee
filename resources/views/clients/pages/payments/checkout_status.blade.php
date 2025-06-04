@@ -24,7 +24,7 @@
             <div class="col-lg-8 text-center">
                 @if(session('status') === 'success')
                     <h2 class="text-success"><i class="fas fa-check-circle"></i> Đặt hàng thành công!</h2>
-                    <p>Cảm ơn bạn đã đặt hàng. Đơn hàng đang được xử lý.</p>
+                    <p>Cảm ơn bạn đã đặt hàng. Đơn hàng đang được xử lý. <a href="{{ route('traCuuDonHang.show') }}">Tra cứu đơn hàng tại đây</a></p>
                 @elseif(session('status') === 'cancel')
                     <h2 class="text-danger"><i class="fas fa-times-circle"></i>  Bạn đã hủy thanh toán.</h2>
                     <p>Đơn hàng đã bị hủy. Nếu cần hỗ trợ vui lòng liên hệ.</p>

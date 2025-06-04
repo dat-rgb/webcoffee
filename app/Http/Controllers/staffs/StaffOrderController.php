@@ -72,14 +72,11 @@ class StaffOrderController extends Controller
 
         return view('staffs.orders._order_tbody', compact('orders'))->render();
     }
-
     public function detail($id)
     {
         $order = HoaDon::with(['khachHang', 'chiTietHoaDon','khuyenMai','giaoHang','lichSuHuyDonHang'])->where('ma_hoa_don',$id)->first();
         return view('staffs.orders._order_detail', compact('order'));
     }
-
-
     public function updateStatusOrder(Request $request)
     {
         try {
@@ -157,7 +154,7 @@ class StaffOrderController extends Controller
             ]);
 
             // Rollback nguyên liệu và voucher nếu đơn chưa xử lý
-            if ($oldStatus === 1) {
+            if ($oldStatus < 2) {
                 $this->restoreIngredientsAndVoucher($order);
             }
 
