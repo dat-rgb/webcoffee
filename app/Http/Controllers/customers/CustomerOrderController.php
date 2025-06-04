@@ -56,7 +56,6 @@ class CustomerOrderController extends Controller
     public function cancelOrderByCustomer(Request $request, $orderId)
     {
         $order = HoaDon::where('ma_hoa_don', $orderId)->first();
-        //dd($order);
         if (!$order) {
             toastr()->error('Đơn hàng không tồn tại');
             return redirect()->back();

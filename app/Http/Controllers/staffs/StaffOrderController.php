@@ -87,7 +87,7 @@ class StaffOrderController extends Controller
 
             $order = HoaDon::where('ma_hoa_don', $validated['order_id'])->first();
 
-            if(!$order){
+            if (!$order) {
                 return $this->jsonError('Mã hóa đơn không tồn tại');
             }
 
@@ -98,8 +98,11 @@ class StaffOrderController extends Controller
             $nhanVien = Auth::guard('staff')->user()->nhanvien;
 
             match ($validated['status']) {
-                3 => $this->handleStatus3($request, $order),
-                5 => $this->handleCancelStatus($request, $order, $nhanVien, 5), 
+                3 => $order->phuong_thuc_nhan_hang !== 'pickup'
+                        ? $this->handleStatus3($request, $order)
+                        : null,
+                4 => $order->trang_thai_thanh_toan = 1,
+                5 => $this->handleCancelStatus($request, $order, $nhanVien, 5),
                 default => null,
             };
 
@@ -115,6 +118,7 @@ class StaffOrderController extends Controller
             ], 500);
         }
     }
+
     private function jsonError($msg)
     {
         return response()->json(['success' => false, 'message' => $msg]);

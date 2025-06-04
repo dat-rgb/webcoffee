@@ -15,12 +15,6 @@
                     </span>
                 </td>
             </tr>
-            <tr class="total-data">
-                <td><strong class="label">Phí Ship:</strong></td>
-                <td>
-                    <span class="value shipping-fee" id="shipping-fee">0 đ</span>
-                </td>
-            </tr>
             <tr class="total-data total-final">
                 <td><strong class="label">Thành tiền:</strong></td>
                 <td>

@@ -217,7 +217,7 @@
                 <form id="cancelOrderForm" action="{{ route('customer.orders.cancel', $order->ma_hoa_don) }}" method="POST" style="display: none;">
                     @csrf
                     <input type="hidden" name="cancel_reason" id="lyDoHuyInput">
-                </form>
+                </form> 
                 <!-- Nút hủy dùng để kích hoạt SweetAlert -->
                 <button type="button" class="btn btn-danger" onclick="showCancelPrompt()">
                     <i class="bi bi-x-circle"></i> Hủy đơn hàng

@@ -140,7 +140,7 @@
                 ];
                 $statusTexts = [
                 0 => 'Chờ xác nhận', 1 => 'Đã xác nhận', 2 => 'Hoàn tất đơn hàng',
-                3 => 'Đang giao', 4 => 'Đã nhận', 5 => 'Đã hủy',
+                3 => $order->phuong_thuc_nhan_hang === 'pickup' ? 'Chờ nhận hàng' : 'Đang giao', 4 => 'Đã nhận', 5 => 'Đã hủy',
                 ];
                 $st = $order->trang_thai;
                 $color = $statusColors[$st] ?? $statusColors['default'];
@@ -150,7 +150,7 @@
                 {{ $text }}
             </span>
         </div>
-        @if ($order->trang_thai === 3)
+        @if ($order->trang_thai === 3 && $order->phuong_thuc_nhan_hang !== 'pickup')
             <div style="margin-bottom: 6px;">
                 <strong>Shipper: </strong> <span>{{ $order->giaoHang->ho_ten_shipper ?? 'Chưa có' }}</span>
             </div>

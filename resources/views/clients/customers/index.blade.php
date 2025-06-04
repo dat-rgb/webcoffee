@@ -128,10 +128,10 @@
                                 <input type="text" class="form-control" id="diaChi" name="diaChi" required>
                             </div>
                             <div class="form-group">
-    <label for="tinhThanh">Tỉnh/Thành phố</label>
-    <select class="form-control" id="tinhThanh" name="tinhThanh" required>
-        <option value="">-- Chọn tỉnh/thành phố --</option>
-    </select>
+                                <label for="tinhThanh">Tỉnh/Thành phố</label>
+                                <select class="form-control" id="tinhThanh" name="tinhThanh" required>
+                                    <option value="">-- Chọn tỉnh/thành phố --</option>
+                                </select>
                             </div>
                             <div class="form-group">
                                 <label for="quanHuyen">Quận/Huyện</label>

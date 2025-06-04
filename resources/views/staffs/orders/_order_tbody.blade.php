@@ -71,14 +71,16 @@
                         0 => 'Chờ xác nhận',
                         1 => 'Đã xác nhận',
                         2 => 'Hoàn tất đơn hàng',
-                        3 => 'Đang giao',
+                        3 => $order->phuong_thuc_nhan_hang === 'pickup' ? 'Chờ nhận hàng' : 'Đang giao',
                         4 => 'Đã nhận',
                         5 => 'Đã hủy',
                     ];
                 @endphp
 
                 @if ($order->trang_thai < 4 && isset($statuses[$order->trang_thai]))
-                    <select name="order_status" class="form-select order-status-select" data-order-id="{{ $order->ma_hoa_don }}">
+                    <select name="order_status" class="form-select order-status-select"
+                        data-order-id="{{ $order->ma_hoa_don }}"
+                        data-pt-nhan-hang="{{ $order->phuong_thuc_nhan_hang }}">
                         @foreach ($statuses as $key => $label)
                             @if ($key >= $order->trang_thai)
                                 <option value="{{ $key }}" {{ $order->trang_thai == $key ? 'selected' : '' }}>{{ $label }}</option>

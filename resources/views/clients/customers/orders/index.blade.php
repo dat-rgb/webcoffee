@@ -69,12 +69,15 @@
                                             }}
                                         </span>
                                     </div>
-                                    @if($order->trang_thai < 3)
-                                    <form method="POST" action="" class="ml-3">
+                                    @if($order->trang_thai < 2)
+                                    <form id="cancelOrderForm" action="{{ route('customer.orders.cancel', $order->ma_hoa_don) }}" method="POST" style="display: none;">
                                         @csrf
-                                        @method('PATCH')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">Hủy đơn</button>
-                                    </form>
+                                        <input type="hidden" name="cancel_reason" id="lyDoHuyInput">
+                                    </form> 
+                                    <!-- Nút hủy dùng để kích hoạt SweetAlert -->
+                                    <button type="button" class="btn btn-danger" onclick="showCancelPrompt()">
+                                        <i class="bi bi-x-circle"></i> Hủy đơn hàng
+                                    </button>
                                     @elseif($order->trang_thai == 3)
                                     <div class="ml-3 text-right" style="min-width: 200px;">
                                         <div><strong>Mã vận đơn:</strong> {{ $order->giaoHang->ma_van_don ?? 'Chưa cập nhật' }}</div>
@@ -122,20 +125,20 @@
 
                                     <hr>
                                     <div class="d-flex justify-content-between">
-                                    <span>Tạm tính:</span>
-                                    <strong>{{ number_format($order->tong_tien ?? 0, 0, ',', '.') }}đ</strong>
+                                        <span>Tạm tính:</span>
+                                        <strong>{{ number_format($order->tong_tien ?? 0, 0, ',', '.') }}đ</strong>
                                     </div>
                                     <div class="d-flex justify-content-between">
-                                    <span>Phí ship:</span>
-                                    <strong>{{ number_format($order->tien_ship ?? 0, 0, ',', '.') }}đ</strong>
+                                        <span>Phí ship:</span>
+                                        <strong>{{ number_format($order->tien_ship ?? 0, 0, ',', '.') }}đ</strong>
                                     </div>
                                     <div class="d-flex justify-content-between">
-                                    <span>Giảm giá:</span>
-                                    <strong>{{ number_format($order->giam_gia ?? 0, 0, ',', '.') }}đ</strong>
+                                        <span>Giảm giá:</span>
+                                        <strong>{{ number_format($order->giam_gia ?? 0, 0, ',', '.') }}đ</strong>
                                     </div>
                                     <div class="d-flex justify-content-between text-danger">
-                                    <span>Tổng cộng:</span>
-                                    <strong>{{ number_format(($order->tong_tien - $order->giam_gia), 0, ',', '.') }}đ</strong>
+                                        <span>Tổng cộng:</span>
+                                        <strong>{{ number_format(($order->tong_tien - $order->giam_gia), 0, ',', '.') }}đ</strong>
                                     </div>
 
                                     <div class="mt-3">
@@ -152,14 +155,16 @@
                                     </div>
                                 </div>
                                 <div class="modal-footer">
-                                    @if(in_array($order->trang_thai, [0,1,2]))
-                                    <form method="POST" action="" class="mr-auto">
+                                    @if($order->trang_thai < 2)
+                                    <form id="cancelOrderForm" action="{{ route('customer.orders.cancel', $order->ma_hoa_don) }}" method="POST" style="display: none;">
                                         @csrf
-                                        @method('PATCH')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">Huỷ đơn</button>
-                                    </form>
+                                        <input type="hidden" name="cancel_reason" id="lyDoHuyInput">
+                                    </form> 
+                                    <!-- Nút hủy dùng để kích hoạt SweetAlert -->
+                                    <button type="button" class="btn btn-danger" onclick="showCancelPrompt()">
+                                        <i class="bi bi-x-circle"></i> Hủy đơn hàng
+                                    </button>
                                     @endif
-                                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Đóng</button>
                                 </div>
                                 </div>
                             </div>
@@ -172,3 +177,28 @@
     </div>
 </div>
 @endsection
+@push('scripts')
+<script>
+    function showCancelPrompt() {
+        Swal.fire({
+            title: 'Bạn muốn hủy đơn?',
+            input: 'text',
+            inputLabel: 'Nhập lý do hủy',
+            inputPlaceholder: 'Ví dụ: Đặt nhầm, không cần nữa...',
+            showCancelButton: true,
+            confirmButtonText: 'Xác nhận hủy',
+            cancelButtonText: 'Đóng',
+            inputValidator: (value) => {
+                if (!value) {
+                    return 'Vui lòng nhập lý do!';
+                }
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('lyDoHuyInput').value = result.value;
+                document.getElementById('cancelOrderForm').submit();
+            }
+        });
+    }
+</script>
+@endpush
