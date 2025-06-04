@@ -77,15 +77,25 @@
                                         <td class="px-2 py-2 text-start">
                                             @if(!empty($material->available_batches))
                                                 <ul class="mb-0">
+                                                    @php
+                                                        $hasBatch = false;
+                                                    @endphp
                                                     @foreach ($material->available_batches as $lo)
-                                                        <li>
-                                                            Lô: <strong>{{ $lo['so_lo'] }}</strong> -
-                                                            Còn lại: <strong>{{ $lo['con_lai'] }} {{ $material->nguyenLieu->don_vi }}</strong> -
-                                                            HSD: <strong>{{ \Carbon\Carbon::parse($lo['han_su_dung'])->format('d/m/Y') }}</strong>
-                                                        </li>
-
+                                                        @if ($lo['con_lai'] > 0)
+                                                            @php $hasBatch = true; @endphp
+                                                            <li>
+                                                                Lô: <strong>{{ $lo['so_lo'] }}</strong> -
+                                                                Còn lại: <strong>{{ $lo['con_lai'] }} {{ $material->nguyenLieu->don_vi }}</strong> -
+                                                                HSD: <strong>{{ \Carbon\Carbon::parse($lo['han_su_dung'])->format('d/m/Y') }}</strong>
+                                                            </li>
+                                                        @endif
                                                     @endforeach
+
+                                                    @if (!$hasBatch)
+                                                        <li><span class="text-danger">Không còn lô hàng</span></li>
+                                                    @endif
                                                 </ul>
+
                                             @else
                                                 <span class="text-danger">Không còn lô hàng</span>
                                             @endif

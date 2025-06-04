@@ -22,7 +22,7 @@ class CuaHangNguyenLieuSeeder extends Seeder
             [
                 'ma_cua_hang' =>'CH00000001',
                 'ma_nguyen_lieu' => 'NL00000001', //Cà phê rang ARABICA gói 1kg
-                'so_luong_ton' => 5000, // 5 túi
+                'so_luong_ton' => 0, // 5 túi
                 'so_luong_ton_min' => 2000, //2 túi
                 'so_luong_ton_max' => 10000, // 10 túi
                 'don_vi' => 'g',
