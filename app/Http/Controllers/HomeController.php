@@ -11,7 +11,6 @@ class HomeController extends Controller
         $viewData = [
             'title'=> 'Trang Chủ | CMDT Coffee & Tea'   
         ];
-        //dd(Auth::user());
 
         return view('clients.pages.home', $viewData);
     }

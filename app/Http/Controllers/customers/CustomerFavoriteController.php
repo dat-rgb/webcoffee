@@ -62,6 +62,7 @@ class CustomerFavoriteController extends Controller
 
         $viewData = [
             'title' => 'Sản phẩm yêu thích của ' . $khachHang->ho_ten_khach_hang,
+            'subtitle' => 'Sản phẩm yêu thích',
             'favorites' => $favorites,
         ];
 

@@ -26,6 +26,4 @@ class CategoryComposer
 
         $view->with('danhMucCha', $categories);
     }
-
-
 }

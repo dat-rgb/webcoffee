@@ -58,7 +58,6 @@
                                                 <textarea id="ghi_chu" name="ghi_chu" class="form-control" rows="4" placeholder="Ghi chú"></textarea>
                                             </div>
 
-                                            <!-- Lựa chọn phương thức nhận hàng -->
                                             <div class="mb-3 shipping-method-group">
                                                 <label class="fw-bold">Phương thức nhận hàng:</label>
                                                 <div class="form-check">
@@ -71,7 +70,6 @@
                                                 </div>
                                             </div>
 
-                                            <!-- Phần giao hàng -->
                                             <div class="shipping-address-form p-4 rounded-3 border shadow-sm bg-white" id="deliverySection">
                                                 <div class="mb-3">
                                                     <label for="dia_chi" class="form-label fw-semibold">Số nhà, tên đường</label>
@@ -101,13 +99,10 @@
                                                     </div>
                                                 </div>
 
-                                                <!-- Hidden fields -->
                                                 <input type="hidden" id="provinceName" name="provinceName" value="">
                                                 <input type="hidden" id="districtName" name="districtName" value="">
                                                 <input type="hidden" id="wardName" name="wardName" value="">
                                             </div>
-
-                                            <!-- Phần đến lấy tại cửa hàng -->
                                             <div class="store-info mt-3" id="pickupSection" style="display: none;">
                                                 <div class="alert alert-info">
                                                     <strong>Nhận món tại địa chỉ:</strong><br>
@@ -277,8 +272,8 @@
                                 </tr>
                                 <tr>
                                     <td>Shipping:</td>
-                                    <td id="shippingFee" name="shippingFee">{{ number_format($shippingFee, 0, ',', '.') }} đ</td>
-                                    <input type="hidden" name="shippingFee" value="{{ $shippingFee }}">
+                                    <td id="shippingFeeText">{{ number_format($shippingFee, 0, ',', '.') }} đ</td>
+                                    <input type="hidden" id="shippingFeeInput" name="shippingFee" value="{{ $shippingFee }}" data-original-fee="{{ $shippingFee }}">
                                 </tr>
                                 <tr>
                                     <td>Giảm giá:</td>

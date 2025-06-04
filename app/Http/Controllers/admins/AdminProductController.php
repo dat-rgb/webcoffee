@@ -55,7 +55,6 @@ class AdminProductController extends Controller
 
         return $query->paginate(10);
     }
-
     // Hiển thị danh sách sản phẩm (trạng thái 1)
     public function listProducts(Request $request) {
         $search = $request->input('search');
@@ -77,7 +76,6 @@ class AdminProductController extends Controller
 
         return view('admins.products.index', $viewData);
     }
-
     // Hiển thị danh sách sản phẩm ẩn (trạng thái 2)
     public function listProductsHidden(Request $request){
         $search = $request->input('search');
@@ -98,7 +96,6 @@ class AdminProductController extends Controller
 
         return view('admins.products.index', $viewData);
     }
-
     //show form 
     public function showProductForm(){
 
@@ -460,7 +457,6 @@ class AdminProductController extends Controller
 
         return response()->json(['status' => 'success', 'message' => 'Đã thực hiện thao tác thành công']);
     }
-
     //show form cập nhật
     public function showProductEdit($proId) {
         $product = SanPham::where('ma_san_pham', $proId)->first();
@@ -589,5 +585,4 @@ class AdminProductController extends Controller
 
         return view('admins.products.product_delete', $viewData);
     }
-
 }

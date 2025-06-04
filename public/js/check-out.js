@@ -1,19 +1,32 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const deliverySection = document.getElementById("deliverySection");
-    const pickupSection = document.getElementById("pickupSection");
-    const shippingMethods = document.querySelectorAll("input[name='shippingMethod']");
+  const deliverySection = document.getElementById("deliverySection");
+  const pickupSection = document.getElementById("pickupSection");
+  const shippingMethods = document.querySelectorAll("input[name='shippingMethod']");
+  const shippingFeeText = document.getElementById("shippingFeeText");
+  const shippingFeeInput = document.getElementById("shippingFeeInput");
 
-    shippingMethods.forEach(method => {
-        method.addEventListener("change", () => {
-            if (method.value === "delivery" && method.checked) {
-                deliverySection.style.display = "block";
-                pickupSection.style.display = "none";
-            } else if (method.value === "pickup" && method.checked) {
-                deliverySection.style.display = "none";
-                pickupSection.style.display = "block";
-            }
-        });
-    });
+  const originalFee = parseInt(shippingFeeInput.dataset.originalFee); // Lưu phí gốc
+
+  shippingMethods.forEach(method => {
+      method.addEventListener("change", () => {
+          if (method.value === "delivery" && method.checked) {
+              deliverySection.style.display = "block";
+              pickupSection.style.display = "none";
+              shippingFeeText.innerText = formatCurrency(originalFee);
+              shippingFeeInput.value = originalFee;
+          } else if (method.value === "pickup" && method.checked) {
+              deliverySection.style.display = "none";
+              pickupSection.style.display = "block";
+              shippingFeeText.innerText = "0 đ";
+              shippingFeeInput.value = 0;
+          }
+      });
+  });
+
+  // Hàm định dạng tiền tệ
+  function formatCurrency(number) {
+      return number.toLocaleString('vi-VN') + ' đ';
+  }
 });
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -70,14 +83,6 @@ document.addEventListener("DOMContentLoaded", () => {
       wardName.value = wardSelect.options[wardSelect.selectedIndex].text;
   });
 });
-
-//Khi chọn quận/huyện, xã/phường sẽ tính lấy địa chỉ và tính shiping fee
-//Lấy địa chỉ được lưu từ session 
-//"selected_store_id" => "CH00000001"
-//"selected_store_name" => "CDMT Coffee & Tea"
-//"selected_store_dia_chi" => "72, đường 37, phường Tân Kiểng, Quận 7, TP Hồ Chí Minh"
-//Nếu địa cách cửa hàng bán kính 5km shippingfee = 0 đ, hơn 5Km = 25.000 đ, hơn 10km = 50.000 đ.
-//sau đó cập nhật ajax lên 
 
 $(document).ready(function(){
   $('#check-out-form').submit(function (e) { 

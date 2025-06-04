@@ -78,7 +78,6 @@ class AdminVoucherController extends Controller
             'subtitle' => 'Thêm voucher'
         ];
         return view('admins.vouchers.voucher_form', $viewData);
-
     }
     public function addVoucher(Request $request){
         $request->validate([
@@ -194,7 +193,6 @@ class AdminVoucherController extends Controller
         return view('admins.vouchers.voucher_edit', $viewData);
     }   
     public function editVoucher(Request $request, $id) {
-        // Validate dữ liệu
         $request->validate([
             'ten_voucher' => 'required|string|max:255|min:2',
             'hinh_anh' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048', 

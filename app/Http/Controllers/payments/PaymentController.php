@@ -19,8 +19,6 @@ class PaymentController extends Controller
 {
     public function payment(Request $request)
     {
-        //dd($request->all());
-        // Validate
         $validated = $request->validate([
             'ho_ten_khach_hang' => 'required|string|min:2|max:255',
             'so_dien_thoai' => 'required|regex:/^0\d{9}$/',
@@ -44,7 +42,6 @@ class PaymentController extends Controller
             'shippingMethod.required' => 'Vui lòng chọn hình thức nhận hàng.',
         ]);
 
-        
         $khachHang = optional(Auth::user())->khachHang;
         $customerId = null;
         if ($khachHang) {
@@ -105,7 +102,6 @@ class PaymentController extends Controller
             // Trừ 1 lượt sử dụng
             $voucher->so_luong -= 1;
             $voucher->save();
-
         }
       
         $total = $subTotal + $shippingFee - $discount;
@@ -136,8 +132,6 @@ class PaymentController extends Controller
                 'cart_items' => $cart,
             ];
 
-            //dd($orderData);
-
             try {
                 $maHoaDon = $this->processCOD($orderData);
                
@@ -163,7 +157,6 @@ class PaymentController extends Controller
                 toastr()->success('Đặt hàng thành công!');
                 return redirect()->route('checkout_status')->with('status', 'success');
             } catch (\Exception $e) {
-                // Ghi log nếu cần: Log::error($e->getMessage());
                 toastr()->error('Có lỗi xảy ra khi xử lý đơn hàng. Vui lòng thử lại sau! '. $e->getMessage());
                 return redirect()->back();
             }
@@ -333,7 +326,7 @@ class PaymentController extends Controller
     }
     public function checkoutStatus(){
         $viewData = [
-            'title' => 'Trạng thái thanh toán',    
+            'title' => 'Trạng thái đơn hàng | CDMT Coffee & Tea',    
         ];
         return view('clients.pages.payments.checkout_status', $viewData);
     }

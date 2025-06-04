@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 
 class AdminCategoryController extends Controller
 {
-    // Hiển thị danh sách danh mục
+
     public function index(Request $request)
     {
         $query = DanhMucSanPham::with('parent'); // eager loading parent danh mục

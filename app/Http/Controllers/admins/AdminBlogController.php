@@ -46,8 +46,6 @@ class AdminBlogController extends Controller
             'noi_dung' => 'required|string',
             'trang_thai' => 'required|in:0,1',
             'tac_gia' => 'required|string|max:255',
-            // Cho phép nullable để tránh lỗi nếu không nhập
-            'ngay_dang' => 'nullable|date',
         ], [
             'ma_danh_muc.required' => 'Danh mục blog là bắt buộc.',
             'ma_danh_muc.exists' => 'Danh mục blog không tồn tại.',

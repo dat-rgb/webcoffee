@@ -35,5 +35,4 @@ class BlogController extends Controller
 
         return view('clients.pages.blogs.blog_detail', $viewData);
     }
-
 }
