@@ -304,36 +304,36 @@ class AdminShopmaterialController extends Controller
                 ->first();
 
             if ($material) {
-                // Gán available_batches nhưng không dựa vào số lượng nhập
                 $phieuNhaps = PhieuNhapXuatNguyenLieu::where('ma_cua_hang', $maCuaHang)
                     ->where('ma_nguyen_lieu', $maNguyenLieu)
-                    ->where('loai_phieu', 0) // phiếu nhập
+                    ->where('loai_phieu', 0)
                     ->orderBy('han_su_dung', 'asc')
                     ->get();
 
-                $material->available_batches = $phieuNhaps->map(function ($lo) use ($maCuaHang, $maNguyenLieu) {
-                    // Tính tổng số lượng đã xuất cho lô này
-                    $soLuongDaXuat = PhieuNhapXuatNguyenLieu::where('ma_cua_hang', $maCuaHang)
-                        ->where('ma_nguyen_lieu', $maNguyenLieu)
-                        ->where('loai_phieu', 1) // phiếu xuất
-                        ->where('so_lo', $lo->so_lo)
-                        ->sum('dinh_luong');
+                $xuathuyData = PhieuNhapXuatNguyenLieu::select('so_lo', DB::raw('SUM(dinh_luong) as total'))
+                    ->where('ma_cua_hang', $maCuaHang)
+                    ->where('ma_nguyen_lieu', $maNguyenLieu)
+                    ->whereIn('loai_phieu', [1, 2]) // 1: Xuất, 2: Hủy
+                    ->groupBy('so_lo')
+                    ->pluck('total', 'so_lo'); // ['LOxxx' => tổng đã xuất/hủy]
 
-                    $conLai = $lo->dinh_luong - $soLuongDaXuat;
+                $availableBatches = collect();
+
+                foreach ($phieuNhaps as $lo) {
+                    $tongXuatHuy = $xuathuyData->get($lo->so_lo, 0);
+
+                    $conLai = $lo->dinh_luong - $tongXuatHuy;
 
                     if ($conLai > 0) {
-                        return [
+                        $availableBatches->push([
                             'so_lo' => $lo->so_lo,
                             'con_lai' => $conLai,
                             'han_su_dung' => $lo->han_su_dung,
-                        ];
+                        ]);
                     }
+                }
 
-                    return null;
-                })->filter()->values();
-
-
-
+                $material->available_batches = $availableBatches;
                 $materials->push($material);
             }
         }
