@@ -6,6 +6,7 @@ use App\Models\CuaHang;
 use App\Models\KhachHang;
 use App\Models\KhuyenMai;
 use App\Models\SanPham;
+use App\Models\SanPhamCuaHang;
 use App\Models\Sizes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -510,6 +511,7 @@ class CartController extends Controller
     public function checkout() {
         $cart = session()->get('cart', []);
         $store = session('selected_store_id');
+        $storeName = session('selected_store_name');
         $user = auth()->user();
 
         if(!$cart){
@@ -518,6 +520,23 @@ class CartController extends Controller
         if (!$store) {
             toastr()->error('Vui lòng chọn cửa hàng trước khi thanh toán');
             return redirect()->back();
+        }
+
+        foreach ($cart as $item) {
+        $product = SanPham::where('ma_san_pham', $item['product_id'])->first();
+            $spCuaHang = SanPhamCuaHang::where('ma_san_pham', $item['product_id'])
+                ->where('ma_cua_hang', $store)
+                ->first();
+
+            if (!$product || $product->trang_thai != 1) {
+                toastr()->error("Sản phẩm " . $item['product_name'] . " đã ngừng bán.");
+                return redirect()->back();
+            }
+
+            if (!$spCuaHang || $spCuaHang->trang_thai != 1) {
+                toastr()->error("Sản phẩm " . $item['product_name'] . " đã ngừng bán tại cửa hàng " . $storeName);
+                return redirect()->back();
+            }
         }
 
         foreach ($cart as $item) {

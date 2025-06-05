@@ -147,9 +147,9 @@
 						<div class="search-bar-tablecell">
 							<form action="{{ route('product.search') }}" method="GET" class="search-form">
 								<h3>Tìm kiếm</h3>
-								<input type="text" name="search" placeholder="Nhập từ khóa..." value="{{ request('search') }}">
+								<input type="text" name="search" placeholder="Nhập từ khóa..." value="{{ request('search') }}" required>
 								<button type="submit">
-									Search <i class="fas fa-search"></i>
+									Tìm kiếm <i class="fas fa-search"></i>
 								</button>
 							</form>
 						</div>

@@ -50,52 +50,7 @@
     </div>
 </div>
 <!-- end breadcrumb section -->
-
-<!-- products -->
-@if (!$products->isEmpty())
-    <div class="product-section mt-150 mb-150">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="product-filters">
-                        <ul>
-                            @foreach ($categories as $cate)
-                                @if (!empty($countCate[$cate->ma_danh_muc]) && $countCate[$cate->ma_danh_muc] > 0)
-                                    <li data-filter=".{{ $cate->ma_danh_muc }}">{{ $cate->ten_danh_muc }}</li>
-                                @endif
-                            @endforeach
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="row product-lists">
-                @foreach ($products as $pro)
-                    <div class="col-lg-3 col-md-4 col-sm-6 text-center {{ $pro->danhMuc->ma_danh_muc ?? '' }}">
-                        <div class="single-product-item">
-                            <div class="product-image">
-                                <div class="icon-wrapper">
-                                    @if ($pro->hot && $pro->is_new)
-                                        <img src="{{ asset('images/product_hot.png') }}" alt="Hot" class="hot-icon">
-                                        <img src="{{ asset('images/product_new.png') }}" alt="New" class="hot-icon second">
-                                    @elseif ($pro->hot)
-                                        <img src="{{ asset('images/product_hot.png') }}" alt="Hot" class="hot-icon">
-                                    @elseif ($pro->is_new)
-                                        <img src="{{ asset('images/product_new.png') }}" alt="New" class="hot-icon">
-                                    @endif
-                                </div>
-                                <a href="{{ route('product.detail', $pro->slug) }}">
-                                    <img src="{{ $pro->hinh_anh ? asset('storage/' . $pro->hinh_anh) : asset('images/no_product_image.png') }}" alt="{{ $pro->ten_san_pham }}">
-                                </a>
-                            </div>
-                            <h3>{{ $pro->ten_san_pham }}</h3>
-                            <a href="{{ route('product.detail', $pro->slug) }}" class="cart-btn"><i class="fas fa-shopping-cart"></i> Đặt mua</a>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-    </div>
-@else
+@if (session('selected_store_id') === null && $products->isEmpty())
     <div class="contact-from-section mt-150 mb-150">
         <div class="container">
             <div class="row">
@@ -107,6 +62,62 @@
             </div>
         </div>
     </div>
-@endif
+@elseif(session('selected_store_id') && $products->isEmpty())
+    <div class="contact-from-section mt-150 mb-150">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <div class="form-title">
+                        <h2>Không có sản phẩm cho từ khóa "{{ $search }}" tại cửa hàng {{ session('selected_store_name') }} </h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@else
+<!-- products -->
+<div class="product-section mt-150 mb-150">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="product-filters">
+                    <ul>
+                        @foreach ($categories as $cate)
+                            @if (!empty($countCate[$cate->ma_danh_muc]) && $countCate[$cate->ma_danh_muc] > 0)
+                                <li data-filter=".{{ $cate->ma_danh_muc }}">{{ $cate->ten_danh_muc }}</li>
+                            @endif
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="row product-lists">
+            @foreach ($products as $pro)
+                <div class="col-lg-3 col-md-4 col-sm-6 text-center {{ $pro->danhMuc->ma_danh_muc ?? '' }}">
+                    <div class="single-product-item">
+                        <div class="product-image">
+                            <div class="icon-wrapper">
+                                @if ($pro->hot && $pro->is_new)
+                                    <img src="{{ asset('images/product_hot.png') }}" alt="Hot" class="hot-icon">
+                                    <img src="{{ asset('images/product_new.png') }}" alt="New" class="hot-icon second">
+                                @elseif ($pro->hot)
+                                    <img src="{{ asset('images/product_hot.png') }}" alt="Hot" class="hot-icon">
+                                @elseif ($pro->is_new)
+                                    <img src="{{ asset('images/product_new.png') }}" alt="New" class="hot-icon">
+                                @endif
+                            </div>
+                            <a href="{{ route('product.detail', $pro->slug) }}">
+                                <img src="{{ $pro->hinh_anh ? asset('storage/' . $pro->hinh_anh) : asset('images/no_product_image.png') }}" alt="{{ $pro->ten_san_pham }}">
+                            </a>
+                        </div>
+                        <h3>{{ $pro->ten_san_pham }}</h3>
+                        <a href="{{ route('product.detail', $pro->slug) }}" class="cart-btn"><i class="fas fa-shopping-cart"></i> Đặt mua</a>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+</div>
 <!-- end products -->
+@endif
 @endsection

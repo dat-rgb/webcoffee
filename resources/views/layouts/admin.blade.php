@@ -5,7 +5,7 @@
       <title>@yield('title',"Admin CDMT Coffee & Tea")</title>
       <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport"/>
       <meta name="csrf-token" content="{{ csrf_token() }}">
-      <link rel="icon" href="{{ asset('admins/img/kaiadmin/favicon.ico') }}" type="image/x-icon"/>
+      <link rel="icon" href="{{ asset('img/favicon.png') }}" type="image/x-icon"/>
       <!-- Fonts and icons -->
       <script src="{{ asset('admins/js/plugin/webfont/webfont.min.js') }}"></script>
       <script>
@@ -45,10 +45,10 @@
           <div class="logo-header" data-background-color="dark">
             <a href="#" class="logo">
               <img
-                src="{{ asset('admins/img/kaiadmin/logo_light.svg') }}"
+                src="{{ asset('img/logo.png') }}"
                 alt="navbar brand"
                 class="navbar-brand"
-                height="20"
+                height="50"
               />
             </a>
             <div class="nav-toggle">
@@ -106,11 +106,6 @@
                     <li>
                       <a href="{{ route('admin.orders.list') }}">
                         <span class="sub-item">Danh sách Đơn hàng</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="#">
-                        <span class="sub-item">Thêm tiếp các mục (nếu có).</span>
                       </a>
                     </li>
                   </ul>

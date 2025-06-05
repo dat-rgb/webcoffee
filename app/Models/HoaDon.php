@@ -25,6 +25,7 @@ class HoaDon extends Model
         'phuong_thuc_thanh_toan',
         'phuong_thuc_nhan_hang',
         'ghi_chu',
+        'tam_tinh',
         'tien_ship',
         'khuyen_mai',
         'giam_gia',

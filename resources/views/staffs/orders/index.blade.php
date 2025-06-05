@@ -83,7 +83,7 @@
                                                     <option value="0">Chờ xác nhận</option>
                                                     <option value="1">Đã xác nhận</option>
                                                     <option value="2">Hoàn tất đơn hàng</option>
-                                                    <option value="3">Đang giao</option>
+                                                    <option value="3">Đang giao/Chờ nhận hàng</option>
                                                     <option value="4">Đã nhận</option>
                                                     <option value="5">Đã hủy</option>
                                                 </select>
@@ -111,48 +111,51 @@
 @endsection
 @push('scripts')
 <script>
-const maCuaHang = "{{ Auth::guard('staff')->user()->nhanvien->ma_cua_hang }}";
-
 document.querySelectorAll('.order-status-select').forEach(select => {
-    // Lấy trạng thái cũ từ attribute hoặc option selected
-    let previousValue = parseInt(select.getAttribute('data-previous') || select.value);
+  // Lấy giá trị trạng thái trước để rollback khi cần
+  let previousValue = parseInt(select.getAttribute('data-previous') || select.value);
 
-    select.addEventListener('change', function () {
-        const orderId = this.dataset.orderId;
-        const newStatus = parseInt(this.value);
+  select.addEventListener('change', function () {
+    const orderId = this.dataset.orderId;
+    const newStatus = parseInt(this.value);
+    const pt_nhan_hang = this.dataset.ptNhanHang;
 
-        // Check trạng thái nếu không phải hủy đơn (5)
-        if (newStatus !== 5 && newStatus - previousValue !== 1) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Không hợp lệ',
-                text: 'Không được phép bỏ qua trạng thái. Vui lòng chọn theo thứ tự.',
-            });
-            this.value = previousValue; // reset lại select
-            return;
+    // Check trạng thái nếu không phải hủy đơn (5)
+    if (newStatus !== 5 && newStatus - previousValue !== 1) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Không hợp lệ',
+        text: 'Không được phép bỏ qua trạng thái. Vui lòng chọn theo thứ tự.',
+      });
+      this.value = previousValue;
+      return;
+    }
+
+    Swal.fire({
+      title: 'Xác nhận thay đổi trạng thái?',
+      text: 'Bạn có chắc muốn cập nhật trạng thái đơn hàng này không?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Xác nhận',
+      cancelButtonText: 'Hủy',
+    }).then(result => {
+      if (result.isConfirmed) {
+        if (newStatus === 3) {
+          if (pt_nhan_hang === 'pickup') {
+            updateOrderStatus(orderId, newStatus, {}, this);
+          } else {
+            showDeliverInfoModal(orderId, newStatus, this);
+          }
+        } else if (newStatus === 5) {
+          showCancelReasonModal(orderId, newStatus, this);
+        } else {
+          updateOrderStatus(orderId, newStatus, {}, this);
         }
-
-        Swal.fire({
-            title: 'Xác nhận thay đổi trạng thái?',
-            text: 'Bạn có chắc muốn cập nhật trạng thái đơn hàng này không?',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: 'Xác nhận',
-            cancelButtonText: 'Hủy',
-        }).then(result => {
-            if (result.isConfirmed) {
-                if (newStatus === 3) {
-                    showDeliverInfoModal(orderId, newStatus, this);
-                } else if (newStatus === 5) {
-                    showCancelReasonModal(orderId, newStatus, this);
-                } else {
-                    updateOrderStatus(orderId, newStatus, {}, this);
-                }
-            } else {
-                this.value = previousValue; // hủy xác nhận thì giữ nguyên
-            }
-        });
+      } else {
+        this.value = previousValue;
+      }
     });
+  });
 });
 
 function showDeliverInfoModal(orderId, newStatus, selectElement) {
