@@ -47,4 +47,8 @@ class SanPham extends Model
             ->withPivot('dinh_luong', 'don_vi'); // Đảm bảo lấy thêm các trường cần thiết từ bảng trung gian
     }
 
+    public function sanPhamCuaHang()
+    {
+        return $this->hasMany(SanPhamCuaHang::class, 'ma_san_pham', 'ma_san_pham');
+    }
 }

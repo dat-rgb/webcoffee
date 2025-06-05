@@ -54,7 +54,31 @@
     </div>
 </div>
 <!-- end breadcrumb section -->
-
+@if (session('selected_store_id') === null && $products->isEmpty())
+    <div class="contact-from-section mt-150 mb-150">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <div class="form-title">
+                        <h2>Sản phẩm đang được cập nhật...</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@elseif(session('selected_store_id') && $products->isEmpty())
+    <div class="contact-from-section mt-150 mb-150">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <div class="form-title">
+                        <h2>Sản phẩm tại cửa hàng {{ session('selected_store_name') }} đang được cập nhật...</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@else
 <!-- products -->
 <div class="product-section mt-150 mb-150">
     <div class="container">
@@ -103,6 +127,8 @@
     </div>
 </div>
 <!-- end products -->
+@endif
+
 
 <!-- logo carousel -->
 <div class="logo-carousel-section">
