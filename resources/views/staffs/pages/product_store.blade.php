@@ -56,6 +56,7 @@
                                             value="{{ request('search') }}"
                                             autocomplete="off"
                                         >
+                                        <input type="hidden" name="status" value="{{ request('status') }}">
                                         <button type="submit" class="bg-white input-group-text">
                                             <i class="fa fa-search text-muted"></i>
                                         </button>

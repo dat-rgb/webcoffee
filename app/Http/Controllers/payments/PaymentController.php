@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\HoaDon;
 use App\Models\KhuyenMai;
 use App\Models\SanPham;
+use App\Models\SanPhamCuaHang;
 use App\Models\Sizes;
 use Auth;
 use Illuminate\Http\Request;
@@ -49,14 +50,15 @@ class PaymentController extends Controller
         }   
 
         $address = $request->dia_chi .' '. $request->wardName .' '. $request-> districtName .' '. $request->provinceName;
+
         $storeId = session('selected_store_id');
         if(!$storeId){
-            return redirect()->back()->with('error', 'Vui lòng chọn cửa hàng.');
+            return redirect()->route('cart')->with('error', 'Vui lòng chọn cửa hàng.');
         }
 
         $storeCheck = $this->checkStore($storeId);
         if (!$storeCheck['success']) {
-            return redirect()->back()->with('error', $storeCheck['message'] ?? 'Lỗi không xác định.');
+            return redirect()->route('cart')->with('error', $storeCheck['message'] ?? 'Lỗi không xác định.');
         }
 
         if ($this->checkCartPrices()) {
@@ -66,7 +68,7 @@ class PaymentController extends Controller
 
         $cart = session('cart', []);
         if (empty($cart)) {
-            return redirect()->back()->with('error', 'Giỏ hàng của bạn đang trống.');
+            return redirect()->route('cart')->with('error', 'Giỏ hàng của bạn đang trống.');
         }
 
         $shippingFee = $request->shippingFee ?? 0;
@@ -238,6 +240,11 @@ class PaymentController extends Controller
         $cart = session()->get('cart', []);
         $totalUsedIngredients = [];
 
+        $statusCheck = $this->checkStatus($cart, $storeId);
+        if (!$statusCheck['success']) {
+            return $statusCheck;
+        }
+
         foreach ($cart as $item) {
             $productId = $item['product_id'];
             $sizeId = $item['size_id'];
@@ -269,6 +276,37 @@ class PaymentController extends Controller
         }
 
         return ['success' => true, 'usedIngredients' => $totalUsedIngredients];
+    }
+    public function checkStatus($cart, $storeId)
+    {
+        $storeName = session('selected_store_name');
+
+        foreach ($cart as $item) {
+            $productId = $item['product_id'];
+
+            // Check trạng thái sản phẩm
+            $product = SanPham::where('ma_san_pham', $productId)->first();
+            if (!$product || $product->trang_thai != 1) {
+                return [
+                    'success' => false,
+                    'message' => "Sản phẩm \"" . ($item['product_name'] ?? '') . "\" hiện đã ngừng bán."
+                ];
+            }
+
+            // Check trạng thái sản phẩm ở cửa hàng
+            $productStore = SanPhamCuaHang::where('ma_san_pham', $productId)
+                ->where('ma_cua_hang', $storeId)
+                ->first();
+
+            if (!$productStore || $productStore->trang_thai != 1) {
+                return [
+                    'success' => false,
+                    'message' => "Sản phẩm \"" . ($item['product_name'] ?? '') . "\" đã ngưng bán tại cửa hàng ".$storeName
+                ];
+            }
+        }
+
+        return ['success' => true];
     }
     public function checkCartPrices() {
         $cart = session('cart', []);
