@@ -111,10 +111,10 @@ Route::prefix('payment')->group(function(){
     Route::get('/checkout-status',[PaymentController::class,'checkoutStatus'])->name('checkout_status');
 });
 
-//Tin tức   
+//Tin tức
 Route::prefix('blog')->group(function(){
     Route::get('/', [BlogController::class, 'index'])->name('blog');
-    Route::get('/{slug}', [BlogController::class, 'detail'])->name('blog.detail');    
+    Route::get('/{slug}', [BlogController::class, 'detail'])->name('blog.detail');
 });
 
 //Khách hàng
@@ -263,12 +263,12 @@ Route::prefix('admin/shop-materials')->middleware(AdminMiddleware::class)->name(
     Route::post('/store', [AdminShopmaterialController::class, 'store'])->name('store');
     Route::get('/{id}/edit', [AdminShopmaterialController::class, 'edit'])->name('edit');
     Route::put('/{id}/update', [AdminShopmaterialController::class, 'update'])->name('update');
-    Route::delete('/{id}', [AdminShopmaterialController::class, 'destroy'])->name('destroy');
     Route::get('/import-page', [AdminShopmaterialController::class, 'showImportPage'])->name('showImportPage');
     Route::post('/import', [AdminShopmaterialController::class, 'import'])->name('import');
     Route::get('/export-page',[AdminShopmaterialController::class,'showExportPage'])->name('showExportPage');
     Route::post('/export',[AdminShopmaterialController::class,'export'])->name('export');
-
+    Route::post('/destroy', [AdminShopmaterialController::class, 'destroy'])->name('destroy');
+    Route::get('/destroy-page', [AdminShopmaterialController::class, 'showDestroyPage'])->name('showDestroyPage');
 });
 
 //Route Admin Blog

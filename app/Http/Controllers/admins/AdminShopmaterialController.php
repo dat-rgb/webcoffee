@@ -72,7 +72,6 @@ class AdminShopmaterialController extends Controller
 
         return view('admins.shopmaterial.create', $viewData);
     }
-
     public function store(Request $request)
     {
         //dd($request->all());
@@ -110,8 +109,6 @@ class AdminShopmaterialController extends Controller
         return redirect()->route('admins.shopmaterial.index', ['ma_cua_hang' => $request->ma_cua_hang]);
 
     }
-
-
     public function edit($id)
     {
         $material = NguyenLieu::findOrFail($id);
@@ -138,22 +135,6 @@ class AdminShopmaterialController extends Controller
 
         return redirect()->route('admins.shopmaterial.index');
     }
-    public function destroy($id)
-    {
-        $material = NguyenLieu::findOrFail($id);
-        $material->delete();
-
-        toastr()->success('Nguyên liệu đã được xóa.');
-
-        return redirect()->route('admins.shopmaterial.index');
-    }
-
-
-
-
-
-
-
     public function showImportPage(Request $request)
     {
         $today = Carbon::now()->format('d/m/Y');
@@ -306,7 +287,6 @@ class AdminShopmaterialController extends Controller
             ])->withInput();
         }
     }
-
     public function showExportPage(Request $request)
     {
         $today = Carbon::now()->format('d/m/Y');
@@ -373,7 +353,6 @@ class AdminShopmaterialController extends Controller
             'today' => $today,
         ]);
     }
-
     public function export(Request $request)
     {
         $exportData = $request->input('export');
@@ -432,6 +411,15 @@ class AdminShopmaterialController extends Controller
                         if ($dinhLuongCan > $material->so_luong_ton) {
                             throw new \Exception("Số lượng xuất vượt tồn kho hiện tại cho nguyên liệu $maNguyenLieu.");
                         }
+
+                        // Kiểm tra tồn tối thiểu
+                        $tonSauKhiXuat = $material->so_luong_ton - $dinhLuongCan;
+                        $tonToiThieu = $material->nguyenLieu->so_luong_ton_toi_thieu ?? 0;
+
+                        if ($tonSauKhiXuat < $tonToiThieu) {
+                            throw new \Exception("Không thể xuất nguyên liệu $maNguyenLieu vì sau xuất tồn kho sẽ nhỏ hơn tồn tối thiểu.");
+                        }
+
 
                         $dinhLuongConLai = $dinhLuongCan;
                         $tongXuatThucTe = 0;
@@ -506,12 +494,203 @@ class AdminShopmaterialController extends Controller
             ])->withInput();
         }
     }
+    public function showDestroyPage(Request $request)
+    {
+        $materialKeys = $request->input('materials', []);
+        $materials = collect();
+
+        foreach ($materialKeys as $key) {
+            [$maCuaHang, $maNguyenLieu] = explode('|', $key) + [null, null];
+
+            if (!$maCuaHang || !$maNguyenLieu) continue;
+
+            $material = CuaHangNguyenLieu::with('nguyenLieu', 'cuaHang')
+                ->where('ma_cua_hang', $maCuaHang)
+                ->where('ma_nguyen_lieu', $maNguyenLieu)
+                ->first();
 
 
+            if ($material) {
+                $phieuNhaps = PhieuNhapXuatNguyenLieu::where('ma_cua_hang', $maCuaHang)
+                    ->where('ma_nguyen_lieu', $maNguyenLieu)
+                    ->where('loai_phieu', 0)
+                    ->orderBy('han_su_dung', 'asc')
+                    ->get();
 
+                $xuathuyData = PhieuNhapXuatNguyenLieu::select('so_lo', DB::raw('SUM(dinh_luong) as total'))
+                    ->where('ma_cua_hang', $maCuaHang)
+                    ->where('ma_nguyen_lieu', $maNguyenLieu)
+                    ->whereIn('loai_phieu', [1, 2]) // 1: Xuất, 2: Hủy
+                    ->groupBy('so_lo')
+                    ->pluck('total', 'so_lo'); // ['LOxxx' => tổng đã xuất/hủy]
 
+                $availableBatches = collect();
 
+                foreach ($phieuNhaps as $lo) {
+                    $tongXuatHuy = $xuathuyData->get($lo->so_lo, 0);
 
+                    $conLai = $lo->dinh_luong - $tongXuatHuy;
 
+                    if ($conLai > 0) {
+                        $availableBatches->push([
+                            'so_lo' => $lo->so_lo,
+                            'con_lai' => $conLai,
+                            'han_su_dung' => $lo->han_su_dung,
+                        ]);
+                    }
+                }
+
+                $material->available_batches = $availableBatches;
+                $materials->push($material);
+            }
+        }
+
+        if ($materials->isEmpty()) {
+            toastr()->error('Không còn nguyên liệu để hủy!');
+            return redirect()->route('admins.shopmaterial.index');
+        }
+
+        return view('admins.shopmaterial.destroy', [
+            'materials' => $materials,
+            'title' => 'Hủy nguyên liệu | CDMT & tea and coffee',
+            'subtitle' => 'Hủy nguyên liệu theo lô',
+            'today' => \Carbon\Carbon::now()->format('d/m/Y'),
+        ]);
+    }
+    public function destroy(Request $request)
+    {
+        $data = $request->input();
+        $now = now();
+
+        try {
+            if (!isset($data['batch']) || !is_array($data['batch'])) {
+                throw new \Exception("Dữ liệu không hợp lệ: thiếu thông tin lô nguyên liệu.");
+            }
+
+            DB::transaction(function () use ($data, $now) {
+                $updateStock = [];
+
+                foreach ($data['batch'] as $ma_cua_hang => $materials) {
+                    if (!is_scalar($ma_cua_hang)) {
+                        throw new \Exception("Mã cửa hàng không hợp lệ.");
+                    }
+                    if (!is_array($materials)) continue;
+
+                    foreach ($materials as $ma_nguyen_lieu => $soLo) {
+                        if (!is_scalar($ma_nguyen_lieu)) {
+                            throw new \Exception("Mã nguyên liệu không hợp lệ.");
+                        }
+                        if (!is_scalar($soLo)) {
+                            throw new \Exception("Số lô không hợp lệ.");
+                        }
+
+                        $ma_cua_hang_key = (string) $ma_cua_hang;
+                        $ma_nguyen_lieu_key = (string) $ma_nguyen_lieu;
+
+                        $quantity = isset($data['quantity'][$ma_cua_hang_key][$ma_nguyen_lieu_key])
+                            ? (float) $data['quantity'][$ma_cua_hang_key][$ma_nguyen_lieu_key]
+                            : 0;
+
+                        if ($quantity <= 0) {
+                            throw new \Exception("Số lượng hủy cho nguyên liệu $ma_nguyen_lieu phải là số dương.");
+                        }
+
+                        $note = $data['note'][$ma_cua_hang_key][$ma_nguyen_lieu_key] ?? null;
+
+                        $batchRecord = PhieuNhapXuatNguyenLieu::where('so_lo', $soLo)
+                            ->where('ma_cua_hang', $ma_cua_hang)
+                            ->where('ma_nguyen_lieu', $ma_nguyen_lieu)
+                            ->where('loai_phieu', 0)
+                            ->first();
+
+                        if (!$batchRecord) {
+                            throw new \Exception("Không tìm thấy lô $soLo cho cửa hàng $ma_cua_hang / nguyên liệu $ma_nguyen_lieu.");
+                        }
+
+                        $daXuat = PhieuNhapXuatNguyenLieu::where('so_lo', $soLo)
+                            ->where('ma_cua_hang', $ma_cua_hang)
+                            ->where('ma_nguyen_lieu', $ma_nguyen_lieu)
+                            ->where('loai_phieu', 1)
+                            ->sum('dinh_luong');
+
+                        $soLuongNhapLot = $batchRecord->dinh_luong;
+                        $conLaiTrongLo = $soLuongNhapLot - $daXuat;
+
+                        if ($conLaiTrongLo < $quantity) {
+                            throw new \Exception("Lô $soLo chỉ còn $conLaiTrongLo, không đủ để hủy $quantity.");
+                        }
+
+                        $materialStock = CuaHangNguyenLieu::where('ma_cua_hang', $ma_cua_hang)
+                            ->where('ma_nguyen_lieu', $ma_nguyen_lieu)
+                            ->with('nguyenLieu') // để đảm bảo có định_lượng
+                            ->lockForUpdate()
+                            ->first();
+
+                        if (!$materialStock) {
+                            throw new \Exception("Không tìm thấy nguyên liệu $ma_nguyen_lieu tại cửa hàng $ma_cua_hang.");
+                        }
+
+                        // Tính định lượng thực tế cần hủy
+                        $dinhLuong1DonVi = $materialStock->nguyenLieu->so_luong  ?? 1;
+                        $dinhLuongHuy = $quantity * $dinhLuong1DonVi;
+
+                        PhieuNhapXuatNguyenLieu::create([
+                            'ma_cua_hang'        => $ma_cua_hang,
+                            'ma_nguyen_lieu'     => $ma_nguyen_lieu,
+                            'loai_phieu'         => 2, // phiếu hủy
+                            'so_lo'              => $soLo,
+                            'ngay_san_xuat'      => $batchRecord->ngay_san_xuat,
+                            'han_su_dung'        => $batchRecord->han_su_dung,
+                            'so_luong'           => $quantity,
+                            'dinh_luong'         => $dinhLuongHuy,
+                            'so_luong_ton_truoc' => $materialStock->so_luong_ton,
+                            'don_vi'             => $materialStock->don_vi,
+                            'gia_tien'           => optional($materialStock->nguyenLieu)->gia ?? 0,
+                            'tong_tien'          => (optional($materialStock->nguyenLieu)->gia ?? 0) * $quantity,
+                            'ngay_tao_phieu'     => $now,
+                            'ghi_chu'            => $note ?? 'Hủy từ lô ' . $soLo,
+                        ]);
+
+                        $updateStock[$ma_cua_hang_key][$ma_nguyen_lieu_key] =
+                            ($updateStock[$ma_cua_hang_key][$ma_nguyen_lieu_key] ?? 0) + $quantity;
+                    }
+                }
+
+                // Cập nhật tồn kho bằng query builder
+                foreach ($updateStock as $ma_cua_hang => $materials) {
+                    foreach ($materials as $ma_nguyen_lieu => $soLuongHuy) {
+
+                        // Khóa bản ghi để tránh race condition
+                        $cuahangNgl = CuaHangNguyenLieu::where('ma_cua_hang', $ma_cua_hang)
+                            ->where('ma_nguyen_lieu', $ma_nguyen_lieu)
+                            ->lockForUpdate()
+                            ->first();
+
+                        if (!$cuahangNgl) {
+                            throw new \Exception("Không tìm thấy kho cửa hàng hoặc nguyên liệu cần cập nhật.");
+                        }
+
+                        $so_luong_moi = $cuahangNgl->so_luong_ton - ($soLuongHuy * $cuahangNgl->nguyenLieu->so_luong);
+
+                        if ($so_luong_moi < 0) {
+                            throw new \Exception("Số lượng tồn kho âm sau khi hủy nguyên liệu $ma_nguyen_lieu tại cửa hàng $ma_cua_hang.");
+                        }
+
+                        // Cập nhật trực tiếp trong DB, không gọi save() trên model
+                        CuaHangNguyenLieu::where('ma_cua_hang', $ma_cua_hang)
+                            ->where('ma_nguyen_lieu', $ma_nguyen_lieu)
+                            ->update(['so_luong_ton' => $so_luong_moi]);
+                    }
+                }
+
+            });
+
+            toastr()->success('Hủy nguyên liệu thành công!');
+            return redirect()->route('admins.shopmaterial.index');
+
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors('Lỗi khi hủy nguyên liệu: ' . $e->getMessage());
+        }
+    }
 }
 

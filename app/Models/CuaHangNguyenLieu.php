@@ -9,6 +9,8 @@ class CuaHangNguyenLieu extends Model
     protected $table = 'cua_hang_nguyen_lieus';
 
     protected $primaryKey = ['ma_cua_hang', 'ma_nguyen_lieu'];
+    protected $keyType = 'string';
+
     public $incrementing = false;
     public $timestamps = false; // nếu bảng không có cột created_at và updated_at
 

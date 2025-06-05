@@ -295,7 +295,7 @@
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="#">Account Setting</a>
                         <div class="dropdown-divider"></div>
-                      
+
                         <button type="button" id="logout-btn" class="dropdown-item">
                             <i class="fas fa-sign-out-alt" style="margin-right:6px;"></i>Đăng xuất
                         </button>
@@ -317,14 +317,15 @@
         </div>
 
         <footer class="footer">
-          <div class="container-fluid d-flex justify-content-center">
-            <div class="copyright">
-              2025, Đồ án tốt nghiệp của sinh viên
-              <a href="#"> Chí Đạt & Minh Tân.</a>
+            <div class="container-fluid d-flex justify-content-center">
+                <div class="copyright">
+                © 2025 - Đồ án tốt nghiệp của sinh viên
+                <a href="#">Chí Đạt & Nguyễn Minh Tân</a>. Bản quyền thuộc về chúng tôi.
+                </div>
             </div>
-          </div>
         </footer>
-      </div>
+
+      </div>    
     </div>
 
   <!-- Load Toastr before your custom scripts -->
@@ -342,7 +343,7 @@
   <script src="{{ asset('admins/js/kaiadmin.min.js') }}"></script>
   <!-- Kaiadmin DEMO methods, don't include it in your project! -->
   <script src="{{ asset('admins/js/setting-demo2.js') }}"></script>
-  <script src="{{ asset('js/sweet-alert.js') }}"></script> 
+  <script src="{{ asset('js/sweet-alert.js') }}"></script>
   @stack('scripts')
 
   </body>

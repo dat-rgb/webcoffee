@@ -26,7 +26,7 @@
         });
       </script>
       <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
-        
+
       <!-- CSS Files -->
       <link rel="stylesheet" href="{{ asset('admins/css/bootstrap.min.css') }}" />
       <link rel="stylesheet" href="{{ asset('admins/css/plugins.min.css') }}" />
@@ -665,13 +665,14 @@
         </div>
 
         <footer class="footer">
-          <div class="container-fluid d-flex justify-content-center">
-            <div class="copyright">
-              2025, Đồ án tốt nghiệp của sinh viên
-              <a href="#"> Chí Đạt & Minh Tân.</a>
+            <div class="container-fluid d-flex justify-content-center">
+                <div class="copyright">
+                © 2025 - Đồ án tốt nghiệp của sinh viên
+                <a href="#">Chí Đạt & Nguyễn Minh Tân</a>. Bản quyền thuộc về chúng tôi.
+                </div>
             </div>
-          </div>
         </footer>
+
       </div>
     </div>
 
