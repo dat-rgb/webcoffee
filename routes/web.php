@@ -27,6 +27,7 @@ use App\Http\Controllers\payments\PaymentController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\staffs\StaffHomeController;
 use App\Http\Controllers\staffs\StaffOrderController;
+use App\Http\Controllers\staffs\StaffProductController;
 use App\Http\Controllers\StoreController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\KhachHangMiddleware;
@@ -287,7 +288,13 @@ Route::prefix('admin/blog')->middleware(AdminMiddleware::class)->group(function(
 Route::prefix('staff')->middleware(NhanVienMiddleware::class)->group(function(){
     Route::get('', [StaffHomeController::class, 'index'])->name('staff');
 });
+//Route Staff products store
+Route::prefix('staff/product-store')->middleware(NhanVienMiddleware::class)->group(function(){
+    Route::get('', [StaffProductController::class, 'index'])->name('staff.productStore');
+    Route::post('/update-status', [StaffProductController::class, 'updateStatus'])->name('staff.productStore.update-status');
 
+});
+//Route Staff Order
 Route::prefix('staff/orders')->middleware(NhanVienMiddleware::class)->group(function(){
     Route::get('/', [StaffOrderController::class, 'orderStore'])->name('staff.orders.list');
     Route::get('/{id}/detail', [StaffOrderController::class, 'detail'])->name('staff.orders.detail');
@@ -296,7 +303,7 @@ Route::prefix('staff/orders')->middleware(NhanVienMiddleware::class)->group(func
 });
 
 //Route Staff Dashboard
-Route::prefix('staff/dashboard')->group(function() {
+Route::prefix('staff/dashboard')->middleware(NhanVienMiddleware::class)->group(function() {
     Route::get('/', [StaffDashboardController::class, 'index'])->name('staff.dashboard');
 });
 //End - Staff

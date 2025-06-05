@@ -118,7 +118,6 @@ class StaffOrderController extends Controller
             ], 500);
         }
     }
-
     private function jsonError($msg)
     {
         return response()->json(['success' => false, 'message' => $msg]);
