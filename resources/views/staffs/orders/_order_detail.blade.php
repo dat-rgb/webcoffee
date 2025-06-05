@@ -113,21 +113,58 @@
             <strong>Khách hàng:</strong> <span>Guest - {{ $order->ten_khach_hang }}</span>
         </div>
         @endif
-
         <div style="margin-bottom: 12px;">
-        <strong>Phương thức thanh toán:</strong>
-        <span>
-            @if ($order->phuong_thuc_thanh_toan === "COD")
-            Thanh toán khi nhận hàng (COD)
-            @elseif ($order->phuong_thuc_thanh_toan === "NAPAS247")
-            Chuyển khoản
-            @endif
-        </span>
+            <strong>{{ $order->phuong_thuc_nhan_hang === "pickup" ? 'Phương thức nhận hàng:' : 'Giao hàng đến:' }}</strong>
+            <span>{{ $order->dia_chi }}</span>
         </div>
-
         <div style="margin-bottom: 12px;">
-        <strong>{{ $order->phuong_thuc_nhan_hang === "pickup" ? 'Phương thức nhận hàng:' : 'Giao hàng đến:' }}</strong>
-        <span>{{ $order->dia_chi }}</span>
+            <strong>Phương thức thanh toán:</strong>
+            @if ($order->phuong_thuc_thanh_toan === "COD")
+                <span>Thanh toán khi nhận hàng (COD)</span>
+                <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                    <strong>Trạng thái thanh toán</strong>
+                    @php
+                        $statusColors = [
+                            0 => '#ff9800', 1 => '#2196f3','default' => '#9e9e9e',
+                        ];
+                        $statusTexts = [
+                            0 => 'Chưa thanh toán', 1 => 'Đã thanh toán', 
+                        ];
+                        $st = $order->trang_thai_thanh_toan;
+                        $color = $statusColors[$st] ?? $statusColors['default'];
+                        $text = $statusTexts[$st] ?? 'Không xác định';
+                    @endphp
+                    <span style="padding: 6px 14px; border-radius: 20px; background-color: {{ $color }}; color: white; font-weight: 600;">
+                        {{ $text }}
+                    </span>
+                </div>  
+            @elseif ($order->phuong_thuc_thanh_toan === "NAPAS247")
+                <span>Chuyển khoản qua ngân hàng MB Bank </span>
+                <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                    <strong>Trạng thái thanh toán</strong>
+                    @php
+                        $statusColors = [
+                            'PENDING' => '#ff9800', 
+                            'CANCELLED' => '#9e9e9e',
+                            'SUCCESS' => '#2e7d32', 
+                            'FAILED' => '#f44336',                            
+                            'default' => '#9e9e9e',
+                        ];
+                        $statusTexts = [
+                            'PENDING' => 'Đang xử lý', 
+                            'CANCELLED' => 'Đã hủy giao dịch',
+                            'SUCCESS' => 'Đã thanh toán',
+                            'FAILED' => 'Thanh toán thất bại',
+                        ];
+                        $st = $order->transaction->trang_thai;
+                        $color = $statusColors[$st] ?? $statusColors['default'];
+                        $text = $statusTexts[$st] ?? 'Không xác định';
+                    @endphp
+                    <span style="padding: 6px 14px; border-radius: 20px; background-color: {{ $color }}; color: white; font-weight: 600;">
+                        {{ $text }}
+                    </span>
+                </div>
+            @endif
         </div>
 
         <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
@@ -221,7 +258,7 @@
         </table>
     </div>
     <div class="order-summary mt-3" style="max-width: 320px; margin-left: auto; font-size: 1rem;">
-        <p class="d-flex justify-content-between"><strong>Tạm tính:</strong> <span>{{ number_format($order->tong_tien - $order->giamn_gia, 0, ',', '.') }} đ</span></p>
+        <p class="d-flex justify-content-between"><strong>Tạm tính:</strong> <span>{{ number_format($order->tam_tinh, 0, ',', '.') }} đ</span></p>
         <p class="d-flex justify-content-between"><strong>Giảm giá:</strong> <span>- {{ number_format($order->giam_gia, 0, ',', '.') }} đ</span></p>
         <p class="d-flex justify-content-between"><strong>Phí ship:</strong> <span>{{ number_format($order->tien_ship, 0, ',', '.') }} đ</span></p>
         <hr>

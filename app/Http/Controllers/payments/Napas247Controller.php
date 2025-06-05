@@ -41,7 +41,7 @@ class Napas247Controller extends Controller
         $hoaDon = HoaDon::create([
             'ma_hoa_don' => $maHoaDon,
             'ma_khach_hang' => $orderData['ma_khach_hang'],
-          'ma_voucher' => !empty($orderData['ma_voucher']) ? $orderData['ma_voucher'] : null,
+            'ma_voucher' => !empty($orderData['ma_voucher']) ? $orderData['ma_voucher'] : null,
             'ma_cua_hang' => $orderData['ma_cua_hang'],
             'ten_khach_hang' => $orderData['ten_khach_hang'],
             'so_dien_thoai' => $orderData['so_dien_thoai'],
@@ -49,6 +49,7 @@ class Napas247Controller extends Controller
             'dia_chi' => $orderData['dia_chi'],
             'phuong_thuc_thanh_toan' => $orderData['phuong_thuc_thanh_toan'],
             'phuong_thuc_nhan_hang' => $orderData['phuong_thuc_nhan_hang'],
+            'tam_tinh' => $orderData['tam_tinh'] ?? 0,
             'tien_ship' => $orderData['tien_ship'] ?? 0,
             'khuyen_mai' => $orderData['khuyen_mai'] ?? 0,
             'giam_gia' => $orderData['giam_gia'] ?? 0,
@@ -175,6 +176,7 @@ class Napas247Controller extends Controller
                 ]);
 
             case 'CANCELLED':
+            case 'TIMEOUT':
                 $this->updatePaymentCancel($orderCode);
                 return response()->json([
                     'message' => 'Thanh toán đã bị hủy',

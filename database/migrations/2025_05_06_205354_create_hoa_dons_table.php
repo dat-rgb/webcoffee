@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('email', 255)->nullable();
             $table->char('so_dien_thoai', 10)->nullable();
             $table->string('dia_chi')->nullable();
+            $table->float('tam_tinh')->default(0);
             $table->float('tien_ship')->default(0);
             $table->float('khuyen_mai')->default(0); //
             $table->float('giam_gia')->default(0); //
@@ -30,7 +31,7 @@ return new class extends Migration
             $table->string('phuong_thuc_thanh_toan',50); // 0: cash, 1: VNPAY,...
             $table->string('ghi_chu')->nullable();
             $table->integer('trang_thai_thanh_toan')->default(0); //0 chưa thanh toán, 1 đã thanh toán
-            $table->integer('trang_thai')->default(0); // 0: đã gửi, 1: đã thanh toán || 2: chuẩn bị món, 3: giao món, 4: đã giao thành công || 5: hủy đơn,...
+            $table->integer('trang_thai')->default(0); // 0: đã gửi, 1: đã thanh toán || 2: Hoàn tất đơn hàng, 3: đang giao món/chờ nhận món, 4: đã giao thành công || 5: hủy đơn,...
             $table->timestamp('ngay_lap_hoa_don')->default(DB::raw('CURRENT_TIMESTAMP')); // Sử dụng timestamp thay cho datetime
             $table->timestamps();
 

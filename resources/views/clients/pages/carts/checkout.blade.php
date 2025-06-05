@@ -12,7 +12,7 @@
             <div class="col-lg-8 offset-lg-2 text-center">
                 <div class="breadcrumb-text">
                     <p>Coffee & Tea</p>
-                    <h1>Check Out Product</h1>
+                    <h1>Check Out</h1>
                 </div>
             </div>
         </div>
@@ -77,25 +77,25 @@
                                                 </div>
 
                                                 <div class="row g-3">
-                                                    <div class="col-md-4">
-                                                    <label for="provinceSelect" class="form-label fw-semibold">Tỉnh/Thành phố</label>
-                                                    <select class="form-select" name="province" id="provinceSelect">
-                                                        <option value="" selected>Chọn tỉnh/thành phố</option>
-                                                    </select>
+                                                    <div class="col-12 col-md-4">
+                                                        <label for="provinceSelect" class="form-label fw-semibold">Tỉnh/Thành phố</label>
+                                                        <select class="form-select w-100" name="province" id="provinceSelect">
+                                                            <option value="" selected>Chọn tỉnh/thành phố</option>
+                                                        </select>
                                                     </div>
 
-                                                    <div class="col-md-4">
-                                                    <label for="districtSelect" class="form-label fw-semibold">Quận/Huyện</label>
-                                                    <select class="form-select" name="district" id="districtSelect" disabled>
-                                                        <option value="" selected>Chọn quận/huyện</option>
-                                                    </select>
+                                                    <div class="col-12 col-md-4">
+                                                        <label for="districtSelect" class="form-label fw-semibold">Quận/Huyện</label>
+                                                        <select class="form-select w-100" name="district" id="districtSelect" disabled>
+                                                            <option value="" selected>Chọn quận/huyện</option>
+                                                        </select>
                                                     </div>
 
-                                                    <div class="col-md-4">
-                                                    <label for="wardSelect" class="form-label fw-semibold">Xã/Phường</label>
-                                                    <select class="form-select" name="ward" id="wardSelect" disabled>
-                                                        <option value="" selected>Chọn xã/phường</option>
-                                                    </select>
+                                                    <div class="col-12 col-md-4">
+                                                        <label for="wardSelect" class="form-label fw-semibold">Xã/Phường</label>
+                                                        <select class="form-select w-100" name="ward" id="wardSelect" disabled>
+                                                            <option value="" selected>Chọn xã/phường</option>
+                                                        </select>
                                                     </div>
                                                 </div>
 
@@ -103,6 +103,7 @@
                                                 <input type="hidden" id="districtName" name="districtName" value="">
                                                 <input type="hidden" id="wardName" name="wardName" value="">
                                             </div>
+
                                             <div class="store-info mt-3" id="pickupSection" style="display: none;">
                                                 <div class="alert alert-info">
                                                     <strong>Nhận món tại địa chỉ:</strong><br>
