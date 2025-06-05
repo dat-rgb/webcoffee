@@ -4,38 +4,6 @@
 
 @push('styles')
 <style>
-.product-image {
-    position: relative;
-}
-
-.icon-wrapper {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    display: flex;
-    gap: 4px;
-    z-index: 2;
-}
-
-.hot-icon {
-    width: 35px; 
-    height: 35px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 1px solid #fff;
-    background-color: #fff;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    transition: transform 0.2s ease-in-out;
-}
-
-.hot-icon:hover {
-    transform: scale(1.1);
-}
-.product-lists {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 20px;
-}
 
 </style>
 @endpush
@@ -99,7 +67,7 @@
             </div>
         </div>
         <!-- Lỗi ở class product-list -->
-        <div class="row product-lists">
+        <div class="product-lists row">
             @foreach ( $products as  $pro)
                 <div class="col-lg-3 col-md-4 col-sm-6 text-center {{ $pro->danhMuc->ma_danh_muc ?? '' }}">
                     <div class="single-product-item">
@@ -129,7 +97,6 @@
 <!-- end products -->
 @endif
 
-
 <!-- logo carousel -->
 <div class="logo-carousel-section">
     <div class="container">
@@ -137,19 +104,19 @@
             <div class="col-lg-12">
                 <div class="logo-carousel-inner">
                     <div class="single-logo-item">
-                        <img src="{{ asset('img/company-logos/1.png') }}" alt="">
+                        <img src="{{ asset('storage/home/h1.jpg') }}" alt="">
                     </div>
                     <div class="single-logo-item">
-                        <img src="{{ asset('img/company-logos/2.png') }}" alt="">
+                        <img src="{{ asset('storage/home/h2.jpg') }}" alt="">
                     </div>
                     <div class="single-logo-item">
-                        <img src="{{ asset('img/company-logos/3.png') }}" alt="">
+                        <img src="{{ asset('storage/home/h3.jpg') }}" alt="">
                     </div>
                     <div class="single-logo-item">
-                        <img src="{{ asset('img/company-logos/4.png') }}" alt="">
+                        <img src="{{ asset('storage/home/h4.jpg') }}" alt="">
                     </div>
                     <div class="single-logo-item">
-                        <img src="{{ asset('img/company-logos/5.png') }}" alt="">
+                        <img src="{{ asset('storage/home/h5.jpg') }}" alt="">
                     </div>
                 </div>
             </div>
@@ -157,5 +124,4 @@
     </div>
 </div>
 <!-- end logo carousel -->
-
 @endsection

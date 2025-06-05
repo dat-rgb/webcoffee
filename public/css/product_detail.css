@@ -83,8 +83,8 @@
   position: absolute;
   top: 5px;
   right: 5px;
-  width: 30px;       /* nhỏ hơn icon detail */
-  height: 30px;
+  width: 50px;       /* nhỏ hơn icon detail */
+  height: 50px;
   z-index: 10;
 }
 

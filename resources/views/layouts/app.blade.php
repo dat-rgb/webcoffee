@@ -64,14 +64,6 @@
 						<nav class="main-menu">
 							<ul>
 								<li class="current-list-item"><a href="{{ route('home') }}">Trang Chủ</a></li>
-								<li><a href="{{ route('about') }}">Giới thiệu</a></li>
-								<li><a href="{{ route('blog') }}">Tin Tức</a>
-									<ul class="sub-menu">
-										<li><a href="{{ route('blog') }}">Coffee</a></li>
-										<li><a href="{{ route('blog') }}">Chuyện Trà</a></li>
-									</ul>
-								</li>
-								<li><a href="{{ route('contact') }}">Liên Hệ</a></li>
 								<li><a href="{{ route('product') }}">Sản Phẩm</a>
 									<ul class="sub-menu">
 										@foreach ($danhMucCha as $dm)
@@ -81,10 +73,18 @@
 										@endforeach
 									</ul>
 								</li>
+								<li><a href="{{ route('blog') }}">Tin Tức</a>
+									<ul class="sub-menu">
+										<li><a href="{{ route('blog') }}">Coffee</a></li>
+										<li><a href="{{ route('blog') }}">Chuyện Trà</a></li>
+									</ul>
+								</li>
+								<li><a href="{{ route('about') }}">Giới thiệu</a></li>
+								<li><a href="{{ route('contact') }}">Liên Hệ</a></li>	
 								<li>
-									<a href="#" id="store-btn" onclick="openStoreModal()" style="border-radius: 20px; background-color:#F28123; color: #fff; padding: 6px 16px;">
+									<a href="#" id="store-btn" onclick="openStoreModal()">
 										<i class="fas fa-store-alt"></i>
-										{{ session('selected_store_name') ?? 'Cửa hàng' }}
+										<span>{{ session('selected_store_name') ?? 'Cửa hàng' }}</span>
 									</a>
 								</li>
 
@@ -96,14 +96,13 @@
 											<ul class="sub-menu">
 												<li><a href="{{ route('customer.index') }}"><i class="fas fa-user-circle" style="margin-right:6px;"></i>Hồ sơ</a></li>
 												<li><a href="#"><i class="fas fa-map-marker-alt" style="margin-right:6px;"></i>Sổ địa chỉ</a></li>
-												<li><a href="#"><i class="fas fa-heart" style="margin-right:6px;"></i>Yêu thích</a></li>
+												<li><a href="{{ route('favorite.show') }}"><i class="fas fa-heart" style="margin-right:6px;"></i>Yêu thích</a></li>
 												<li><a href="{{ route('customer.order.history') }}"><i class="fas fa-receipt" style="margin-right:6px;"></i>Lịch sử mua hàng</a></li>
 												<li><a href="#"><i class="fas fa-eye" style="margin-right:6px;"></i>Sản phẩm đã xem</a></li>
 												<li>
 													<button type="button" id="logout-btn" style="color: #fff; background: #e74c3c; border-radius: 8px; padding: 8px 16px; border: none; font-weight: 500;">
 														<i class="fas fa-sign-out-alt" style="margin-right:6px;"></i>Đăng xuất
 													</button>
-
 													<form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
 														@csrf
 													</form>
@@ -168,23 +167,23 @@
 			<div class="row">
 				<div class="col-lg-3 col-md-6">
 					<div class="footer-box about-widget">
-						<h2 class="widget-title">About us</h2>
-						<p>Ut enim ad minim veniam perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae.</p>
+						<h2 class="widget-title">Về chúng tôi</h2>
+						<p>CDMT Coffee & Tea là điểm đến của những tâm hồn yêu chill. Từ cà phê đậm vị đến trà trái cây siêu fresh – tụi mình luôn mang đến năng lượng tích cực trong từng ly nước!</p>
 					</div>
 				</div>
 				<div class="col-lg-3 col-md-6">
 					<div class="footer-box get-in-touch">
-						<h2 class="widget-title">Get in Touch</h2>
+						<h2 class="widget-title">Liên hiện</h2>
 						<ul>
 							<li>65, Huỳnh Thúc Kháng, Bến Nghé, Quận 1, Thành Phố Hồ Chí Minh</li>
-							<li>trandatc3vvk@gmail.com</li>
+							<li>cdmtcoffeetea.com</li>
 							<li>+84 901 318 766</li>
 						</ul>
 					</div>
 				</div>
 				<div class="col-lg-3 col-md-6">
 					<div class="footer-box pages">
-						<h2 class="widget-title">Pages</h2>
+						<h2 class="widget-title">Khám phá</h2>
 						<ul>
 							<li><a href="{{ route('home') }}">Trang Chủ</a></li>
 							<li><a href="{{ route('about')}}">Giới Thiệu</a></li>
@@ -196,10 +195,10 @@
 				</div>
 				<div class="col-lg-3 col-md-6">
 					<div class="footer-box subscribe">
-						<h2 class="widget-title">Subscribe</h2>
-						<p>Subscribe to our mailing list to get the latest updates.</p>
+						<h2 class="widget-title">Đăng ký nhận tin</h2>
+						<p>Đăng ký email để không bỏ lỡ các ưu đãi và thức uống mới từ CDMT Coffee & Tea.</p>
 						<form action="#">
-							<input type="email" placeholder="Email">
+							<input type="email" placeholder="Nhập email của bạn">
 							<button type="submit"><i class="fas fa-paper-plane"></i></button>
 						</form>
 					</div>

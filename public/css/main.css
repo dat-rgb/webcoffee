@@ -852,13 +852,15 @@ a.mobile-show {
 
 ----------------------------------------------------------------------------- */
 .single-logo-item img {
-  max-width: 180px;
+  width: auto;
+  height: auto;
+  max-width: 280px;
   margin: 0 auto;
 }
 
 .logo-carousel-section {
   background-color: #f5f5f5;
-  padding: 50px 0;
+  padding: 20px 0;
 }
 
 .footer-area {
@@ -1224,17 +1226,6 @@ div.owl-controls div.owl-nav div:hover {
 .single-pricing-table:hover {
   -webkit-box-shadow: 0 0 20px #ddd;
   box-shadow: 0 0 20px #ddd;
-}
-
-.product-image img {
-  -webkit-transition: 0.3s;
-  -o-transition: 0.3s;
-  transition: 0.3s;
-}
-
-.product-image img:hover {
-  -webkit-box-shadow: none;
-  box-shadow: none;
 }
 
 a.cart-btn {
@@ -2043,7 +2034,6 @@ a.video-play-btn {
 }
 
 .abt-bg {
-  background-image: url(../img/abt.jpg);
   height: 100%;
   width: 100%;
   background-size: cover;
@@ -2349,6 +2339,30 @@ ul.social-link-team li a {
 # Shop Page Styles
 
 ----------------------------------------------------------------------------- */
+.product-image {
+  position: relative;
+}
+
+.image-wrapper {
+  display: block;
+  position: relative;
+}
+
+.image-wrapper img:first-child {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.hot-icon {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  z-index: 10;
+}
 .product-filters {
   margin-bottom: 80px;
 }
@@ -2380,17 +2394,6 @@ ul.social-link-team li a {
 
 .single-product-item {
   margin-bottom: 30px;
-}
-
-.product-image {
-  padding: 30px;
-  padding-bottom: 0;
-}
-
-.product-image img {
-  width: 90%;
-  border-radius: 5px;
-  margin-bottom: 20px;
 }
 
 .single-product-item h3 {
@@ -2755,4 +2758,26 @@ table.order-details tbody td {
 }
 
 
+#store-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  border-radius:20px;
+  padding: auto;
+  background-color: #F28123;
+  color: #fff;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+#store-btn:hover {
+  background-color: #d96f10;
+}
+
+@media (max-width: 1000px) {
+  #store-btn {
+      border-radius: 0 !important;
+  }
+}
 
