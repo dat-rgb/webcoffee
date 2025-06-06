@@ -41,7 +41,7 @@ class HomeController extends Controller
     {
         $products = SanPham::where('trang_thai', 1)
                     ->where('hot', 1)
-                    ->take(6)
+                    ->take(8)
                     ->get();
 
         return $products;
@@ -56,7 +56,6 @@ class HomeController extends Controller
             'blogs' => $blogs,
             'products' => $products,
         ];
-
         return view('clients.pages.home', $viewData);
     }
 }

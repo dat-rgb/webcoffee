@@ -66,8 +66,7 @@
                 </div>
             </div>
         </div>
-        <!-- Lỗi ở class product-list -->
-        <div class="product-lists row">
+        <div class="row"  id="product-list">
             @foreach ( $products as  $pro)
                 <div class="col-lg-3 col-md-4 col-sm-6 text-center {{ $pro->danhMuc->ma_danh_muc ?? '' }}">
                     <div class="single-product-item">
@@ -124,4 +123,24 @@
     </div>
 </div>
 <!-- end logo carousel -->
+    
 @endsection
+
+@push('scripts')
+<script>
+    $(window).on('load', function () {
+        var $grid = $('#product-list').isotope({
+            itemSelector: '.col-lg-3',
+            layoutMode: 'fitRows'
+        });
+
+        $('.product-filters li').on('click', function () {
+            $('.product-filters li').removeClass('active');
+            $(this).addClass('active');
+            var filterValue = $(this).attr('data-filter');
+            $grid.isotope({ filter: filterValue });
+        });
+    });
+</script>
+@endpush
+

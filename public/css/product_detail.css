@@ -6,7 +6,6 @@
     opacity: 1 !important;        /* Đảm bảo không trong suốt */
     background-image: none !important; /* Tắt bất kỳ ảnh nền */
 }
-
 .toast-info {
     background-color: #17a2b8 !important; /* xanh dương */
     color: #fff !important;
@@ -15,7 +14,6 @@
     opacity: 1 !important;
     background-image: none !important;
 }
-
 .toast-error, .toast-danger {
     background-color: #dc3545 !important; /* đỏ */
     color: #fff !important;
@@ -24,8 +22,6 @@
     opacity: 1 !important;
     background-image: none !important;
 }
-
-
 .size-label {
     background-color: #fff;
     color: #333;
@@ -43,7 +39,6 @@
     box-sizing: border-box;
     white-space: normal; /* cho phép xuống dòng */
 }
-
 /* Thu nhỏ font trên màn hình bé hơn 480px */
 @media (max-width: 480px) {
     .size-label {
@@ -51,45 +46,11 @@
         padding: 8px 12px;
     }
 }
-.single-product-img {
-    position: relative;
-    display: inline-block;
-}
-
-.single-product-img img.hot-icon {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    width: 50px;       /* tăng size */
-    height: 50px;      /* tăng size */
-    z-index: 10;
-}
-
-.single-product-img img.hot-icon.second {
-    right: 60px;       /* tăng khoảng cách để rộng hơn theo size mới */
-}
 .star-big {
     font-size: 20px; /* hoặc bạn muốn lớn cỡ nào thì chỉnh */
 }
 .star-gold {
     color: gold;
-}
-.more-products .single-product-item .product-image {
-  position: relative;
-  display: inline-block;
-}
-
-.more-products .single-product-item .product-image img.hot-icon {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  width: 50px;       /* nhỏ hơn icon detail */
-  height: 50px;
-  z-index: 10;
-}
-
-.more-products .single-product-item .product-image img.hot-icon.second {
-  right: 40px;       /* khoảng cách để 2 icon không dính nhau */
 }
 .text-danger { color: #e74c3c !important; }
 .text-secondary { color: #aaa !important; }
@@ -107,7 +68,6 @@
     user-select: none;
     transition: transform 0.2s, color 0.2s;
 }
-
 #btnHeartToggle:hover,
 #btnHeartToggle:focus {
     color: #c0392b;

@@ -86,4 +86,32 @@
     @endif
 </div>
 <!-- end latest news -->
+
+<!-- logo carousel -->
+<div class="logo-carousel-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="logo-carousel-inner">
+                    <div class="single-logo-item">
+                        <img src="{{ asset('storage/home/h1.jpg') }}" alt="">
+                    </div>
+                    <div class="single-logo-item">
+                        <img src="{{ asset('storage/home/h2.jpg') }}" alt="">
+                    </div>
+                    <div class="single-logo-item">
+                        <img src="{{ asset('storage/home/h3.jpg') }}" alt="">
+                    </div>
+                    <div class="single-logo-item">
+                        <img src="{{ asset('storage/home/h4.jpg') }}" alt="">
+                    </div>
+                    <div class="single-logo-item">
+                        <img src="{{ asset('storage/home/h5.jpg') }}" alt="">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end logo carousel -->
 @endsection

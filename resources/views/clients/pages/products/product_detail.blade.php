@@ -26,14 +26,16 @@
         <div class="row">
             <div class="col-md-5">
                 <div class="single-product-img">
-                    @if ($product->hot && $product->is_new)
-                        <img src="{{ asset('images/product_hot.png') }}" alt="" class="hot-icon">
-                        <img src="{{ asset('images/product_new.png') }}" alt="" class="hot-icon second">
-                    @elseif($product->hot)
-                        <img src="{{ asset('images/product_hot.png') }}" alt="" class="hot-icon">
-                    @elseif($product->is_new)
-                        <img src="{{ asset('images/product_new.png') }}" alt="" class="hot-icon">
-                    @endif
+                    <div class="icon-wrapper">
+                        @if ($product->hot && $product->is_new)
+                            <img src="{{ asset('images/product_hot.png') }}" alt="" class="hot-icon">
+                            <img src="{{ asset('images/product_new.png') }}" alt="" class="hot-icon second">
+                        @elseif($product->hot)
+                            <img src="{{ asset('images/product_hot.png') }}" alt="" class="hot-icon">
+                        @elseif($product->is_new)
+                            <img src="{{ asset('images/product_new.png') }}" alt="" class="hot-icon">
+                        @endif
+                    </div>
                     <img src="{{ $product->hinh_anh ? asset('storage/' . $product->hinh_anh) : asset('images/no_product_image.png') }}" alt="">
                 </div>
             </div>
@@ -136,14 +138,16 @@
                 <div class="col-lg-3 col-md-4 col-sm-6 text-center">
                     <div class="single-product-item">
                         <div class="product-image">
-                            @if ($pro->hot && $pro->is_new)
-                                <img src="{{ asset('images/product_hot.png') }}" alt="" class="hot-icon">
-                                <img src="{{ asset('images/product_new.png') }}" alt="" class="hot-icon second">
-                            @elseif ($pro->hot)
-                                <img src="{{ asset('images/product_hot.png') }}" alt="" class="hot-icon">
-                            @elseif ($pro->is_new)
-                                <img src="{{ asset('images/product_new.png') }}" alt="" class="hot-icon">
-                            @endif
+                            <div class="icon-wrapper">
+                                @if ($pro->hot && $pro->is_new)
+                                    <img src="{{ asset('images/product_hot.png') }}" alt="" class="hot-icon">
+                                    <img src="{{ asset('images/product_new.png') }}" alt="" class="hot-icon second">
+                                @elseif($pro->hot)
+                                    <img src="{{ asset('images/product_hot.png') }}" alt="" class="hot-icon">
+                                @elseif($pro->is_new)
+                                    <img src="{{ asset('images/product_new.png') }}" alt="" class="hot-icon">
+                                @endif
+                            </div>
                             <a href="{{ route('product.detail',$pro->slug) }}">
                                 <img src="{{ $pro->hinh_anh ? asset('storage/' . $pro->hinh_anh) : asset('images/no_product_image.png') }}" alt="">
                             </a>
@@ -157,6 +161,34 @@
     </div>
 </div>
 <!-- end more products -->
+
+<!-- logo carousel -->
+<div class="logo-carousel-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="logo-carousel-inner">
+                    <div class="single-logo-item">
+                        <img src="{{ asset('storage/home/h1.jpg') }}" alt="">
+                    </div>
+                    <div class="single-logo-item">
+                        <img src="{{ asset('storage/home/h2.jpg') }}" alt="">
+                    </div>
+                    <div class="single-logo-item">
+                        <img src="{{ asset('storage/home/h3.jpg') }}" alt="">
+                    </div>
+                    <div class="single-logo-item">
+                        <img src="{{ asset('storage/home/h4.jpg') }}" alt="">
+                    </div>
+                    <div class="single-logo-item">
+                        <img src="{{ asset('storage/home/h5.jpg') }}" alt="">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end logo carousel -->
 @endsection
 
 @push('scripts')

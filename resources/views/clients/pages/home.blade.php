@@ -56,17 +56,23 @@
                 </div>
             </div>
         </div>
-   
         <div class="row"> 
             @foreach ($products as $pro)
                 <div class="col-lg-3 col-md-4 text-center">
                     <div class="single-product-item">
-                        <div class="product-image">
-                            <a href="{{ route('product.detail',$pro->slug) }}" class="image-wrapper">
-                                <img src="{{ $pro->hinh_anh ? asset('storage/' . $pro->hinh_anh) : asset('images/no_product_image.png') }}" alt="">
-                                @if ($pro->hot)
-                                    <img src="{{ asset('images/product_hot.png') }}" alt="Hot" class="hot-icon">
+                    <div class="product-image">
+                            <div class="icon-wrapper">
+                                @if ($pro->hot && $pro->is_new)
+                                    <img src="{{ asset('images/product_hot.png') }}" alt="" class="hot-icon">
+                                    <img src="{{ asset('images/product_new.png') }}" alt="" class="hot-icon second">
+                                @elseif($pro->hot)
+                                    <img src="{{ asset('images/product_hot.png') }}" alt="" class="hot-icon">
+                                @elseif($pro->is_new)
+                                    <img src="{{ asset('images/product_new.png') }}" alt="" class="hot-icon">
                                 @endif
+                            </div>
+                            <a href="{{ route('product.detail',$pro->slug) }}">
+                                <img src="{{ $pro->hinh_anh ? asset('storage/' . $pro->hinh_anh) : asset('images/no_product_image.png') }}" alt="">
                             </a>
                         </div>
                         <h3>{{ $pro->ten_san_pham }}</h3>
@@ -74,6 +80,11 @@
                     </div>
                 </div>
             @endforeach
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12 text-center">
+            <a href="{{ route('product') }}" class="boxed-btn">Xem thêm</a>
         </div>
     </div>
 </div>

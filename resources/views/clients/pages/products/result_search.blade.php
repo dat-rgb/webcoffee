@@ -82,36 +82,39 @@
             <div class="col-md-12">
                 <div class="product-filters">
                     <ul>
+                        <li class="active" data-filter="*">All</li>
                         @foreach ($categories as $cate)
                             @if (!empty($countCate[$cate->ma_danh_muc]) && $countCate[$cate->ma_danh_muc] > 0)
-                                <li data-filter=".{{ $cate->ma_danh_muc }}">{{ $cate->ten_danh_muc }}</li>
+                                <li data-filter=".{{ $cate->ma_danh_muc }}" >
+                                    {{ $cate->ten_danh_muc }}
+                                </li>
                             @endif
                         @endforeach
                     </ul>
                 </div>
             </div>
         </div>
-        <div class="row product-lists">
-            @foreach ($products as $pro)
+        <div class="row"  id="product-list">
+            @foreach ( $products as  $pro)
                 <div class="col-lg-3 col-md-4 col-sm-6 text-center {{ $pro->danhMuc->ma_danh_muc ?? '' }}">
                     <div class="single-product-item">
                         <div class="product-image">
                             <div class="icon-wrapper">
                                 @if ($pro->hot && $pro->is_new)
-                                    <img src="{{ asset('images/product_hot.png') }}" alt="Hot" class="hot-icon">
-                                    <img src="{{ asset('images/product_new.png') }}" alt="New" class="hot-icon second">
-                                @elseif ($pro->hot)
-                                    <img src="{{ asset('images/product_hot.png') }}" alt="Hot" class="hot-icon">
-                                @elseif ($pro->is_new)
-                                    <img src="{{ asset('images/product_new.png') }}" alt="New" class="hot-icon">
+                                    <img src="{{ asset('images/product_hot.png') }}" alt="" class="hot-icon">
+                                    <img src="{{ asset('images/product_new.png') }}" alt="" class="hot-icon second">
+                                @elseif($pro->hot)
+                                    <img src="{{ asset('images/product_hot.png') }}" alt="" class="hot-icon">
+                                @elseif($pro->is_new)
+                                    <img src="{{ asset('images/product_new.png') }}" alt="" class="hot-icon">
                                 @endif
                             </div>
-                            <a href="{{ route('product.detail', $pro->slug) }}">
-                                <img src="{{ $pro->hinh_anh ? asset('storage/' . $pro->hinh_anh) : asset('images/no_product_image.png') }}" alt="{{ $pro->ten_san_pham }}">
+                            <a href="{{ route('product.detail',$pro->slug) }}">
+                                <img src="{{ $pro->hinh_anh ? asset('storage/' . $pro->hinh_anh) : asset('images/no_product_image.png') }}" alt="">
                             </a>
                         </div>
                         <h3>{{ $pro->ten_san_pham }}</h3>
-                        <a href="{{ route('product.detail', $pro->slug) }}" class="cart-btn"><i class="fas fa-shopping-cart"></i> Đặt mua</a>
+                        <a href="{{ route('product.detail',$pro->slug) }}" class="cart-btn"><i class="fas fa-shopping-cart"></i> Đặt mua</a>
                     </div>
                 </div>
             @endforeach
@@ -121,3 +124,21 @@
 <!-- end products -->
 @endif
 @endsection
+
+@push('scripts')
+<script>
+    $(window).on('load', function () {
+        var $grid = $('#product-list').isotope({
+            itemSelector: '.col-lg-3',
+            layoutMode: 'fitRows'
+        });
+
+        $('.product-filters li').on('click', function () {
+            $('.product-filters li').removeClass('active');
+            $(this).addClass('active');
+            var filterValue = $(this).attr('data-filter');
+            $grid.isotope({ filter: filterValue });
+        });
+    });
+</script>
+@endpush
