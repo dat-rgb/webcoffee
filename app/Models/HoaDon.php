@@ -64,6 +64,11 @@ class HoaDon extends Model
         return $this->hasMany(LichSuHuyDonHang::class, 'ma_hoa_don', 'ma_hoa_don');
     }
 
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'ma_hoa_don', 'ma_hoa_don');
+    }
+
     public static function generateMaHoaDon(): string
     {
         $prefix = 'HD';

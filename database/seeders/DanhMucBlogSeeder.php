@@ -15,6 +15,7 @@ class DanhMucBlogSeeder extends Seeder
             'Chính sách',
             'Chuyện Trà',
             'Chuyện Coffee',
+            'Tin tức',
         ];
 
         foreach ($danhMucs as $ten) {

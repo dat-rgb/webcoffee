@@ -24,16 +24,24 @@ class CustomerOrderController extends Controller
 
         $customerId = $khachHang->ma_khach_hang;
 
-        $orders = HoaDon::with(['chiTietHoaDon.sanPham', 'transaction','giaoHang'])
-            ->where('ma_khach_hang', $customerId)
-            ->orderByDesc('created_at')
-            ->get();
+        $orders = HoaDon::with([
+            'chiTietHoaDon.sanPham',
+            'chiTietHoaDon.review' => function($query) use ($customerId) {
+                $query->where('ma_khach_hang', $customerId);
+            },
+            'transaction',
+            'giaoHang'
+        ])
+        ->where('ma_khach_hang', $customerId)
+        ->orderByDesc('created_at')
+        ->get();
 
         return view('clients.customers.orders.index', [
             'title' => 'Đơn hàng của bạn',
             'orders' => $orders,
         ]);
     }
+
     public function showFormTraCuuDonHang()
     {
         return view('clients.pages.tra_cuu_don_hang', ['title' => 'Tra cứu đơn hàng | CMDT Coffee & Tea']);

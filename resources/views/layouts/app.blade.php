@@ -13,6 +13,8 @@
 	<link rel="shortcut icon" type="image/png" href="{{ asset('img/favicon.png') }}">
 	<!-- google font -->
 	<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600&family=Roboto+Slab:wght@600&display=swap" rel="stylesheet">
+	<!-- boostap icon -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 	<!-- toastr CSS -->
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
 	<link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
@@ -64,14 +66,6 @@
 						<nav class="main-menu">
 							<ul>
 								<li class="current-list-item"><a href="{{ route('home') }}">Trang Chủ</a></li>
-								<li><a href="{{ route('about') }}">Giới thiệu</a></li>
-								<li><a href="{{ route('blog') }}">Tin Tức</a>
-									<ul class="sub-menu">
-										<li><a href="{{ route('blog') }}">Coffee</a></li>
-										<li><a href="{{ route('blog') }}">Chuyện Trà</a></li>
-									</ul>
-								</li>
-								<li><a href="{{ route('contact') }}">Liên Hệ</a></li>
 								<li><a href="{{ route('product') }}">Sản Phẩm</a>
 									<ul class="sub-menu">
 										@foreach ($danhMucCha as $dm)
@@ -81,41 +75,53 @@
 										@endforeach
 									</ul>
 								</li>
+								<li><a href="{{ route('blog') }}">Tin Tức</a>
+									<ul class="sub-menu">
+										<li><a href="{{ route('blog') }}">Coffee</a></li>
+										<li><a href="{{ route('blog') }}">Chuyện Trà</a></li>
+									</ul>
+								</li>
+								<li><a href="{{ route('about') }}">Giới thiệu</a></li>
+								<li><a href="{{ route('contact') }}">Liên Hệ</a></li>	
 								<li>
-									<a href="#" id="store-btn" onclick="openStoreModal()" style="border-radius: 20px; background-color:#F28123; color: #fff; padding: 6px 16px;">
+									<a href="#" id="store-btn" onclick="openStoreModal()">
 										<i class="fas fa-store-alt"></i>
-										{{ session('selected_store_name') ?? 'Cửa hàng' }}
+										<span>{{ session('selected_store_name') ?? 'Cửa hàng' }}</span>
 									</a>
 								</li>
-
 								{{-- Tách user icon ra khỏi header-icons --}}
-								@auth
+								@if(Auth::check())
 									<li>
-										<div class="current-list-item">
-											<a href="#"><i class="fas fa-user"></i> {{ Auth::user()->khachHang->ho_ten_khach_hang ?? 'Khách hàng' }}</a>
-											<ul class="sub-menu">
-												<li><a href="{{ route('customer.index') }}"><i class="fas fa-user-circle" style="margin-right:6px;"></i>Hồ sơ</a></li>
-												<li><a href="#"><i class="fas fa-map-marker-alt" style="margin-right:6px;"></i>Sổ địa chỉ</a></li>
-												<li><a href="#"><i class="fas fa-heart" style="margin-right:6px;"></i>Yêu thích</a></li>
-												<li><a href="{{ route('customer.order.history') }}"><i class="fas fa-receipt" style="margin-right:6px;"></i>Lịch sử mua hàng</a></li>
-												<li><a href="#"><i class="fas fa-eye" style="margin-right:6px;"></i>Sản phẩm đã xem</a></li>
-												<li>
-													<button type="button" id="logout-btn" style="color: #fff; background: #e74c3c; border-radius: 8px; padding: 8px 16px; border: none; font-weight: 500;">
-														<i class="fas fa-sign-out-alt" style="margin-right:6px;"></i>Đăng xuất
-													</button>
-
-													<form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-														@csrf
-													</form>
-												</li>
-											</ul>
-										</div>
+										<a href="{{ route('customer.index') }}">
+											<i class="fas fa-user"></i> {{ Auth::user()->khachHang->ho_ten_khach_hang ?? 'Khách hàng' }}
+										</a>
+										<ul class="sub-menu">
+											<li><a href="{{ route('customer.index') }}"><i class="fas fa-user-circle"></i> Hồ sơ</a></li>
+											<li><a href="{{ route('traCuuDonHang.show') }}"><i class="fas fa-search"></i> Tra cứu đơn hàng</a></li>
+											<li><a href="{{ route('favorite.show') }}"><i class="fas fa-heart"></i> Yêu thích</a></li>
+											<li><a href="{{ route('customer.order.history') }}"><i class="fas fa-receipt"></i> Lịch sử mua hàng</a></li>
+											<li><a href="#"><i class="fas fa-eye"></i> Sản phẩm đã xem</a></li>
+											<li><a href="{{ route('forgotPassword.show') }}"><i class="fas fa-unlock-alt me-2"></i> Lấy lại mật khẩu</a></li>
+											<li>
+												<a href="#" id="logout-btn">
+													<i class="fas fa-sign-out-alt"></i> Đăng xuất
+												</a>
+												<form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+													@csrf
+												</form>
+											</li>
+										</ul>
 									</li>
 								@else
 									<li>
 										<a class="login" href="{{ route('login') }}"><i class="fas fa-user"></i></a>
+										<ul class="sub-menu">
+											<li><a href="{{ route('login') }}"><i class="fas fa-sign-in-alt me-2"></i> Đăng nhập</a></li>
+											<li><a href="{{ route('register') }}"><i class="fas fa-user-plus me-2"></i> Đăng ký</a></li>
+											<li><a href="{{ route('traCuuDonHang.show') }}"><i class="fas fa-search me-2"></i> Tra cứu đơn hàng</a></li>
+										</ul>
 									</li>
-								@endauth
+								@endif	
 								<li>
 									<div class="header-icons">
 										<a class="shopping-cart" href="{{ route('cart') }}">
@@ -168,23 +174,23 @@
 			<div class="row">
 				<div class="col-lg-3 col-md-6">
 					<div class="footer-box about-widget">
-						<h2 class="widget-title">About us</h2>
-						<p>Ut enim ad minim veniam perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae.</p>
+						<h2 class="widget-title">Về chúng tôi</h2>
+						<p>CDMT Coffee & Tea là điểm đến của những tâm hồn yêu chill. Từ cà phê đậm vị đến trà trái cây siêu fresh – tụi mình luôn mang đến năng lượng tích cực trong từng ly nước!</p>
 					</div>
 				</div>
 				<div class="col-lg-3 col-md-6">
 					<div class="footer-box get-in-touch">
-						<h2 class="widget-title">Get in Touch</h2>
+						<h2 class="widget-title">Liên hiện</h2>
 						<ul>
 							<li>65, Huỳnh Thúc Kháng, Bến Nghé, Quận 1, Thành Phố Hồ Chí Minh</li>
-							<li>trandatc3vvk@gmail.com</li>
+							<li>cdmtcoffeetea.com</li>
 							<li>+84 901 318 766</li>
 						</ul>
 					</div>
 				</div>
 				<div class="col-lg-3 col-md-6">
 					<div class="footer-box pages">
-						<h2 class="widget-title">Pages</h2>
+						<h2 class="widget-title">Khám phá</h2>
 						<ul>
 							<li><a href="{{ route('home') }}">Trang Chủ</a></li>
 							<li><a href="{{ route('about')}}">Giới Thiệu</a></li>
@@ -196,10 +202,10 @@
 				</div>
 				<div class="col-lg-3 col-md-6">
 					<div class="footer-box subscribe">
-						<h2 class="widget-title">Subscribe</h2>
-						<p>Subscribe to our mailing list to get the latest updates.</p>
+						<h2 class="widget-title">Đăng ký nhận tin</h2>
+						<p>Đăng ký email để không bỏ lỡ các ưu đãi và thức uống mới từ CDMT Coffee & Tea.</p>
 						<form action="#">
-							<input type="email" placeholder="Email">
+							<input type="email" placeholder="Nhập email của bạn">
 							<button type="submit"><i class="fas fa-paper-plane"></i></button>
 						</form>
 					</div>
@@ -254,7 +260,6 @@
 	<script src="{{ asset('js/sticker.js') }}"></script>
 	<!-- main js -->
 	<script src="{{ asset('js/main.js') }}"></script>
-	<script src="{{ asset('js/sweet-alert.js') }}"></script> 
 	<!-- SweetAlert2 -->
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 	<!-- JS -->
@@ -264,5 +269,26 @@
 	<script src="https://cdn.payos.vn/payos-checkout/v1/stable/payos-initialize.js"></script>
 	@stack('scripts')
 	<x-store-popup />
+	<script>
+    	$(document).on('click', '#logout-btn', function (e) {
+			e.preventDefault();
+
+			Swal.fire({
+				title: 'Đăng xuất?',
+				text: "Bạn chắc chắn muốn đăng xuất?",
+				icon: 'warning',
+				showCancelButton: true,
+				confirmButtonColor: '#28a745',
+				cancelButtonColor: '#d33',
+				confirmButtonText: 'Có, đăng xuất!',
+				cancelButtonText: 'Hủy'
+			}).then((result) => {
+				if (result.isConfirmed) {
+					$('#logout-form').submit();
+				}
+			});
+		});
+	</script>
+
 </body>
 </html>

@@ -77,7 +77,7 @@ class BlogSeeder extends Seeder
                 ',
                 'trang_thai' => 1,
                 'luot_xem' => 0,
-                'tac_gia' => 'Admin',
+                'tac_gia' => 'CDMT Coffee & Tea',
                 'ngay_dang' => now(),
                 'hot' => 0,
                 'is_new' => 1,
@@ -109,11 +109,117 @@ class BlogSeeder extends Seeder
                 ',
                 'trang_thai' => 1,
                 'luot_xem' => 0,
-                'tac_gia' => 'Admin',
+                'tac_gia' => 'CDMT Coffee & Tea',
                 'ngay_dang' => now(),
                 'hot' => 0,
                 'is_new' => 1,
                 'do_uu_tien' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            
+            [
+                'ma_blog' => 5,
+                'ma_danh_muc_blog' => 4,
+                'tieu_de' => 'Bí quyết pha cà phê đậm đà tại nhà',
+                'slug' => 'bi-quyet-pha-ca-phe-dam-da',
+                'sub_tieu_de' => 'Tự tay pha ly cà phê ngon như barista!',
+                'hinh_anh' => 'blogs/b5.jpg',
+                'noi_dung' => '
+                    <p>Muốn có một ly cà phê đậm đà, chuẩn vị mà không cần ra tiệm? CDMT mách bạn vài tips pha cà phê cực chill tại nhà.</p>
+                    <ul>
+                        <li>Chọn loại cà phê rang xay nguyên chất, vừa phải.</li>
+                        <li>Sử dụng nước nóng ở khoảng 90-95°C để chiết xuất đúng vị.</li>
+                        <li>Dụng cụ như phin, pour over hay French press sẽ cho hương vị khác nhau – thử hết cho biết nhé!</li>
+                    </ul>
+                    <p>Chỉ cần vài bước đơn giản là bạn đã có thể tận hưởng một buổi sáng đầy năng lượng cùng cà phê chuẩn vị nhà CDMT.</p>
+                ',
+                'trang_thai' => 1,
+                'luot_xem' => 0,
+                'tac_gia' => 'Chi Dat',
+                'ngay_dang' => now(),
+                'hot' => 1,
+                'is_new' => 1,
+                'do_uu_tien' => 2,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'ma_blog' => 6,
+                'ma_danh_muc_blog' => 3,
+                'tieu_de' => 'Matcha có thật sự tốt cho sức khỏe?',
+                'slug' => 'matcha-va-suc-khoe',
+                'sub_tieu_de' => 'Giải mã sức hút của matcha nguyên chất',
+                'hinh_anh' => 'blogs/b6.webp',
+                'noi_dung' => '
+                    <p>Matcha – loại trà xanh xay mịn – đang trở thành thức uống yêu thích của giới trẻ. Nhưng matcha có gì đặc biệt?</p>
+                    <ul>
+                        <li>Chứa chất chống oxy hóa cao giúp làm chậm quá trình lão hóa.</li>
+                        <li>Giúp thư giãn đầu óc và cải thiện tập trung nhờ L-theanine.</li>
+                        <li>Thích hợp cho người ăn kiêng hoặc sống lành mạnh.</li>
+                    </ul>
+                    <p>Hãy thử một ly matcha đá xay mát lạnh tại CDMT và cảm nhận sự khác biệt ngay!</p>
+                ',
+                'trang_thai' => 1,
+                'luot_xem' => 0,
+                'tac_gia' => 'Chi Dat',
+                'ngay_dang' => now(),
+                'hot' => 1,
+                'is_new' => 1,
+                'do_uu_tien' => 3,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'ma_blog' => 7,
+                'ma_danh_muc_blog' => 5, //tin tức
+                'tieu_de' => 'CDMT khai trương chi nhánh mới tại Quận 7',
+                'slug' => 'khai-truong-quan-7',
+                'sub_tieu_de' => 'Check-in nhận quà xịn xò!',
+                'hinh_anh' => 'blogs/b7.jpg',
+                'noi_dung' => '
+                    <p>Chúng tôi vui mừng thông báo: CDMT Coffee & Tea đã có mặt tại Quận 7, TP.HCM!</p>
+                    <p>Đến ngay trong tuần khai trương để:</p>
+                    <ul>
+                        <li>Nhận voucher giảm giá lên đến 50%</li>
+                        <li>Chụp hình sống ảo với không gian mới cực chill</li>
+                        <li>Tham gia mini game và nhận quà liền tay</li>
+                    </ul>
+                    <p>Địa chỉ: 72, đường 37, Tân Kiểng, Quận 7 – hẹn bạn tại CDMT Coffee & Tea nhé!</p>
+                ',
+                'trang_thai' => 1,
+                'luot_xem' => 0,
+                'tac_gia' => 'Chi Dat',
+                'ngay_dang' => now(),
+                'hot' => 1,
+                'is_new' => 1,
+                'do_uu_tien' => 4,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'ma_blog' => 8,
+                'ma_danh_muc_blog' => 2,
+                'tieu_de' => 'Chính sách tích điểm & đổi quà',
+                'slug' => 'tich-diem-doi-qua',
+                'sub_tieu_de' => 'Uống càng nhiều – ưu đãi càng lớn',
+                'hinh_anh' => null,
+                'noi_dung' => '
+                    <p>Tại CDMT, chúng tôi triển khai chương trình **tích điểm đổi quà** dành riêng cho khách hàng thân thiết:</p>
+                    <ul>
+                        <li>1.000đ = 1 điểm</li>
+                        <li>100 điểm = Giảm ngay 10k</li>
+                        <li>Đổi lấy thức uống miễn phí hoặc voucher hấp dẫn</li>
+                    </ul>
+                    <p>Hãy đăng ký tài khoản CDMT Loyalty để không bỏ lỡ ưu đãi mỗi lần ghé quán nhé!</p>
+                ',
+                'trang_thai' => 1,
+                'luot_xem' => 0,
+                'tac_gia' => 'Admin',
+                'ngay_dang' => now(),
+                'hot' => 0,
+                'is_new' => 0,
+                'do_uu_tien' => 5,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],

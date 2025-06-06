@@ -40,7 +40,6 @@ class SanPham extends Model
         return $this->hasMany(SanPhamYeuThich::class, 'ma_san_pham', 'ma_san_pham');
     }
 
-   // SanPham.php
     public function sizes()
     {
         return $this->belongsToMany(Sizes::class, 'thanh_phan_san_phams', 'ma_san_pham', 'ma_size')
@@ -51,4 +50,10 @@ class SanPham extends Model
     {
         return $this->hasMany(SanPhamCuaHang::class, 'ma_san_pham', 'ma_san_pham');
     }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'ma_san_pham', 'ma_san_pham');
+    }
+
 }
