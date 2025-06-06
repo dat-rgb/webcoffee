@@ -203,11 +203,6 @@
                         <span class="sub-item">Kho cửa hàng nguyên liệu</span>
                       </a>
                     </li>
-                    {{-- <li>
-                      <a href="{{ route('admins.material.create') }}">
-                        <span class="sub-item">Nhập nguyên liệu</span>
-                      </a>
-                    </li> --}}
                     <li>
                         <a href="#">
                             <span class="sub-item">Kho cửa hàng nguyên liệu ẩn</span>
