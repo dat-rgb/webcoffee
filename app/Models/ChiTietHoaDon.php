@@ -36,4 +36,8 @@ class ChiTietHoaDon extends Model
     {
         return $this->belongsTo(SanPham::class, 'ma_san_pham', 'ma_san_pham')->select(['ma_san_pham', 'hinh_anh']);
     }
+    public function review()
+    {
+        return $this->hasOne(Review::class, 'ma_san_pham', 'ma_san_pham');
+    }
 }

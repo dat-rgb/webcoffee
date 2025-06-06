@@ -25,7 +25,6 @@ class KhachHang extends Model
         'hang_thanh_vien',
     ];
 
-    // Quan hệ với bảng tai_khoans
     public function taiKhoan()
     {
         return $this->belongsTo(TaiKhoan::class, 'ma_tai_khoan', 'ma_tai_khoan');
@@ -47,4 +46,8 @@ class KhachHang extends Model
         return 'KH' . str_pad($nextId, 8, '0', STR_PAD_LEFT);
     }
 
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'ma_khach_hang', 'ma_khach_hang');
+    }
 }

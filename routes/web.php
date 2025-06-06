@@ -19,6 +19,7 @@ use App\Http\Controllers\clients\ResetPasswordController;
 use App\Http\Controllers\customers\CustomerController;
 use App\Http\Controllers\customers\CustomerFavoriteController;
 use App\Http\Controllers\customers\CustomerOrderController;
+use App\Http\Controllers\customers\CustomerReviewController;
 use App\Http\Controllers\dashboards\AdminDashboardController;
 use App\Http\Controllers\dashboards\StaffDashboardController;
 use App\Http\Controllers\HomeController;
@@ -129,6 +130,9 @@ Route::prefix('customer')->middleware(KhachHangMiddleware::class)->group(functio
     Route::put('/profile/update',[CustomerController::class,'updateInfo'])->name('customer.update');
     Route::post('/store/address',[CustomerController::class,'storeAddress'])->name('customer.address.store');
     Route::get('/yeu-thich/danh-sach', [CustomerController::class, 'showFavorite'])->name('favorite.list');
+    Route::post('/review', [CustomerReviewController::class, 'store']);
+    Route::get('/api/review-by-order/{ma_hoa_don}', [CustomerReviewController::class, 'getByOrder']);
+
 });
 
 Route::post('/favorite/toggle/{id}', [CustomerFavoriteController::class, 'favoriteProduct'])->name('favorite.toggle');
@@ -138,6 +142,7 @@ Route::get('api/dia-chi', [CustomerController::class, 'getDiaChi'])->name('api.d
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //auth adim & staff
+
 Route::prefix('auth')->group(function(){
     Route::get('/login',[AdminLoginController::class,'showLoginForm'])->name('admin.login.show');
     Route::post('/login',[AdminLoginController::class,'login'])->name('admin.login');
@@ -285,6 +290,7 @@ Route::prefix('admin/blog')->middleware(AdminMiddleware::class)->group(function(
 ///////////////////////////////////////////////////////////////////////////
 //Start - Staff
 //Route Staff home
+
 Route::prefix('staff')->middleware(NhanVienMiddleware::class)->group(function(){
     Route::get('', [StaffHomeController::class, 'index'])->name('staff');
 });
