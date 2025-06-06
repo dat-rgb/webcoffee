@@ -28,6 +28,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\staffs\StaffHomeController;
 use App\Http\Controllers\staffs\StaffOrderController;
 use App\Http\Controllers\staffs\StaffProductController;
+use App\Http\Controllers\staffs\StaffShopmaterialController;
 use App\Http\Controllers\StoreController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\KhachHangMiddleware;
@@ -292,7 +293,6 @@ Route::prefix('staff')->middleware(NhanVienMiddleware::class)->group(function(){
 Route::prefix('staff/product-store')->middleware(NhanVienMiddleware::class)->group(function(){
     Route::get('', [StaffProductController::class, 'index'])->name('staff.productStore');
     Route::post('/update-status', [StaffProductController::class, 'updateStatus'])->name('staff.productStore.update-status');
-
 });
 //Route Staff Order
 Route::prefix('staff/orders')->middleware(NhanVienMiddleware::class)->group(function(){
@@ -305,6 +305,21 @@ Route::prefix('staff/orders')->middleware(NhanVienMiddleware::class)->group(func
 //Route Staff Dashboard
 Route::prefix('staff/dashboard')->middleware(NhanVienMiddleware::class)->group(function() {
     Route::get('/', [StaffDashboardController::class, 'index'])->name('staff.dashboard');
+});
+
+//Route Staff Shop material
+Route::prefix('staff/shop-material')->middleware(NhanVienMiddleware::class)->name('staffs.shop_materials.')->group(function() {
+    Route::get('/', action: [StaffShopmaterialController::class, 'index'])->name('index');
+    Route::get('/create', [StaffShopmaterialController::class, 'create'])->name('create');
+    Route::post('/store', [StaffShopmaterialController::class, 'store'])->name('store');
+    //Route::get('/{id}/edit', [AdminShopmaterialController::class, 'edit'])->name('edit');
+    //Route::put('/{id}/update', [AdminShopmaterialController::class, 'update'])->name('update');
+    Route::get('/import-page', [StaffShopmaterialController::class, 'showImportPage'])->name('showImportPage');
+    Route::post('/import', [StaffShopmaterialController::class, 'import'])->name('import');
+    Route::get('/export-page',[StaffShopmaterialController::class,'showExportPage'])->name('showExportPage');
+    Route::post('/export',[StaffShopmaterialController::class,'export'])->name('export');
+    Route::post('/destroy', [StaffShopmaterialController::class, 'destroy'])->name('destroy');
+    Route::get('/destroy-page', [StaffShopmaterialController::class, 'showDestroyPage'])->name('showDestroyPage');
 });
 //End - Staff
 

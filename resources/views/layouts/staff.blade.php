@@ -139,33 +139,28 @@
                 </li>
               @endif
               @if (Auth::guard('staff')->user()->nhanvien->chucVu->ma_chuc_vu == 1)
-                <!-- Quản lý kho nguyên liệu của hàng -->
+                <!-- Quản lý kho nguyên liệu cửa hàng -->
                 <li class="nav-item">
-                  <a data-bs-toggle="collapse" href="#tables">
-                    <i class="fas fa-leaf"></i>
-                    <p>Nguyên liệu</p>
-                    <span class="caret"></span>
-                  </a>
-                  <div class="collapse" id="tables">
-                    <ul class="nav nav-collapse">
-                      <li>
-                        <a href="{{ route('admins.material.index') }}">
-                          <span class="sub-item">Quản lý tồn kho</span>
+                <a data-bs-toggle="collapse" href="#materials">
+                  <i class="fas fa-laptop"></i>
+                  <p>Cửa hàng nguyên liệu</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse" id="materials">
+                  <ul class="nav nav-collapse">
+                    <li>
+                      <a href="{{ route('staffs.shop_materials.index') }}">
+                        <span class="sub-item">Kho cửa hàng nguyên liệu</span>
+                      </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <span class="sub-item">Kho cửa hàng nguyên liệu ẩn</span>
                         </a>
-                      </li>
-                      <li>
-                        <a href="{{ route('admins.material.create') }}">
-                          <span class="sub-item">Nhập kho nguyên liệu</span>
-                        </a>
-                      </li>
-                      <li>
-                          <a href="{{ route('admins.material.archive.index') }}">
-                              <span class="sub-item">Nguyên liệu ẩn</span>
-                          </a>
-                      </li>
-                    </ul>
-                  </div>
-                </li>
+                    </li>
+                  </ul>
+                </div>
+              </li>
                 <!-- Chức năng cho quản lý cửa hàng -->
                 <li class="nav-item">
                   <a data-bs-toggle="collapse" href="#submenu">
@@ -320,7 +315,7 @@
             </div>
         </footer>
 
-      </div>    
+      </div>
     </div>
 
   <!-- Load Toastr before your custom scripts -->
