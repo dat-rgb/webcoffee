@@ -71,130 +71,140 @@
         <div class="sidebar-wrapper scrollbar scrollbar-inner">
           <div class="sidebar-content">
             <ul class="nav nav-secondary">
-              <!-- DoashBroad cho quản lý cửa hàng -->
-              <!-- {{ Auth::guard('staff')->user()->nhanvien->chucVu->ma_chuc_vu == 1 }} -->
-              @if(Auth::guard('staff')->user()->nhanvien->chucVu->ma_chuc_vu == 1)
+                <!-- DoashBroad cho quản lý cửa hàng -->
+                <!-- {{ Auth::guard('staff')->user()->nhanvien->chucVu->ma_chuc_vu == 1 }} -->
+                @if(Auth::guard('staff')->user()->nhanvien->chucVu->ma_chuc_vu == 1)
                 <li class="nav-item">
-                  <a data-bs-toggle="collapse" href="#dashboard" class="collapsed" aria-expanded="false" >
+                    <a data-bs-toggle="collapse" href="#dashboard" class="collapsed" aria-expanded="false" >
                     <i class="fas fa-home"></i>
                     <p>Cửa hàng</p>
                     <span class="caret"></span>
-                  </a>
-                  <div class="collapse" id="dashboard">
+                    </a>
+                    <div class="collapse" id="dashboard">
                     <ul class="nav nav-collapse">
-                      <li>
+                        <li>
                         <a href="{{ route('staff.dashboard') }}">
-                          <span class="sub-item">{{ Auth::guard('staff')->user()->nhanvien->cuaHang->ten_cua_hang }}</span>
+                            <span class="sub-item">{{ Auth::guard('staff')->user()->nhanvien->cuaHang->ten_cua_hang }}</span>
                         </a>
-                      </li>
+                        </li>
                     </ul>
-                  </div>
+                    </div>
                 </li>
-              @endif
-              <li class="nav-section">
+                @endif
+                <li class="nav-section">
                 <span class="sidebar-mini-icon">
-                  <i class="fa fa-ellipsis-h"></i>
+                    <i class="fa fa-ellipsis-h"></i>
                 </span>
                 <h4 class="text-section">Thao Tác</h4>
-              </li>
-              @if (Auth::guard('staff')->user()->nhanvien->chucVu->ma_chuc_vu == 1 || Auth::guard('staff')->user()->nhanvien->chucVu->ma_chuc_vu == 3)
+                </li>
+                @if (Auth::guard('staff')->user()->nhanvien->chucVu->ma_chuc_vu == 1 || Auth::guard('staff')->user()->nhanvien->chucVu->ma_chuc_vu == 3)
                 <!-- Đơn hàng -->
                 <li class="nav-item">
-                  <a data-bs-toggle="collapse" href="#base">
+                    <a data-bs-toggle="collapse" href="#base">
                     <i class="fas fa-shopping-cart"></i>
                     <p>Đơn hàng</p>
                     <span class="caret"></span>
-                  </a>
-                  <div class="collapse" id="base">
+                    </a>
+                    <div class="collapse" id="base">
                     <ul class="nav nav-collapse">
-                      <li>
+                        <li>
                         <a href="{{ route('staff.orders.list') }}">
-                          <span class="sub-item">Danh sách Đơn hàng</span>
+                            <span class="sub-item">Danh sách Đơn hàng</span>
                         </a>
-                      </li>
+                        </li>
                     </ul>
-                  </div>
+                    </div>
                 </li>
                 <!-- Sản phẩm -->
                 <li class="nav-item">
-                  <a data-bs-toggle="collapse" href="#sidebarLayouts">
+                    <a data-bs-toggle="collapse" href="#sidebarLayouts">
                     <i class="fas fa-coffee"></i>
                     <p>Sản phẩm</p>
                     <span class="caret"></span>
-                  </a>
-                  <div class="collapse" id="sidebarLayouts">
+                    </a>
+                    <div class="collapse" id="sidebarLayouts">
                     <ul class="nav nav-collapse">
-                      <li>
+                        <li>
                         <a href="{{ route('staff.productStore') }}">
-                          <span class="sub-item">Danh sách sản phẩm</span>
+                            <span class="sub-item">Danh sách sản phẩm</span>
                         </a>
-                      </li>
-                      <li>
+                        </li>
+                        <li>
                         <a href="">
-                          <span class="sub-item">Sản phẩm ngưng bán</span>
+                            <span class="sub-item">Sản phẩm ngưng bán</span>
                         </a>
-                      </li>
+                        </li>
                     </ul>
-                  </div>
+                    </div>
                 </li>
-              @endif
-              @if (Auth::guard('staff')->user()->nhanvien->chucVu->ma_chuc_vu == 1)
+                @endif
+                @if (Auth::guard('staff')->user()->nhanvien->chucVu->ma_chuc_vu == 1)
                 <!-- Quản lý kho nguyên liệu cửa hàng -->
                 <li class="nav-item">
-                <a data-bs-toggle="collapse" href="#materials">
-                  <i class="fas fa-laptop"></i>
-                  <p>Cửa hàng nguyên liệu</p>
-                  <span class="caret"></span>
-                </a>
-                <div class="collapse" id="materials">
-                  <ul class="nav nav-collapse">
-                    <li>
-                      <a href="{{ route('staffs.shop_materials.index') }}">
-                        <span class="sub-item">Kho cửa hàng nguyên liệu</span>
-                      </a>
-                    </li>
-                    <li>
-                        <a href="#">
-                            <span class="sub-item">Kho cửa hàng nguyên liệu ẩn</span>
+                    <a data-bs-toggle="collapse" href="#materials">
+                    <i class="fas fa-laptop"></i>
+                    <p>Cửa hàng nguyên liệu</p>
+                    <span class="caret"></span>
+                    </a>
+                    <div class="collapse" id="materials">
+                    <ul class="nav nav-collapse">
+                        <li>
+                        <a href="{{ route('staffs.shop_materials.index') }}">
+                            <span class="sub-item">Kho cửa hàng nguyên liệu</span>
                         </a>
-                    </li>
-                  </ul>
-                </div>
-              </li>
-                <!-- Chức năng cho quản lý cửa hàng -->
+                        </li>
+                        <li>
+                            <a href="#">
+                                <span class="sub-item">Kho cửa hàng nguyên liệu ẩn</span>
+                            </a>
+                        </li>
+                    </ul>
+                    </div>
+                </li>
+                <!-- Chức năng cho quản lý nhân viên cửa hàng -->
                 <li class="nav-item">
-                  <a data-bs-toggle="collapse" href="#submenu">
+                    <a data-bs-toggle="collapse" href="#submenu">
                     <i class="fas fa-user-tie"></i>
                     <p>Quản trị viên</p>
                     <span class="caret"></span>
-                  </a>
-                  <div class="collapse" id="submenu">
+                    </a>
+                    <div class="collapse" id="submenu">
                     <ul class="nav nav-collapse">
-                      <!-- Quản lý nhân viên cửa hàng -->
-                      <li>
+                        <!-- Quản lý nhân viên cửa hàng -->
+                        <li>
                         <a data-bs-toggle="collapse" href="#subnav1">
-                          <span class="sub-item">Nhân viên</span>
-                          <span class="caret"></span>
+                            <span class="sub-item">Nhân viên</span>
+                            <span class="caret"></span>
                         </a>
                         <div class="collapse" id="subnav1">
-                          <ul class="nav nav-collapse subnav">
+                            <ul class="nav nav-collapse subnav">
                             <li>
-                              <a href="{{ route('admins.nhanvien.index') }}">
+                                <a href="{{ route('staffs.nhanviens.index') }}">
                                 <span class="sub-item">Danh sách nhân viên</span>
-                              </a>
+                                </a>
                             </li>
                             <li>
-                              <a href="{{ route('admins.nhanvien.archived') }}">
-                                  <span class="sub-item">Danh sách nhân viên nghỉ việc</span>
-                              </a>
+                                <a href="#">
+                                    <span class="sub-item">Danh sách nhân viên nghỉ việc</span>
+                                </a>
                             </li>
-                          </ul>
+                            </ul>
                         </div>
-                      </li>
+                        </li>
                     </ul>
-                  </div>
+                    </div>
                 </li>
-              @endif
+                @elseif(Auth::guard('staff')->user()->nhanvien->chucVu->ma_chuc_vu != 1
+                    && Auth::guard('staff')->user()->nhanvien->ma_cua_hang)
+
+                    <li class="nav-item">
+                        <a href="{{ route('staffs.nhanviens.lich.tuan') }}">
+                            <i class="fas fa-calendar-alt"></i>
+                            <p>Lịch làm việc</p>
+                        </a>
+                    </li>
+                @endif
+
             </ul>
           </div>
         </div>

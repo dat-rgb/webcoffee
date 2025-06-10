@@ -99,12 +99,12 @@ class AdminCategoryController extends Controller
 
         $newParentId = $request->danh_muc_cha_id;
 
-        // ✅ Không thể là chính mình
+        //  Không thể là chính mình
         if ($newParentId == $id) {
             return back()->withErrors(['danh_muc_cha_id' => 'Danh mục không thể là cha của chính nó!'])->withInput();
         }
 
-        // ✅ Không thể chọn cha là một danh mục con/cháu/chắt của chính mình
+        //  Không thể chọn cha là một danh mục con/cháu/chắt của chính mình
         if ($newParentId && $this->isDescendant($newParentId, $id)) {
             return back()->withErrors(['danh_muc_cha_id' => 'Không thể gán danh mục con/cháu làm cha của mình!'])->withInput();
         }
@@ -119,6 +119,18 @@ class AdminCategoryController extends Controller
 
         if ($request->trang_thai == 2) {
             $category->deactivateChildren();
+        }
+        if ($request->trang_thai == 2) {
+            $category->sanPhams()->update(['trang_thai' => 2]);
+            foreach ($category->getAllDescendants() as $child) {
+                $child->sanPhams()->update(['trang_thai' => 2]);
+            }
+        }
+        elseif ($request->trang_thai == 1) {
+            $category->sanPhams()->where('trang_thai', 2)->update(['trang_thai' => 1]);
+            foreach ($category->getAllDescendants() as $child) {
+                $child->sanPhams()->where('trang_thai', 2)->update(['trang_thai' => 1]);
+            }
         }
 
         toastr()->success('Cập nhật danh mục thành công');
@@ -155,9 +167,7 @@ class AdminCategoryController extends Controller
         $category->archiveWithChildren();
         $category->trang_thai = 3; // Chuyển vào lưu trữ
         $category->save();
-
         DanhMucSanPham::where('danh_muc_cha_id', $category->ma_danh_muc)->update(['trang_thai' => 3]);
-
         toastr()->success('Đã chuyển danh mục vào thùng rác.');
         return redirect()->route('admins.category.index');
     }
