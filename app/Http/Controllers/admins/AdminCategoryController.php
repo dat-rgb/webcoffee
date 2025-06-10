@@ -80,11 +80,19 @@ class AdminCategoryController extends Controller
     {
         $category = DanhMucSanPham::findOrFail($id);
         $categories = DanhMucSanPham::all();
-
         $descendantIds = $category->getAllDescendants()->pluck('ma_danh_muc')->toArray();
 
-        return view('admins.category.edit', compact('category', 'categories', 'descendantIds'));
+        $viewData = [
+            'category' => $category,
+            'categories' => $categories,
+            'descendantIds' => $descendantIds,
+            'title' => 'Chỉnh sửa danh mục',
+            'subtitle' => 'Chỉnh sửa danh mục',
+        ];
+
+        return view('admins.category.edit', $viewData);
     }
+
     // Cập nhật danh mục
     public function update(Request $request, $id)
     {
@@ -95,15 +103,20 @@ class AdminCategoryController extends Controller
             'mo_ta' => 'nullable|string',
             'danh_muc_cha_id' => 'nullable|exists:danh_muc_san_phams,ma_danh_muc',
             'trang_thai' => 'required|in:1,2',
+        ], [
+            'ten_danh_muc.required' => 'Tên danh mục không được để trống.',
+            'ten_danh_muc.max' => 'Tên danh mục không được vượt quá 255 ký tự.',
+            'ten_danh_muc.unique' => 'Tên danh mục đã tồn tại.',
+            'mo_ta.string' => 'Mô tả phải là chuỗi.',
+            'danh_muc_cha_id.exists' => 'Danh mục cha không hợp lệ.',
+            'trang_thai.required' => 'Vui lòng chọn trạng thái.',
+            'trang_thai.in' => 'Trạng thái không hợp lệ.',
         ]);
-
         $newParentId = $request->danh_muc_cha_id;
-
         //  Không thể là chính mình
         if ($newParentId == $id) {
             return back()->withErrors(['danh_muc_cha_id' => 'Danh mục không thể là cha của chính nó!'])->withInput();
         }
-
         //  Không thể chọn cha là một danh mục con/cháu/chắt của chính mình
         if ($newParentId && $this->isDescendant($newParentId, $id)) {
             return back()->withErrors(['danh_muc_cha_id' => 'Không thể gán danh mục con/cháu làm cha của mình!'])->withInput();
@@ -150,7 +163,6 @@ class AdminCategoryController extends Controller
                 return true; // nằm sâu hơn
             }
         }
-
         return false;
     }
     // Xóa danh mục
@@ -225,8 +237,6 @@ class AdminCategoryController extends Controller
         toastr()->success('Đã ẩn các danh mục và danh mục con đã chọn.');
         return back();
     }
-
-
     public function bulkRestore(Request $request)
     {
         $ids = $request->input('selected_ids', []);
@@ -237,7 +247,6 @@ class AdminCategoryController extends Controller
         }
 
         $selectedIdsSet = collect($ids)->map(fn($i) => (int)$i)->toArray();
-
         $hasError = false;
         $errorMessages = [];
 
@@ -258,12 +267,10 @@ class AdminCategoryController extends Controller
                 }
             }
         }
-
         if ($hasError) {
             toastr()->error(implode('<br>', $errorMessages));
             return back();
         }
-
         // Bắt đầu khôi phục
         foreach ($ids as $id) {
             $category = DanhMucSanPham::find($id);
@@ -272,16 +279,9 @@ class AdminCategoryController extends Controller
                 $category->save();
             }
         }
-
         toastr()->success('Đã khôi phục các danh mục đã chọn thành công.');
         return back();
     }
-
-
-
-
-
-
     public function bulkDelete(Request $request)
     {
         $ids = $request->input('selected_ids', []);
