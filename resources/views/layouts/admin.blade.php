@@ -139,6 +139,26 @@
                         <span class="sub-item">Danh sách sản phẩm đã xóa</span>
                       </a>
                     </li>
+                    <li>
+                      <a data-bs-toggle="collapse" href="#subnav5">
+                        <span class="sub-item">Sản phẩm tại cửa hàng</span>
+                        <span class="caret"></span>
+                      </a>
+                      <div class="collapse" id="subnav5">
+                        <ul class="nav nav-collapse subnav">
+                          <li>
+                            <a href="{{ route('admin.product-shop.index') }}">
+                              <span class="sub-item">Sản phẩm tại cửa hàng</span>
+                            </a>
+                          </li>
+                          <li>
+                            <a href="#">
+                                <span class="sub-item">xxxx</span>
+                            </a>
+                            </li>
+                        </ul>
+                      </div>
+                    </li>
                   </ul>
                 </div>
               </li>
@@ -702,6 +722,5 @@
   });
   </script>
   @stack('scripts')
-
   </body>
 </html>
