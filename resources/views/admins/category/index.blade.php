@@ -29,21 +29,21 @@
                     <div class="card-header">
                         <form action="{{ url()->current() }}" method="GET">
                             <div class="d-flex flex-wrap align-items-center gap-2">
-                                <div class="col-12 col-lg-3">
-                                    <div class="input-group">
-                                        <input
-                                            type="text"
-                                            name="search"
-                                            class="form-control"
-                                            placeholder="Tìm kiếm..."
-                                            value="{{ request('search') }}"
-                                            autocomplete="off"
-                                        >
-                                        <button type="submit" class="bg-white input-group-text">
-                                            <i class="fa fa-search text-muted"></i>
-                                        </button>
+                                    <div class="col-12 col-lg-3">
+                                        <div class="input-group">
+                                            <input
+                                                type="text"
+                                                name="search"
+                                                class="form-control"
+                                                placeholder="Tìm kiếm..."
+                                                value="{{ request('search') }}"
+                                                autocomplete="off"
+                                            >
+                                            <button type="submit" class="bg-white input-group-text">
+                                                <i class="fa fa-search text-muted"></i>
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
                                 <div class="col-12 col-lg-3">
                                     <select name="trang_thai" class="form-select" onchange="this.form.submit()">
                                         <option value="" {{ request('trang_thai') === null ? 'selected' : '' }}>Tất cả trạng thái</option>

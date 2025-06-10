@@ -34,15 +34,37 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <div class="form-group">
-                            <div class="input-icon">
-                            <input type="text" class="form-control" placeholder="Search for...">
-                            <span class="input-icon-addon">
-                                <i class="fa fa-search"></i>
-                            </span>
-                            </div>
-                        </div>
-                    </div>
+    <form method="GET" action="{{ url()->current() }}" class="row g-2">
+        <div class="col-md-4">
+            <input type="text" name="search" value="{{ request('search') }}" class="form-control"
+                   placeholder="Tìm theo mã, tên, nhà cung cấp...">
+        </div>
+
+        <div class="col-md-3">
+            <select name="loai_nguyen_lieu" class="form-select">
+                <option value="">Tất cả loại nguyên liệu</option>
+                <option value="0" {{ request('loai_nguyen_lieu') == '0' ? 'selected' : '' }}>Nguyên liệu</option>
+                <option value="1" {{ request('loai_nguyen_lieu') == '1' ? 'selected' : '' }}>Vật liệu</option>
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <select name="trang_thai" class="form-select">
+                <option value="">Tất cả trạng thái</option>
+                <option value="1" {{ request('trang_thai') == '1' ? 'selected' : '' }}>Hoạt động</option>
+                <option value="2" {{ request('trang_thai') == '2' ? 'selected' : '' }}>Không hoạt động</option>
+                <option value="3" {{ request('trang_thai') == '3' ? 'selected' : '' }}>Đã lưu trữ</option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="fa fa-search"></i>
+            </button>
+        </div>
+    </form>
+</div>
+
 
                     <div class="card-body">
                         <div class="table-responsive">
