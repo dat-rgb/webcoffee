@@ -132,68 +132,70 @@ class AdminMaterialController extends Controller
             'nhaCungCaps' => $nhaCungCaps,
         ]);
     }
-    public function update(Request $request, $id)
-    {
-        $request->validate([
-            'ten_nguyen_lieu' => 'required|string|max:255|min:2',
-            'ma_nha_cung_cap' => 'required|exists:nha_cung_caps,ma_nha_cung_cap',
-            'so_luong' => 'required|integer|min:0',
-            'gia' => 'required|numeric|min:0',
-            'don_vi' => 'required|string|max:50',
-            'loai_nguyen_lieu' => 'required|in:0,1',
-            'trang_thai' => 'required|in:1,2,3',
-        ],
-            [
-                'ten_nguyen_lieu.required' => 'Tên nguyên liệu không được để trống.',
-                'ten_nguyen_lieu.string' => 'Tên nguyên liệu phải là một chuỗi.',
-                'ten_nguyen_lieu.max' => 'Tên nguyên liệu không được vượt quá 255 ký tự.',
-                'ten_nguyen_lieu.min' => 'Tên nguyên liệu phải có ít nhất 2 ký tự.',
-                'ma_nha_cung_cap.exists' => 'Nhà cung cấp không tồn tại.',
-                'so_luong.required' => 'Số lượng không được để trống.',
-                'so_luong.integer' => 'Số lượng phải là một số nguyên.',
-                'so_luong.min' => 'Số lượng phải lớn hơn hoặc bằng 0.',
-                'gia.required' => 'Giá không được để trống.',
-                'gia.numeric' => 'Giá phải là một số.',
-                'gia.min' => 'Giá phải lớn hơn hoặc bằng 0.',
-                'don_vi.required' => 'Đơn vị không được để trống.',
-                'don_vi.string' => 'Đơn vị phải là một chuỗi.',
-                'don_vi.max' => 'Đơn vị không được vượt quá 50 ký tự.',
-                'loai_nguyen_lieu.required' => 'Loại nguyên liệu không được để trống.',
-                'loai_nguyen_lieu.in' => 'Loại nguyên liệu không hợp lệ.',
-                'trang_thai.required' => 'Trạng thái không được để trống.',
-                'trang_thai.in' => 'Trạng thái không hợp lệ.'
-            ]
-        );
+            public function update(Request $request, $id)
+            {
+                $request->validate([
+                    'ten_nguyen_lieu' => 'required|string|max:255|min:2',
+                    'ma_nha_cung_cap' => 'required|exists:nha_cung_caps,ma_nha_cung_cap',
+                    'so_luong' => 'required|integer|min:0',
+                    'gia' => 'required|numeric|min:0',
+                    'don_vi' => 'required|string|max:50',
+                    'loai_nguyen_lieu' => 'required|in:0,1',
+                    'trang_thai' => 'required|in:1,2,3',
+                ],
+                    [
+                        'ten_nguyen_lieu.required' => 'Tên nguyên liệu không được để trống.',
+                        'ten_nguyen_lieu.string' => 'Tên nguyên liệu phải là một chuỗi.',
+                        'ten_nguyen_lieu.max' => 'Tên nguyên liệu không được vượt quá 255 ký tự.',
+                        'ten_nguyen_lieu.min' => 'Tên nguyên liệu phải có ít nhất 2 ký tự.',
+                        'ma_nha_cung_cap.exists' => 'Nhà cung cấp không tồn tại.',
+                        'so_luong.required' => 'Số lượng không được để trống.',
+                        'so_luong.integer' => 'Số lượng phải là một số nguyên.',
+                        'so_luong.min' => 'Số lượng phải lớn hơn hoặc bằng 0.',
+                        'gia.required' => 'Giá không được để trống.',
+                        'gia.numeric' => 'Giá phải là một số.',
+                        'gia.min' => 'Giá phải lớn hơn hoặc bằng 0.',
+                        'don_vi.required' => 'Đơn vị không được để trống.',
+                        'don_vi.string' => 'Đơn vị phải là một chuỗi.',
+                        'don_vi.max' => 'Đơn vị không được vượt quá 50 ký tự.',
+                        'loai_nguyen_lieu.required' => 'Loại nguyên liệu không được để trống.',
+                        'loai_nguyen_lieu.in' => 'Loại nguyên liệu không hợp lệ.',
+                        'trang_thai.required' => 'Trạng thái không được để trống.',
+                        'trang_thai.in' => 'Trạng thái không hợp lệ.'
+                    ]
+                );
 
-        $nguyenLieu = NguyenLieu::where('ma_nguyen_lieu',$id)->first();
-        $nguyenLieu->update([
-            'ten_nguyen_lieu' => $request->ten_nguyen_lieu,
-            'slug' => Str::slug($request->ten_nguyen_lieu),
-            'ma_nha_cung_cap' => $request->ma_nha_cung_cap,
-            'so_luong' => $request->so_luong,
-            'gia' => $request->gia,
-            'don_vi' => $request->don_vi,
-            'loai_nguyen_lieu' => $request->loai_nguyen_lieu,
-            'trang_thai' => $request->trang_thai,
-        ]);
-        toastr()->success('Cập nhật nguyên liệu thành công!');
-        return redirect()->route('admins.material.index');
-    }
-    public function toggleStatus($id)
-    {
-        $material = NguyenLieu::findOrFail($id);
+                $nguyenLieu = NguyenLieu::where('ma_nguyen_lieu',$id)->first();
+                $nguyenLieu->update([
+                    'ten_nguyen_lieu' => $request->ten_nguyen_lieu,
+                    'slug' => Str::slug($request->ten_nguyen_lieu),
+                    'ma_nha_cung_cap' => $request->ma_nha_cung_cap,
+                    'so_luong' => $request->so_luong,
+                    'gia' => $request->gia,
+                    'don_vi' => $request->don_vi,
+                    'loai_nguyen_lieu' => $request->loai_nguyen_lieu,
+                    'trang_thai' => $request->trang_thai,
+                ]);
+                toastr()->success('Cập nhật nguyên liệu thành công!');
+                return redirect()->route('admins.material.index');
+            }
+            public function toggleStatus($id)
+            {
+                $material = NguyenLieu::findOrFail($id);
+                // Chuyển đổi trạng thái: nếu đang là 1 thì thành 2, ngược lại thành 1
+                if ($material->trang_thai == 1) {
+                    $material->trang_thai = 2;
+                } elseif ($material->trang_thai == 2) {
+                    $material->trang_thai = 1;
+                }
 
-        // Chuyển đổi trạng thái: nếu đang là 1 thì thành 2, ngược lại thành 1
-        if ($material->trang_thai == 1) {
-            $material->trang_thai = 2;
-        } elseif ($material->trang_thai == 2) {
-            $material->trang_thai = 1;
-        }
-
-        $material->save();
-
-        return redirect()->back()->with('success', 'Đã cập nhật trạng thái thành công.');
-    }
+                $material->save();
+                $material->cuaHangNguyenLieus()->update([
+                    'trang_thai' => $material->trang_thai
+                ]);
+                toastr()->success('Đã cập nhật trạng thái thành công.');
+                return redirect()->back();
+            }
     public function archive($id)
     {
         $material = NguyenLieu::find($id);
@@ -204,8 +206,8 @@ class AdminMaterialController extends Controller
 
         $material->trang_thai = 3;
         $material->save();
-
-        return redirect()->back()->with('success', 'Đã lưu trữ nguyên liệu thành công!');
+        toastr()->success('Đã lưu trữ nguyên liệu thành công!');
+        return redirect()->back();
     }
     public function archiveIndex()
     {
@@ -216,15 +218,16 @@ class AdminMaterialController extends Controller
     }
     public function restore($id)
     {
-        $material = NguyenLieu::find($id);
+        $material = NguyenLieu::where($id);
         if (!$material) {
-            return redirect()->back()->with('error', 'Không tìm thấy nguyên liệu');
+            toastr()->error('Không tìm thấy nguyên liệu');
+            return redirect()->back();
         }
 
         $material->trang_thai = 1; // Trạng thái hoạt động
         $material->save();
-
-        return redirect()->route('admins.material.index')->with('success', 'Khôi phục thành công!');
+        toastr()->success('Khôi phục thành công!');
+        return redirect()->route('admins.material.index');
     }
     public function destroy($id)
     {
