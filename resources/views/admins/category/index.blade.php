@@ -234,7 +234,7 @@ $(function(){
 
     // cấu hình confirm
     const cfg = {
-      'btn-bulk-archive': { title:'Xác nhận tạm xóa?',    text:'Danh mục sẽ bị ẩn.',           icon:'warning',  btn:'btn-warning' },
+      'btn-bulk-archive': { title:'Xác nhận tạm xóa?',    text:'Danh mục sẽ bị tạm xóa.',           icon:'warning',  btn:'btn-warning' },
       'btn-bulk-restore': { title:'Xác nhận khôi phục?',   text:'Danh mục sẽ hiển thị lại.',     icon:'question', btn:'btn-success' },
       'btn-bulk-delete':  { title:'Xác nhận xóa vĩnh viễn?', text:'Không thể phục hồi.',         icon:'error',    btn:'btn-danger'  }
     };
@@ -265,140 +265,6 @@ $(function(){
 </script>
 @endpush
 
-{{-- @push('scripts')
-
-<script src="{{ asset('admins/js/admin-category.js') }}"></script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-    const checkAll = document.getElementById('checkAll');
-    const checkboxes = document.querySelectorAll('input[name="selected_ids[]"]');
-
-    // Khi bấm check all → chọn/bỏ hết
-    checkAll.addEventListener('change', function () {
-        checkboxes.forEach(cb => {
-            cb.checked = checkAll.checked;
-        });
-    });
-
-    // Khi từng checkbox con thay đổi → cập nhật lại trạng thái check all
-    checkboxes.forEach(cb => {
-        cb.addEventListener('change', function () {
-            const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
-            checkAll.checked = allChecked;
-        });
-    });
-
-    // NEW: click trên dòng → toggle checkbox dòng đó
-    const rows = document.querySelectorAll('table tbody tr');
-    rows.forEach(row => {
-        row.addEventListener('click', function (e) {
-            // Nếu bấm vào nút, link, icon, hoặc chính checkbox → bỏ qua
-            if (
-                e.target.tagName === 'A' ||
-                e.target.tagName === 'BUTTON' ||
-                e.target.type === 'checkbox' ||
-                e.target.closest('.form-button-action')
-            ) {
-                return;
-            }
-
-            const checkbox = row.querySelector('input[type="checkbox"]');
-            if (checkbox) {
-                checkbox.checked = !checkbox.checked;
-
-                // Cập nhật lại check all
-                const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
-                checkAll.checked = allChecked;
-            }
-        });
-    });
-    document.querySelectorAll('.btn-bulk-archive, .btn-bulk-restore, .btn-bulk-delete').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const form = document.getElementById('bulk-action-form');
-            // lấy route từ data-action nếu bạn thêm attribute đó, hoặc hardcode ở đây
-            const action = btn.classList.contains('btn-bulk-archive')
-            ? "{{ route('admins.category.bulk-archive') }}"
-            : btn.classList.contains('btn-bulk-restore')
-                ? "{{ route('admins.category.bulk-restore') }}"
-                : "{{ route('admins.category.bulk-delete') }}";
-            form.action = action;
-            form.submit();
-        });
-    });
-    $(function(){
-        $(".btn-bulk-archive, .btn-bulk-restore, .btn-bulk-delete").on("click", function(e){
-            e.preventDefault();
-            const btn = $(this);
-            const form = $("#bulk-action-form");        // lấy form bằng id
-            const actionUrl = btn.data("action");       // lấy từ data-action
-
-            // kiểm tra có checkbox được chọn không
-            const checkedCount = form.find("input[name='selected_ids[]']:checked").length;
-            if (!checkedCount) {
-            Swal.fire({
-                title: "Không có danh mục nào được chọn!",
-                text: "Vui lòng chọn ít nhất một danh mục.",
-                icon: "info",
-                confirmButtonText: "OK",
-                customClass: { confirmButton: "btn btn-primary" },
-                buttonsStyling: false
-            });
-            return;
-            }
-
-            // cấu hình alert
-            const cfg = {
-            "btn-bulk-archive": {
-                title: "Xác nhận tạm xóa?",
-                text: "Các danh mục sẽ bị ẩn khỏi danh sách.",
-                icon: "warning",
-                btnClass: "btn-warning"
-            },
-            "btn-bulk-restore": {
-                title: "Xác nhận khôi phục?",
-                text: "Các danh mục sẽ được hiển thị lại.",
-                icon: "warning",
-                btnClass: "btn-warning"
-            },
-            "btn-bulk-delete": {
-                title: "Xác nhận xóa vĩnh viễn?",
-                text: "Không thể khôi phục sau khi xóa.",
-                icon: "error",
-                btnClass: "btn-danger"
-            }
-            };
-            let key = btn.hasClass("btn-bulk-archive") ? "btn-bulk-archive"
-                    : btn.hasClass("btn-bulk-restore") ? "btn-bulk-restore"
-                    : "btn-bulk-delete";
-            let a = cfg[key];
-
-            Swal.fire({
-            title: a.title,
-            text: a.text,
-            icon: a.icon,
-            showCancelButton: true,
-            confirmButtonText: "Xác nhận",
-            cancelButtonText: "Hủy",
-            customClass: {
-                confirmButton: `btn ${a.btnClass} me-2`,
-                cancelButton: "btn btn-secondary"
-            },
-            buttonsStyling: false
-            }).then(res => {
-            if (res.isConfirmed) {
-                form.attr("action", actionUrl);
-                form.submit();
-            }
-            });
-        });
-        });
-
-
-
-});
-</script>
-@endpush --}}
 
 
 

@@ -196,7 +196,6 @@
                 </li>
                 @elseif(Auth::guard('staff')->user()->nhanvien->chucVu->ma_chuc_vu != 1
                     && Auth::guard('staff')->user()->nhanvien->ma_cua_hang)
-
                     <li class="nav-item">
                         <a href="{{ route('staffs.nhanviens.lich.tuan') }}">
                             <i class="fas fa-calendar-alt"></i>

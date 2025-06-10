@@ -7,7 +7,7 @@
         <h2 class="mb-4">Lịch làm việc @if($weekOffset == 0) tuần này @else tuần sau @endif</h2>
         <ul class="mb-3 breadcrumbs">
             <li class="nav-home">
-                <a href="{{ route('admin') }}">
+                <a href="{{ route('staff') }}">
                     <i class="icon-home"></i>
                 </a>
             </li>
@@ -25,26 +25,11 @@
             </li>
         </ul>
     </div>
-    {{-- <form method="GET" action="{{ route('staffs.nhanviens.lich.tuan') }}" class="mb-3">
-        @csrf
-        <label for="ma_cua_hang">Chọn cửa hàng:</label>
-        <select name="ma_cua_hang" id="ma_cua_hang" onchange="this.form.submit()">
-            <option value="">-- Chọn cửa hàng --</option>
-            @foreach($cuaHangs as $ch)
-                <option value="{{ $ch->ma_cua_hang }}" {{ $maCuaHang == $ch->ma_cua_hang ? 'selected' : '' }}>
-                    {{ $ch->ten_cua_hang }}
-                </option>
-            @endforeach
-        </select>
-        <input type="hidden" name="week" value="{{ $weekOffset }}">
-    </form> --}}
     <form method="GET" action="{{ route('staffs.nhanviens.lich.tuan') }}" class="mb-3">
         @csrf
         <input type="hidden" name="ma_cua_hang" value="{{ $maCuaHang }}">
         <input type="hidden" name="week" value="{{ $weekOffset }}">
     </form>
-
-
     <div class="mb-3">
         @if($weekOffset > 0)
             <a href="{{ route('staffs.nhanviens.lich.tuan', ['ma_cua_hang' => $maCuaHang, 'week' => $weekOffset - 1]) }}" class="btn btn-secondary">← Tuần trước</a>
@@ -79,7 +64,6 @@
                                         2 => 'Full Ca',
                                         3 => 'Nghỉ'
                                     ];
-
                                     $caSo = $lichPhanCong[$nv->ma_nhan_vien][$date->format('Y-m-d')][0]->ca_lam ?? null;
                                 @endphp
                                 {{ $caLabels[$caSo] ?? '-' }}

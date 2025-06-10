@@ -71,9 +71,9 @@
                                                 <table class="table table-striped table-hover" cellspacing="0" cellpadding="0">
                                                     <thead>
                                                         <tr>
-                                                            <th>
+                                                            {{-- <th>
                                                                 <input type="checkbox" id="select-all" />
-                                                            </th>
+                                                            </th> --}}
                                                             <th>#</th>
                                                             <th>Mã nhân viên</th>
                                                             <th>Họ tên</th>
@@ -104,9 +104,9 @@
                                                         @else
                                                             @foreach ($nhanViens as $index => $nv)
                                                                 <tr>
-                                                                    <td>
+                                                                    {{-- <td>
                                                                         <input type="checkbox" class="select-nhanvien" name="selected_nhanviens[]" value="{{ $nv->ma_nhan_vien }}">
-                                                                    </td>
+                                                                    </td> --}}
                                                                     <td>{{ $index + 1 }}</td>
                                                                     <td>{{ $nv->ma_nhan_vien }}</td>
                                                                     <td>{{ $nv->ho_ten_nhan_vien }}</td>
