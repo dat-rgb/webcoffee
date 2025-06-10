@@ -19,8 +19,8 @@
         <div class="row">
             <div class="col-lg-8 offset-lg-2 text-center">
                 <div class="breadcrumb-text">
-                    <p>Welcome Back</p>
-                    <h1>Login</h1>
+                    <p>Coffee & Tea</p>
+                    <h1>Đăng nhập</h1>
                 </div>
             </div>
         </div>
@@ -36,7 +36,7 @@
                 @csrf
                 <div class="form-group mb-3">
                     <label for="email">Email:</label>
-                    <input type="email" class="form-control rounded-pill" name="email" value="{{ old('email') }}" required>
+                    <input type="email" class="form-control rounded-start-pill" name="email" value="{{ old('email') }}" required>
                     @error('email')
                         <div class="custom-error">{{ $message }}</div>
                     @enderror
@@ -44,11 +44,19 @@
 
                 <div class="form-group mb-3">
                     <label for="password">Mật khẩu:</label>
-                    <input type="password" class="form-control rounded-pill" name="password" required>
+                    <div class="input-group">
+                        <input type="password" class="form-control rounded-start-pill" id="password" name="password" required>
+                        <div class="input-group-append">
+                            <span class="input-group-text bg-white border-start-0 rounded-end-pill" style="cursor: pointer;" id="togglePassword">
+                                <i class="fas fa-eye"></i>
+                            </span>
+                        </div>
+                    </div>
                     @error('password')
                         <div class="custom-error">{{ $message }}</div>
                     @enderror
                 </div>
+
 
                 <button type="submit" class="btn btn-warning w-100 rounded-pill" style="background-color: #f28123; color: white; font-weight: bold;">
                     Đăng nhập
@@ -66,4 +74,16 @@
 
 @push('scripts')
     <script src="{{ asset('js/form-validate.js') }}"></script>
+    <script>
+        document.getElementById('togglePassword').addEventListener('click', function () {
+            const passwordInput = document.getElementById('password');
+            const icon = this.querySelector('i');
+
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
+        });
+    </script>
 @endpush

@@ -23,7 +23,7 @@ class SanPhamCuaHang extends Model
     }
 
     // Quan hệ với CuaHang
-    public function cuaHang()
+    public function sanPhamCuaHang()
     {
         return $this->belongsTo(CuaHang::class, 'ma_cua_hang', 'ma_cua_hang');
     }

@@ -19,8 +19,8 @@
         <div class="row">
             <div class="col-lg-8 offset-lg-2 text-center">
                 <div class="breadcrumb-text">
-                    <p>Join Us</p>
-                    <h1>Register</h1>
+                    <p>Coffee & Tea</p>
+                    <h1>Đăng ký</h1>
                 </div>
             </div>
         </div>
@@ -37,7 +37,7 @@
 
                 <div class="form-group mb-3">
                     <label for="name">Họ và tên:</label>
-                    <input type="text" class="form-control rounded-pill" name="name" value="{{ old('name') }}" required>
+                    <input type="text" class="form-control rounded-start-pill" name="name" value="{{ old('name') }}" required>
                     @error('name')
                         <div class="custom-error">{{ $message }}</div>
                     @enderror
@@ -45,7 +45,7 @@
 
                 <div class="form-group mb-3">
                     <label for="email">Email:</label>
-                    <input type="email" class="form-control rounded-pill" name="email" value="{{ old('email') }}" required>
+                    <input type="email" class="form-control rounded-start-pill" name="email" value="{{ old('email') }}" required>
                     @error('email')
                         <div class="custom-error">{{ $message }}</div>
                     @enderror
@@ -53,7 +53,14 @@
 
                 <div class="form-group mb-3">
                     <label for="password">Mật khẩu:</label>
-                    <input type="password" class="form-control rounded-pill" name="password" required>
+                    <div class="input-group">
+                        <input type="password" class="form-control rounded-start-pill" id="password" name="password" required>
+                        <div class="input-group-append">
+                            <span class="input-group-text bg-white border-start-0 rounded-end-pill" style="cursor: pointer;" id="togglePassword">
+                                <i class="fas fa-eye"></i>
+                            </span>
+                        </div>
+                    </div>
                     @error('password')
                         <div class="custom-error">{{ $message }}</div>
                     @enderror
@@ -61,8 +68,15 @@
 
                 <div class="form-group mb-3">
                     <label for="password_confirmation">Xác nhận mật khẩu:</label>
-                    <input type="password" class="form-control rounded-pill" name="password_confirmation" required>
-                    @error('password')
+                    <div class="input-group">
+                        <input type="password" class="form-control rounded-start-pill" id="password_confirmation" name="password_confirmation" required>
+                        <div class="input-group-append">
+                            <span class="input-group-text bg-white border-start-0 rounded-end-pill" style="cursor: pointer;" id="togglePasswordConfirmation">
+                                <i class="fas fa-eye"></i>
+                            </span>
+                        </div>
+                    </div>
+                    @error('password_confirmation')
                         <div class="custom-error">{{ $message }}</div>
                     @enderror
                 </div>
@@ -82,5 +96,25 @@
 
 @push('scripts')
     <script src="{{ asset('js/form-validate.js') }}"></script>
+    <script>
+        function toggleVisibility(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.querySelector(`#${iconId} i`);
+
+            const isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
+        }
+
+        document.getElementById('togglePassword').addEventListener('click', function () {
+            toggleVisibility('password', 'togglePassword');
+        });
+
+        document.getElementById('togglePasswordConfirmation').addEventListener('click', function () {
+            toggleVisibility('password_confirmation', 'togglePasswordConfirmation');
+        });
+    </script>
 @endpush
 

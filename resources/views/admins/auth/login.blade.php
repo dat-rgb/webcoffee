@@ -81,8 +81,11 @@
                         <div class="mb-4">
                             <input  type="email"  id="email"  name="email"  class="form-control form-control-lg"  placeholder="Email"  required/>
                         </div>
-                        <div class="mb-4">
-                            <input type="password"  id="password"  name="password"  class="form-control form-control-lg"  placeholder="Mật khẩu"  required/>
+                        <div class="mb-4 position-relative">
+                            <input type="password" id="password" name="password" class="form-control form-control-lg" placeholder="Mật khẩu" required />
+                            <span id="togglePassword" style="position: absolute; top: 50%; right: 15px; transform: translateY(-50%); cursor: pointer;">
+                                <i class="fa-solid fa-eye-slash"></i>
+                            </span>
                         </div>
                         <button type="submit"  class="btn btn-primary w-100 btn-lg">Đăng nhập</button>
                     </form>
@@ -94,11 +97,22 @@
   </section>
   <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
   <!-- SweetAlert2 -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <!-- Bootstrap JS Bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="{{ asset('js/form-validate.js') }}"></script>
+  <script>
+      document.getElementById('togglePassword').addEventListener('click', function () {
+          const passwordInput = document.getElementById('password');
+          const icon = this.querySelector('i');
+
+          const isPassword = passwordInput.getAttribute('type') === 'password';
+          passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+
+          icon.classList.toggle('fa-eye');
+          icon.classList.toggle('fa-eye-slash');
+      });
+  </script>
 </body>
 </html>

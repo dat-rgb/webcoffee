@@ -139,6 +139,26 @@
                         <span class="sub-item">Danh sách sản phẩm đã xóa</span>
                       </a>
                     </li>
+                    <li>
+                      <a data-bs-toggle="collapse" href="#subnav5">
+                        <span class="sub-item">Sản phẩm tại cửa hàng</span>
+                        <span class="caret"></span>
+                      </a>
+                      <div class="collapse" id="subnav5">
+                        <ul class="nav nav-collapse subnav">
+                          <li>
+                            <a href="{{ route('admin.product-shop.index') }}">
+                              <span class="sub-item">Sản phẩm tại cửa hàng</span>
+                            </a>
+                          </li>
+                          <li>
+                            <a href="#">
+                                <span class="sub-item">xxxx</span>
+                            </a>
+                            </li>
+                        </ul>
+                      </div>
+                    </li>
                   </ul>
                 </div>
               </li>
@@ -681,8 +701,26 @@
   <script src="{{ asset('admins/js/kaiadmin.min.js') }}"></script>
   <!-- Kaiadmin DEMO methods, don't include it in your project! -->
   <script src="{{ asset('admins/js/setting-demo2.js') }}"></script>
-  <script src="{{ asset('js/sweet-alert.js') }}"></script>
-  @stack('scripts')
+  <script>
+      $(document).on('click', '#logout-btn', function (e) {
+      e.preventDefault();
 
+      Swal.fire({
+          title: 'Đăng xuất?',
+          text: "Bạn chắc chắn muốn đăng xuất?",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#28a745',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Có, đăng xuất!',
+          cancelButtonText: 'Hủy'
+      }).then((result) => {
+          if (result.isConfirmed) {
+              $('#logout-form').submit();
+          }
+      });
+  });
+  </script>
+  @stack('scripts')
   </body>
 </html>

@@ -5,6 +5,7 @@ use App\Http\Controllers\admins\AdminOrderController;
 use App\Http\Controllers\admins\AdminProductController;
 use App\Http\Controllers\admins\AdminCategoryController;
 use App\Http\Controllers\admins\AdminMaterialController;
+use App\Http\Controllers\admins\AdminProductShopController;
 use App\Http\Controllers\admins\AdminVoucherController;
 use App\Http\Controllers\admins\AdminSupplierController;
 use App\Http\Controllers\admins\AdminNhanvienController;
@@ -290,6 +291,16 @@ Route::prefix('admin/blog')->middleware(AdminMiddleware::class)->group(function(
     Route::post('/add-blog',[AdminBlogController::class,'add'])->name('admin.blog.add');
 });
 
+
+//Route Admin Sản phẩm cho các cừa hàng.
+Route::prefix('admin/product-shop')->middleware(AdminMiddleware::class)->group(function(){
+    Route::get('/',[AdminProductShopController::class,'index'])->name('admin.product-shop.index');
+    Route::post('/add-to-shop', [AdminProductShopController::class, 'addToShop'])->name('admin.product-shop.addtoshop');
+
+});
+
+
+//End - Admin
 ///////////////////////////////////////////////////////////////////////////
 //Start - Staff
 //Route Staff home

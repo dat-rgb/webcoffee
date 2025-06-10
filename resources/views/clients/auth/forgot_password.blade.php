@@ -19,8 +19,8 @@
         <div class="row">
             <div class="col-lg-8 offset-lg-2 text-center">
                 <div class="breadcrumb-text">
-                    <p></p>
-                    <h1>Quên mật khẩu</h1>
+                    <p>Coffee & Tea</p>
+                    <h1>Lấy lại mật khẩu</h1>
                 </div>
             </div>
         </div>
@@ -36,7 +36,7 @@
                 @csrf
                 <div class="form-group mb-3">
                     <label for="email">Email:</label>
-                    <input type="email" class="form-control rounded-pill" name="email" value="{{ old('email') }}" required>
+                    <input type="email" class="form-control rounded-start-pill" name="email" value="{{ old('email') }}" required>
                     @error('email')
                         <div class="custom-error">{{ $message }}</div>
                     @enderror
