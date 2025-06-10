@@ -95,17 +95,14 @@
                         </form>
                     </div>
                     @if($products->isEmpty())
-                        @if($search !== null)
                         <div class="py-5 my-5 text-center">
                             <i class="mb-3 fa fa-box-open fa-3x text-muted"></i>
-                            <h5 class="text-muted">Không có sản phẩm cho từ khóa "{{ $search }}" trong danh sách</h5>
+                            @if($search != null)
+                                <h5 class="text-muted">Không tìm thấy sản phẩm nào cho từ khóa "{{ $search }}"</h5>
+                            @else
+                                <h5 class="text-muted">Không có sản phẩm nào trong danh sách</h5>
+                            @endif
                         </div>
-                        @else
-                        <div class="py-5 my-5 text-center">
-                            <i class="mb-3 fa fa-box-open fa-3x text-muted"></i>
-                            <h5 class="text-muted">Không có sản phẩm nào trong danh sách</h5>
-                        </div>
-                        @endif
                     @else
                         <div class="card-body">
                             <div class="table-responsive">
@@ -120,13 +117,13 @@
                                                         <th>Mã SP</th>
                                                         <th>Tên SP</th>
                                                         <th>Danh mục</th>
-                                                        <th>Giá (vnd)</th>
                                                         <th>T.thái</th>
+                                                        <th>Tình trạng nguyên liệu</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    @foreach ( $products as $pro )
-                                                        <tr role="" class="product-row">
+                                                    @foreach ($products as $pro)
+                                                        <tr class="product-row">
                                                             <td>
                                                                 <input type="checkbox" class="product-checkbox" value="{{ $pro->ma_san_pham }}">
                                                             </td>
@@ -136,7 +133,6 @@
                                                             <td>{{ $pro->ma_san_pham }}</td>
                                                             <td>{{ $pro->ten_san_pham }}</td>
                                                             <td>{{ $pro->danhMuc->ten_danh_muc }}</td>
-                                                            <td>{{ number_format($pro->gia, 0, ',', '.') }}</td>
                                                             @php
                                                                 $maCuaHang = session('staff')->nhanVien->ma_cua_hang ?? null;
                                                                 $spCuaHang = $pro->sanPhamCuaHang->firstWhere('ma_cua_hang', $maCuaHang);
@@ -147,6 +143,25 @@
                                                                     <span class="badge bg-success">Hiển thị</span>
                                                                 @else
                                                                     <span class="badge bg-danger">Ẩn</span>
+                                                                @endif
+                                                            </td>
+                                                            <td>
+                                                                @php
+                                                                    $uniqueAlerts = collect($pro->ingredientAlerts)->unique(fn($item) => $item['ma_nguyen_lieu'] ?? $item['ten_nguyen_lieu']);
+                                                                @endphp
+
+                                                                @if ($uniqueAlerts->isNotEmpty())
+                                                                    <ul class="text-warning mb-0 ps-3">
+                                                                        @foreach ($uniqueAlerts as $alert)
+                                                                            <li style="list-style-type: disc">
+                                                                                {{ $alert['ten_nguyen_lieu'] ?? $alert['ma_nguyen_lieu'] }} – 
+                                                                                còn {{ $alert['so_luong_ton'] }} {{ $alert['don_vi'] }}
+                                                                                (min {{ $alert['so_luong_min'] }})
+                                                                            </li>
+                                                                        @endforeach
+                                                                    </ul>
+                                                                @else
+                                                                    <span class="text-success">Đủ</span>
                                                                 @endif
                                                             </td>
                                                         </tr>
@@ -178,13 +193,20 @@
 <script>
     // Bấm vào checkbox "checkAll"
     $('#checkAll').on('change', function () {
-        $('.product-checkbox').prop('checked', $(this).prop('checked'));
+        $('.product-checkbox').prop('checked', this.checked);
     });
 
-    // Nếu bỏ chọn một ô nào đó -> bỏ luôn dấu tick ở "checkAll"
+    // Bỏ chọn 1 ô -> bỏ luôn "Check All"
     $('.product-checkbox').on('change', function () {
-        const allChecked = $('.product-checkbox').length === $('.product-checkbox:checked').length;
-        $('#checkAll').prop('checked', allChecked);
+        $('#checkAll').prop('checked', $('.product-checkbox').length === $('.product-checkbox:checked').length);
+    });
+
+    // Click vào hàng để check/uncheck
+    $('.product-row').on('click', function (e) {
+        if (!$(e.target).is('input')) {
+            const checkbox = $(this).find('.product-checkbox');
+            checkbox.prop('checked', !checkbox.prop('checked')).trigger('change');
+        }
     });
 
     function getCheckedProductIds() {
@@ -192,7 +214,7 @@
             return $(this).val();
         }).get();
     }
-
+    
     async function handleChangeStatus(newStatus) {
         const selectedIds = getCheckedProductIds();
 
