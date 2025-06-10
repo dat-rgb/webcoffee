@@ -15,15 +15,35 @@ class AdminMaterialController extends Controller
     // Hiển thị danh sách nguyên liệu
     public function index(Request $request)
     {
-        $query = NguyenLieu::with('parent');
+        $query = NguyenLieu::with('nhaCungCap'); // Eager loading nhà cung cấp (giả sử quan hệ tên là `nhaCungCap`)
 
-        if ($request->has('trang_thai')) {
+        // Lọc theo trạng thái
+        if ($request->has('trang_thai') && $request->trang_thai !== null) {
             $query->where('trang_thai', $request->trang_thai);
         } else {
-            $query->where('trang_thai', '!=', 3);
+            $query->where('trang_thai', '!=', 3); // 3 là trạng thái "Xóa tạm"
         }
 
-        $page = $query->paginate(7);
+        // Lọc theo từ khóa tìm kiếm
+        if ($request->filled('search')) {
+            $search = $request->search;
+
+            $query->where(function ($q) use ($search) {
+                $q->where('ma_nguyen_lieu', 'like', "%{$search}%")
+                ->orWhere('ten_nguyen_lieu', 'like', "%{$search}%")
+                ->orWhereHas('nhaCungCap', function ($q2) use ($search) {
+                    $q2->where('ten_nha_cung_cap', 'like', "%{$search}%")
+                        ->orWhere('ma_nha_cung_cap', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        // Lọc theo loại nguyên liệu (nếu có)
+        if ($request->filled('loai_nguyen_lieu')) {
+            $query->where('loai_nguyen_lieu', $request->loai_nguyen_lieu);
+        }
+
+        $page = $query->paginate(7)->appends($request->query()); // Giữ các tham số tìm kiếm khi phân trang
 
         $ViewData = [
             'title' => 'Danh sách nguyên liệu',
@@ -33,6 +53,7 @@ class AdminMaterialController extends Controller
 
         return view('admins.material.index', $ViewData);
     }
+
 
     // Hiển thị form tạo mới
     public function create()
