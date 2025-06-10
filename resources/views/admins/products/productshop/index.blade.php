@@ -44,16 +44,20 @@
             <div class="card">
                 <div class="card-header">
                     <form action="{{ url()->current() }}" method="GET" class="row g-2 align-items-center">
-                        <div class="col-12 col-lg-6"> 
+                        {{-- Ô tìm kiếm --}}
+                        <div class="col-12 col-lg-5"> 
                             <div class="input-group">
-                                <input  type="text"  id="searchInput" name="search"  class="form-control"  placeholder="Nhập mã đơn hàng hoặc tên khách hàng..."  autocomplete="off">
+                            <input type="text" id="searchInput" name="search" class="form-control"
+                                placeholder="Nhập tên sản phẩm hoặc tên danh mục..." 
+                                value="{{ request('search') }}" autocomplete="off">                                
                                 <button type="button" class="btn btn-outline-secondary" id="searchBtn">
                                     <i class="fa fa-search"></i>
                                 </button>
                             </div>
                         </div>
-                        <!-- Chọn cửa hàng -->
-                        <div class="col-12 col-lg-4">
+
+                        {{-- Chọn cửa hàng --}}
+                        <div class="col-12 col-lg-3">
                             <select name="ma_cua_hang" class="form-select" onchange="this.form.submit()">
                                 <option value="">-- Chọn cửa hàng --</option>
                                 @foreach($cuaHangs as $ch)
@@ -64,18 +68,34 @@
                             </select>
                         </div>
 
-                        {{-- Thêm sản phẩm vào cửa hàng --}}
+                        {{-- Dropdown thao tác --}}
+                        <div class="col-6 col-lg-2">
+                            <div class="dropdown w-100">
+                                <button class="btn btn-outline-primary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown">
+                                    Thao tác
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <button type="button" class="dropdown-item text-danger" id="delete-products">
+                                            Xóa các sản phẩm đã chọn
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        {{-- Nút thêm sản phẩm --}}
                         <div class="col-6 col-lg-2">
                             <button type="button" 
-                                class="btn btn-primary w-100 {{ empty(request('ma_cua_hang')) ? 'disabled' : '' }}" 
+                                class="btn btn-primary w-100 {{ empty(request('ma_cua_hang') ) ? 'disabled' : '' }}" 
                                 data-bs-toggle="modal" 
                                 data-bs-target="#addProductModal">
                                 <i class="fa fa-plus"></i> Thêm sản phẩm
                             </button>
                         </div>
-
                     </form>
                 </div>
+
                 @if(!request()->filled('ma_cua_hang'))
                     <div class="text-center my-5 py-5">
                         <i class="fa fa-box-open fa-3x text-muted mb-3"></i>
@@ -92,36 +112,42 @@
                         </div>
                     @else
                         <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-striped table-hover align-middle text-center">
-                                    <thead>
-                                        <tr>
-                                            <th><input type="checkbox" id="checkAll"></th>
-                                            <th>Ảnh</th>
-                                            <th>Mã SP</th>
-                                            <th>Tên SP</th>
-                                            <th>Danh mục</th>
-                                        </tr>
-                                    </thead>  
-                                    <tbody id="order-tbody">
-                                        @foreach ( $productShop as $pro )
-                                            <tr role="" class="product-row">
-                                                <td>
-                                                    <input type="checkbox" class="product-checkbox" value="{{ $pro->sanPham->ma_san_pham }}">
-                                                </td>
-                                                <td>
-                                                    <a href="{{ route('admin.product.edit.form',$pro->sanPham->ma_san_pham) }}" class="" data-bs-toggle="tooltip" title="{{ $pro->sanPham->ten_san_pham }}">
-                                                        <img src="{{ $pro->sanPham->hinh_anh ? asset('storage/' . $pro->sanPham->hinh_anh) : asset('images/no_product_image.png') }}" alt="{{ $pro->sanPham->ten_san_pham }}" width="80">
-                                                    </a>
-                                                </td>
-                                                <td>{{ $pro->sanPham->ma_san_pham }}</td>
-                                                <td>{{ $pro->sanPham->ten_san_pham }}</td>
-                                                <td>{{ $pro->sanPham->danhMuc->ten_danh_muc }}</td>
+                            <form id="deleteProductsForm" method="POST" action="{{ route('admin.product-shop.delete') }}">
+                                @csrf
+                                <input type="hidden" name="ma_cua_hang" value="{{ request('ma_cua_hang') }}">
+                                <div id="productIdsContainer"></div> {{-- Sẽ được JS đổ input vào đây --}}
+
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover align-middle text-center">
+                                        <thead>
+                                            <tr>
+                                                <th><input type="checkbox" id="listCheckAll"></th>
+                                                <th>Ảnh</th>
+                                                <th>Mã SP</th>
+                                                <th>Tên SP</th>
+                                                <th>Danh mục</th>
                                             </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
+                                        </thead>
+                                        <tbody id="order-tbody">
+                                            @foreach ( $productShop as $pro )
+                                                <tr class="product-row">
+                                                    <td>
+                                                        <input type="checkbox" class="product-checkbox" value="{{ $pro->sanPham->ma_san_pham }}">
+                                                    </td>
+                                                    <td>
+                                                        <a href="{{ route('admin.product.edit.form',$pro->sanPham->ma_san_pham) }}" data-bs-toggle="tooltip" title="{{ $pro->sanPham->ten_san_pham }}">
+                                                            <img src="{{ $pro->sanPham->hinh_anh ? asset('storage/' . $pro->sanPham->hinh_anh) : asset('images/no_product_image.png') }}" alt="{{ $pro->sanPham->ten_san_pham }}" width="80">
+                                                        </a>
+                                                    </td>
+                                                    <td>{{ $pro->sanPham->ma_san_pham }}</td>
+                                                    <td>{{ $pro->sanPham->ten_san_pham }}</td>
+                                                    <td>{{ $pro->sanPham->danhMuc->ten_danh_muc }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </form>
                         </div>
                     @endif
                 @endif
@@ -200,109 +226,192 @@
 
 @push('scripts')
 <script>
-//search product
-document.getElementById('modalSearchBtn').addEventListener('click', function () {
-    let input = document.getElementById('modalSearchInput').value.toLowerCase();
-    let rows = document.querySelectorAll('#productModalTableBody .product-row');
-    let found = false;
-
-    rows.forEach(row => {
-        let name = row.querySelector('.product-name').textContent.toLowerCase();
-        let category = row.querySelector('.product-catgory-name').textContent.toLowerCase();
-        let isMatch = name.includes(input) || category.includes(input);
-        row.style.display = isMatch ? '' : 'none';
-        if (isMatch) found = true;
-    });
-
-    // Hiển thị dòng "không tìm thấy"
-    document.getElementById('noProductFoundRow').style.display = found ? 'none' : '';
+document.getElementById('searchBtn')?.addEventListener('click', function() {
+    this.closest('form')?.submit();
 });
+document.addEventListener('DOMContentLoaded', () => {
+    // 1) SEARCH TRONG MODAL
+    const modalSearchBtn  = document.getElementById('modalSearchBtn');
+    const modalSearchInput= document.getElementById('modalSearchInput');
+    const modalTableBody  = document.getElementById('productModalTableBody');
+    const noProductRow    = document.getElementById('noProductFoundRow');
 
-// Tự động tìm khi gõ
-document.getElementById('modalSearchInput').addEventListener('input', function () {
-    document.getElementById('modalSearchBtn').click();
-});
-
-//Check product
-document.addEventListener('DOMContentLoaded', function () {
-    const modal = document.getElementById('addProductModal');
-
-    modal.addEventListener('shown.bs.modal', function () {
-        const checkAll = modal.querySelector('#modalCheckAll');
-        const checkboxes = modal.querySelectorAll('.product-checkbox');
-        const rows = modal.querySelectorAll('.product-row');
-
-        if (!checkAll) return;
-
-        // Check All
-        checkAll.addEventListener('change', function () {
-            checkboxes.forEach(cb => cb.checked = this.checked);
-        });
-
-        // Toggle khi click vào hàng
-        rows.forEach(row => {
-            row.addEventListener('click', function (e) {
-                if (e.target.tagName.toLowerCase() === 'input') return;
-                const checkbox = this.querySelector('.product-checkbox');
-                checkbox.checked = !checkbox.checked;
-                checkAll.checked = [...checkboxes].every(cb => cb.checked);
-            });
-        });
-
-        // Update trạng thái checkAll nếu click từng cái
-        checkboxes.forEach(cb => {
-            cb.addEventListener('change', () => {
-                checkAll.checked = [...checkboxes].every(c => c.checked);
-            });
-        });
-    });
-});
-
-//Add
-document.getElementById('submitAddProducts').addEventListener('click', function () {
-    const selected = document.querySelectorAll('.product-checkbox:checked');
-
-    // Nếu không chọn sản phẩm nào
-    if (selected.length === 0) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Chưa chọn sản phẩm!',
-            text: 'Vui lòng chọn ít nhất 1 sản phẩm để tiếp tục.',
-            confirmButtonText: 'OK'
-        });
-        return;
+    // Hàm lấy checkbox ở những hàng đang hiển thị
+    function visibleCheckboxes(container) {
+    return [...container.querySelectorAll('.product-row')]
+           .filter(r => r.style.display !== 'none')
+           .map(r => r.querySelector('.product-checkbox'));
     }
 
-    // Nếu đã chọn sản phẩm → xác nhận
-    Swal.fire({
-        title: 'Xác nhận thêm sản phẩm',
-        html: `Bạn chắc chắn muốn thêm <strong>${selected.length}</strong> sản phẩm vào cửa hàng?`,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'OK, thêm vào!',
-        cancelButtonText: 'Hủy',
-        reverseButtons: true
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Hiển thị đang xử lý
-            Swal.fire({
-                title: 'Đang xử lý...',
-                text: 'Vui lòng chờ giây lát.',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
+    if (modalSearchBtn && modalSearchInput && modalTableBody) {
+        modalSearchBtn.addEventListener('click', () => {
+            const kw = modalSearchInput.value.toLowerCase();
+            let found = false;
+
+            modalTableBody.querySelectorAll('.product-row').forEach(row => {
+                const name     = row.querySelector('.product-name')?.textContent.toLowerCase()   || '';
+                const category = row.querySelector('.product-catgory-name')?.textContent.toLowerCase() || '';
+                const match = name.includes(kw) || category.includes(kw);
+                row.style.display = match ? '' : 'none';
+                if (match) found = true;
             });
 
-            // Submit form sau delay để hiển thị đang xử lý mượt mà
-            setTimeout(() => {
-                document.getElementById('addProductsForm').submit();
-            }, 1000);
-        }
-    });
+            if (noProductRow) noProductRow.style.display = found ? 'none' : '';
+
+            // Cập nhật trạng thái check-all sau khi tìm kiếm
+            const modalCheckAll = document.getElementById('modalCheckAll');
+            if (modalCheckAll) {
+                modalCheckAll.checked = visibleCheckboxes(modalTableBody).every(cb => cb.checked);
+            }
+        });
+    }
+
+    // 2) CHECKBOX TRONG MODAL
+    const modal = document.getElementById('addProductModal');
+    if (modal) {
+        modal.addEventListener('shown.bs.modal', () => {
+            const modalCheckAll = modal.querySelector('#modalCheckAll');
+            const modalBody     = modal.querySelector('#productModalTableBody');
+            if (!modalCheckAll || !modalBody) return;
+
+            // Check-all chỉ check hàng đang hiển thị
+            modalCheckAll.onchange = () => {
+                visibleCheckboxes(modalBody).forEach(cb => cb.checked = modalCheckAll.checked);
+            };
+
+            // Click vào dòng để toggle checkbox
+            modalBody.onclick = e => {
+                const row = e.target.closest('.product-row');
+                if (!row || e.target.tagName === 'INPUT' || e.target.closest('a')) return;
+
+                const cb = row.querySelector('.product-checkbox');
+                cb.checked = !cb.checked;
+
+                modalCheckAll.checked = visibleCheckboxes(modalBody).every(c => c.checked);
+            };
+
+            // Khi thay đổi 1 checkbox
+            modalBody.onchange = e => {
+                if (e.target.classList.contains('product-checkbox')) {
+                    modalCheckAll.checked = visibleCheckboxes(modalBody).every(c => c.checked);
+                }
+            };
+        });
+    }
+
+    // 3) NÚT “THÊM” TRONG MODAL 
+    const addBtn = document.getElementById('submitAddProducts');
+    if (addBtn) {
+        addBtn.addEventListener('click', () => {
+            const sel = modal?.querySelectorAll('.product-checkbox:checked') || [];
+            if (!sel.length) {
+                return Swal.fire({
+                    icon: 'warning',
+                    title: 'Chưa chọn sản phẩm!',
+                    text: 'Vui lòng chọn ít nhất 1 sản phẩm.'
+                });
+            }
+
+            Swal.fire({
+                title: `Thêm ${sel.length} sản phẩm?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Thêm',
+                cancelButtonText: 'Hủy',
+                reverseButtons: true
+            }).then(r => {
+                if (!r.isConfirmed) return;
+
+                // Fix chỗ này
+                Swal.fire({
+                    title: 'Đang xử lý...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                document.getElementById('addProductsForm')?.submit();
+            });
+        });
+    }
+
+    // 4) BẢNG CHÍNH – CHECK ALL + CLICK ROW */
+    const listCheckAll = document.getElementById('listCheckAll');
+    const listBody     = document.getElementById('order-tbody');
+    if (listCheckAll && listBody) {
+        listCheckAll.onchange = () => {
+            listBody.querySelectorAll('.product-checkbox')
+                    .forEach(cb => cb.checked = listCheckAll.checked);
+        };
+
+        listBody.onclick = e => {
+            const row = e.target.closest('.product-row');
+            if (!row) return;
+            if (e.target.tagName === 'INPUT' || e.target.closest('a')) return;
+            const cb = row.querySelector('.product-checkbox');
+            cb.checked = !cb.checked;
+            listCheckAll.checked = [...listBody.querySelectorAll('.product-checkbox')]
+                                   .every(c => c.checked);
+        };
+
+        listBody.onchange = e => {
+            if (e.target.classList.contains('product-checkbox')) {
+                listCheckAll.checked = [...listBody.querySelectorAll('.product-checkbox')]
+                                       .every(c => c.checked);
+            }
+        };
+    }
+
+    // 5) NÚT XOÁ CÁC SẢN PHẨM
+    const deleteBtn = document.getElementById('delete-products');
+    if (deleteBtn && listBody) {
+        deleteBtn.onclick = () => {
+            const checked = listBody.querySelectorAll('.product-checkbox:checked');
+            if (!checked.length) {
+                return Swal.fire({
+                    icon: 'warning',
+                    title: 'Chưa chọn sản phẩm!',
+                    text: 'Vui lòng chọn ít nhất 1 sản phẩm để xóa.'
+                });
+            }
+
+            Swal.fire({
+                title: `Xóa ${checked.length} sản phẩm?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Xóa',
+                cancelButtonText: 'Hủy',
+                reverseButtons: true
+            }).then(r => {
+                if (!r.isConfirmed) return;
+                Swal.fire({
+                    title: 'Đang xử lý...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                const box = document.getElementById('productIdsContainer');
+                if (box) {
+                    box.innerHTML = '';
+                    checked.forEach(cb => {
+                        const inp = document.createElement('input');
+                        inp.type  = 'hidden';
+                        inp.name  = 'product_ids[]';
+                        inp.value = cb.value;
+                        box.appendChild(inp);
+                    });
+                }
+
+                document.getElementById('deleteProductsForm')?.submit();
+            });
+        };
+    }
+
 });
 </script>
-
 @endpush
 
 

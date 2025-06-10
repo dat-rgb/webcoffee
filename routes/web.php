@@ -296,6 +296,7 @@ Route::prefix('admin/blog')->middleware(AdminMiddleware::class)->group(function(
 Route::prefix('admin/product-shop')->middleware(AdminMiddleware::class)->group(function(){
     Route::get('/',[AdminProductShopController::class,'index'])->name('admin.product-shop.index');
     Route::post('/add-to-shop', [AdminProductShopController::class, 'addToShop'])->name('admin.product-shop.addtoshop');
+    Route::post('/delete', [AdminProductShopController::class, 'deleteProductShop'])->name('admin.product-shop.delete');
 
 });
 

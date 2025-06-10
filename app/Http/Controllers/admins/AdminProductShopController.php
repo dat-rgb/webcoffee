@@ -23,13 +23,26 @@ class AdminProductShopController extends Controller
     }
 
     public function index(Request $request){
-
         $storeId = $request->input('ma_cua_hang');
-        
+        $keyword = $request->input('search'); 
+
         $cuaHangs = CuaHang::all();
-        $productShop = SanPhamCuaHang::with('sanPham', 'sanPhamCuaHang')->where('ma_cua_hang',$storeId)->get();
+
+        $query = SanPhamCuaHang::with('sanPham', 'sanPhamCuaHang')
+            ->where('ma_cua_hang', $storeId);
+
+        if ($keyword) {
+            $query->whereHas('sanPham', function($q) use ($keyword) {
+                $q->where('ten_san_pham', 'like', '%'.$keyword.'%')
+                ->orWhere('ma_san_pham', 'like', '%'.$keyword.'%')
+                ->orWhereHas('danhMuc', function($dq) use ($keyword) {
+                    $dq->where('ten_danh_muc', 'like', '%'.$keyword.'%');
+                });
+            });
+        }
+
+        $productShop = $query->get();
         $productsNoShop = $storeId ? $this->getProductsNoShop($storeId) : collect([]);
-        
 
         $viewData = [
             'title' => 'Sản phẩm tại cửa hàng | CMDT Coffee & Tea',
@@ -41,6 +54,7 @@ class AdminProductShopController extends Controller
 
         return view('admins.products.productshop.index', $viewData);
     }
+
 
     public function addToShop(Request $request)
     {
@@ -56,10 +70,28 @@ class AdminProductShopController extends Controller
         foreach ($sanPhamIds as $maSanPham) {
             \DB::table('san_pham_cua_hangs')->updateOrInsert(
                 ['ma_san_pham' => $maSanPham, 'ma_cua_hang' => $maCuaHang],
-                ['trang_thai' => 0, 'updated_at' => now(), 'created_at' => now()]
+                ['trang_thai' => 1, 'updated_at' => now(), 'created_at' => now()]
             );
         }
         toastr()->success('Đã thêm sản phẩm vào cửa hàng thành công.');
+        return redirect()->back();
+    }
+
+    public function deleteProductShop(Request $request)
+    {
+        $productIds = $request->input('product_ids');
+
+        if (!$productIds || !is_array($productIds)) {
+            toastr()->error('Không có sản phẩm nào được chọn.');
+            return redirect()->back();
+        }
+
+        \DB::table('san_pham_cua_hangs') // hoặc model liên quan
+            ->where('ma_cua_hang', request('ma_cua_hang'))
+            ->whereIn('ma_san_pham', $productIds)
+            ->delete();
+
+        toastr()->success('Đã xóa sản phẩm khỏi cửa hàng.');
         return redirect()->back();
     }
 }
