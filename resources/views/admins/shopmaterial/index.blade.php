@@ -6,23 +6,33 @@
 <div class="page-inner">
     <div class="row">
         <div class="col-md-12">
-            <div class="card">
-                <div class="page-header">
-                    <h3 class="mb-3 fw-bold">{{ $subtitle }}</h3>
-                    <ul class="mb-3 breadcrumbs">
-                        <li class="nav-home">
-                            <a href="{{ route('admin') }}">
-                                <i class="icon-home"></i>
-                            </a>
-                        </li>
-                        <li class="separator">
-                            <i class="icon-arrow-right"></i>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#">Quản lý kho nguyên liệu</a>
-                        </li>
-                    </ul>
+            <div class="page-header">
+                {{-- Logic để hiển thị tên cửa hàng trong subtitle --}}
+                @php
+                    $displaySubtitle = $subtitle;
+                    if (request('ma_cua_hang') && isset($stores)) {
+                        $selectedStore = $stores->firstWhere('ma_cua_hang', request('ma_cua_hang'));
+                        if ($selectedStore) {
+                            $displaySubtitle = $subtitle . ' tại ' . $selectedStore->ten_cua_hang;
+                        }
+                    }
+                @endphp
+                <h3 class="mb-3 fw-bold">{{ $displaySubtitle }}</h3>
+                <ul class="mb-3 breadcrumbs">
+                    <li class="nav-home">
+                        <a href="{{ route('admin') }}">
+                            <i class="icon-home"></i>
+                        </a>
+                    </li>
+                    <li class="separator">
+                        <i class="icon-arrow-right"></i>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#">Quản lý kho nguyên liệu</a>
+                    </li>
+                </ul>
                 </div>
+            <div class="card">
 
                 {{-- Dropdown chọn cửa hàng--}}
                 <div class="flex-wrap gap-3 card-header d-flex align-items-center justify-content-between">

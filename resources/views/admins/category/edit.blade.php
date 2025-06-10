@@ -1,5 +1,4 @@
 @extends('layouts.admin')
-
 @section('title', $title)
 @section('subtitle',$subtitle)
 
@@ -19,7 +18,7 @@
                             <i class="icon-arrow-right"></i>
                         </li>
                         <li class="nav-item">
-                            <a href="{{ route('admins.nhanvien.index') }}">Danh sách nhân viên cửa hàng</a>
+                            <a href="#">Chỉnh sửa danh mục</a>
                         </li>
                     </ul>
                 </div>

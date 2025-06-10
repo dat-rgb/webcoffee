@@ -36,8 +36,8 @@ class AdminShopmaterialController extends Controller
         return view('admins.shopmaterial.index', [
             'materials' => $materials,
             'stores' => $stores,
-            'title' => 'Quản lý cửa hàng nguyên liệu',
-            'subtitle' => 'Quản lý danh sách nguyên vật liệu của cửa hàng'
+            'title' => 'Quản lý nguyên vật liệu cửa hàng',
+            'subtitle' => 'Quản lý danh sách nguyên vật liệu'
         ]);
     }
     public function create(Request $request)

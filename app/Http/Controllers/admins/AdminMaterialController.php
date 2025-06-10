@@ -201,7 +201,8 @@ class AdminMaterialController extends Controller
         $material = NguyenLieu::find($id);
 
         if (!$material) {
-            return redirect()->back()->with('error', 'Không tìm thấy nguyên liệu!');
+            toastr()->error('Không tìm thấy nguyên liệu!');
+            return redirect()->back();
         }
 
         $material->trang_thai = 3;
@@ -234,12 +235,14 @@ class AdminMaterialController extends Controller
         $material = NguyenLieu::find($id);
 
         if (!$material) {
-            return redirect()->back()->with('error', 'Không tìm thấy nguyên liệu!');
+            toastr()->error('Không tìm thấy nguyên liệu!');
+            return redirect()->back();
         }
 
         try {
             $material->delete();
-            return redirect()->back()->with('success', 'Xóa nguyên liệu thành công!');
+            toastr()->success('Xóa nguyên liệu thành công!');
+            return redirect()->back();
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Xóa thất bại: ' . $e->getMessage());
         }
