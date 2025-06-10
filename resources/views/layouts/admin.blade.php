@@ -237,7 +237,7 @@
                   </ul>
                 </div>
               </li>
-
+              {{-- Quan li nhan vien --}}
               <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#submenu">
                   <i class="fas fa-user-tie"></i>

@@ -675,7 +675,32 @@ $(document).ready(function () {
     });
   });
 });
+//Chỉnh sửa nhân viên
+$(document).ready(function () {
+  $(".nhanvien-btn-edit").on("click", function (e) {
+    e.preventDefault();
 
+    let form = $(this).closest("form"); // Tìm form gần nhất chứa nút
+
+    Swal.fire({
+      title: "Xác nhận chỉnh sửa nhân viên này ?",
+      text: "Nhân viên sẽ được cập nhật!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Xác nhận",
+      cancelButtonText: "Hủy",
+      buttonsStyling: false,
+      customClass: {
+        confirmButton: "btn btn-success me-2",
+        cancelButton: "btn btn-secondary",
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        form.submit(); // Gửi form
+      }
+    });
+  });
+});
 
 
 

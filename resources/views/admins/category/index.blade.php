@@ -9,8 +9,7 @@
 
         <div class="row">
         <div class="col-md-12">
-            <div class="card">
-                <div class="page-header">
+            <div class="page-header">
                     <h3 class="mb-3 fw-bold" style="margin-bottom: 1.5rem;">{{ $subtitle }}</h3>
                     <ul class="mb-3 breadcrumbs">
                         <li class="nav-home">
@@ -26,10 +25,12 @@
                         </li>
                     </ul>
                 </div>
+            <div class="card">
+
                 {{-- Form tìm kiếm --}}
                 <div class="card-header">
                     <form action="{{ url()->current() }}" method="GET">
-                        <div class="row g-2 align-items-center">
+                        <div class="d-flex flex-wrap align-items-center gap-2">
                             <div class="col-12 col-lg-3">
                                 <div class="input-group">
                                     <input
@@ -53,13 +54,46 @@
                                     <option value="3" {{ request('trang_thai') == '3' ? 'selected' : '' }}>Xóa tạm</option>
                                 </select>
                             </div>
-
+                            {{-- THAO TÁC --}}
+                            <div class="dropdown">
+                            <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                Thao tác
+                            </button>
+                            <ul class="dropdown-menu">
+                                @if(request('trang_thai') == 3)
+                                <li>
+                                    <button
+                                    type="button"
+                                    class="dropdown-item btn-bulk-restore"
+                                    data-action="{{ route('admins.category.bulk-restore') }}"
+                                    >Khôi phục</button>
+                                </li>
+                                <li>
+                                    <button
+                                    type="button"
+                                    class="dropdown-item text-danger btn-bulk-delete"
+                                    data-action="{{ route('admins.category.bulk-delete') }}"
+                                    >Xóa vĩnh viễn</button>
+                                </li>
+                                @else
+                                <li>
+                                    <button
+                                    type="button"
+                                    class="dropdown-item btn-bulk-archive"
+                                    data-action="{{ route('admins.category.bulk-archive') }}"
+                                    >Tạm xóa</button>
+                                </li>
+                                @endif
+                            </ul>
+                            </div>
+                            {{-- THÊM MỚI --}}
                             <div class="col-6 col-lg-2">
                                 <a href="{{ route('admins.category.create') }}" class="btn btn-primary w-100">
                                     <i class="fa fa-plus"></i> Thêm mới
                                 </a>
                             </div>
                         </div>
+
                     </form>
                 </div>
 
@@ -74,10 +108,10 @@
                         </a>
                     </div>
                 @else
-                    <form id="bulk-action-form" method="POST">
+                    <form id="bulk-action-form" method="POST" >
                         @csrf
                         <div class="card-body">
-                            <div class="mb-3 row">
+                            {{-- <div class="mb-3 row">
                                 <div class="col-6 col-lg-2">
                                     <div class="dropdown w-100">
                                         <button class="btn btn-outline-primary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown">
@@ -91,18 +125,12 @@
                                                     </button>
                                                 </li>
                                                 <li>
-                                                    {{-- <button type="submit" formaction="{{ route('admins.category.bulk-delete') }}" class="dropdown-item text-danger ">
-                                                        Xóa các danh mục đã chọn
-                                                    </button> --}}
                                                     <button type="submit" formaction="{{ route('admins.category.bulk-delete') }}" class="dropdown-item text-danger btn-bulk-delete">
                                                         Xóa các danh mục đã chọn
                                                     </button>
                                                 </li>
                                             @else
                                                 <li>
-                                                    {{-- <button type="submit" formaction="{{ route('admins.category.bulk-archive') }}" class="dropdown-item ">
-                                                        Ẩn các danh mục đã chọn
-                                                    </button> --}}
                                                     <button type="submit" formaction="{{ route('admins.category.bulk-archive') }}" class="dropdown-item btn-bulk-archive">
                                                         Tạm xóa danh mục đã chọn
                                                     </button>
@@ -112,8 +140,7 @@
                                         </ul>
                                     </div>
                                 </div>
-                            </div>
-
+                            </div> --}}
                             <div class="table-responsive">
                                 <table class="table display table-striped table-hover">
                                     <thead>
@@ -170,13 +197,80 @@
         </div>
     </div>
     </div>
-
 @endsection
-
-
 @push('scripts')
-<script src="{{ asset('admins/js/alert.js') }}"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+$(function(){
+  const form       = $('#bulk-action-form');
+  const checkAll   = $('#checkAll');
+  const checkboxes = $('input[name="selected_ids[]"]');
+
+  // Check all
+  checkAll.on('change', () => {
+    checkboxes.prop('checked', checkAll.prop('checked'));
+  });
+  checkboxes.on('change', () => {
+    checkAll.prop('checked', checkboxes.length === checkboxes.filter(':checked').length);
+  });
+
+  // Toggle khi click dòng
+  $('table tbody tr').on('click', function(e){
+    if ($(e.target).is('a, button, input[type=checkbox]')) return;
+    const cb = $(this).find('input[type=checkbox]');
+    cb.prop('checked', !cb.prop('checked'));
+    checkAll.prop('checked', checkboxes.length === checkboxes.filter(':checked').length);
+  });
+
+  // Bulk action
+  $('.btn-bulk-archive, .btn-bulk-restore, .btn-bulk-delete').on('click', function(e){
+    e.preventDefault();
+    const btn       = $(this);
+    const actionUrl = btn.data('action');
+    const total     = checkboxes.filter(':checked').length;
+
+    if (!total) {
+      return Swal.fire('Chưa chọn mục nào', 'Vui lòng chọn ít nhất một danh mục.', 'info');
+    }
+
+    // cấu hình confirm
+    const cfg = {
+      'btn-bulk-archive': { title:'Xác nhận tạm xóa?',    text:'Danh mục sẽ bị ẩn.',           icon:'warning',  btn:'btn-warning' },
+      'btn-bulk-restore': { title:'Xác nhận khôi phục?',   text:'Danh mục sẽ hiển thị lại.',     icon:'question', btn:'btn-success' },
+      'btn-bulk-delete':  { title:'Xác nhận xóa vĩnh viễn?', text:'Không thể phục hồi.',         icon:'error',    btn:'btn-danger'  }
+    };
+    const key = btn.hasClass('btn-bulk-archive') ? 'btn-bulk-archive'
+              : btn.hasClass('btn-bulk-restore') ? 'btn-bulk-restore'
+              : 'btn-bulk-delete';
+    const a = cfg[key];
+
+    Swal.fire({
+      title: a.title,
+      text: a.text,
+      icon: a.icon,
+      showCancelButton: true,
+      confirmButtonText: 'Xác nhận',
+      cancelButtonText:  'Hủy',
+      customClass: {
+        confirmButton: `btn ${a.btn} me-2`,
+        cancelButton:  'btn btn-secondary'
+      },
+      buttonsStyling: false
+    }).then(res => {
+      if (res.isConfirmed) {
+        form.attr('action', actionUrl).submit();
+      }
+    });
+  });
+});
+</script>
+@endpush
+
+{{-- @push('scripts')
+
 <script src="{{ asset('admins/js/admin-category.js') }}"></script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
     const checkAll = document.getElementById('checkAll');
@@ -221,7 +315,95 @@
             }
         });
     });
-});
+    document.querySelectorAll('.btn-bulk-archive, .btn-bulk-restore, .btn-bulk-delete').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const form = document.getElementById('bulk-action-form');
+            // lấy route từ data-action nếu bạn thêm attribute đó, hoặc hardcode ở đây
+            const action = btn.classList.contains('btn-bulk-archive')
+            ? "{{ route('admins.category.bulk-archive') }}"
+            : btn.classList.contains('btn-bulk-restore')
+                ? "{{ route('admins.category.bulk-restore') }}"
+                : "{{ route('admins.category.bulk-delete') }}";
+            form.action = action;
+            form.submit();
+        });
+    });
+    $(function(){
+        $(".btn-bulk-archive, .btn-bulk-restore, .btn-bulk-delete").on("click", function(e){
+            e.preventDefault();
+            const btn = $(this);
+            const form = $("#bulk-action-form");        // lấy form bằng id
+            const actionUrl = btn.data("action");       // lấy từ data-action
 
+            // kiểm tra có checkbox được chọn không
+            const checkedCount = form.find("input[name='selected_ids[]']:checked").length;
+            if (!checkedCount) {
+            Swal.fire({
+                title: "Không có danh mục nào được chọn!",
+                text: "Vui lòng chọn ít nhất một danh mục.",
+                icon: "info",
+                confirmButtonText: "OK",
+                customClass: { confirmButton: "btn btn-primary" },
+                buttonsStyling: false
+            });
+            return;
+            }
+
+            // cấu hình alert
+            const cfg = {
+            "btn-bulk-archive": {
+                title: "Xác nhận tạm xóa?",
+                text: "Các danh mục sẽ bị ẩn khỏi danh sách.",
+                icon: "warning",
+                btnClass: "btn-warning"
+            },
+            "btn-bulk-restore": {
+                title: "Xác nhận khôi phục?",
+                text: "Các danh mục sẽ được hiển thị lại.",
+                icon: "warning",
+                btnClass: "btn-warning"
+            },
+            "btn-bulk-delete": {
+                title: "Xác nhận xóa vĩnh viễn?",
+                text: "Không thể khôi phục sau khi xóa.",
+                icon: "error",
+                btnClass: "btn-danger"
+            }
+            };
+            let key = btn.hasClass("btn-bulk-archive") ? "btn-bulk-archive"
+                    : btn.hasClass("btn-bulk-restore") ? "btn-bulk-restore"
+                    : "btn-bulk-delete";
+            let a = cfg[key];
+
+            Swal.fire({
+            title: a.title,
+            text: a.text,
+            icon: a.icon,
+            showCancelButton: true,
+            confirmButtonText: "Xác nhận",
+            cancelButtonText: "Hủy",
+            customClass: {
+                confirmButton: `btn ${a.btnClass} me-2`,
+                cancelButton: "btn btn-secondary"
+            },
+            buttonsStyling: false
+            }).then(res => {
+            if (res.isConfirmed) {
+                form.attr("action", actionUrl);
+                form.submit();
+            }
+            });
+        });
+        });
+
+
+
+});
 </script>
-@endpush
+@endpush --}}
+
+
+
+
+
+
