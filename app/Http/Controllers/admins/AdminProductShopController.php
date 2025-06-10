@@ -55,7 +55,6 @@ class AdminProductShopController extends Controller
         return view('admins.products.productshop.index', $viewData);
     }
 
-
     public function addToShop(Request $request)
     {
         $validated = $request->validate([

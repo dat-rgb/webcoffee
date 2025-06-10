@@ -125,14 +125,9 @@
                     <div class="collapse" id="sidebarLayouts">
                     <ul class="nav nav-collapse">
                         <li>
-                        <a href="{{ route('staff.productStore') }}">
+                          <a href="{{ route('staff.productStore',['status' => 1]) }}">
                             <span class="sub-item">Danh sách sản phẩm</span>
-                        </a>
-                        </li>
-                        <li>
-                        <a href="">
-                            <span class="sub-item">Sản phẩm ngưng bán</span>
-                        </a>
+                          </a>
                         </li>
                     </ul>
                     </div>

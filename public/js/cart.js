@@ -173,7 +173,7 @@ $('.add-to-cart').click(function(e){
                 error: function(xhr){
                     Swal.fire({
                         icon: 'error',
-                        title: 'Lỗi',
+                        title: 'Không thể thêm vào giỏ hàng!',
                         text: xhr.responseJSON?.error || 'Đã xảy ra lỗi không xác định!',
                         confirmButtonText: 'OK'
                     });
@@ -223,7 +223,7 @@ $(document).on('change', '.change-size', function() {
                     loadCart();
                 });
             } else if (response.error) {
-                Swal.fire('Lỗi', response.error, 'error').then(()=>{
+                Swal.fire('Không thể cập nhật size', response.error, 'error').then(()=>{
                     loadCart();
                 });
             }
