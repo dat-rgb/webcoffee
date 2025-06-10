@@ -43,8 +43,17 @@ class AdminCategoryController extends Controller
     // Hiển thị form tạo mới
     public function create()
     {
+        $title = 'Tạo danh mục';
+        $subtitle = 'Tạo danh mục mới';
         $categories = DanhMucSanPham::where('trang_thai', 1)->get();
-        return view('admins.category.create', compact('categories'));
+
+        $viewData = [
+            'title' => $title,
+            'subtitle' => $subtitle,
+            'categories' => $categories,
+        ];
+
+        return view('admins.category.create', $viewData);
     }
 
     public function store(Request $request)
