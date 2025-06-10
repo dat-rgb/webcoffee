@@ -31,6 +31,8 @@ use App\Http\Controllers\staffs\StaffHomeController;
 use App\Http\Controllers\staffs\StaffOrderController;
 use App\Http\Controllers\staffs\StaffProductController;
 use App\Http\Controllers\staffs\StaffShopmaterialController;
+use App\Http\Controllers\staffs\StaffController;
+use App\Http\Controllers\staffs\StaffLichlamviecController;
 use App\Http\Controllers\StoreController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\KhachHangMiddleware;
@@ -338,6 +340,26 @@ Route::prefix('staff/shop-material')->middleware(NhanVienMiddleware::class)->nam
     Route::post('/export',[StaffShopmaterialController::class,'export'])->name('export');
     Route::post('/destroy', [StaffShopmaterialController::class, 'destroy'])->name('destroy');
     Route::get('/destroy-page', [StaffShopmaterialController::class, 'showDestroyPage'])->name('showDestroyPage');
+});
+
+//Route Staff NhanVien
+Route::prefix('staff/nhanviens')->middleware(NhanVienMiddleware::class)->name('staffs.nhanviens.')->group(function () {
+    Route::get('/', [StaffController::class, 'index'])->name('index');
+    Route::get('/create', [StaffController::class, 'create'])->name('create');
+    Route::post('/store', [StaffController::class, 'store'])->name('store');
+    Route::get('/{ma_nhan_vien}/edit', [StaffController::class, 'edit'])->name('edit');
+    Route::put('/{ma_nhan_vien}', [StaffController::class, 'update'])->name('update');
+    Route::delete('/{ma_nhan_vien}', [StaffController::class, 'destroy'])->name('destroy');
+    //Thử thách Admin phân công lịch làm việc
+    Route::get('/phan-cong-lich', [StaffLichlamviecController::class, 'showForm'])->name('lich.showForm');
+    Route::post('/phan-cong-lich', [StaffLichlamviecController::class, 'assignWork'])->name('lich.assignWork');
+    Route::get('/lich-lam-viec', [StaffLichlamviecController::class, 'showLichTheoTuan'])->name('lich.tuan');
+    //Tạm nghỉ cho nhân viên
+    Route::post('/archive/{id}',  [StaffController::class, 'archive'])->name('archive');  // Lưu trữ
+    Route::get('/archived', [StaffController::class, 'archived'])->name('archived');    // Danh sách lưu trữ
+    Route::patch('/restore/{id}',  [StaffController::class, 'restore'])->name('restore'); // Khôi phục
+    Route::patch('/restore-bulk', [StaffController::class, 'bulkRestore'])->name('restore.bulk');
+    Route::patch('/archive/bulk', [StaffController::class, 'archiveBulk'])->name('archive.bulk');
 });
 //End - Staff
 

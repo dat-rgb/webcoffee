@@ -22,6 +22,7 @@ class CuaHangNguyenLieu extends Model
         'so_luong_ton_max',
         'don_vi',
         'so_lo',
+        'trang_thai',
     ];
 
     /**
