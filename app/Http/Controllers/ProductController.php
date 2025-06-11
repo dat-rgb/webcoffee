@@ -68,12 +68,15 @@ class ProductController extends Controller
             $countCate[$cate->ma_danh_muc] = $products->where('ma_danh_muc', $cate->ma_danh_muc)->count();
         }
 
+        $productToHistory = $this->getProductToViewHistory();
+
         $viewData = [
             'title' => 'Tất cả sản phẩm | CMDT Coffee & Tea',
             'subtitle' => 'Sản phẩm',
             'products' => $products,
             'categories' => $categories,
-            'countCate' => $countCate
+            'countCate' => $countCate,
+            'productToHistory' => $productToHistory,
         ];
 
         return view('clients.pages.products.product_list', $viewData);
@@ -145,6 +148,36 @@ class ProductController extends Controller
 
         return view('clients.pages.products.result_search', $viewData);
     }
+    protected function pushProductToViewedHistory($product)
+    {
+        // Lấy lịch sử hiện tại, hoặc mảng rỗng nếu chưa có
+        $history = session()->get('viewed_products', []);
+
+        $product_info = [
+            'id' => $product->id,
+            'ma_san_pham' => $product->ma_san_pham,
+            'ten_san_pham' => $product->ten_san_pham,
+            'anh_dai_dien' => $product->hinh_anh,
+            'slug' => $product->slug,
+            'is_new' => $product->is_new,
+            'hot' => $product->hot,
+            'viewed_at' => now()->timestamp,
+        ];
+
+        // Loại bỏ sản phẩm nếu đã có trong lịch sử để đưa lên đầu
+        $history = array_filter($history, function ($item) use ($product_info) {
+            return $item['ma_san_pham'] != $product_info['ma_san_pham'];
+        });
+
+        // Thêm sản phẩm vừa xem vào đầu mảng
+        array_unshift($history, $product_info);
+
+        // Giới hạn số lượng sản phẩm trong lịch sử lưu 5 sản phẩm gần nhất
+        $history = array_slice($history, 0, 5);
+
+        // Lưu lại vào session
+        session()->put('viewed_products', $history);
+    }
     public function productDetail($slug) {
         $selected_store_id = session('selected_store_id', null);
 
@@ -163,7 +196,7 @@ class ProductController extends Controller
             toastr()->error('Sản phẩm không tồn tại hoặc không khả dụng ở cửa hàng này.');
             return redirect()->route('product');
         }
-
+        $this->pushProductToViewedHistory($product);
         // Sản phẩm liên quan cùng danh mục
         $productRelate = SanPham::where('ma_danh_muc', $product->ma_danh_muc)
             ->where('trang_thai', 1)
@@ -198,6 +231,7 @@ class ProductController extends Controller
                     ->exists();
             }
         }
+        $productToHistory = $this->getProductToViewHistory();
 
         return view('clients.pages.products.product_detail', [
             'title' => $product->ten_san_pham . ' | CMDT Coffee & Tea',
@@ -205,6 +239,38 @@ class ProductController extends Controller
             'productRelate' => $productRelate,
             'sizes' => $sizes,
             'isFavorited' => $isFavorited,
+            'productToHistory' => $productToHistory,
         ]);
+    }
+
+    public function getProductToViewHistory()
+    {
+        $viewedProducts = session()->get('viewed_products', []);
+
+        $latestFourViewedProducts = array_slice($viewedProducts, 0, 4);
+
+        return $latestFourViewedProducts;
+    }
+
+    public function removeProductFromViewHistory($productId)
+    {
+        $history = session()->get('viewed_products', []);
+
+        $updatedHistory = array_values(array_filter($history, function ($item) use ($productId) {
+            return $item['ma_san_pham'] != $productId;
+        }));
+
+        session()->put('viewed_products', $updatedHistory);
+
+        toastr()->success('Đã xóa sản phẩm khỏi lịch sử đã xem!');
+        return redirect()->back(); 
+    }
+
+    public function clearAllViewHistory()
+    {
+        session()->forget('viewed_products'); // Xóa key 'viewed_products' khỏi session
+
+        toastr()->success('Đã xóa toàn bộ lịch sử sản phẩm đã xem!');
+        return redirect()->back(); 
     }
 }

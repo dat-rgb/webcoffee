@@ -129,13 +129,12 @@
             <div class="col-lg-8 offset-lg-2 text-center">
                 <div class="breadcrumb-text">
                     <p>CDMT Coffee & Tea</p>
-                    <h1>Favorites</h1>
+                    <h1>{{ $subtitle }}</h1>
                 </div>
             </div>  
         </div>
     </div>
 </div>
-
 <!-- products -->
 <div class="product-section mt-150 mb-150">
 <div class="container">
@@ -147,7 +146,7 @@
                     <p class="text-center text-muted">Chưa có sản phẩm trong danh sách yêu thích của bạn. <a href="{{ route('product') }}">Khám phá ngay</a></p>
                 </div>
             @else
-                <div class="row product-lists">
+                <div class="row">
                     @foreach ($favorites as $pro)
                     <div class="col-lg-4 col-md-6 col-sm-6 text-center mb-4">  <!-- mỗi sản phẩm chiếm 1/3 hàng -->
                         <div class="single-product-item">
@@ -192,7 +191,6 @@
         </div>
     </div>
 </div>
-
 
 </div>
 <!-- end products -->
