@@ -24,7 +24,6 @@
           </button>
         </div>
 
-
         <!-- Store List -->
         <ul class="list-group" id="storeList">
         

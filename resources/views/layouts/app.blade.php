@@ -289,7 +289,6 @@
 			});
 		});
 
-    // Reset modal khi mở lại
     $('#store-modal').on('show.bs.modal', () => {
         document.getElementById('storeList').innerHTML = `
             <li class="list-group-item text-center text-muted">
@@ -297,7 +296,6 @@
             </li>`;
     });
 
-    // Lọc danh sách theo tên
     function filterStores() {
         const input = document.getElementById("searchStoreInput").value.toLowerCase();
         const items = document.querySelectorAll("#storeList li");
@@ -308,7 +306,6 @@
         });
     }
 
-    // Render danh sách cửa hàng
     function renderStores(stores) {
         const ul = document.getElementById('storeList');
         if (stores.length === 0) {
@@ -317,43 +314,65 @@
         }
 
         ul.innerHTML = stores.map(store => `
-            <li class="list-group-item d-flex justify-content-between align-items-center" data-store-name="${store.ten_cua_hang.toLowerCase()}">
-                <div>
-                    <strong>${store.ten_cua_hang}</strong><br>
-                    <small>${store.dia_chi}</small><br>
-                    <small class="text-muted">Cách bạn ~ ${store.khoang_cach.toFixed(1)} km</small>
-                </div>
-                <button class="btn btn-sm btn-outline-primary" onclick="selectStore('${store.ma_cua_hang}')">Chọn</button>
-            </li>`).join('');
-    }
-
+		<li class="list-group-item d-flex justify-content-between align-items-center" data-store-name="${store.ten_cua_hang.toLowerCase()}">
+			<div>
+				<strong>${store.ten_cua_hang}</strong><br>
+				<small>${store.dia_chi}</small><br>
+				<small class="text-muted">Cách bạn ~ ${store.khoang_cach.toFixed(1)} km</small>
+			</div>
+			<button class="btn btn-sm btn-outline-primary" onclick="selectStore('${store.ma_cua_hang}')">Chọn</button>
+		</li>`).join('');
+	}
     // Lấy vị trí và gọi API
-    function getCurrentLocation() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                pos => {
-                    fetch('/stores/nearest', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        },
-                        body: JSON.stringify({
-                            latitude: pos.coords.latitude,
-                            longitude: pos.coords.longitude
-                        })
-                    })
-                    .then(res => res.json())
-                    .then(renderStores)
-                    .catch(() => alert("Lỗi khi tìm cửa hàng!"));
-                },
-                () => alert("Không lấy được vị trí của bạn.")
-            );
-        } else {
-            alert("Trình duyệt không hỗ trợ geolocation.");
-        }
-    }
+	function getCurrentLocation() {
+		if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(
+				async pos => {
+					const lat = pos.coords.latitude;
+					const lng = pos.coords.longitude;
 
+					fetch('/stores/nearest', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+						},
+						body: JSON.stringify({ latitude: lat, longitude: lng })
+					})
+					.then(res => res.json())
+					.then(renderStores)
+					.catch(() => alert("Lỗi khi tìm cửa hàng!"));
+
+					fetch('/get-address', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+						},
+						body: JSON.stringify({ latitude: lat, longitude: lng })
+					})
+					.then(async res => {
+						const text = await res.text();
+						try {
+							return JSON.parse(text);
+						} catch (e) {
+							throw e;
+						}
+					})
+					.then(data => {
+						const diaChi = data.display_name || "Không xác định được địa chỉ";
+
+						const addressBox = document.getElementById('addressBox');
+						if (addressBox) addressBox.textContent = diaChi;
+					})
+					.catch(err => console.error("Lỗi khi lấy địa chỉ:", err));
+				},
+				() => alert("Không lấy được vị trí của bạn.")
+			);
+		} else {
+			alert("Trình duyệt không hỗ trợ geolocation.");
+		}
+	}
     function closeStoreModal() {
         $('#store-modal').modal('hide');
     }

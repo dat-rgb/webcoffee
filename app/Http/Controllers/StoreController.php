@@ -6,6 +6,7 @@ use App\Models\CuaHang;
 use Illuminate\Http\Request;
 use App\Http\Controllers\CartController;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 
 class StoreController extends Controller
 {
@@ -79,10 +80,47 @@ class StoreController extends Controller
                 ) AS khoang_cach",
                 [$lat, $lng, $lat]          // bind 3 biến vào công thức
             )
-            ->having('khoang_cach', '<=', 6) // chỉ lấy cửa hàng ≤ 6 km
+            ->having('khoang_cach', '<=', 3) // chỉ lấy cửa hàng ≤ 6 km
             ->orderBy('khoang_cach')
             ->get();
 
         return response()->json($cuaHangs);
+    }
+
+    public function getAddress(Request $request)
+    {
+        $lat = $request->input('latitude');
+        $lng = $request->input('longitude');
+
+        if (!$lat || !$lng) {
+            return response()->json(['error' => 'Thiếu tọa độ'], 400);
+        }
+
+        try {
+            $response = Http::withHeaders([
+                'User-Agent' => 'CDMT Coffee & Tea App'
+            ])->get("https://nominatim.openstreetmap.org/reverse", [
+                'format' => 'json',
+                'lat' => $lat,
+                'lon' => $lng
+            ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+
+                session([
+                    'user_lat'      => $lat,
+                    'user_lng'      => $lng,
+                    'user_address'  => $data['display_name'] ?? null
+                ]);
+
+                return response()->json($data);
+            }
+            else {
+                return response()->json(['error' => 'Không lấy được địa chỉ từ API'], 500);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Lỗi server: ' . $e->getMessage()], 500);
+        }
     }
 }

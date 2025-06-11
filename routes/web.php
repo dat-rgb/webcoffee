@@ -66,6 +66,15 @@ Route::prefix('/')->group(function(){
 });
 Route::get('/stores', [StoreController::class, 'index']);        
 Route::post('/stores/nearest', [StoreController::class, 'ganNhat']);      
+Route::post('/get-address', [StoreController::class, 'getAddress']);
+// routes/web.php  (hoặc api.php)
+Route::get('/session/location', function () {
+    return response()->json([
+        'lat'     => session('user_lat'),
+        'lng'     => session('user_lng'),
+        'address' => session('user_address')
+    ]);
+});
 
 //Route sản phẩm
 Route::prefix('products')->group(function(){
