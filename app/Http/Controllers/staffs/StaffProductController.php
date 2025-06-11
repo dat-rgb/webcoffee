@@ -51,17 +51,16 @@ class StaffProductController extends Controller
 
     public function tinhTrangNguyenLieu($storeId, $productId)
     {
-        // 1. Lấy nguyên liệu + định lượng của sản phẩm
         $thanhPhan = \DB::table('thanh_phan_san_phams')
             ->where('ma_san_pham', $productId)
             ->get();
 
-        if ($thanhPhan->isEmpty()) return [];
+        if ($thanhPhan->isEmpty()) return ['alerts' => [], 'nguyen_lieu_co_trong_cua_hang' => 0, 'tong_nguyen_lieu' => 0];
 
         $nguyenLieuCanhBao = [];
+        $coTrongCuaHang = 0;
 
         foreach ($thanhPhan as $tp) {
-            // 2. Lấy thông tin tồn kho nguyên liệu của cửa hàng
             $ngl = \DB::table('cua_hang_nguyen_lieus')
                 ->where('ma_cua_hang', $storeId)
                 ->where('ma_nguyen_lieu', $tp->ma_nguyen_lieu)
@@ -69,10 +68,10 @@ class StaffProductController extends Controller
 
             if (!$ngl) continue;
 
-            // 3. Tính số ly có thể làm được
+            $coTrongCuaHang++;
+
             $soLuongTaoDuoc = $tp->dinh_luong > 0 ? floor($ngl->so_luong_ton / $tp->dinh_luong) : 0;
 
-            // 4. Nếu tồn kho thấp hơn min hoặc không đủ tạo 1 ly, thì cảnh báo
             if ($ngl->so_luong_ton <= $ngl->so_luong_ton_min || $soLuongTaoDuoc <= 1) {
                 $nguyenLieuCanhBao[] = [
                     'ma_nguyen_lieu' => $tp->ma_nguyen_lieu,
@@ -86,7 +85,11 @@ class StaffProductController extends Controller
             }
         }
 
-        return $nguyenLieuCanhBao;
+        return [
+            'alerts' => $nguyenLieuCanhBao,
+            'nguyen_lieu_co_trong_cua_hang' => $coTrongCuaHang,
+            'tong_nguyen_lieu' => $thanhPhan->count()
+        ];
     }
 
     public function index(Request $request)
@@ -94,6 +97,7 @@ class StaffProductController extends Controller
         $search = $request->input('search', '');
         $status = $request->input('status');           // 1: đang bán, 0: ngừng bán, null: all
         $nv     = Auth::guard('staff')->user()->nhanVien;
+
 
         // Guard
         if (!$nv || !$nv->ma_cua_hang) {
@@ -105,15 +109,13 @@ class StaffProductController extends Controller
             return back();
         }
 
-        // Lấy danh sách sản phẩm
         $products = $this->getProductForStaff($search, $status, $nv->ma_cua_hang);
-
-        /* ===========================================
-        *  Chỉ GẮN cảnh báo, KHÔNG tự cập nhật DB
-        * =========================================== */
         foreach ($products as $p) {
-            $p->ingredientAlerts = $this->tinhTrangNguyenLieu($nv->ma_cua_hang, $p->ma_san_pham);
-            $p->hasAlert        = !empty($p->ingredientAlerts);     // flag gọn để view check
+            $check = $this->tinhTrangNguyenLieu($nv->ma_cua_hang, $p->ma_san_pham);
+            $p->ingredientAlerts = $check['alerts'];
+            $p->hasAlert         = !empty($check['alerts']);
+            $p->nglCount         = $check['nguyen_lieu_co_trong_cua_hang'];
+            $p->nglTotal         = $check['tong_nguyen_lieu'];
         }
 
         return view('staffs.pages.product_store', [
@@ -124,7 +126,6 @@ class StaffProductController extends Controller
             'status'   => $status,
         ]);
     }
-
 
     public function updateStatus(Request $request)
     {
@@ -141,5 +142,4 @@ class StaffProductController extends Controller
 
         return response()->json(['message' => 'Cập nhật trạng thái thành công!']);
     }
-
 }
