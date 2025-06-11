@@ -64,6 +64,8 @@ Route::prefix('/')->group(function(){
     Route::post('/reset-password',[ResetPasswordController::class,'resetPassword'])->name('resetPassword.update');
 
 });
+Route::get('/stores', [StoreController::class, 'index']);        
+Route::post('/stores/nearest', [StoreController::class, 'ganNhat']);      
 
 //Route sản phẩm
 Route::prefix('products')->group(function(){

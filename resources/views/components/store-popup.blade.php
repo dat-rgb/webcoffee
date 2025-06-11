@@ -17,21 +17,17 @@
           <input type="text" class="form-control" placeholder="Vui lòng nhập tên cửa hàng" id="searchStoreInput" onkeyup="filterStores()" />
         </div>
 
+        <!-- Nút vị trí của bạn -->
+        <div class="text-center mb-3">
+          <button class="btn btn-sm btn-success" onclick="getCurrentLocation()">
+            <i class="fas fa-map-marker-alt"></i> Vị trí của bạn
+          </button>
+        </div>
+
+
         <!-- Store List -->
         <ul class="list-group" id="storeList">
-          @forelse ($stores as $store)
-            <li class="list-group-item d-flex justify-content-between align-items-center" data-store-name="{{ strtolower($store->ten_cua_hang) }}">
-              <div>
-                <strong>{{ $store->ten_cua_hang }}</strong><br />
-                <small>{{ $store->dia_chi }}</small>
-              </div>
-              <button class="btn btn-sm btn-outline-primary" onclick="selectStore('{{ $store->ma_cua_hang }}')">
-                Chọn
-              </button>
-            </li>
-          @empty
-            <li class="list-group-item text-center text-muted">Không tìm thấy cửa hàng.</li>
-          @endforelse
+        
         </ul>
       </div>
     </div>

@@ -13,14 +13,19 @@ return new class extends Migration
     {
         Schema::create('cua_hangs', function (Blueprint $table) {
             $table->id();
-            $table->char('ma_cua_hang',10)->unique(); //CH00000001
+            $table->char('ma_cua_hang',10)->unique(); // CH00000001
             $table->string('ten_cua_hang', 255);
             $table->string('dia_chi', 255)->nullable();
+            $table->char('ma_tinh', 2)->nullable();     // VD: 79
+            $table->char('ma_quan', 3)->nullable();     // VD: 760
+            $table->char('ma_xa', 5)->nullable();       // VD: 26734
             $table->string('so_dien_thoai', 20)->nullable()->unique();
             $table->string('email')->nullable()->unique();
+            $table->double('latitude')->nullable();
+            $table->double('longitude')->nullable();
             $table->integer('trang_thai')->default(1);
             $table->string('logo')->nullable();
-            $table->integer('chi_nhanh')->default(1); //0 cửa hàng chính, 1 chi nhánh
+            $table->integer('chi_nhanh')->default(1); // 0 cửa hàng chính, 1 chi nhánh
             $table->timestamps();
         });
     }

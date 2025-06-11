@@ -5,8 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\CuaHang;
 use Illuminate\Http\Request;
 use App\Http\Controllers\CartController;
+use Illuminate\Support\Facades\DB;
+
 class StoreController extends Controller
 {
+    public function index()
+    {
+        return CuaHang::where('trang_thai', 1)->get();   // trả JSON
+    }
+    
     public function selectStore(Request $request)
     {
         $storeId = $request->input('store_id');
@@ -51,5 +58,31 @@ class StoreController extends Controller
             'store_id' => $storeId,
             'store_name' => $store->ten_cua_hang,
         ]);
+    }
+
+    public function ganNhat(Request $request)
+    {
+        $lat = $request->latitude;
+        $lng = $request->longitude;
+
+        $cuaHangs = DB::table('cua_hangs')
+            ->select('*')
+            ->selectRaw(
+                "ROUND(
+                    6371 * acos(
+                        cos(radians(?)) *
+                        cos(radians(latitude)) *
+                        cos(radians(longitude) - radians(?)) +
+                        sin(radians(?)) *
+                        sin(radians(latitude))
+                    ), 2
+                ) AS khoang_cach",
+                [$lat, $lng, $lat]          // bind 3 biến vào công thức
+            )
+            ->having('khoang_cach', '<=', 6) // chỉ lấy cửa hàng ≤ 6 km
+            ->orderBy('khoang_cach')
+            ->get();
+
+        return response()->json($cuaHangs);
     }
 }
