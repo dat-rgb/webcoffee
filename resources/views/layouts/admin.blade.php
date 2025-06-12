@@ -198,13 +198,8 @@
                       </a>
                     </li>
                     <li>
-                      <a href="{{ route('admins.material.create') }}">
-                        <span class="sub-item">Nhập nguyên liệu</span>
-                      </a>
-                    </li>
-                    <li>
                         <a href="{{ route('admins.material.archive.index') }}">
-                            <span class="sub-item">Nguyên liệu ẩn</span>
+                            <span class="sub-item">Nguyên liệu tạm xóa</span>
                         </a>
                     </li>
                   </ul>
@@ -225,12 +220,13 @@
                     </li>
                     <li>
                         <a href="#">
-                            <span class="sub-item">Kho cửa hàng nguyên liệu ẩn</span>
+                            <span class="sub-item">Phiếu nhập xuất</span>
                         </a>
                     </li>
                   </ul>
                 </div>
               </li>
+              {{-- Nhà cung cấp --}}
               <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#suppliers">
                   <i class="fas fa-warehouse"></i>

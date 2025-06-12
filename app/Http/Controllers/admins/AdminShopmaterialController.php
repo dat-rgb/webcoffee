@@ -103,7 +103,7 @@ class AdminShopmaterialController extends Controller
             'so_luong_ton' => 0,
             'so_luong_ton_min' => $request->so_luong_ton_min,
             'so_luong_ton_max' => $request->so_luong_ton_max,
-            'don_vi' => 'g',
+            'don_vi' =>$nguyenLieu->don_vi,
         ]);
         toastr()->success('Đã thêm nguyên liệu vào kho.');
         return redirect()->route('admins.shopmaterial.index', ['ma_cua_hang' => $request->ma_cua_hang]);
@@ -183,6 +183,7 @@ class AdminShopmaterialController extends Controller
         if (!$importData || empty($importData)) {
             return redirect()->back()->withErrors(['import' => 'Không có dữ liệu nhập.'])->withInput();
         }
+        $firstShopKey = array_key_first($importData);
 
         $now = now()->startOfDay(); // lấy ngày hiện tại (không tính giờ phút)
 
@@ -270,17 +271,16 @@ class AdminShopmaterialController extends Controller
                         ]);
                     }
                 }
-
                 foreach ($updateData as $data) {
                     CuaHangNguyenLieu::where('ma_cua_hang', $data['ma_cua_hang'])
                         ->where('ma_nguyen_lieu', $data['ma_nguyen_lieu'])
                         ->update(['so_luong_ton' => $data['so_luong_ton']]);
                 }
-
             });
 
             toastr()->success('Nhập nguyên liệu thành công!');
-            return redirect()->route('admins.shopmaterial.index');
+            return redirect()->route('admins.shopmaterial.index', ['ma_cua_hang' => $firstShopKey]);
+
         } catch (\Exception $e) {
             return redirect()->back()->withErrors([
                 'import' => 'Có lỗi xảy ra khi nhập nguyên liệu: ' . $e->getMessage()
@@ -361,6 +361,7 @@ class AdminShopmaterialController extends Controller
         if (!$exportData || empty($exportData)) {
             return redirect()->back()->withErrors(['export' => 'Không có dữ liệu xuất.'])->withInput();
         }
+        $firstShopKey = array_key_first($exportData);
 
         $now = now()->startOfDay();
 
@@ -450,7 +451,8 @@ class AdminShopmaterialController extends Controller
                                 'gia_tien'            => $material->nguyenLieu->gia ?? 0,
                                 'tong_tien'           => ($material->nguyenLieu->gia ?? 0) * ($xuatTuLo / $material->nguyenLieu->so_luong),
                                 'ngay_tao_phieu'      => now(),
-                                'ghi_chu'             => 'Xuất theo FIFO từ lô ' . $lo->so_lo,
+                                'ghi_chu' => ($noteData[$maCuaHang][$maNguyenLieu] ?? '') . ' | Xuất theo FIFO từ lô ' . $lo->so_lo,
+
                             ]);
 
                             $tongXuatThucTe += $xuatTuLo;
@@ -486,7 +488,7 @@ class AdminShopmaterialController extends Controller
             });
 
             toastr()->success('Xuất nguyên liệu thành công!');
-            return redirect()->route('admins.shopmaterial.index');
+            return redirect()->route('admins.shopmaterial.index', ['ma_cua_hang' => $firstShopKey   ]);
 
         } catch (\Exception $e) {
             return redirect()->back()->withErrors([
@@ -508,8 +510,6 @@ class AdminShopmaterialController extends Controller
                 ->where('ma_cua_hang', $maCuaHang)
                 ->where('ma_nguyen_lieu', $maNguyenLieu)
                 ->first();
-
-
             if ($material) {
                 $phieuNhaps = PhieuNhapXuatNguyenLieu::where('ma_cua_hang', $maCuaHang)
                     ->where('ma_nguyen_lieu', $maNguyenLieu)
@@ -554,7 +554,7 @@ class AdminShopmaterialController extends Controller
             'materials' => $materials,
             'title' => 'Hủy nguyên liệu | CDMT & tea and coffee',
             'subtitle' => 'Hủy nguyên liệu theo lô',
-            'today' => \Carbon\Carbon::now()->format('d/m/Y'),
+            'today' => Carbon::now()->format('d/m/Y'),
         ]);
     }
     public function destroy(Request $request)
@@ -566,6 +566,7 @@ class AdminShopmaterialController extends Controller
             if (!isset($data['batch']) || !is_array($data['batch'])) {
                 throw new \Exception("Dữ liệu không hợp lệ: thiếu thông tin lô nguyên liệu.");
             }
+            $firstShopCode = array_key_first($data['batch']);
 
             DB::transaction(function () use ($data, $now) {
                 $updateStock = [];
@@ -686,7 +687,7 @@ class AdminShopmaterialController extends Controller
             });
 
             toastr()->success('Hủy nguyên liệu thành công!');
-            return redirect()->route('admins.shopmaterial.index');
+            return redirect()->route('admins.shopmaterial.index', ['ma_cua_hang' => $firstShopCode]);
 
         } catch (\Exception $e) {
             return redirect()->back()->withErrors('Lỗi khi hủy nguyên liệu: ' . $e->getMessage());

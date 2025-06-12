@@ -53,7 +53,7 @@
                                     <tr>
                                         <th class="px-2 py-2">Mã nguyên liệu</th>
                                         <th class="px-2 py-2">Tên nguyên liệu</th>
-                                        <th class="px-2 py-2">Định lương</th>
+                                        <th class="px-2 py-2">Định lượng</th>
                                         <th class="px-2 py-2">Số lượng tồn</th>
                                         <th class="px-2 py-2">Số lượng tối đa</th>
                                         <th class="px-2 py-2" style="white-space: nowrap;">

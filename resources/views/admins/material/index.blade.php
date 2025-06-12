@@ -8,6 +8,10 @@
             color: #f39c12;  /* Màu vàng cho sao */
             font-size: 18px;  /* Kích thước sao */
         }
+        .pagination-info,
+        .small.text-muted {
+            display: none !important;
+        }
     </style>
 @endpush
 
@@ -29,59 +33,51 @@
                 </li>
             </ul>
         </div>
-
         <div class="row">
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-    <form method="GET" action="{{ url()->current() }}" class="row g-2">
-        <div class="col-md-4">
-            <input type="text" name="search" value="{{ request('search') }}" class="form-control"
-                   placeholder="Tìm theo mã, tên, nhà cung cấp...">
-        </div>
+                        <div class="row align-items-center justify-content-between">
+                            <!-- Tìm kiếm bên trái -->
+                            <div class="mb-2 col-12 col-md-6 col-lg-6 mb-md-0">
+                                <form method="GET" action="{{ url()->current() }}">
+                                    <div class="shadow-sm input-group">
+                                        <input
+                                            type="text"
+                                            name="search"
+                                            class="form-control"
+                                            placeholder="Tìm theo mã, tên, nhà cung cấp..."
+                                            value="{{ request('search') }}"
+                                            autocomplete="off"
+                                        >
+                                        <button type="submit" class="btn btn-outline-secondary">
+                                            <i class="fa fa-search text-muted"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
 
-        <div class="col-md-3">
-            <select name="loai_nguyen_lieu" class="form-select">
-                <option value="">Tất cả loại nguyên liệu</option>
-                <option value="0" {{ request('loai_nguyen_lieu') == '0' ? 'selected' : '' }}>Nguyên liệu</option>
-                <option value="1" {{ request('loai_nguyen_lieu') == '1' ? 'selected' : '' }}>Vật liệu</option>
-            </select>
-        </div>
-
-        <div class="col-md-3">
-            <select name="trang_thai" class="form-select">
-                <option value="">Tất cả trạng thái</option>
-                <option value="1" {{ request('trang_thai') == '1' ? 'selected' : '' }}>Hoạt động</option>
-                <option value="2" {{ request('trang_thai') == '2' ? 'selected' : '' }}>Không hoạt động</option>
-                <option value="3" {{ request('trang_thai') == '3' ? 'selected' : '' }}>Đã lưu trữ</option>
-            </select>
-        </div>
-
-        <div class="col-md-2">
-            <button type="submit" class="btn btn-primary w-100">
-                <i class="fa fa-search"></i>
-            </button>
-        </div>
-    </form>
-</div>
-
-
+                            <!-- Nút Thêm nguyên liệu bên phải -->
+                            <div class="col-12 col-md-6 col-lg-6 text-md-end">
+                                <a href="{{ route('admins.material.create') }}" class="btn btn-primary">
+                                    <i class="fa fa-plus me-1"></i> Thêm nguyên liệu
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                     <div class="card-body">
                         <div class="table-responsive">
                             <div id="add-row_wrapper" class="dataTables_wrapper container-fluid dt-bootstrap4">
-
                                 <div class="row">
                                     <div class="col-sm-12">
-                                        <table id="add-row" class="table display table-striped table-hover dataTable" role="grid" aria-describedby="add-row_info">
-
+                                        <table id="add-row" class="table display table-striped table-hover dataTable responsive" role="grid" aria-describedby="add-row_info">
                                             <thead>
                                                 <tr>
                                                     <th>#</th>
                                                     <th>Mã nguyên liệu</th>
                                                     <th>Tên nguyên liệu</th>
                                                     <th>Nhà cung cấp</th>
-                                                    <th>Số lượng</th>
-                                                    <th>Đơn vị</th>
+                                                    <th>Định lượng</th>
                                                     <th>Giá(VNĐ)</th>
                                                     <th>Loại</th>
                                                     <th>Trạng thái</th>
@@ -100,8 +96,8 @@
                                                         <td>{{ $item->ma_nguyen_lieu }}</td>
                                                         <td>{{ $item->ten_nguyen_lieu }}</td>
                                                         <td>{{ $item->nhaCungCap->ten_nha_cung_cap ?? 'Chưa có' }}</td>
-                                                        <td>{{ $item->so_luong}} </td>
-                                                        <td>{{ $item->don_vi }}</td>
+                                                        <td style="white-space: nowrap;">{{ $item->so_luong . ' ' . $item->don_vi }}</td>
+
                                                         <td>{{ number_format($item->gia) }}</td>
                                                         <td>{{ $item->loai_nguyen_lieu == 0 ? 'nguyên liệu' : 'vật liệu' }}</td>
                                                         <td style="text-align: center;">
@@ -111,7 +107,6 @@
                                                                 <span class="badge bg-danger">Không hoạt động</span>
                                                             @endif
                                                         </td>
-
                                                         <td style="min-width: 120px;">
                                                             <div class="d-flex align-items-center justify-content-start">
                                                                 {{-- Bật / Tắt hoạt động --}}
@@ -123,46 +118,39 @@
                                                                             onclick="this.form.submit();">
                                                                     </div>
                                                                 </form>
-
                                                                 {{-- chỉnh sửa --}}
                                                                 <a href="{{ route('admins.material.edit', $item->ma_nguyen_lieu) }}" class="p-0 btn btn-sm me-4">
                                                                     <i class="fas fa-cog text-warning"></i>
                                                                 </a>
-
-                                                                {{-- lưu trữ --}}
-                                                                <form action="{{ route('admins.material.archive', $item->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn lưu trữ nguyên liệu này?')" style="margin: 0;">
+                                                                {{-- Xóa tạm --}}
+                                                                <form action="{{ route('admins.material.archive', $item->id) }}" method="POST" class="form-archive d-inline">
                                                                     @csrf
-                                                                    <button type="submit" class="p-0 btn btn-sm" style="border: none; background: none;">
+                                                                    <button type="button" class="p-0 btn btn-sm btn-archive" style="border: none; background: none;">
                                                                         <i class="fas fa-archive text-secondary" title="Lưu trữ"></i>
                                                                     </button>
                                                                 </form>
+
                                                             </div>
                                                         </td>
-
-
-
                                                     </tr>
                                                     @endforeach
                                                 @endif
-
                                             </tbody>
                                         </table>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-sm-12 col-md-7">
-                                        <div class="dataTables_paginate paging_simple_numbers" id="add-row_paginate">
-                                            <ul class="pagination">
-                                                {!! $materials->links('pagination::bootstrap-5') !!}
-                                            </ul>
-                                        </div>
                                     </div>
                                 </div>
                             </div> <!-- end dataTables_wrapper -->
                         </div> <!-- end table-responsive -->
                     </div> <!-- end card-body -->
                 </div> <!-- end card -->
+                <div class="row justify-content-center">
+                    <div class="col-auto">
+                        <div class="dataTables_paginate paging_simple_numbers" id="add-row_paginate">
+                            {!! $materials->links('pagination::bootstrap-5') !!}
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -170,5 +158,32 @@
 
 @push('scripts')
     <script src="{{ asset('admins/js/alert.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const archiveButtons = document.querySelectorAll('.btn-archive');
+
+            archiveButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const form = this.closest('form');
+
+                    Swal.fire({
+                        title: 'Xác nhận tạm xóa nguyên liệu',
+                        text: 'Bạn có chắc chắn muốn tạm xóa nguyên liệu này?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Đồng ý',
+                        cancelButtonText: 'Hủy bỏ',
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+
 @endpush
 

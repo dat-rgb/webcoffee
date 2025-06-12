@@ -3,12 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class NguyenLieu extends Model
 {
+    use SoftDeletes;
     protected $table = 'nguyen_lieus';
     protected $primarykey = 'ma_nguyen_lieu';
-    public $incrementing = false;             // ✅ nếu mã là chuỗi (không tự tăng)
+    public $incrementing = false;             
     protected $keyType = 'string';
     protected $fillable  = [
         'ma_nguyen_lieu',
@@ -21,6 +23,7 @@ class NguyenLieu extends Model
         'don_vi',
         'trang_thai',
     ];
+    protected $dates = ['deleted_at'];
     public function parent()
     {
         return $this->belongsTo(NguyenLieu::class, 'parent_id');
@@ -47,4 +50,3 @@ class NguyenLieu extends Model
 
 
 }
-    
