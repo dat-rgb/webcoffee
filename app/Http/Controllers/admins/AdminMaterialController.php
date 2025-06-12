@@ -205,24 +205,10 @@ class AdminMaterialController extends Controller
         toastr()->success('Đã cập nhật trạng thái thành công.');
         return redirect()->back();
     }
-    //public function archive($id)
-    //{
-        //$material = NguyenLieu::find($id);
-
-        //if (!$material) {
-           // toastr()->error('Không tìm thấy nguyên liệu!');
-        //    return redirect()->back();
-       // }
-
-       // $material->delete();
-        //toastr()->success('Đã lưu trữ nguyên liệu thành công!');
-        //return redirect()->back();
-   // }
     public function archive($id)
     {
         $material = NguyenLieu::with(['cuaHangNguyenLieus', 'products'])->findOrFail($id);
-        //dd($material->products->pluck('ten_san_pham', 'trang_thai'));
-        // 1. Kiểm tra sản phẩm đang bán dùng nguyên liệu này
+        
         $productInUse = $material->products->first(function ($product) {
             return $product->trang_thai == 1;
         });
