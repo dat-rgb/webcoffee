@@ -6,6 +6,7 @@ use App\Http\Controllers\admins\AdminProductController;
 use App\Http\Controllers\admins\AdminCategoryController;
 use App\Http\Controllers\admins\AdminMaterialController;
 use App\Http\Controllers\admins\AdminProductShopController;
+use App\Http\Controllers\admins\AdminStoreController;
 use App\Http\Controllers\admins\AdminVoucherController;
 use App\Http\Controllers\admins\AdminSupplierController;
 use App\Http\Controllers\admins\AdminNhanvienController;
@@ -312,6 +313,11 @@ Route::prefix('admin/product-shop')->middleware(AdminMiddleware::class)->group(f
 
 });
 
+Route::prefix('/admin/store')->middleware(AdminMiddleware::class)->group(function(){
+    Route::get('/',[AdminStoreController::class,'index'])->name('admin.store.index');
+    Route::post('/add',[AdminStoreController::class,'addStore'])->name('admin.store.add');
+    Route::post('/toggle', [AdminStoreController::class, 'toggle'])->name('admin.store.toggle');
+});
 
 //End - Admin
 ///////////////////////////////////////////////////////////////////////////

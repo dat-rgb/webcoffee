@@ -68,6 +68,7 @@ class StoreController extends Controller
 
         $cuaHangs = DB::table('cua_hangs')
             ->select('*')
+            ->where('trang_thai',1)
             ->selectRaw(
                 "ROUND(
                     6371 * acos(

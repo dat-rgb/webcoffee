@@ -288,19 +288,19 @@
                     </li>
                     <li>
                       <a data-bs-toggle="collapse" href="#subnav2">
-                        <span class="sub-item">Khách hàng</span>
+                        <span class="sub-item">Cửa hàng</span>
                         <span class="caret"></span>
                       </a>
                       <div class="collapse" id="subnav2">
                         <ul class="nav nav-collapse subnav">
                           <li>
-                            <a href="#">
-                              <span class="sub-item">Danh sách khách hàng</span>
+                            <a href="{{ route('admin.store.index') }}">
+                              <span class="sub-item">Danh sách cửa hàng</span>
                             </a>
                           </li>
                           <li>
                             <a href="#">
-                                <span class="sub-item">Thêm khách hàng mới</span>
+                                <span class="sub-item">Thêm cửa hàng mới</span>
                             </a>
                             </li>
                         </ul>
