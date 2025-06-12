@@ -41,52 +41,77 @@
         background-color: #0056b3;
     }
     .order-details {
-        background-color: #fff;
+        padding: 20px;
+        background-color: #f8f9fa;
         border-radius: 10px;
-        font-size: 1rem;
-        box-shadow: 0 0 10px rgb(0 0 0 / 0.1);
+        font-family: 'Segoe UI', sans-serif;
     }
-    .order-info p {
-        margin: 6px 0;
-        font-size: 0.95rem;
+
+    .order-details p {
+        margin: 4px 0;
+    }
+
+    .order-details table {
+        width: 100%;
+        margin-top: 15px;
+        border-collapse: collapse;
+    }
+
+    .order-details th,
+    .order-details td {
+        padding: 10px;
+        border: 1px solid #dee2e6;
+        vertical-align: middle;
+    }
+
+    .order-details thead {
+        background-color: #e9ecef;
+    }
+
+    .order-details td img {
+        margin-right: 8px;
+        vertical-align: middle;
+    }
+
+    .text-end {
+        text-align: right;
+    }
+
+    .text-left {
+        text-align: left;
+    }
+    .order-summary {
+        width: 300px;
+        float: right;
+        margin-top: 20px;
+        padding: 15px;
+        font-size: 15px;
+    }
+
+    .order-summary p {
+        margin-bottom: 8px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .order-summary p strong {
+        font-weight: 600;
     }
     .status {
         display: inline-block;
-        padding: 5px 14px;
-        border-radius: 20px;
-        font-size: 0.85rem;
-        font-weight: 700;
-        color: #fff;
-        user-select: none;
+        padding: 4px 10px;
+        border-radius: 15px;
+        font-size: 13px;
+        font-weight: bold;
+        color: white;
     }
-    .status-0 { background-color: #ffc107; } /* vàng */
-    .status-1 { background-color: #17a2b8; } /* xanh dương nhạt */
-    .status-2 { background-color: #28a745; } /* xanh lá */
-    .status-3 { background-color: #007bff; } /* xanh dương đậm */
-    .status-4 { background-color: #6f42c1; } /* tím */
-    .status-5 { background-color: #dc3545; } /* đỏ */
-    .status-default { background-color: #6c757d; } /* xám */
-    table.table {
-        border-collapse: separate !important;
-        border-spacing: 0 10px !important;
-    }
-    table.table thead tr th {
-        border-bottom: none !important;
-        color: #555;
-        font-weight: 600;
-        padding-bottom: 12px !important;
-    }
-    table.table tbody tr {
-        background: #f9f9f9;
-        border-radius: 8px;
-        box-shadow: 0 2px 6px rgb(0 0 0 / 0.05);
-    }
-    table.table tbody tr td {
-        border: none !important;
-        vertical-align: middle;
-        padding-top: 15px !important;
-        padding-bottom: 15px !important;
-    }
+    .status-0 { background-color: #ffc107; }  
+    .status-1 { background-color: #17a2b8; }  
+    .status-2 { background-color: #28a745; } 
+    .status-3 { background-color: #007bff; } 
+    .status-4 { background-color: #6f42c1; }  
+    .status-5 { background-color: #dc3545; }  
+    .status-default { background-color: #6c757d; }
 </style>
 @endpush
 
@@ -103,7 +128,6 @@
         </div>
     </div>
 </div>
-
 <div class="contact-form-section mt-150 mb-150">
     <div class="container">
         <div class="row justify-content-center">
@@ -128,89 +152,197 @@
                 </form>
             </div>
         </div>
-
         @isset($order)
         <div class="order-details mt-5 shadow-sm p-4 rounded bg-white mx-auto" style="max-width: 800px;">
-        <div class="d-flex flex-wrap justify-content-between mb-4">
-            <div class="order-info col-md-6 mb-3">
-                <p><strong>Mã Hóa Đơn:</strong> {{ $order->ma_hoa_don }}</p>
-                <p><strong>Cửa hàng:</strong> {{ $order->ma_cua_hang }}</p>
-                <p><strong>Nhân viên:</strong> {{ $order->ma_nhan_vien ?? 'Không có' }}</p>
-                <p><strong>Ngày lập:</strong> {{ $order->created_at->format('d/m/Y H:i:s') }}</p>
-                <p><strong>SĐT:</strong> {{ $order->so_dien_thoai }}</p>
-                <p><strong>Email:</strong> {{ $order->email }}</p>
-            </div>
-            <div class="order-info col-md-6 mb-3">
-                <p><strong>Khách hàng:</strong>
-                {{ $order->ma_khach_hang ? $order->ten_khach_hang : 'Guest - ' . $order->ten_khach_hang }}
-                </p>
-                @if($order->ma_khach_hang)
-                <p>Điểm: {{ $order->khachHang->diem_thanh_vien }} | Hạng: {{ $order->khachHang->hang_thanh_vien }}</p>
-                @endif
-                <p><strong>PT thanh toán:</strong>
-                {{ $order->phuong_thuc_thanh_toan === 'COD' ? 'Thanh toán khi nhận hàng (COD)' : 'Chuyển khoản' }}
-                </p>
-                <p><strong>{{ $order->phuong_thuc_nhan_hang === 'pickup' ? 'Nhận hàng tại quầy' : 'Giao hàng đến' }}:</strong>
-                {{ $order->dia_chi }}
-                </p>
-
-                @php
-                $statusTexts = [0 => 'Chờ xác nhận', 1 => 'Đã xác nhận', 2 => 'Hoàn tất', 3 => 'Đang giao', 4 => 'Đã nhận', 5 => 'Đã hủy'];
-                $colorClasses = [0 => 'status-0', 1 => 'status-1', 2 => 'status-2', 3 => 'status-3', 4 => 'status-4', 5 => 'status-5'];
-                $st = $order->trang_thai;
-                @endphp
-
-                <p><strong>Trạng thái:</strong>
-                <span class="status {{ $colorClasses[$st] ?? 'status-default' }}">{{ $statusTexts[$st] ?? 'Không xác định' }}</span>
-                </p>
-
-                @if ($order->trang_thai === 3)
-                <p><strong>Shipper:</strong> {{ $order->giaoHang->ho_ten_shipper ?? 'Chưa có' }}</p>
-                <p><strong>SĐT:</strong> {{ $order->giaoHang->so_dien_thoai ?? 'Chưa có' }}</p>
-                <p><strong>Trạng thái giao hàng:</strong>
-                    @if($order->giaoHang->trang_thai === 0)
-                    Đang giao hàng
-                    @elseif($order->giaoHang->trang_thai === 1)
-                    Giao thành công
+            <div style="max-width: 700px; margin: 0 auto; font-family: Arial, sans-serif; line-height: 1.5; display: flex; gap: 30px; flex-wrap: wrap;">
+                <div style="flex: 1 1 300px;">
+                    <div style="margin-bottom: 12px;">
+                        <strong>Mã Hóa Đơn:</strong> <span>{{ $order->ma_hoa_don }}</span>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <strong>Cửa hàng:</strong> <span>{{ $order->ma_cua_hang }}</span>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <strong>Nhân viên:</strong> <span>{{ $order->ma_nhan_vien ?? '' }}</span>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <strong>Thời gian:</strong> <span>{{ \Carbon\Carbon::parse($order->ngay_lap_hoa_don)->format('d/m/Y H:i:s') }}</span>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <strong>Số điện thoại:</strong> <span>{{ $order->so_dien_thoai }}</span>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <strong>Email:</strong> <span>{{ $order->email }}</span>
+                    </div>
+                </div>
+                <div style="flex: 1 1 300px;">
+                    @if($order->ma_khach_hang)
+                    <div style="margin-bottom: 6px;">
+                        <strong>Khách hàng:</strong> <span>{{ $order->ten_khach_hang }}</span>
+                    </div>
+                    <div style="margin-bottom: 12px; font-size: 0.9em; color: #555; display: flex; gap: 15px;">
+                        <span>Điểm hiện tại: {{ $order->khachHang->diem_thanh_vien }}</span>
+                        <span>Hạng: {{ $order->khachHang->hang_thanh_vien }}</span>
+                    </div>
                     @else
-                    Không thành công
+                    <div style="margin-bottom: 12px;">
+                        <strong>Khách hàng:</strong> <span>Guest - {{ $order->ten_khach_hang }}</span>
+                    </div>
                     @endif
-                </p>
-                @endif
+                    <div style="margin-bottom: 12px;">
+                        <strong>{{ $order->phuong_thuc_nhan_hang === "pickup" ? 'Phương thức nhận hàng:' : 'Giao hàng đến:' }}</strong>
+                        <span>{{ $order->dia_chi }}</span>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <strong>Phương thức thanh toán:</strong>
+                        @if ($order->phuong_thuc_thanh_toan === "COD")
+                            <span>Thanh toán khi nhận hàng (COD)</span>
+                            <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                                <strong>Trạng thái thanh toán</strong>
+                                @php
+                                    $statusColors = [
+                                        0 => '#ff9800', 1 => '#2196f3','default' => '#9e9e9e',
+                                    ];
+                                    $statusTexts = [
+                                        0 => 'Chưa thanh toán', 1 => 'Đã thanh toán', 
+                                    ];
+                                    $st = $order->trang_thai_thanh_toan;
+                                    $color = $statusColors[$st] ?? $statusColors['default'];
+                                    $text = $statusTexts[$st] ?? 'Không xác định';
+                                @endphp
+                                <span style="padding: 6px 14px; border-radius: 20px; background-color: {{ $color }}; color: white; font-weight: 600;">
+                                    {{ $text }}
+                                </span>
+                            </div>  
+                        @elseif ($order->phuong_thuc_thanh_toan === "NAPAS247")
+                            <span>Chuyển khoản qua ngân hàng MB Bank </span>
+                            <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                                <strong>Trạng thái thanh toán</strong>
+                                @php
+                                    $statusColors = [
+                                        'PENDING' => '#ff9800', 
+                                        'CANCELLED' => '#9e9e9e',
+                                        'SUCCESS' => '#2e7d32', 
+                                        'FAILED' => '#f44336',                            
+                                        'default' => '#9e9e9e',
+                                    ];
+                                    $statusTexts = [
+                                        'PENDING' => 'Đang xử lý', 
+                                        'CANCELLED' => 'Đã hủy giao dịch',
+                                        'SUCCESS' => 'Đã thanh toán',
+                                        'FAILED' => 'Thanh toán thất bại',
+                                    ];
+                                    $st = $order->transaction->trang_thai;
+                                    $color = $statusColors[$st] ?? $statusColors['default'];
+                                    $text = $statusTexts[$st] ?? 'Không xác định';
+                                @endphp
+                                <span style="padding: 6px 14px; border-radius: 20px; background-color: {{ $color }}; color: white; font-weight: 600;">
+                                    {{ $text }}
+                                </span>
+                            </div>
+                        @endif
+                    </div>
+                    <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                        <strong>Trạng thái đơn hàng:</strong>
+                        @php
+                            $statusColors = [
+                            0 => '#ff9800', 1 => '#2196f3', 2 => '#4caf50',
+                            3 => '#03a9f4', 4 => '#2e7d32', 5 => '#f44336',
+                            'default' => '#9e9e9e',
+                            ];
+                            $statusTexts = [
+                            0 => 'Chờ xác nhận', 1 => 'Đã xác nhận', 2 => 'Hoàn tất đơn hàng',
+                            3 => $order->phuong_thuc_nhan_hang === 'pickup' ? 'Chờ nhận hàng' : 'Đang giao', 4 => 'Đã nhận', 5 => 'Đã hủy',
+                            ];
+                            $st = $order->trang_thai;
+                            $color = $statusColors[$st] ?? $statusColors['default'];
+                            $text = $statusTexts[$st] ?? 'Không xác định';
+                        @endphp
+                        <span style="padding: 6px 14px; border-radius: 20px; background-color: {{ $color }}; color: white; font-weight: 600;">
+                            {{ $text }}
+                        </span>
+                    </div>
+                    @if ($order->trang_thai === 3 && $order->phuong_thuc_nhan_hang !== 'pickup')
+                        <div style="margin-bottom: 6px;">
+                            <strong>Shipper: </strong> <span>{{ $order->giaoHang->ho_ten_shipper ?? 'Chưa có' }}</span>
+                        </div>
+                        <div style="margin-bottom: 12px; font-size: 0.9em; color: #555; display: flex; gap: 15px;">
+                            <span>Số điện thoại: {{ $order->giaoHang->so_dien_thoai ?? 'Chưa có' }}</span>
+                            <span>Trạng thái: 
+                                @if ( $order->giaoHang->trang_thai === 0)
+                                    Đang giao hàng    
+                                @elseif ( $order->giaoHang->trang_thai === 1)       
+                                    Giao hàng thàng công
+                                @elseif ( $order->giaoHang->trang_thai === 2)   
+                                    Giao hàng không thành công
+                                @endif
+                            </span>
+                        </div>
+                    @elseif($order->trang_thai === 5)
+                        @php
+                            $huy = $order->lichSuHuyDonHang->first();
+                        @endphp
+                        @if ($order->trang_thai === 5 && $huy)
+                            <div style="margin-bottom: 6px;">
+                                <strong>Người hủy: </strong> 
+                                <span>
+                                    @if ($huy->ma_khach_hang !== null)
+                                        Khách hàng
+                                    @elseif ($huy->ma_nhan_vien !== null)
+                                        Nhân viên {{ optional($huy->nhanVien)->ho_ten_nhan_vien ?? '(Không rõ tên)' }}
+                                    @elseif ($order->ma_khach_hang === null)
+                                        Khách (Guest)
+                                    @else
+                                        Admin
+                                    @endif
+                                </span>
+                            </div>
 
-                @if ($order->trang_thai === 5 && $order->lichSuHuyDonHang->first())
-                @php $huy = $order->lichSuHuyDonHang->first(); @endphp
-                <p><strong>Người hủy:</strong>
-                    {{ $huy->ma_khach_hang === null ? ($huy->ma_nhan_vien ? 'NV ' . $huy->ma_nhan_vien : 'Không xác định') : 'Khách hàng' }}
-                </p>
-                <p><strong>Lý do:</strong> {{ $huy->ly_do_huy }}</p>
-                @endif
+                            <div style="margin-bottom: 12px; font-size: 0.9em; color: #555; display: flex; gap: 15px;">
+                                <span>Lý do hủy: {{ $huy->ly_do_huy }}</span>
+                            </div>
+                        @endif
+                    @endif
+                </div>
             </div>
-            </div>
-            <h5 class="mb-3 fw-semibold">Chi tiết đơn hàng:</h5>
-            <div class="table-responsive">
-                <table class="table table-striped align-middle">
-                    <thead class="table-light">
+            <h6 class="mt-4 mb-3"><strong>Chi tiết đơn hàng:</strong></h6>
+            <div style="overflow-x:auto;">
+                <table class="table table-striped align-middle" style="min-width: 600px;">
+                    <thead>
                         <tr>
-                            <th style="width: 5%;">#</th>
-                            <th style="width: 45%;">Sản phẩm</th>
-                            <th class="text-center" style="width: 15%;">Số lượng</th>
-                            <th class="text-end" style="width: 15%;">Đơn giá</th>
-                            <th class="text-end" style="width: 20%;">Thành tiền</th>
+                            <th style="width: 40px;">#</th>
+                            <th>Sản phẩm</th>
+                            <th style="width: 80px;" class="text-center">Số lượng</th>
+                            <th style="width: 120px;" class="text-end">Đơn giá</th>
+                            <th style="width: 140px;" class="text-end">Thành tiền</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($order->chiTietHoaDon as $index => $item)
-                            <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td>{{ $item->ten_san_pham }}</td>
-                                <td class="text-center">{{ $item->so_luong }}</td>
-                                <td class="text-end">{{ number_format($item->don_gia, 0, ',', '.') }}₫</td>
-                                <td class="text-end">{{ number_format($item->don_gia * $item->so_luong, 0, ',', '.') }}₫</td>
-                            </tr>
+                        <tr>
+                            <td class="text-center">{{ $index + 1 }}</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <img src="{{ asset('storage/' . ($item->sanPham->hinh_anh ?? 'default.png')) }}" alt="Ảnh" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px;">
+                                    <div>
+                                        <div>{{ $item->ten_san_pham }} - {{ $item->ten_size }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-center">{{ $item->so_luong }}</td>
+                            <td class="text-end">{{ number_format($item->don_gia + $item->gia_size, 0, ',', '.') }} đ</td>
+                            <td class="text-end">{{ number_format($item->thanh_tien, 0, ',', '.') }} đ</td>
+                        </tr>
                         @endforeach
                     </tbody>
                 </table>
+            </div>
+            <div  style="max-width: 320px; margin-left: auto; font-size: 1rem;">
+                <p class="d-flex justify-content-between"><strong>Tạm tính:</strong> <span>{{ number_format($order->tam_tinh, 0, ',', '.') }} đ</span></p>
+                <p class="d-flex justify-content-between"><strong>Giảm giá:</strong> <span>- {{ number_format($order->giam_gia, 0, ',', '.') }} đ</span></p>
+                <p class="d-flex justify-content-between"><strong>Phí ship:</strong> <span>{{ number_format($order->tien_ship, 0, ',', '.') }} đ</span></p>
+                <hr>
+                <p class="d-flex justify-content-between fw-bold fs-5 text-danger"><strong>Thành tiền:</strong> <span>{{ number_format($order->tong_tien, 0, ',', '.') }} đ</span></p>
             </div>
             <div>
                 @if ($order->trang_thai < 2)
@@ -218,7 +350,6 @@
                     @csrf
                     <input type="hidden" name="cancel_reason" id="lyDoHuyInput">
                 </form> 
-                <!-- Nút hủy dùng để kích hoạt SweetAlert -->
                 <button type="button" class="btn btn-danger" onclick="showCancelPrompt()">
                     <i class="bi bi-x-circle"></i> Hủy đơn hàng
                 </button>

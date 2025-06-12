@@ -101,7 +101,10 @@ class StaffOrderController extends Controller
                 3 => $order->phuong_thuc_nhan_hang !== 'pickup'
                         ? $this->handleStatus3($request, $order)
                         : null,
-                4 => $order->trang_thai_thanh_toan = 1,
+                4 => [
+                    $order->trang_thai_thanh_toan = 1,
+                    $this->tinhDiemThanhVien($order)
+                ],
                 5 => $this->handleCancelStatus($request, $order, $nhanVien, 5),
                 default => null,
             };
@@ -209,6 +212,36 @@ class StaffOrderController extends Controller
                     ->where('ma_nguyen_lieu', $tp->ma_nguyen_lieu)
                     ->increment('so_luong_ton', $soLuongHoanTra);
             }
+        }
+    }
+    public function tinhDiemThanhVien($order)
+    {
+        if (!$order->ma_khach_hang) {
+            return;
+        }
+
+        $tongTien = $order->tam_tinh ?? $order->chiTietHoaDon->sum(function ($item) {
+            return ($item->so_luong * $item->don_gia) + $item->gia_size;
+        });
+
+        $diem = floor($tongTien / 10000); // 10k = 1 điểm
+
+        if ($diem > 0) {
+            $khach = $order->khachHang;
+            $diemHienTai = $khach->diem_thanh_vien ?? 0;
+            $diemSau = $diemHienTai + $diem;
+
+            $khach->diem_thanh_vien = $diemSau;
+
+            if ($diemSau >= 600) {
+                $khach->hang_thanh_vien = 'Vàng';
+            } elseif ($diemSau >= 300) {
+                $khach->hang_thanh_vien = 'Bạc';
+            } else {
+                $khach->hang_thanh_vien = 'Đồng';
+            }
+
+            $khach->save();
         }
     }
 }

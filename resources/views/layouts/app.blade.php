@@ -86,7 +86,7 @@
 								<li>
 									<a href="#" id="store-btn" onclick="openStoreModal()">
 										<i class="fas fa-store-alt"></i>
-										<span>{{ session('selected_store_name') ?? 'Cửa hàng' }}</span>
+										<span>{{ \Illuminate\Support\Str::limit(session('selected_store_name'), 20) ?? 'Cửa hàng' }}</span>
 									</a>
 								</li>
 								{{-- Tách user icon ra khỏi header-icons --}}
