@@ -216,8 +216,8 @@ Route::prefix('admin/materials')->middleware(AdminMiddleware::class)->name('admi
     Route::get('/archive', [AdminMaterialController::class, 'archiveIndex'])->name('archive.index'); // Hiển thị danh mục lưu trữ
     Route::post('/{id}/restore', [AdminMaterialController::class, 'restore'])->name('restore');
     Route::post('/{id}/toggle-status', [AdminMaterialController::class, 'toggleStatus'])->name('toggleStatus');
-    Route::post('/{id}/archive', action: [AdminMaterialController::class, 'archive'])->name('archive');
-    Route::get('/archive', [AdminMaterialController::class, 'archiveIndex'])->name('archive.index');
+    Route::post('/bulk-action', [AdminMaterialController::class, 'bulkAction'])->name('bulk');
+
 });
 
 //Route Vouchers Admin

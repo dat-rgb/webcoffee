@@ -80,15 +80,6 @@
                             </select>
                         </div>
 
-                        {{-- <div class="mb-3">
-                            <label class="form-label">Ca làm</label>
-                            <select name="ca_lam" class="form-select" required>
-                                <option value="1" {{ $nhanVien->ca_lam == 1 ? 'selected' : '' }}>Ca Sáng</option>
-                                <option value="0" {{ $nhanVien->ca_lam == 0 ? 'selected' : '' }}>Ca Tối</option>
-                                <option value="2" {{ $nhanVien->ca_lam == 2 ? 'selected' : '' }}>Full Ca</option>
-                            </select>
-                        </div> --}}
-
                         <div class="mb-3">
                             <label class="form-label">Ngày sinh</label>
                             <input type="date" name="ngay_sinh" value="{{ $nhanVien->ngay_sinh }}" class="form-control" required>

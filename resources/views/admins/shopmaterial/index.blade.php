@@ -2,6 +2,13 @@
 @section('title', $title)
 @section('subtitle', $subtitle)
 
+@push('styles')
+<style>
+    .small.text-muted {
+        display: none !important;
+    }
+</style>
+@endpush
 @section('content')
 <div class="page-inner">
     <div class="row">
@@ -34,56 +41,60 @@
                 </div>
             <div class="card">
 
-                {{-- Dropdown chọn cửa hàng--}}
-                <div class="flex-wrap gap-3 card-header d-flex align-items-center justify-content-between">
+                <div class="card-header">
+                    {{-- Tìm kiếm nguyên liệu --}}
+                    <div></div>
+                    {{-- Dropdown chọn cửa hàng--}}
+                    <div class="flex-wrap gap-3 card-header d-flex align-items-center justify-content-between">
 
-                    <form action="{{ url()->current() }}" method="GET" class="gap-3 d-flex align-items-center" style="min-width: 250px;">
-                        <select name="ma_cua_hang" class="form-select" onchange="this.form.submit()" required>
-                            @if(!request('ma_cua_hang'))
-                                <option value="" selected disabled>-- Chọn cửa hàng --</option>
-                            @endif
-                            @foreach($stores as $store)
-                                <option value="{{ $store->ma_cua_hang }}"
-                                    {{ request('ma_cua_hang') == $store->ma_cua_hang ? 'selected' : '' }}>
-                                    {{ $store->ten_cua_hang }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </form>
-                    <div class="gap-2 d-flex align-items-center">
-                        <a href="{{ route('admins.shopmaterial.create', ['ma_cua_hang' => request('ma_cua_hang')]) }}"
-                        class="btn btn-primary {{ !request('ma_cua_hang') ? 'disabled' : '' }}"
-                        onclick="{{ !request('ma_cua_hang') ? 'return alert(\'Vui lòng chọn cửa hàng trước.\')' : '' }}">
-                        <i class="fa fa-plus"></i> Thêm nguyên liệu
-                        </a>
-
-                        <form id="selectMaterialsForm" action="{{ route('admins.shopmaterial.showImportPage') }}" method="GET">
-                            <button type="submit"
-                                    class="btn btn-primary"
-                                    {{ !request('ma_cua_hang') ? 'disabled' : '' }}
-                                    onclick="{{ !request('ma_cua_hang') ? 'return alert(\'Vui lòng chọn cửa hàng trước.\')' : '' }}">
-                                <i class="fas fa-file-import"></i> Nhập nguyên liệu
-                            </button>
+                        <form action="{{ url()->current() }}" method="GET" class="gap-3 d-flex align-items-center" style="min-width: 250px;">
+                            <select name="ma_cua_hang" class="form-select" onchange="this.form.submit()" required>
+                                @if(!request('ma_cua_hang'))
+                                    <option value="" selected disabled>-- Chọn cửa hàng --</option>
+                                @endif
+                                @foreach($stores as $store)
+                                    <option value="{{ $store->ma_cua_hang }}"
+                                        {{ request('ma_cua_hang') == $store->ma_cua_hang ? 'selected' : '' }}>
+                                        {{ $store->ten_cua_hang }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </form>
+                        <div class="gap-2 d-flex align-items-center">
+                            <a href="{{ route('admins.shopmaterial.create', ['ma_cua_hang' => request('ma_cua_hang')]) }}"
+                            class="btn btn-primary {{ !request('ma_cua_hang') ? 'disabled' : '' }}"
+                            onclick="{{ !request('ma_cua_hang') ? 'return alert(\'Vui lòng chọn cửa hàng trước.\')' : '' }}">
+                            <i class="fa fa-plus"></i> Thêm nguyên liệu
+                            </a>
 
-                        <form id="exportMaterialsForm" action="{{ route('admins.shopmaterial.showExportPage') }}" method="GET">
-                            <button type="submit"
-                                    class="btn btn-primary"
-                                    {{ !request('ma_cua_hang') ? 'disabled' : '' }}
-                                    onclick="{{ !request('ma_cua_hang') ? 'return alert(\'Vui lòng chọn cửa hàng trước.\')' : '' }}">
-                                <i class="fas fa-file-export"></i> Xuất nguyên liệu
-                            </button>
-                        </form>
-                        <form id="destroyMaterialsForm" action="{{ route('admins.shopmaterial.showDestroyPage') }}" method="GET">
-                            @csrf
-                            <button type="submit"
-                                    class="btn btn-primary"
-                                    {{ !request('ma_cua_hang') ? 'disabled' : '' }}
-                                    onclick="{{ !request('ma_cua_hang') ? 'return alert(\'Vui lòng chọn cửa hàng trước.\')' : '' }}">
-                                <i class="fas fa-file-excel"></i> Hủy nguyên liệu
-                            </button>
-                        </form>
+                            <form id="selectMaterialsForm" action="{{ route('admins.shopmaterial.showImportPage') }}" method="GET">
+                                <button type="submit"
+                                        class="btn btn-primary"
+                                        {{ !request('ma_cua_hang') ? 'disabled' : '' }}
+                                        onclick="{{ !request('ma_cua_hang') ? 'return alert(\'Vui lòng chọn cửa hàng trước.\')' : '' }}">
+                                    <i class="fas fa-file-import"></i> Nhập nguyên liệu
+                                </button>
+                            </form>
 
+                            <form id="exportMaterialsForm" action="{{ route('admins.shopmaterial.showExportPage') }}" method="GET">
+                                <button type="submit"
+                                        class="btn btn-primary"
+                                        {{ !request('ma_cua_hang') ? 'disabled' : '' }}
+                                        onclick="{{ !request('ma_cua_hang') ? 'return alert(\'Vui lòng chọn cửa hàng trước.\')' : '' }}">
+                                    <i class="fas fa-file-export"></i> Xuất nguyên liệu
+                                </button>
+                            </form>
+                            <form id="destroyMaterialsForm" action="{{ route('admins.shopmaterial.showDestroyPage') }}" method="GET">
+                                @csrf
+                                <button type="submit"
+                                        class="btn btn-primary"
+                                        {{ !request('ma_cua_hang') ? 'disabled' : '' }}
+                                        onclick="{{ !request('ma_cua_hang') ? 'return alert(\'Vui lòng chọn cửa hàng trước.\')' : '' }}">
+                                    <i class="fas fa-file-excel"></i> Hủy nguyên liệu
+                                </button>
+                            </form>
+
+                        </div>
                     </div>
                 </div>
                 {{-- Hiển thị danh sách kho --}}
@@ -158,7 +169,7 @@
                             </table>
                         </div>
 
-                        <div class="text-center">
+                        <div class="d-flex justify-content-center">
                             {{ $materials->appends(request()->except('page'))->links('pagination::bootstrap-5') }}
                         </div>
 

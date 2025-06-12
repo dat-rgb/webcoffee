@@ -4,6 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+
 return new class extends Migration
 {
     /**
@@ -23,6 +24,7 @@ return new class extends Migration
             $table->string('don_vi', 50); // 500ml/chai g, ml, ly,..
             $table->tinyInteger('trang_thai')->default(1);
             $table->timestamps();
+            $table->softDeletes();
 
             // Khóa ngoại
             $table->foreign('ma_nha_cung_cap')->references('ma_nha_cung_cap')->on('nha_cung_caps')->onDelete('cascade');

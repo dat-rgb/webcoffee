@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -14,10 +15,10 @@ return new class extends Migration
         Schema::create('hoa_dons', function (Blueprint $table) {
             $table->id();
             $table->string('ma_hoa_don', 50)->unique();
-            $table->char('ma_nhan_vien', 10)->nullable();  
+            $table->char('ma_nhan_vien', 10)->nullable();
             $table->char('ma_voucher',50)->nullable();
-            $table->char('ma_cua_hang', 10)->nullable(); 
-            $table->char('ma_khach_hang', 10)->nullable(); 
+            $table->char('ma_cua_hang', 10)->nullable();
+            $table->char('ma_khach_hang', 10)->nullable();
             $table->string('ten_khach_hang', 255)->nullable();
             $table->string('email', 255)->nullable();
             $table->char('so_dien_thoai', 10)->nullable();
@@ -27,7 +28,7 @@ return new class extends Migration
             $table->float('khuyen_mai')->default(0); //
             $table->float('giam_gia')->default(0); //
             $table->float('tong_tien');
-            $table->string('phuong_thuc_nhan_hang',50); 
+            $table->string('phuong_thuc_nhan_hang',50);
             $table->string('phuong_thuc_thanh_toan',50); // 0: cash, 1: VNPAY,...
             $table->string('ghi_chu')->nullable();
             $table->integer('trang_thai_thanh_toan')->default(0); //0 chưa thanh toán, 1 đã thanh toán

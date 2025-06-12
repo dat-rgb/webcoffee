@@ -15,16 +15,12 @@ class AdminMaterialController extends Controller
     // Hiển thị danh sách nguyên liệu
     public function index(Request $request)
     {
-        $query = NguyenLieu::with('nhaCungCap'); // Eager loading nhà cung cấp (giả sử quan hệ tên là `nhaCungCap`)
+        $query = NguyenLieu::with('nhaCungCap');
 
-        // Lọc theo trạng thái
-        if ($request->has('trang_thai') && $request->trang_thai !== null) {
-            $query->where('trang_thai', $request->trang_thai);
-        } else {
-            $query->where('trang_thai', '!=', 3); // 3 là trạng thái "Xóa tạm"
-        }
+        // Mặc định ẩn nguyên liệu đã "Xóa tạm" (trang_thai = 3)
+        $query->where('trang_thai', '!=', 3);
 
-        // Lọc theo từ khóa tìm kiếm
+        // Tìm kiếm theo mã, tên nguyên liệu, tên/mã nhà cung cấp
         if ($request->filled('search')) {
             $search = $request->search;
 
@@ -38,22 +34,14 @@ class AdminMaterialController extends Controller
             });
         }
 
-        // Lọc theo loại nguyên liệu (nếu có)
-        if ($request->filled('loai_nguyen_lieu')) {
-            $query->where('loai_nguyen_lieu', $request->loai_nguyen_lieu);
-        }
+        $page = $query->paginate(7)->appends($request->query());
 
-        $page = $query->paginate(7)->appends($request->query()); // Giữ các tham số tìm kiếm khi phân trang
-
-        $ViewData = [
+        return view('admins.material.index', [
             'title' => 'Danh sách nguyên liệu',
             'subtitle' => 'Danh sách nguyên liệu',
             'materials' => $page,
-        ];
-
-        return view('admins.material.index', $ViewData);
+        ]);
     }
-
 
     // Hiển thị form tạo mới
     public function create()
@@ -153,70 +141,70 @@ class AdminMaterialController extends Controller
             'nhaCungCaps' => $nhaCungCaps,
         ]);
     }
-            public function update(Request $request, $id)
-            {
-                $request->validate([
-                    'ten_nguyen_lieu' => 'required|string|max:255|min:2',
-                    'ma_nha_cung_cap' => 'required|exists:nha_cung_caps,ma_nha_cung_cap',
-                    'so_luong' => 'required|integer|min:0',
-                    'gia' => 'required|numeric|min:0',
-                    'don_vi' => 'required|string|max:50',
-                    'loai_nguyen_lieu' => 'required|in:0,1',
-                    'trang_thai' => 'required|in:1,2,3',
-                ],
-                    [
-                        'ten_nguyen_lieu.required' => 'Tên nguyên liệu không được để trống.',
-                        'ten_nguyen_lieu.string' => 'Tên nguyên liệu phải là một chuỗi.',
-                        'ten_nguyen_lieu.max' => 'Tên nguyên liệu không được vượt quá 255 ký tự.',
-                        'ten_nguyen_lieu.min' => 'Tên nguyên liệu phải có ít nhất 2 ký tự.',
-                        'ma_nha_cung_cap.exists' => 'Nhà cung cấp không tồn tại.',
-                        'so_luong.required' => 'Số lượng không được để trống.',
-                        'so_luong.integer' => 'Số lượng phải là một số nguyên.',
-                        'so_luong.min' => 'Số lượng phải lớn hơn hoặc bằng 0.',
-                        'gia.required' => 'Giá không được để trống.',
-                        'gia.numeric' => 'Giá phải là một số.',
-                        'gia.min' => 'Giá phải lớn hơn hoặc bằng 0.',
-                        'don_vi.required' => 'Đơn vị không được để trống.',
-                        'don_vi.string' => 'Đơn vị phải là một chuỗi.',
-                        'don_vi.max' => 'Đơn vị không được vượt quá 50 ký tự.',
-                        'loai_nguyen_lieu.required' => 'Loại nguyên liệu không được để trống.',
-                        'loai_nguyen_lieu.in' => 'Loại nguyên liệu không hợp lệ.',
-                        'trang_thai.required' => 'Trạng thái không được để trống.',
-                        'trang_thai.in' => 'Trạng thái không hợp lệ.'
-                    ]
-                );
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'ten_nguyen_lieu' => 'required|string|max:255|min:2',
+            'ma_nha_cung_cap' => 'required|exists:nha_cung_caps,ma_nha_cung_cap',
+            'so_luong' => 'required|integer|min:0',
+            'gia' => 'required|numeric|min:0',
+            'don_vi' => 'required|string|max:50',
+            'loai_nguyen_lieu' => 'required|in:0,1',
+            'trang_thai' => 'required|in:1,2,3',
+        ],
+            [
+                'ten_nguyen_lieu.required' => 'Tên nguyên liệu không được để trống.',
+                'ten_nguyen_lieu.string' => 'Tên nguyên liệu phải là một chuỗi.',
+                'ten_nguyen_lieu.max' => 'Tên nguyên liệu không được vượt quá 255 ký tự.',
+                'ten_nguyen_lieu.min' => 'Tên nguyên liệu phải có ít nhất 2 ký tự.',
+                'ma_nha_cung_cap.exists' => 'Nhà cung cấp không tồn tại.',
+                'so_luong.required' => 'Số lượng không được để trống.',
+                'so_luong.integer' => 'Số lượng phải là một số nguyên.',
+                'so_luong.min' => 'Số lượng phải lớn hơn hoặc bằng 0.',
+                'gia.required' => 'Giá không được để trống.',
+                'gia.numeric' => 'Giá phải là một số.',
+                'gia.min' => 'Giá phải lớn hơn hoặc bằng 0.',
+                'don_vi.required' => 'Đơn vị không được để trống.',
+                'don_vi.string' => 'Đơn vị phải là một chuỗi.',
+                'don_vi.max' => 'Đơn vị không được vượt quá 50 ký tự.',
+                'loai_nguyen_lieu.required' => 'Loại nguyên liệu không được để trống.',
+                'loai_nguyen_lieu.in' => 'Loại nguyên liệu không hợp lệ.',
+                'trang_thai.required' => 'Trạng thái không được để trống.',
+                'trang_thai.in' => 'Trạng thái không hợp lệ.'
+            ]
+        );
 
-                $nguyenLieu = NguyenLieu::where('ma_nguyen_lieu',$id)->first();
-                $nguyenLieu->update([
-                    'ten_nguyen_lieu' => $request->ten_nguyen_lieu,
-                    'slug' => Str::slug($request->ten_nguyen_lieu),
-                    'ma_nha_cung_cap' => $request->ma_nha_cung_cap,
-                    'so_luong' => $request->so_luong,
-                    'gia' => $request->gia,
-                    'don_vi' => $request->don_vi,
-                    'loai_nguyen_lieu' => $request->loai_nguyen_lieu,
-                    'trang_thai' => $request->trang_thai,
-                ]);
-                toastr()->success('Cập nhật nguyên liệu thành công!');
-                return redirect()->route('admins.material.index');
-            }
-            public function toggleStatus($id)
-            {
-                $material = NguyenLieu::findOrFail($id);
-                // Chuyển đổi trạng thái: nếu đang là 1 thì thành 2, ngược lại thành 1
-                if ($material->trang_thai == 1) {
-                    $material->trang_thai = 2;
-                } elseif ($material->trang_thai == 2) {
-                    $material->trang_thai = 1;
-                }
+        $nguyenLieu = NguyenLieu::where('ma_nguyen_lieu',$id)->first();
+        $nguyenLieu->update([
+            'ten_nguyen_lieu' => $request->ten_nguyen_lieu,
+            'slug' => Str::slug($request->ten_nguyen_lieu),
+            'ma_nha_cung_cap' => $request->ma_nha_cung_cap,
+            'so_luong' => $request->so_luong,
+            'gia' => $request->gia,
+            'don_vi' => $request->don_vi,
+            'loai_nguyen_lieu' => $request->loai_nguyen_lieu,
+            'trang_thai' => $request->trang_thai,
+        ]);
+        toastr()->success('Cập nhật nguyên liệu thành công!');
+        return redirect()->route('admins.material.index');
+    }
+    public function toggleStatus($id)
+    {
+        $material = NguyenLieu::findOrFail($id);
+        // Chuyển đổi trạng thái: nếu đang là 1 thì thành 2, ngược lại thành 1
+        if ($material->trang_thai == 1) {
+            $material->trang_thai = 2;
+        } elseif ($material->trang_thai == 2) {
+            $material->trang_thai = 1;
+        }
 
-                $material->save();
-                $material->cuaHangNguyenLieus()->update([
-                    'trang_thai' => $material->trang_thai
-                ]);
-                toastr()->success('Đã cập nhật trạng thái thành công.');
-                return redirect()->back();
-            }
+        $material->save();
+        $material->cuaHangNguyenLieus()->update([
+            'trang_thai' => $material->trang_thai
+        ]);
+        toastr()->success('Đã cập nhật trạng thái thành công.');
+        return redirect()->back();
+    }
     public function archive($id)
     {
         $material = NguyenLieu::find($id);
@@ -226,31 +214,75 @@ class AdminMaterialController extends Controller
             return redirect()->back();
         }
 
-        $material->trang_thai = 3;
-        $material->save();
+        $material->delete();
         toastr()->success('Đã lưu trữ nguyên liệu thành công!');
         return redirect()->back();
     }
-    public function archiveIndex()
-    {
-        // Lấy tất cả nguyên liệu có trạng thái = 3 (đã lưu trữ)
-        $materials = NguyenLieu::where('trang_thai', 3)->get();
 
-        return view('admins.material.archive', compact('materials'));
+    public function archiveIndex(Request $request)
+    {
+        $query = NguyenLieu::onlyTrashed();
+
+        if ($request->has('search') && !empty($request->search)) {
+            $keyword = $request->search;
+            $query->where(function ($q) use ($keyword) {
+                $q->where('ma_nguyen_lieu', 'like', "%$keyword%")
+                ->orWhere('ten_nguyen_lieu', 'like', "%$keyword%")
+                ->orWhereHas('nhaCungCap', function ($q2) use ($keyword) {
+                    $q2->where('ten_nha_cung_cap', 'like', "%$keyword%");
+                });
+            });
+        }
+
+        $viewData = [
+            'title' => 'Danh sách xóa tạm nguyên liệu',
+            'subtitle' => 'Nguyên Liệu xóa tạm',
+            'materials' => $query->get(),
+        ];
+
+        return view('admins.material.archive', $viewData);
     }
+
+
+
     public function restore($id)
     {
-        $material = NguyenLieu::where($id);
+        $material = NguyenLieu::withTrashed()->find($id);
+
         if (!$material) {
             toastr()->error('Không tìm thấy nguyên liệu');
             return redirect()->back();
         }
 
-        $material->trang_thai = 1; // Trạng thái hoạt động
-        $material->save();
+        $material->restore();
         toastr()->success('Khôi phục thành công!');
         return redirect()->route('admins.material.index');
     }
+    public function bulkAction(Request $request)
+    {
+        $ids = $request->input('ids', []);
+        $action = $request->input('action');
+
+        if (empty($ids)) {
+            toastr()->warning('Vui lòng chọn ít nhất 1 nguyên liệu.');
+            return redirect()->back();
+        }
+
+        if ($action === 'restore') {
+            NguyenLieu::withTrashed()->whereIn('id', $ids)->restore();
+            toastr()->success('Đã khôi phục các nguyên liệu được chọn.');
+        } elseif ($action === 'delete') {
+            NguyenLieu::onlyTrashed()->whereIn('id', $ids)->forceDelete();
+            toastr()->success('Đã xóa vĩnh viễn các nguyên liệu được chọn.');
+        } else {
+            toastr()->error('Hành động không hợp lệ.');
+        }
+
+        return redirect()->back();
+    }
+
+
+    //ổn cái xóa
     public function destroy($id)
     {
         $material = NguyenLieu::find($id);
