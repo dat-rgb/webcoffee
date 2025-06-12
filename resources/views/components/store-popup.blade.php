@@ -17,17 +17,18 @@
           <input type="text" class="form-control" placeholder="Vui lòng nhập tên cửa hàng" id="searchStoreInput" onkeyup="filterStores()" />
         </div>
 
-        <!-- Nút vị trí của bạn -->
-        <div class="text-center mb-3">
-          <button class="btn btn-sm btn-success" onclick="getCurrentLocation()">
-            <i class="fas fa-map-marker-alt"></i> Vị trí của bạn
+          <!-- Nút vị trí của bạn -->
+        <div class="text-center mb-4">
+          <button class="btn btn-sm btn-primary shadow rounded-pill px-4 d-inline-flex align-items-center gap-2"
+                  style="transition: all 0.2s ease;" onclick="getCurrentLocation()">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>Vị trí của bạn</span>
           </button>
+          <div id="addressBox" class="mt-2 text-muted small fst-italic"></div>
         </div>
 
         <!-- Store List -->
-        <ul class="list-group" id="storeList">
-        
-        </ul>
+        <ul class="list-group" id="storeList" data-selected-store="{{ session('selected_store_id') }}"></ul>
       </div>
     </div>
   </div>

@@ -289,93 +289,118 @@
 			});
 		});
 
-    $('#store-modal').on('show.bs.modal', () => {
-        document.getElementById('storeList').innerHTML = `
-            <li class="list-group-item text-center text-muted">
-                Nhấn "Vị trí của bạn" để hiển thị các cửa hàng gần nhất
-            </li>`;
-    });
+		$('#store-modal').on('show.bs.modal', async () => {
+			const address = sessionStorage.getItem('user_address');
+			const stores = sessionStorage.getItem('nearest_stores');
 
-    function filterStores() {
-        const input = document.getElementById("searchStoreInput").value.toLowerCase();
-        const items = document.querySelectorAll("#storeList li");
+			if (address) {
+				document.getElementById('addressBox').textContent = address;
+			}
 
-        items.forEach(item => {
-            const name = item.getAttribute("data-store-name") || '';
-            item.style.display = name.includes(input) ? "" : "none";
-        });
-    }
+			if (stores) {
+				renderStores(JSON.parse(stores));
+			} else {
+				document.getElementById('storeList').innerHTML = `
+					<li class="list-group-item text-center text-muted">
+						Nhấn "Vị trí của bạn" để hiển thị các cửa hàng gần nhất
+					</li>`;
+			}
+		});
 
-    function renderStores(stores) {
-        const ul = document.getElementById('storeList');
-        if (stores.length === 0) {
-            ul.innerHTML = `<li class="list-group-item text-center text-muted">Không tìm thấy cửa hàng nào</li>`;
-            return;
-        }
+		function filterStores() {
+			const input = document.getElementById("searchStoreInput").value.toLowerCase();
+			const items = document.querySelectorAll("#storeList li");
 
-        ul.innerHTML = stores.map(store => `
-		<li class="list-group-item d-flex justify-content-between align-items-center" data-store-name="${store.ten_cua_hang.toLowerCase()}">
-			<div>
-				<strong>${store.ten_cua_hang}</strong><br>
-				<small>${store.dia_chi}</small><br>
-				<small class="text-muted">Cách bạn ~ ${store.khoang_cach.toFixed(1)} km</small>
-			</div>
-			<button class="btn btn-sm btn-outline-primary" onclick="selectStore('${store.ma_cua_hang}')">Chọn</button>
-		</li>`).join('');
-	}
-    // Lấy vị trí và gọi API
-	function getCurrentLocation() {
-		if (navigator.geolocation) {
-			navigator.geolocation.getCurrentPosition(
-				async pos => {
-					const lat = pos.coords.latitude;
-					const lng = pos.coords.longitude;
-
-					fetch('/stores/nearest', {
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-							'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-						},
-						body: JSON.stringify({ latitude: lat, longitude: lng })
-					})
-					.then(res => res.json())
-					.then(renderStores)
-					.catch(() => alert("Lỗi khi tìm cửa hàng!"));
-
-					fetch('/get-address', {
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-							'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-						},
-						body: JSON.stringify({ latitude: lat, longitude: lng })
-					})
-					.then(async res => {
-						const text = await res.text();
-						try {
-							return JSON.parse(text);
-						} catch (e) {
-							throw e;
-						}
-					})
-					.then(data => {
-						const diaChi = data.display_name || "Không xác định được địa chỉ";
-
-						const addressBox = document.getElementById('addressBox');
-						if (addressBox) addressBox.textContent = diaChi;
-					})
-					.catch(err => console.error("Lỗi khi lấy địa chỉ:", err));
-				},
-				() => alert("Không lấy được vị trí của bạn.")
-			);
-		} else {
-			alert("Trình duyệt không hỗ trợ geolocation.");
+			items.forEach(item => {
+				const name = item.getAttribute("data-store-name") || '';
+				item.style.display = name.includes(input) ? "" : "none";
+			});
 		}
-	}
-    function closeStoreModal() {
-        $('#store-modal').modal('hide');
-    }
+
+		function renderStores(stores) {
+			const ul = document.getElementById('storeList');
+			const selectedStoreId = ul.getAttribute('data-selected-store');
+			const hasLocation = !!sessionStorage.getItem('nearest_stores');
+
+			if (stores.length === 0) {
+				ul.innerHTML = `<li class="list-group-item text-center text-muted">Không tìm thấy cửa hàng nào</li>`;
+				return;
+			}
+
+			ul.innerHTML = stores.map(store => {
+				const isSelected = store.ma_cua_hang === selectedStoreId;
+				const btnText = isSelected ? 'Đã chọn' : 'Chọn';
+				const btnClass = isSelected ? 'btn-success' : 'btn-outline-primary';
+				const btnDisabled = !hasLocation || isSelected ? 'disabled' : '';
+
+				return `
+					<li class="list-group-item d-flex justify-content-between align-items-center" data-store-name="${store.ten_cua_hang.toLowerCase()}">
+						<div>
+							<strong>${store.ten_cua_hang}</strong><br>
+							<small>${store.dia_chi}</small><br>
+							<small class="text-muted">Cách bạn ~ ${store.khoang_cach.toFixed(1)} km</small>
+						</div>
+						<button class="btn btn-sm ${btnClass}" ${btnDisabled} onclick="selectStore('${store.ma_cua_hang}')">${btnText}</button>
+					</li>`;
+			}).join('');
+		}
+
+    	// Lấy vị trí và gọi API
+		function getCurrentLocation() {
+			if (navigator.geolocation) {
+				navigator.geolocation.getCurrentPosition(
+					async pos => {
+						const lat = pos.coords.latitude;
+						const lng = pos.coords.longitude;
+
+						fetch('/stores/nearest', {
+							method: 'POST',
+							headers: {
+								'Content-Type': 'application/json',
+								'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+							},
+							body: JSON.stringify({ latitude: lat, longitude: lng })
+						})
+						.then(res => res.json())
+						.then(data => {
+							sessionStorage.setItem('nearest_stores', JSON.stringify(data));
+							renderStores(data);
+						})
+						.catch(() => alert("Lỗi khi tìm cửa hàng!"));
+
+						fetch('/get-address', {
+							method: 'POST',
+							headers: {
+								'Content-Type': 'application/json',
+								'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+							},
+							body: JSON.stringify({ latitude: lat, longitude: lng })
+						})
+						.then(async res => {
+							const text = await res.text();
+							try {
+								return JSON.parse(text);
+							} catch (e) {
+								throw e;
+							}
+						})
+						.then(data => {
+							const diaChi = data.display_name || "Không xác định được địa chỉ";
+							document.getElementById('addressBox').textContent = diaChi;
+							sessionStorage.setItem('user_address', diaChi);
+						})
+						.catch(err => console.error("Lỗi khi lấy địa chỉ:", err));
+					},
+					() => alert("Không lấy được vị trí của bạn.")
+				);
+			} else {
+				alert("Trình duyệt không hỗ trợ geolocation.");
+			}
+		}
+		function closeStoreModal() {
+			$('#store-modal').modal('hide');
+		}
+	
 	</script>
 </body>
 </html>

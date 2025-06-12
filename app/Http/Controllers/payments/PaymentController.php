@@ -115,10 +115,10 @@ class PaymentController extends Controller
         if($validated['shippingMethod'] == 'delivery'){
             $check = $this->checkAddress($request);
             if (!$check['success']) {
-                toastr()->error('Địa chỉ giao hàng vượt quá 3km');
+                toastr()->error('Khoảng cách giao hàng không được quá 3 km');
                 return redirect()->back();
             }
-            $address = $check['address'];
+            $address = $check['address'];   
         }
 
         $this->subtractIngredients($storeId, $storeCheck['usedIngredients']);

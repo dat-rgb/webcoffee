@@ -78,9 +78,9 @@ class StoreController extends Controller
                         sin(radians(latitude))
                     ), 2
                 ) AS khoang_cach",
-                [$lat, $lng, $lat]          // bind 3 biến vào công thức
+                [$lat, $lng, $lat]          
             )
-            ->having('khoang_cach', '<=', 3) // chỉ lấy cửa hàng ≤ 6 km
+            ->having('khoang_cach', '<=', 3) 
             ->orderBy('khoang_cach')
             ->get();
 
