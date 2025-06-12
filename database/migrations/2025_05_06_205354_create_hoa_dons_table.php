@@ -33,7 +33,7 @@ return new class extends Migration
             $table->string('ghi_chu')->nullable();
             $table->integer('trang_thai_thanh_toan')->default(0); //0 chưa thanh toán, 1 đã thanh toán
             $table->integer('trang_thai')->default(0); // 0: đã gửi, 1: đã thanh toán || 2: Hoàn tất đơn hàng, 3: đang giao món/chờ nhận món, 4: đã giao thành công || 5: hủy đơn,...
-            $table->timestamp('ngay_lap_hoa_don')->default(DB::raw('CURRENT_TIMESTAMP')); // Sử dụng timestamp thay cho datetime
+            $table->dateTime('ngay_lap_hoa_don')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamps();
 
             // Khóa ngoại

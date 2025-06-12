@@ -46,12 +46,14 @@
                                                 Mã đơn: {{ $order->ma_hoa_don }}
                                             </a>
                                         </h5>
-                                        <div class="small text-muted">Ngày đặt: {{ $order->created_at->format('d/m/Y H:i') }}</div>
+                                        <div class="small text-muted">
+                                            Ngày đặt: {{ \Carbon\Carbon::parse($order->ngay_lap_hoa_don)->format('d/m/Y H:i:s') }}
+                                        </div>
 
                                         <div class="mt-2">
                                             <strong>Tổng tiền:</strong>
                                             <span class="text-danger fw-bold fs-5">
-                                                {{ number_format($order->tong_tien - $order->giam_gia + $order->tien_ship, 0, ',', '.') }}đ
+                                                {{ number_format($order->tong_tien, 0, ',', '.') }}đ
                                             </span>
                                         </div>
 
@@ -175,7 +177,7 @@
                                     <div class="modal-body">
                                         <div class="mt-3">
                                             <small class="d-block">Cửa hàng: <strong>{{ $order->ma_cua_hang }}</strong></small>
-                                            <small class="d-block">Ngày đặt:<strong>{{ $order->created_at->format('d/m/Y H:i') }}</strong></small>
+                                            <small class="d-block">Ngày đặt:<strong>{{ \Carbon\Carbon::parse($order->ngay_lap_hoa_don)->format('d/m/Y H:i:s') }}</strong></small>
                                             <small class="d-block">Giao hàng: <strong>{{ $order->dia_chi }}</strong></small>
                                             <small class="d-block">Phương thức thanh toán: <strong>{{ $order->phuong_thuc_thanh_toan === 'COD' ? 'Thanh toán khi nhận hàng' : 'Chuyển khoản' }}</strong></small>
                                             <small class="d-block">Trạng thái thanh toán: 
@@ -226,7 +228,7 @@
                                         <hr>
                                         <div class="d-flex justify-content-between">
                                             <span>Tạm tính:</span>
-                                            <strong>{{ number_format($order->tong_tien ?? 0, 0, ',', '.') }}đ</strong>
+                                            <strong>{{ number_format($order->tam_tinh ?? 0, 0, ',', '.') }}đ</strong>
                                         </div>
                                         <div class="d-flex justify-content-between">
                                             <span>Phí ship:</span>
@@ -240,19 +242,6 @@
                                             <span>Tổng cộng:</span>
                                             <strong>{{ number_format($order->tong_tien, 0, ',', '.') }}đ</strong>
                                         </div>
-                                    </div>
-                                    
-                                    <div class="modal-footer">
-                                        @if($order->trang_thai < 2)
-                                            <form id="cancelOrderForm" action="{{ route('customer.orders.cancel', $order->ma_hoa_don) }}" method="POST" style="display: none;">
-                                                @csrf
-                                                <input type="hidden" name="cancel_reason" id="lyDoHuyInput">
-                                            </form> 
-                                            <!-- Nút hủy dùng để kích hoạt SweetAlert -->
-                                            <button type="button" class="btn btn-danger" onclick="showCancelPrompt()">
-                                                <i class="bi bi-x-circle"></i> Hủy đơn hàng
-                                            </button>
-                                        @endif
                                     </div>
                                 </div>
                             </div>

@@ -230,17 +230,15 @@ document.getElementById('searchBtn')?.addEventListener('click', function() {
     this.closest('form')?.submit();
 });
 document.addEventListener('DOMContentLoaded', () => {
-    // 1) SEARCH TRONG MODAL
     const modalSearchBtn  = document.getElementById('modalSearchBtn');
     const modalSearchInput= document.getElementById('modalSearchInput');
     const modalTableBody  = document.getElementById('productModalTableBody');
     const noProductRow    = document.getElementById('noProductFoundRow');
 
-    // Hàm lấy checkbox ở những hàng đang hiển thị
     function visibleCheckboxes(container) {
-    return [...container.querySelectorAll('.product-row')]
-           .filter(r => r.style.display !== 'none')
-           .map(r => r.querySelector('.product-checkbox'));
+        return [...container.querySelectorAll('.product-row')]
+            .filter(r => r.style.display !== 'none')
+            .map(r => r.querySelector('.product-checkbox'));
     }
 
     if (modalSearchBtn && modalSearchInput && modalTableBody) {
@@ -266,7 +264,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 2) CHECKBOX TRONG MODAL
     const modal = document.getElementById('addProductModal');
     if (modal) {
         modal.addEventListener('shown.bs.modal', () => {
@@ -299,7 +296,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 3) NÚT “THÊM” TRONG MODAL 
     const addBtn = document.getElementById('submitAddProducts');
     if (addBtn) {
         addBtn.addEventListener('click', () => {
@@ -336,7 +332,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 4) BẢNG CHÍNH – CHECK ALL + CLICK ROW */
     const listCheckAll = document.getElementById('listCheckAll');
     const listBody     = document.getElementById('order-tbody');
     if (listCheckAll && listBody) {
@@ -363,7 +358,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // 5) NÚT XOÁ CÁC SẢN PHẨM
     const deleteBtn = document.getElementById('delete-products');
     if (deleteBtn && listBody) {
         deleteBtn.onclick = () => {
@@ -409,7 +403,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         };
     }
-
 });
 </script>
 @endpush

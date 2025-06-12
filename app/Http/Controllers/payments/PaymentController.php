@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\payments;
 
 use App\Http\Controllers\Controller;
+use App\Models\CuaHang;
 use App\Models\HoaDon;
 use App\Models\KhuyenMai;
 use App\Models\SanPham;
@@ -15,6 +16,7 @@ use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\OrderMail;
+use Illuminate\Support\Facades\Http;
 
 class PaymentController extends Controller
 {
@@ -110,6 +112,22 @@ class PaymentController extends Controller
 
         if($validated['shippingMethod'] == 'pickup'){
             $address = 'Đến lấy tại cửa hàng: ' . session('selected_store_name').' - '.session('selected_store_dia_chi');
+        }
+        if ($validated['shippingMethod'] == 'delivery') {
+
+            if (!$address || strlen(trim($address)) < 5) {
+                toastr()->error('Địa chỉ giao hàng không hợp lệ.');
+                return redirect()->back();
+            }
+
+            $check = $this->checkAddress($address);
+
+            if (!$check['success']) {
+                toastr()->error($check['message'] ?? 'Khoảng cách giao hàng không được quá 3 km');
+                return redirect()->back();
+            }
+
+            $address = $check['address']; 
         }
 
         $this->subtractIngredients($storeId, $storeCheck['usedIngredients']);
@@ -342,6 +360,84 @@ class PaymentController extends Controller
                 ->where('ma_nguyen_lieu', $ingredientId)
                 ->decrement('so_luong_ton', $requiredQty);
         }
+    }
+    private function calculateDistance($lat1, $lon1, $lat2, $lon2)
+    {
+        $earthRadius = 6371; // km
+
+        $lat1 = floatval($lat1);
+        $lon1 = floatval($lon1);
+        $lat2 = floatval($lat2);
+        $lon2 = floatval($lon2);
+
+        $latDelta = deg2rad($lat2 - $lat1);
+        $lonDelta = deg2rad($lon2 - $lon1);
+
+        $a = sin($latDelta / 2) ** 2 +
+            cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+            sin($lonDelta / 2) ** 2;
+
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
+        return $earthRadius * $c;
+    }
+    private function checkAddress($address)
+    {
+        if (!$address || strlen(trim($address)) < 5) {
+            return [
+                'success' => false,
+                'message' => 'Địa chỉ không hợp lệ.'
+            ];
+        }
+        $geoData = Http::withHeaders([
+            'User-Agent' => 'CDMT Coffee & Tea'
+        ])->get('https://nominatim.openstreetmap.org/search', [
+            'format' => 'json',
+            'q' => $address,
+            'limit' => 1,
+            'addressdetails' => 1
+        ]);
+
+        $data = $geoData->json();
+
+        if ($geoData->failed() || count($data) == 0) {
+            return [
+                'success' => false,
+                'message' => 'Không thể xác định vị trí từ địa chỉ giao hàng.'
+            ];
+        }
+        $latUser = $data[0]['lat'];
+        $lngUser = $data[0]['lon'];
+
+        $storeId = session('selected_store_id'); 
+        if (!$storeId) {
+            return [
+                'success' => false,
+                'message' => 'Không xác định được mã cửa hàng.'
+            ];
+        }
+        $store = CuaHang::where('ma_cua_hang', $storeId)->first();
+        if (!$store || !$store->latitude || !$store->longitude) {
+            return [
+                'success' => false,
+                'message' => 'Không xác định được tọa độ cửa hàng.'
+            ];
+        }
+        $latStore = $store->latitude;
+        $lngStore = $store->longitude;
+        $distance = $this->calculateDistance($latUser, $lngUser, $latStore, $lngStore);
+
+        if ($distance > 3) {
+            return [
+                'success' => false,
+                'message' => 'Khoảng cách giao hàng không được quá 3 km'
+            ];
+        }             
+        return [
+            'success' => true,
+            'message' => '',
+            'address' => $address
+        ];
     }
     public function sendEmail($order_id, $name, $email, $phone, $shippingMethod, $paymentMethod, $status, $statusPayment, $address, $cartItems, $tongTien)
     {

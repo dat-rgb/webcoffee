@@ -146,22 +146,23 @@
                                                                 @endif
                                                             </td>
                                                             <td>
-                                                                @php
-                                                                    $uniqueAlerts = collect($pro->ingredientAlerts)->unique(fn($item) => $item['ma_nguyen_lieu'] ?? $item['ten_nguyen_lieu']);
-                                                                @endphp
-
-                                                                @if ($uniqueAlerts->isNotEmpty())
+                                                                @if ($pro->nglCount === 0)
+                                                                    <p class="text-danger">
+                                                                        Chưa có nguyên liệu!
+                                                                        <a href="{{ route('staffs.shop_materials.create') }}" class="text-primary">Thêm nguyên liệu vào cửa hàng</a>
+                                                                    </p>
+                                                                @elseif (!empty($pro->ingredientAlerts))
                                                                     <ul class="text-warning mb-0 ps-3">
-                                                                        @foreach ($uniqueAlerts as $alert)
+                                                                        @foreach ($pro->ingredientAlerts as $alert)
                                                                             <li style="list-style-type: disc">
-                                                                                {{ $alert['ten_nguyen_lieu'] ?? $alert['ma_nguyen_lieu'] }} – 
+                                                                                {{ $alert['ten_nguyen_lieu'] ?? $alert['ma_nguyen_lieu'] }} –
                                                                                 còn {{ $alert['so_luong_ton'] }} {{ $alert['don_vi'] }}
                                                                                 (min {{ $alert['so_luong_min'] }})
                                                                             </li>
                                                                         @endforeach
                                                                     </ul>
                                                                 @else
-                                                                    <span class="text-success">Đủ</span>
+                                                                    <span class="badge bg-success text-white rounded px-2 py-1">Đủ</span>
                                                                 @endif
                                                             </td>
                                                         </tr>
@@ -214,7 +215,7 @@
             return $(this).val();
         }).get();
     }
-    
+
     async function handleChangeStatus(newStatus) {
         const selectedIds = getCheckedProductIds();
 

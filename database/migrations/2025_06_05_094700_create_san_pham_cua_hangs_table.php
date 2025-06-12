@@ -17,7 +17,6 @@ return new class extends Migration
             $table->char('ma_cua_hang', 10);
             $table->tinyInteger('trang_thai')->default(1); // 1: Đang bán, 0: Ngừng bán
             $table->timestamps();
-
             $table->unique(['ma_san_pham', 'ma_cua_hang']);
 
             $table->foreign('ma_san_pham')->references('ma_san_pham')->on('san_phams')->onDelete('cascade');

@@ -5,8 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\CuaHang;
 use Illuminate\Http\Request;
 use App\Http\Controllers\CartController;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+
 class StoreController extends Controller
 {
+    public function index()
+    {
+        return CuaHang::where('trang_thai', 1)->get();   // trả JSON
+    }
+    
     public function selectStore(Request $request)
     {
         $storeId = $request->input('store_id');
@@ -51,5 +59,69 @@ class StoreController extends Controller
             'store_id' => $storeId,
             'store_name' => $store->ten_cua_hang,
         ]);
+    }
+
+    public function ganNhat(Request $request)
+    {
+        $lat = $request->latitude;
+        $lng = $request->longitude;
+
+        $cuaHangs = DB::table('cua_hangs')
+            ->select('*')
+            ->where('trang_thai',1)
+            ->selectRaw(
+                "ROUND(
+                    6371 * acos(
+                        cos(radians(?)) *
+                        cos(radians(latitude)) *
+                        cos(radians(longitude) - radians(?)) +
+                        sin(radians(?)) *
+                        sin(radians(latitude))
+                    ), 2
+                ) AS khoang_cach",
+                [$lat, $lng, $lat]          
+            )
+            ->having('khoang_cach', '<=', 3) 
+            ->orderBy('khoang_cach')
+            ->get();
+
+        return response()->json($cuaHangs);
+    }
+
+    public function getAddress(Request $request)
+    {
+        $lat = $request->input('latitude');
+        $lng = $request->input('longitude');
+
+        if (!$lat || !$lng) {
+            return response()->json(['error' => 'Thiếu tọa độ'], 400);
+        }
+
+        try {
+            $response = Http::withHeaders([
+                'User-Agent' => 'CDMT Coffee & Tea App'
+            ])->get("https://nominatim.openstreetmap.org/reverse", [
+                'format' => 'json',
+                'lat' => $lat,
+                'lon' => $lng
+            ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+
+                session([
+                    'user_lat'      => $lat,
+                    'user_lng'      => $lng,
+                    'user_address'  => $data['display_name'] ?? null
+                ]);
+
+                return response()->json($data);
+            }
+            else {
+                return response()->json(['error' => 'Không lấy được địa chỉ từ API'], 500);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Lỗi server: ' . $e->getMessage()], 500);
+        }
     }
 }

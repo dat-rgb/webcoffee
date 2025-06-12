@@ -6,6 +6,7 @@ use App\Http\Controllers\admins\AdminProductController;
 use App\Http\Controllers\admins\AdminCategoryController;
 use App\Http\Controllers\admins\AdminMaterialController;
 use App\Http\Controllers\admins\AdminProductShopController;
+use App\Http\Controllers\admins\AdminStoreController;
 use App\Http\Controllers\admins\AdminVoucherController;
 use App\Http\Controllers\admins\AdminSupplierController;
 use App\Http\Controllers\admins\AdminNhanvienController;
@@ -64,6 +65,17 @@ Route::prefix('/')->group(function(){
     Route::post('/reset-password',[ResetPasswordController::class,'resetPassword'])->name('resetPassword.update');
 
 });
+Route::get('/stores', [StoreController::class, 'index']);        
+Route::post('/stores/nearest', [StoreController::class, 'ganNhat']);      
+Route::post('/get-address', [StoreController::class, 'getAddress']);
+// routes/web.php  (hoặc api.php)
+Route::get('/session/location', function () {
+    return response()->json([
+        'lat'     => session('user_lat'),
+        'lng'     => session('user_lng'),
+        'address' => session('user_address')
+    ]);
+});
 
 //Route sản phẩm
 Route::prefix('products')->group(function(){
@@ -71,7 +83,8 @@ Route::prefix('products')->group(function(){
     Route::get('/categories-products/{id}',[ProductController::class,'listProductsByCategoryParent'])->name('product.category.list');
     Route::get('/product-detail/{slug}',[ProductController::class, 'productDetail'])->name('product.detail');
     Route::get('/search', [ProductController::class, 'searchProduct'])->name('product.search');
-
+    Route::delete('/history/remove-product/{product_id}', [ProductController::class, 'removeProductFromViewHistory'])->name('history.removeProduct');
+    Route::post('/history/clear-all', [ProductController::class, 'clearAllViewHistory'])->name('history.clearAll');
 });
 
 //Route giỏ hàng
@@ -300,6 +313,11 @@ Route::prefix('admin/product-shop')->middleware(AdminMiddleware::class)->group(f
 
 });
 
+Route::prefix('/admin/store')->middleware(AdminMiddleware::class)->group(function(){
+    Route::get('/',[AdminStoreController::class,'index'])->name('admin.store.index');
+    Route::post('/add',[AdminStoreController::class,'addStore'])->name('admin.store.add');
+    Route::post('/toggle', [AdminStoreController::class, 'toggle'])->name('admin.store.toggle');
+});
 
 //End - Admin
 ///////////////////////////////////////////////////////////////////////////
@@ -365,3 +383,15 @@ Route::prefix('staff/nhanviens')->middleware(NhanVienMiddleware::class)->name('s
 
 
 
+Route::get('/debug-viewed-products-session', function () {
+    $viewedProducts = Session::get('viewed_products', []); // Lấy dữ liệu từ session
+
+    // Dùng dd() để dừng chương trình và hiển thị nội dung biến
+    dd($viewedProducts);
+});
+
+Route::get('/clear-all-session', function () {
+    Session::flush(); // Xóa toàn bộ dữ liệu trong session
+
+    return "Đã xóa toàn bộ session!";
+});
