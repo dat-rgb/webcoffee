@@ -101,7 +101,6 @@ class AdminProductController extends Controller
 
         $categorys = $this->getCategory();
         $ingredients = $this->getIngredient();
-        // Lấy mã lớn nhất hiện có (giả sử dạng: NL001, NL002, ...)
         $lastItem = SanPham::withTrashed()->orderByDesc('ma_san_pham')->first();
 
         if ($lastItem) {
@@ -112,7 +111,6 @@ class AdminProductController extends Controller
         }
 
         $newCode = 'SP' . str_pad($newNumber, 8, '0', STR_PAD_LEFT);
-
 
         $viewData = [
             'title' => 'Thêm sản phẩm | CMDT Coffee & Tea',

@@ -231,7 +231,6 @@
                                         <div class="dataTables_paginate paging_simple_numbers" id="add-row_paginate">
                                             <ul class="pagination">
                                                 {{ $products->appends(request()->query())->links() }}
-
                                             </ul>
                                         </div>
                                     </div>

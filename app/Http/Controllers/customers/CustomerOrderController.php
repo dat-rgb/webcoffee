@@ -98,6 +98,7 @@ class CustomerOrderController extends Controller
             return redirect()->back();
         }
 
-        return response()->json(['message' => 'Không thể huỷ đơn đã được xử lý.'], 400);
+        toastr()->error('Không thể hủy đơn hàng đã hoàn tất');
+        return redirect()->back();
     }
 }

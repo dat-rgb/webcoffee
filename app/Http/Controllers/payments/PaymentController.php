@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\payments;
 
 use App\Http\Controllers\Controller;
+use App\Models\CuaHang;
 use App\Models\HoaDon;
 use App\Models\KhuyenMai;
 use App\Models\SanPham;
@@ -112,13 +113,21 @@ class PaymentController extends Controller
         if($validated['shippingMethod'] == 'pickup'){
             $address = 'Đến lấy tại cửa hàng: ' . session('selected_store_name').' - '.session('selected_store_dia_chi');
         }
-        if($validated['shippingMethod'] == 'delivery'){
-            $check = $this->checkAddress($request);
-            if (!$check['success']) {
-                toastr()->error('Địa chỉ giao hàng vượt quá 3km');
+        if ($validated['shippingMethod'] == 'delivery') {
+
+            if (!$address || strlen(trim($address)) < 5) {
+                toastr()->error('Địa chỉ giao hàng không hợp lệ.');
                 return redirect()->back();
             }
-            $address = $check['address'];
+
+            $check = $this->checkAddress($address);
+
+            if (!$check['success']) {
+                toastr()->error($check['message'] ?? 'Khoảng cách giao hàng không được quá 3 km');
+                return redirect()->back();
+            }
+
+            $address = $check['address']; 
         }
 
         $this->subtractIngredients($storeId, $storeCheck['usedIngredients']);
@@ -355,56 +364,80 @@ class PaymentController extends Controller
     private function calculateDistance($lat1, $lon1, $lat2, $lon2)
     {
         $earthRadius = 6371; // km
+
+        $lat1 = floatval($lat1);
+        $lon1 = floatval($lon1);
+        $lat2 = floatval($lat2);
+        $lon2 = floatval($lon2);
+
         $latDelta = deg2rad($lat2 - $lat1);
         $lonDelta = deg2rad($lon2 - $lon1);
 
-        $a = sin($latDelta / 2) * sin($latDelta / 2) +
+        $a = sin($latDelta / 2) ** 2 +
             cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
-            sin($lonDelta / 2) * sin($lonDelta / 2);
+            sin($lonDelta / 2) ** 2;
 
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
         return $earthRadius * $c;
     }
-    private function checkAddress($request)
+    private function checkAddress($address)
     {
-        $address = $request->dia_chi .' '. $request->wardName .' '. $request->districtName .' '. $request->provinceName;
-
-        // Lấy toạ độ địa chỉ người dùng từ OpenStreetMap
-        $geoData = Http::get('https://nominatim.openstreetmap.org/search', [
+        if (!$address || strlen(trim($address)) < 5) {
+            return [
+                'success' => false,
+                'message' => 'Địa chỉ không hợp lệ.'
+            ];
+        }
+        $geoData = Http::withHeaders([
+            'User-Agent' => 'CDMT Coffee & Tea'
+        ])->get('https://nominatim.openstreetmap.org/search', [
             'format' => 'json',
-            'q' => $address
+            'q' => $address,
+            'limit' => 1,
+            'addressdetails' => 1
         ]);
 
-        if ($geoData->failed() || count($geoData->json()) == 0) {
+        $data = $geoData->json();
+
+        if ($geoData->failed() || count($data) == 0) {
             return [
                 'success' => false,
                 'message' => 'Không thể xác định vị trí từ địa chỉ giao hàng.'
             ];
         }
+        $latUser = $data[0]['lat'];
+        $lngUser = $data[0]['lon'];
 
-        $latUser = $geoData[0]['lat'];
-        $lngUser = $geoData[0]['lon'];
-
-        $store = session('cua_hang'); 
-        if (!$store || !isset($store['lat']) || !isset($store['lng'])) {
+        $storeId = session('selected_store_id'); 
+        if (!$storeId) {
+            return [
+                'success' => false,
+                'message' => 'Không xác định được mã cửa hàng.'
+            ];
+        }
+        $store = CuaHang::where('ma_cua_hang', $storeId)->first();
+        if (!$store || !$store->latitude || !$store->longitude) {
             return [
                 'success' => false,
                 'message' => 'Không xác định được tọa độ cửa hàng.'
             ];
         }
-
-        $latStore = $store['lat'];
-        $lngStore = $store['lng'];
-
+        $latStore = $store->latitude;
+        $lngStore = $store->longitude;
         $distance = $this->calculateDistance($latUser, $lngUser, $latStore, $lngStore);
 
         if ($distance > 3) {
             return [
                 'success' => false,
-                'message' => 'Địa chỉ vượt quá 3km so với cửa hàng. Không thể giao hàng.'
+                'message' => 'Khoảng cách giao hàng không được quá 3 km'
             ];
-        }
-        return ['success' => true, 'message' => '', 'address' => $address];
+        }             
+        return [
+            'success' => true,
+            'message' => '',
+            'address' => $address
+        ];
     }
     public function sendEmail($order_id, $name, $email, $phone, $shippingMethod, $paymentMethod, $status, $statusPayment, $address, $cartItems, $tongTien)
     {
@@ -434,5 +467,4 @@ class PaymentController extends Controller
         ];
         return view('clients.pages.payments.checkout_status', $viewData);
     }
-
 }
