@@ -205,19 +205,46 @@ class AdminMaterialController extends Controller
         toastr()->success('Đã cập nhật trạng thái thành công.');
         return redirect()->back();
     }
+    //public function archive($id)
+    //{
+        //$material = NguyenLieu::find($id);
+
+        //if (!$material) {
+           // toastr()->error('Không tìm thấy nguyên liệu!');
+        //    return redirect()->back();
+       // }
+
+       // $material->delete();
+        //toastr()->success('Đã lưu trữ nguyên liệu thành công!');
+        //return redirect()->back();
+   // }
     public function archive($id)
     {
-        $material = NguyenLieu::find($id);
+        $material = NguyenLieu::with(['cuaHangNguyenLieus', 'products'])->findOrFail($id);
+        //dd($material->products->pluck('ten_san_pham', 'trang_thai'));
+        // 1. Kiểm tra sản phẩm đang bán dùng nguyên liệu này
+        $productInUse = $material->products->first(function ($product) {
+            return $product->trang_thai == 1;
+        });
 
-        if (!$material) {
-            toastr()->error('Không tìm thấy nguyên liệu!');
-            return redirect()->back();
+        if ($productInUse) {
+            toastr()->error('Không thể xóa. Nguyên liệu đang được dùng trong sản phẩm đang bán: ' . $productInUse->ten_san_pham);
+            return back();
         }
 
+        // 2. Kiểm tra còn tồn kho không
+        $tonKho = $material->cuaHangNguyenLieus->sum('so_luong_ton');
+        if ($tonKho > 0) {
+            toastr()->error('Không thể xóa. Nguyên liệu vẫn còn trong kho: ' . $tonKho . ' ' . $material->don_vi);
+            return back();
+        }
+
+        // 3. Xóa mềm (Soft Delete)
         $material->delete();
-        toastr()->success('Đã lưu trữ nguyên liệu thành công!');
-        return redirect()->back();
+        toastr()->success('Đã xóa nguyên liệu thành công!!!');
+        return back();
     }
+
 
     public function archiveIndex(Request $request)
     {

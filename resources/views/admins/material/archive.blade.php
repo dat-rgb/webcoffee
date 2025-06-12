@@ -47,11 +47,12 @@
                     {{-- Hành động bulk --}}
                     <div class="gap-2 d-flex">
                         <button type="button" class="btn btn-success btn-sm btn-restore">
-                            <i class="fas fa-undo"></i> Khôi phục đã chọn
+                            <i class="fas fa-undo"></i> Khôi phục nguyên liệu
                         </button>
-                        <button type="button" class="btn btn-danger btn-sm btn-delete">
+                        {{-- lí do là nguyên liệu không đc hoàn toàn xóa vĩnh viễn vì nó có thể liên quan tới nhập, xuất, sản phẩm tiêu dùng để kiểm tra dữ liệu khi cần thiết --}}
+                        {{-- <button type="button" class="btn btn-danger btn-sm btn-delete">
                             <i class="fas fa-trash-alt"></i> Xóa đã chọn
-                        </button>
+                        </button> --}}
                     </div>
                 </div>
 
@@ -71,13 +72,14 @@
                             <div class="table-responsive">
                                 <table class="table table-striped table-hover">
                                     <thead>
-                                        <tr>
+                                        <tr class="text-center">
                                             <th><input type="checkbox" id="check-all"></th>
                                             <th>Mã</th>
-                                            <th>Tên</th>
+                                            <th>Tên nguyên liệu</th>
                                             <th>Giá (VNĐ)</th>
                                             <th>Nhà cung cấp</th>
                                             <th>Trạng thái</th>
+                                            <th>Ngày xóa</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -91,6 +93,11 @@
                                                 <td>{{ number_format($material->gia) }}</td>
                                                 <td>{{ $material->nhaCungCap->ten_nha_cung_cap ?? 'Chưa có' }}</td>
                                                 <td><span class="badge bg-danger">Đã tạm xóa</span></td>
+                                                <td class="">
+                                                    @if ($material->deleted_at)
+                                                        {{ $material->deleted_at->format('H:i \n\g\à\y d \t\h\á\n\g m \n\ă\m Y') }}
+                                                    @endif
+                                                </td>
                                             </tr>
                                         @endforeach
                                     </tbody>

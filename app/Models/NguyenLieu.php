@@ -10,7 +10,7 @@ class NguyenLieu extends Model
     use SoftDeletes;
     protected $table = 'nguyen_lieus';
     protected $primarykey = 'ma_nguyen_lieu';
-    public $incrementing = false;             
+    public $incrementing = false;
     protected $keyType = 'string';
     protected $fillable  = [
         'ma_nguyen_lieu',
@@ -46,6 +46,19 @@ class NguyenLieu extends Model
     {
         return $this->hasMany(CuaHangNguyenLieu::class, 'ma_nguyen_lieu', 'ma_nguyen_lieu');
     }
+
+
+
+
+
+
+
+    public function products()
+{
+    return $this->belongsToMany(SanPham::class, 'thanh_phan_san_phams', 'ma_nguyen_lieu', 'ma_san_pham', 'ma_nguyen_lieu', 'ma_san_pham');
+}
+
+
 
 
 
