@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('thong_tin_websites', function (Blueprint $table) {
             $table->id();
             $table->string('ten_cong_ty')->nullable();
+            $table->string('ten_website')->nullable();
             $table->string('logo')->nullable();
             $table->string('favicon')->nullable();
             $table->text('mo_ta')->nullable();
@@ -25,6 +26,7 @@ return new class extends Migration
             $table->text('ban_do')->nullable();
 
             $table->string('facebook_url')->nullable();
+            $table->string('instagram_url')->nullable();
             $table->string('zalo_url')->nullable();
             $table->string('youtube_url')->nullable();
             $table->string('tiktok_url')->nullable();

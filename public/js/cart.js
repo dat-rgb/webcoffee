@@ -1,6 +1,5 @@
 //kiểm tra cart
 function checkCartCount() {
-    console.log('checkCartCount được gọi');
     $.ajax({
         url: '/cart/count',
         method: 'GET',
@@ -94,8 +93,6 @@ $('.add-to-cart').click(function(e){
         return;
     }
 
-    //console.log('Selected store:', store); 
-    // Check size
     if (!size) {
         Swal.fire({
             icon: 'warning',

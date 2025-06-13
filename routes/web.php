@@ -18,6 +18,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\clients\AuthController;
 use App\Http\Controllers\clients\ForgotPasswordController;
 use App\Http\Controllers\clients\ResetPasswordController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\customers\CustomerController;
 use App\Http\Controllers\customers\CustomerFavoriteController;
 use App\Http\Controllers\customers\CustomerOrderController;
@@ -47,6 +48,7 @@ Route::prefix('/')->group(function(){
     Route::get('',[HomeController::class, 'home'])->name('home');
     Route::get('/gioi-thieu', [HomeController::class, 'about'])->name('about');
     Route::get('/lien-he', [HomeController::class, 'contact'])->name('contact');
+    Route::post('/lien-he/submit',[ContactController::class,'submitContactForm'])->name('contact.submit');
     Route::post('/select-store', [StoreController::class, 'selectStore'])->name('select.store');
     Route::get('/tra-cuu-don-hang', [CustomerOrderController::class, 'showFormTraCuuDonHang'])->name('traCuuDonHang.show');
     Route::post('/tra-cuu-don-hang', [CustomerOrderController::class, 'traCuuDonHang'])->name('traCuuDonHang.search');
@@ -169,7 +171,9 @@ Route::prefix('auth')->group(function(){
 //Start - Admin
 //Route Admin home
 Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function(){
-    Route::get('', [AdminHomeController::class, 'index'])->name('admin');
+    Route::get('/', [AdminHomeController::class, 'index'])->name('admin');
+    Route::get('/thong-tin-website',[AdminHomeController::class,'thongTinWebsite'])->name('admin.thongTinWebSite');
+    Route::put('/thong-tin-website/update',[AdminHomeController::class, 'updateThongTinWebsite'])->name('admin.thong_tin_website.update');
 });
 //Route Products Admin
 Route::prefix('admin/products')->middleware(AdminMiddleware::class)->group(function(){
@@ -319,6 +323,14 @@ Route::prefix('/admin/store')->middleware(AdminMiddleware::class)->group(functio
     Route::post('/toggle', [AdminStoreController::class, 'toggle'])->name('admin.store.toggle');
 });
 
+
+//Route Admin contact
+Route::prefix('admin/contact')->middleware(AdminMiddleware::class)->group(function(){
+    Route::get('/',[ContactController::class,'showListContact'])->name('admin.contact.list');
+    Route::post('/reply', [ContactController::class, 'sendMailContact'])->name('admin.contact.reply');
+
+});
+
 //End - Admin
 ///////////////////////////////////////////////////////////////////////////
 //Start - Staff
@@ -382,16 +394,3 @@ Route::prefix('staff/nhanviens')->middleware(NhanVienMiddleware::class)->name('s
 //End - Staff
 
 
-
-Route::get('/debug-viewed-products-session', function () {
-    $viewedProducts = Session::get('viewed_products', []); // Lấy dữ liệu từ session
-
-    // Dùng dd() để dừng chương trình và hiển thị nội dung biến
-    dd($viewedProducts);
-});
-
-Route::get('/clear-all-session', function () {
-    Session::flush(); // Xóa toàn bộ dữ liệu trong session
-
-    return "Đã xóa toàn bộ session!";
-});

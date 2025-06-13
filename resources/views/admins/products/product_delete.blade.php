@@ -94,7 +94,7 @@
                                 <div id="add-row_wrapper" class="dataTables_wrapper container-fluid dt-bootstrap4">
                                     <div class="row">
                                         <div class="col-sm-12">
-                                            <table id="add-row" class="display table table-striped table-hover dataTable" role="grid" aria-describedby="add-row_info">
+                                            <table class="table table-striped table-hover align-middle text-center">
                                                 <thead>
                                                     <tr>
                                                         <th><input type="checkbox" id="checkAll"></th>

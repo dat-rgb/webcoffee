@@ -120,7 +120,7 @@
                             <div id="add-row_wrapper" class="dataTables_wrapper container-fluid dt-bootstrap4">
                                 <div class="row">
                                     <div class="col-sm-12">
-                                        <table id="add-row" class="table display table-striped table-hover dataTable" role="grid" aria-describedby="add-row_info">
+                                        <table class="table table-striped table-hover align-middle text-left">
                                             <thead>
                                                 <tr>
                                                     <th><input type="checkbox" id="checkAll"></th>

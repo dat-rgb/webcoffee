@@ -15,8 +15,8 @@
         <div class="row">
             <div class="col-lg-8 offset-lg-2 text-center">
                 <div class="breadcrumb-text">
-                    <p>CDMT Coffee & Tea</p>
-                    <h1>Customer</h1>
+                    <p>Coffee & Tea</p>
+                    <h1>Đơn hàng của bạn</h1>
                 </div>
             </div>
         </div>
