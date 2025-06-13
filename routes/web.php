@@ -323,6 +323,14 @@ Route::prefix('/admin/store')->middleware(AdminMiddleware::class)->group(functio
     Route::post('/toggle', [AdminStoreController::class, 'toggle'])->name('admin.store.toggle');
 });
 
+
+//Route Admin contact
+Route::prefix('admin/contact')->middleware(AdminMiddleware::class)->group(function(){
+    Route::get('/',[ContactController::class,'showListContact'])->name('admin.contact.list');
+    Route::post('/reply', [ContactController::class, 'sendMailContact'])->name('admin.contact.reply');
+
+});
+
 //End - Admin
 ///////////////////////////////////////////////////////////////////////////
 //Start - Staff
