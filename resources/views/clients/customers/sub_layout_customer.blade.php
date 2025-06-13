@@ -21,11 +21,6 @@
                         <i class="fas fa-user"></i> Hồ sơ
                     </a>
                 </li>
-                <li class="sidebar-item">
-                    <a href="#">
-                        <i class="far fa-address-book"></i> Sổ địa chỉ
-                    </a>
-                </li>
                 <li class="sidebar-item {{ request()->routeIs('favorite.show') ? 'active' : '' }}">
                     <a href="{{ route('favorite.show') }}">
                         <i class="fas fa-heart"></i> Sản phẩm yêu thích

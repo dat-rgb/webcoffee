@@ -9,7 +9,7 @@
         <div class="row">
             <div class="col-lg-8 offset-lg-2 text-center">
                 <div class="breadcrumb-text">
-                    <p>CDMT Coffee & Tea</p>
+                    <p>Coffee & Tea</p>
                     <h1>Thông tin khách hàng</h1>
                 </div>
             </div>

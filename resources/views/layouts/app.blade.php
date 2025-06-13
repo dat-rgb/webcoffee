@@ -58,12 +58,11 @@
 							</a>
 						</div>
 						<!-- logo -->
-
 						<!-- menu start -->
 						<nav class="main-menu">
 							<ul>
-								<li class="current-list-item"><a href="{{ route('home') }}">Trang Chủ</a></li>
-								<li><a href="{{ route('product') }}">Sản Phẩm</a>
+								<li class="{{ request()->routeIs('home') ? 'current-list-item ' : '' }}"><a href="{{ route('home') }}">Trang Chủ</a></li>
+								<li class="{{ request()->routeIs('product') ? 'current-list-item ' : '' }}"><a href="{{ route('product') }}">Sản Phẩm</a>
 									<ul class="sub-menu">
 										@foreach ($danhMucCha as $dm)
 											@if ($dm->totalProductsCount > 0)
@@ -72,14 +71,14 @@
 										@endforeach
 									</ul>
 								</li>
-								<li><a href="{{ route('blog') }}">Tin Tức</a>
+								<li class="{{ request()->routeIs('blog') ? 'current-list-item ' : '' }}"><a href="{{ route('blog') }}">Tin Tức</a>
 									<ul class="sub-menu">
 										<li><a href="{{ route('blog') }}">Coffee</a></li>
 										<li><a href="{{ route('blog') }}">Chuyện Trà</a></li>
 									</ul>
 								</li>
-								<li><a href="{{ route('about') }}">Giới thiệu</a></li>
-								<li><a href="{{ route('contact') }}">Liên Hệ</a></li>	
+								<li class="{{ request()->routeIs('about') ? 'current-list-item ' : '' }}"><a href="{{ route('about') }}">Giới thiệu</a></li>
+								<li class="{{ request()->routeIs('contact') ? 'current-list-item ' : '' }}"><a href="{{ route('contact') }}">Liên Hệ</a></li>	
 								<li>
 									<a href="#" id="store-btn" onclick="openStoreModal()">
 										<i class="fas fa-store-alt"></i>

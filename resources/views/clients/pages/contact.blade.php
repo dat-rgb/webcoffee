@@ -30,11 +30,11 @@
                         @csrf
                         <p>
                             <input type="hidden" id="ma_khach_hang" name="ma_khach_hang" value="{{ Auth::user()->khachHang->ma_khach_hang ?? '' }}">
-                            <input type="text" placeholder="Họ và tên của bạn" name="name" id="name" value="{{ old('name') }}">
-                            <input type="email" placeholder="Email liên hệ" name="email" id="email" value="{{ old('email') }}">
+                            <input type="text" placeholder="Họ và tên của bạn" name="name" id="name"value="{{ old('name', Auth::user()->khachHang->ho_ten_khach_hang ?? '') }}">
+                            <input type="email" placeholder="Email liên hệ" name="email" id="email" value="{{ old('email',Auth::user()->email ?? '') }}">
                         </p>
                         <p>
-                            <input type="tel" placeholder="Số điện thoại" name="phone" id="phone" value="{{ old('phone') }}">
+                            <input type="tel" placeholder="Số điện thoại" name="phone" id="phone" value="{{ old('phone',Auth::user()->khachHang->so_dien_thoai ?? '') }}">
                             <input type="text" placeholder="Chủ đề liên hệ" name="subject" id="subject" value="{{ old('subject') }}">
                         </p>
                         <p>
