@@ -169,7 +169,8 @@ Route::prefix('auth')->group(function(){
 //Start - Admin
 //Route Admin home
 Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function(){
-    Route::get('', [AdminHomeController::class, 'index'])->name('admin');
+    Route::get('/', [AdminHomeController::class, 'index'])->name('admin');
+    Route::get('/thong-tin-website',[AdminHomeController::class,'thongTinWebsite'])->name('admin.thongTinWebSite');
 });
 //Route Products Admin
 Route::prefix('admin/products')->middleware(AdminMiddleware::class)->group(function(){
@@ -382,16 +383,3 @@ Route::prefix('staff/nhanviens')->middleware(NhanVienMiddleware::class)->name('s
 //End - Staff
 
 
-
-Route::get('/debug-viewed-products-session', function () {
-    $viewedProducts = Session::get('viewed_products', []); // Lấy dữ liệu từ session
-
-    // Dùng dd() để dừng chương trình và hiển thị nội dung biến
-    dd($viewedProducts);
-});
-
-Route::get('/clear-all-session', function () {
-    Session::flush(); // Xóa toàn bộ dữ liệu trong session
-
-    return "Đã xóa toàn bộ session!";
-});

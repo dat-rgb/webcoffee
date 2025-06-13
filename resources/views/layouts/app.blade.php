@@ -4,13 +4,13 @@
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta name="description" content="CDMT Coffee & Tea mang đến trải nghiệm cà phê và trà hiện đại, tươi mới. Thực đơn đa dạng, không gian đẹp, phù hợp làm việc, hẹn hò và thư giãn.">
+	<meta name="description" content="{{ $thongTinWebsite['mo_ta'] }}">
 	<meta name="csrf-token" content="{{ csrf_token() }}">
 
 	<!-- title -->
-	<title>@yield('title', 'CDMT Coffee & Tea')</title>
+	<title>@yield('title', $thongTinWebsite['ten_website'])</title>
 	<!-- favicon -->
-	<link rel="shortcut icon" type="image/png" href="{{ asset('img/favicon.png') }}">
+	<link rel="shortcut icon" type="image/png" href="{{ asset('images/'.$thongTinWebsite['favicon']) }}">
 	<!-- google font -->
 	<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600&family=Roboto+Slab:wght@600&display=swap" rel="stylesheet">
 	<!-- boostap icon -->
@@ -57,7 +57,7 @@
 						<!-- logo -->
 						<div class="site-logo">
 							<a href="{{ route('home') }}">
-								<img src="{{ asset('img/logo.png') }}" alt="">
+								<img src="{{ asset('images/' . $thongTinWebsite['logo']) }}" alt="">
 							</a>
 						</div>
 						<!-- logo -->
@@ -175,16 +175,16 @@
 				<div class="col-lg-3 col-md-6">
 					<div class="footer-box about-widget">
 						<h2 class="widget-title">Về chúng tôi</h2>
-						<p>CDMT Coffee & Tea là điểm đến của những tâm hồn yêu chill. Từ cà phê đậm vị đến trà trái cây siêu fresh – tụi mình luôn mang đến năng lượng tích cực trong từng ly nước!</p>
+						<p>{{ $thongTinWebsite['mo_ta'] }}</p>
 					</div>
 				</div>
 				<div class="col-lg-3 col-md-6">
 					<div class="footer-box get-in-touch">
 						<h2 class="widget-title">Liên hiện</h2>
 						<ul>
-							<li>65, Huỳnh Thúc Kháng, Bến Nghé, Quận 1, Thành Phố Hồ Chí Minh</li>
-							<li>cdmtcoffeetea.com</li>
-							<li>+84 901 318 766</li>
+							<li>{{ $thongTinWebsite['dia_chi'] }}</li>
+							<li>{{ $thongTinWebsite['email'] }}</li>
+							<li>{{ $thongTinWebsite['so_dien_thoai'] }}</li>
 						</ul>
 					</div>
 				</div>
@@ -220,15 +220,31 @@
 		<div class="container">	
 			<div class="row">
 				<div class="col-lg-6 col-md-12">
-					<p>Copyrights &copy; 2025 - Đồ án tốt nghiệp webiste thương mại điện tử trường <a href="https://caothang.edu.vn/">Cao đăng kỹ thuật Cao Thắng</a>.<br>
-						Sinh viên - Chí Đạt & Minh Tân
-					</p>
+					<p>{{ $thongTinWebsite['footer_text'] }}</p>
 				</div>
 				<div class="col-lg-6 text-right col-md-12">
 					<div class="social-icons">
 						<ul>
-							<li><a href="#" target="_blank"><i class="fab fa-facebook-f"></i></a></li>
-							<li><a href="#" target="_blank"><i class="fab fa-instagram"></i></a></li>
+							<li>
+								<a href="{{ $thongTinWebsite['facebook_url'] }}" target="_blank">
+									<img src="{{ asset('images/website/icon_fb.png') }}" alt="Facebook" width="20">
+								</a>
+							</li>
+							<li>
+								<a href="{{ $thongTinWebsite['instagram_url'] }}" target="_blank">
+									<img src="{{ asset('images/website/icon_instagram.png') }}" alt="Instagram" width="20">
+								</a>
+							</li>
+							<li>
+								<a href="{{ $thongTinWebsite['youtube_url'] }}" target="_blank">
+									<img src="{{ asset('images/website/icon_youtube.png') }}" alt="Youtube" width="20">
+								</a>
+							</li>
+							<li>
+								<a href="{{ $thongTinWebsite['tiktok_url'] }}" target="_blank">
+									<img src="{{ asset('images/website/icon_tiktok.png') }}" alt="Tiktok" width="20">
+								</a>
+							</li>
 						</ul>
 					</div>
 				</div>

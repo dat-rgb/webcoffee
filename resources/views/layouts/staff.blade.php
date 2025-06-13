@@ -313,18 +313,13 @@
         <footer class="footer">
             <div class="container-fluid d-flex justify-content-center">
                 <div class="copyright">
-                © 2025 - Đồ án tốt nghiệp của sinh viên
-                <a href="#">Chí Đạt & Nguyễn Minh Tân</a>. Bản quyền thuộc về chúng tôi.
+                {{ $thongTinWebsite['footer_text'] }}
                 </div>
             </div>
         </footer>
-
       </div>
     </div>
-
-  <!-- Load Toastr before your custom scripts -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
-  <!-- Thêm thư viện SweetAlert -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <!-- Core JS Files -->
   <script src="{{ asset('admins/js/core/jquery-3.7.1.min.js') }}"></script>
