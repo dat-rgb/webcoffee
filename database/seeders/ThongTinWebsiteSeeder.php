@@ -22,7 +22,7 @@ class ThongTinWebsiteSeeder extends Seeder
             'dia_chi'         => 'Số 72, đường 37, phương Tân Kiểng, Quận 7, TP Hồ Chí Minh',
             'so_dien_thoai'   => '0901318766',
             'email'           => 'contact@cdmtcoffeetea.com',
-            'ban_do'          => '<iframe src="https://www.google.com/maps/embed?..."></iframe>',
+            'ban_do'          => '<iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d3919.8705307881387!2d106.7121313!3d10.7444603!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752fd3fbe69ced%3A0x8e205ad3d194976c!2sThom%20House!5e0!3m2!1sen!2s!4v1749789538845!5m2!1sen!2s" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>',
             'facebook_url'    => 'https://facebook.com/',
             'instagram_url'    => 'https://facebook.com/',
             'zalo_url'        => 'https://zalo.me',

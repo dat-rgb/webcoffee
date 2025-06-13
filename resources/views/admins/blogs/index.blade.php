@@ -117,7 +117,7 @@
                                         <div class="col-12">
                                             <div class="table-responsive">
                                                 <table id="add-row" class="table table-striped table-hover align-middle">
-                                                    <thead class="table-dark">
+                                                    <thead>
                                                         <tr>
                                                             <th class="text-center" style="width: 40px;"><input type="checkbox" id="checkAll"></th>
                                                             <th style="width: 20%;">Tiêu đề</th>

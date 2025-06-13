@@ -6,7 +6,6 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="description" content="{{ $thongTinWebsite['mo_ta'] }}">
 	<meta name="csrf-token" content="{{ csrf_token() }}">
-
 	<!-- title -->
 	<title>@yield('title', $thongTinWebsite['ten_website'])</title>
 	<!-- favicon -->
@@ -39,7 +38,6 @@
 	@stack('styles')
 </head>
 <body>
-	
 	<!--PreLoader-->
     <div class="loader">
         <div class="loader-inner">
@@ -47,7 +45,6 @@
         </div>
     </div>
     <!--PreLoader Ends-->
-	
 	<!-- header -->
 	<div class="top-header-area" id="sticker">
 		<div class="container">

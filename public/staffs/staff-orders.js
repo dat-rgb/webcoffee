@@ -39,7 +39,6 @@ $(function() {
     });
 });
 
-
 // order-detail-btn
 $(document).on('click', '.order-detail-btn', function () {
     const orderId = $(this).data('id');

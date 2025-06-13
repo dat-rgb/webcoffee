@@ -34,8 +34,9 @@
             </li>
         </ul>
     </div>
-    <form id="thongTinWebsite-edit-form" method="POST" enctype="multipart/form-data" action="">
+    <form id="thongTinWebsite-edit-form" method="POST" enctype="multipart/form-data" action="{{ route('admin.thong_tin_website.update') }}">
         @csrf
+        @method('PUT')
         <div class="row">
             <div class="col-md-12">
                 <!-- Thông tin công ty -->
@@ -46,7 +47,7 @@
                                 <div class="form-group">
                                     <label for="ten_website">Tên website</label>
                                     <input type="text" name="ten_website" class="form-control" id="ten_website" placeholder="Tên công ty" 
-                                        value="{{ old('ten_website', $thongTinWebsite['ten_website']) }}" required>
+                                        value="{{ old('ten_website', $thongTinWebsite['ten_website']) }}" >
                                     @error('ten_website')
                                         <div class="custom-error">{{ $message }}</div>
                                     @enderror
@@ -54,7 +55,7 @@
                                 <div class="form-group">
                                     <label for="ten_cong_ty">Tên công ty</label>
                                     <input type="text" name="ten_cong_ty" class="form-control" id="ten_cong_ty" placeholder="Tên công ty" 
-                                        value="{{ old('ten_cong_ty', $thongTinWebsite['ten_cong_ty']) }}" required readonly>
+                                        value="{{ old('ten_cong_ty', $thongTinWebsite['ten_cong_ty']) }}"  readonly>
                                     @error('ten_cong_ty')
                                         <div class="custom-error">{{ $message }}</div>
                                     @enderror
@@ -62,7 +63,7 @@
                                 <div class="form-group">
                                     <label for="so_dien_thoai">Số điện thoại</label>
                                     <input type="text" name="so_dien_thoai" class="form-control" id="so_dien_thoai" placeholder="Số điện thoại" 
-                                        value="{{ old('so_dien_thoai', $thongTinWebsite['so_dien_thoai']) }}" required>
+                                        value="{{ old('so_dien_thoai', $thongTinWebsite['so_dien_thoai']) }}" >
                                     @error('so_dien_thoai')
                                         <div class="custom-error">{{ $message }}</div>
                                     @enderror
@@ -70,7 +71,7 @@
                                 <div class="form-group">
                                     <label for="email">Email</label>
                                     <input type="text" name="email" class="form-control" id="email" placeholder="Email" 
-                                        value="{{ old('email', $thongTinWebsite['email']) }}" required>
+                                        value="{{ old('email', $thongTinWebsite['email']) }}" >
                                     @error('email')
                                         <div class="custom-error">{{ $message }}</div>
                                     @enderror
@@ -89,7 +90,7 @@
                                         <div class="custom-error">{{ $message }}</div>
                                     @enderror
                                     @if ($thongTinWebsite->logo)
-                                        <img src="{{ asset('images/'. $thongTinWebsite['logo']) }}" alt="Logo công ty" style="max-width: 200px; margin-top: 10px;">
+                                        <img src="{{ asset('images/'. $thongTinWebsite['logo']) }}" alt="Logo công ty" style="max-width: 150px; margin-top: 10px;">
                                     @endif
                                 </div>
                                 <div class="form-group">
@@ -99,7 +100,7 @@
                                         <div class="custom-error">{{ $message }}</div>
                                     @enderror
                                     @if ($thongTinWebsite->	favicon)
-                                        <img src="{{ asset('images/'.  $thongTinWebsite['favicon']) }}" alt="Logo công ty" style="max-width: 100px; margin-top: 10px;">
+                                        <img src="{{ asset('images/'.  $thongTinWebsite['favicon']) }}" alt="Logo công ty" style="max-width: 80px; margin-top: 10px;">
                                     @endif
                                 </div>
                             </div>
@@ -170,6 +171,13 @@
                                         <div class="custom-error">{{ $message }}</div>
                                     @enderror
                                 </div>
+                                <div class="form-group">
+                                    <label for="ban_do">Bản đồ (iframe)</label>
+                                    <textarea name="ban_do" class="form-control" id="ban_do" rows="4">{{ old('ban_do', $thongTinWebsite['ban_do']) }}</textarea>
+                                    @error('ban_do')
+                                        <div class="custom-error">{{ $message }}</div>
+                                    @enderror
+                                </div>
                             </div>   
                             <div class="col-md-6 col-lg-4">
                                 <div class="form-group">
@@ -208,6 +216,5 @@
 @endsection
 
 @push('scripts')
-    <script src="{{ asset('admins/js/thongTinWebsite-add.js') }}"></script>
-    <script src="{{ asset('admins/js/thongTinWebsite-validate-add.js') }}"></script>
+    <script src="{{ asset('admins/js/admin-thong-tin-website-validate.js') }}"></script>
 @endpush

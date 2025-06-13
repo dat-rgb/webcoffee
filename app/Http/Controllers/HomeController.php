@@ -12,7 +12,7 @@ class HomeController extends Controller
         $blog = Blog::with('danhMuc')->where('ma_danh_muc_blog', 1)->first(); 
 
         $viewData = [
-            'title' => 'Giới thiệu | CMDT Coffee & Tea',
+            'title' => 'Giới thiệu',
             'blog'  => $blog,
         ];
 
@@ -21,7 +21,8 @@ class HomeController extends Controller
 
     public function contact(){
         $viewData = [
-            'title'=> 'Liên Hệ | CMDT Coffee & Tea'   
+            'title'=> 'Liên Hệ',
+            'subtitle' => 'Liên hệ',
         ];
         return view('clients.pages.contact', $viewData);
     }
@@ -52,7 +53,7 @@ class HomeController extends Controller
         $blogs = $this->blogHot();
         $products = $this->productsHot();
         $viewData = [
-            'title'=> 'Trang Chủ | CMDT Coffee & Tea'   ,
+            'title'=> 'Trang Chủ'   ,
             'blogs' => $blogs,
             'products' => $products,
         ];
