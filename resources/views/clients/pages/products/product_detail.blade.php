@@ -61,21 +61,24 @@
                             @csrf
                             <div>
                                 <input type="hidden" name="store" id="selectedStoreId" value="{{ session('selected_store_id') ?? '' }}">
+                                <input type="hidden" name="loai_san_pham" id="loai_san_pham" value="{{ $product->loai_san_pham }}">
                                 <input type="number" placeholder="1" name="quantity" min="1">
-                                <!-- Chọn kích thước -->
-                                <div class="product-size mb-3">
-                                    <label><strong>Chọn Size (Bắt buộc):</strong></label>
-                                    <div class="btn-group-toggle d-flex gap-2 mt-2 flex-wrap" data-toggle="buttons">
-                                        @foreach ($sizes as $size)
-                                            <label class="btn btn-outline-secondary btn-sm size-label">
-                                                <input type="radio" name="size" value="{{ $size->ma_size }}" data-gia="{{ $size->gia_size }}">
-                                                {{ $size->ten_size }} - {{ number_format($size->gia_size + $product->gia, 0, ',', '.') }} đ
-                                            </label>
-                                        @endforeach
+
+                                @if ($sizes->count() > 0)
+                                    <div class="product-size mb-3">
+                                        <label><strong>Chọn Size (Bắt buộc):</strong></label>
+                                        <div class="btn-group-toggle d-flex gap-2 mt-2 flex-wrap" data-toggle="buttons">
+                                            @foreach ($sizes as $size)
+                                                <label class="btn btn-outline-secondary btn-sm size-label">
+                                                    <input type="radio" name="size" value="{{ $size->ma_size }}" data-gia="{{ $size->gia_size }}">
+                                                    {{ $size->ten_size }} - {{ number_format($size->gia_size + $product->gia, 0, ',', '.') }} đ
+                                                </label>
+                                            @endforeach
+                                        </div>
                                     </div>
-                                </div>
+                                @endif
                             </div>
-                            @if ( $sizes->count() == 0 && $product->loai_san_pham == 0)
+                            @if ($sizes->count() == 0 && $product->loai_san_pham == 0)
                                 <span style="color: #ff9900; font-weight: 600;">
                                     Sản phẩm đang cập nhật... Vui lòng quay lại sau nhé!
                                 </span>
@@ -95,6 +98,7 @@
                                 </div> 
                             @endif
                         </form>
+
                         <div style="display: flex; align-items: center; gap: 20px;">
                             <p style="margin: 0;">
                                 <strong>Danh mục: </strong>{{ $product->danhMuc->ten_danh_muc }}
