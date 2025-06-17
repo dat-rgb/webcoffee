@@ -219,8 +219,8 @@
                       </a>
                     </li>
                     <li>
-                        <a href="#">
-                            <span class="sub-item">Phiếu nhập xuất</span>
+                        <a href="{{ route('admins.shopmaterial.showAllPhieu') }}">
+                            <span class="sub-item">Phiếu nhập xuất hủy</span>
                         </a>
                     </li>
                   </ul>

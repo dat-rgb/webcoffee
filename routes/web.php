@@ -65,8 +65,8 @@ Route::prefix('/')->group(function(){
     Route::post('/reset-password',[ResetPasswordController::class,'resetPassword'])->name('resetPassword.update');
 
 });
-Route::get('/stores', [StoreController::class, 'index']);        
-Route::post('/stores/nearest', [StoreController::class, 'ganNhat']);      
+Route::get('/stores', [StoreController::class, 'index']);
+Route::post('/stores/nearest', [StoreController::class, 'ganNhat']);
 Route::post('/get-address', [StoreController::class, 'getAddress']);
 // routes/web.php  (hoặc api.php)
 Route::get('/session/location', function () {
@@ -295,6 +295,11 @@ Route::prefix('admin/shop-materials')->middleware(AdminMiddleware::class)->name(
     Route::post('/export',[AdminShopmaterialController::class,'export'])->name('export');
     Route::post('/destroy', [AdminShopmaterialController::class, 'destroy'])->name('destroy');
     Route::get('/destroy-page', [AdminShopmaterialController::class, 'showDestroyPage'])->name('showDestroyPage');
+    Route::get('/list-all-phieu', [AdminShopmaterialController::class, 'showAllPhieu'])->name('showAllPhieu');
+    //Route::get('/phieu-chi-tiet/{so_lo}', [AdminShopmaterialController::class, 'layChiTietPhieu'])->name('chiTietPhieu');
+    Route::get('/phieu-chi-tiet/{ngay_tao_phieu}/{loai_phieu}/{ma_nhan_vien}', [AdminShopmaterialController::class, 'layChiTietPhieu'])->name('chiTietPhieu');
+
+
 });
 
 //Route Admin Blog
@@ -380,18 +385,3 @@ Route::prefix('staff/nhanviens')->middleware(NhanVienMiddleware::class)->name('s
     Route::patch('/archive/bulk', [StaffController::class, 'archiveBulk'])->name('archive.bulk');
 });
 //End - Staff
-
-
-
-Route::get('/debug-viewed-products-session', function () {
-    $viewedProducts = Session::get('viewed_products', []); // Lấy dữ liệu từ session
-
-    // Dùng dd() để dừng chương trình và hiển thị nội dung biến
-    dd($viewedProducts);
-});
-
-Route::get('/clear-all-session', function () {
-    Session::flush(); // Xóa toàn bộ dữ liệu trong session
-
-    return "Đã xóa toàn bộ session!";
-});

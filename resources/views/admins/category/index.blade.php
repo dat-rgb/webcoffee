@@ -28,7 +28,7 @@
                     {{-- Form tìm kiếm --}}
                     <div class="card-header">
                         <form action="{{ url()->current() }}" method="GET">
-                            <div class="d-flex flex-wrap align-items-center gap-2">
+                            <div class="flex-wrap gap-2 d-flex align-items-center">
                                     <div class="col-12 col-lg-3">
                                         <div class="input-group">
                                             <input
@@ -146,7 +146,7 @@
                                                 <th><label style="display: inline-block; width: 100%; height: 100%;">
                                                     <input type="checkbox" id="checkAll" style="pointer-events: none;">
                                                 </label></th>
-                                                <th>#</th>
+                                                {{-- <th>#</th> --}}
                                                 <th>Tên danh mục</th>
                                                 <th>Danh mục cha</th>
                                                 <th>Trạng thái</th>
@@ -157,7 +157,7 @@
                                             @foreach ($categories as $index => $cat)
                                                 <tr>
                                                     <td><input type="checkbox" name="selected_ids[]" value="{{ $cat->ma_danh_muc }}"></td>
-                                                    <td>{{ ($categories->currentPage() - 1) * $categories->perPage() + $index + 1 }}</td>
+                                                    {{-- <td>{{ ($categories->currentPage() - 1) * $categories->perPage() + $index + 1 }}</td> --}}
                                                     <td>{{ $cat->ten_danh_muc }}</td>
                                                     <td>{{ $cat->parent ? $cat->parent->ten_danh_muc : 'Không có' }}</td>
                                                     <td>
