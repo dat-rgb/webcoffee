@@ -56,3 +56,4 @@ class NguyenLieu extends Model
     {
         return $this->belongsTo(NguyenLieu::class, 'ma_nguyen_lieu', 'ma_nguyen_lieu');
     }
+}
