@@ -96,6 +96,8 @@ Route::prefix('cart')->group(function(){
     Route::get('/count', [CartController::class, 'getCartCount'])->name('cart.count');
     //add to cart
     Route::get('/add-to-cart/{id}',[CartController::class,'addToCart'])->name('cart.addToCart');
+    Route::get('/mua-ngay/{id}', [CartController::class, 'muaNgay'])->name('cart.muaNgay');
+
     Route::get('/debug', function () {
         return dd([
             'cart' => session('cart'),

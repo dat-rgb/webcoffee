@@ -618,4 +618,9 @@ class CartController extends Controller
             'vouchers' => $vouchers
         ]);
     }
+
+    public function muaNgay(Request $request, $id)
+    {
+        return $this->addToCart($request, $id); // Gửi về giỏ như thường
+    }
 }

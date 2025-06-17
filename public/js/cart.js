@@ -194,6 +194,105 @@ $('.add-to-cart').click(function(e){
         
     });
 });
+
+// buy-now
+$('.buy-now').click(function(e){
+    e.preventDefault();
+    let url = $(this).data('url');
+    let size = $('input[name="size"]:checked').val();
+    let quantity = parseInt($('input[name="quantity"]').val()) || 1;
+    let productId = url.split('/').pop();
+    let store = $('#selectedStoreId').val(); 
+
+    if (!store) {
+        openStoreModal();
+        return;
+    }
+
+    if (!size) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Thiếu thông tin',
+            text: 'Vui lòng chọn size sản phẩm trước khi tiếp tục!',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
+
+    if (quantity < 1 || quantity > 99) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Số lượng không hợp lệ',
+            text: 'Số lượng phải từ 1 đến 99.',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
+
+    // Check số lượng hiện tại trong cart
+    $.ajax({
+        url: '/cart/check-cart-quantity',
+        method: 'GET',
+        data: {
+            product_id: productId,
+            quantity: quantity,
+            _token: $('input[name="_token"]').val()
+        },
+        success: function(response){
+            let currentQuantity = parseInt(response.quantity || 0);
+            let totalQuantity = currentQuantity + quantity;
+
+            if (totalQuantity > 99) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Giới hạn số lượng',
+                    text: 'Tổng số lượng vượt quá 99 sản phẩm cho mặt hàng này.',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+            // Gửi request thêm giỏ + chuyển hướng
+            $.ajax({
+                url: url,
+                method: 'GET',
+                data: {
+                    size: size,
+                    quantity: quantity,
+                    store: store,
+                    _token: $('input[name="_token"]').val()
+                },
+                success: function(res){
+                    if(res.success){
+                        window.location.href = '/cart/check-out'; 
+                    }
+                },
+                error: function(xhr){
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Không thể mua ngay!',
+                        text: xhr.responseJSON?.error || 'Đã có lỗi xảy ra!',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        },
+        error: function(xhr) {
+            let message = 'Đã xảy ra lỗi không xác định!';
+            if(xhr.responseJSON && xhr.responseJSON.error){
+                message = xhr.responseJSON.error;
+            } else if(xhr.responseText){
+                message = xhr.responseText;
+            }
+            Swal.fire({
+                icon: 'warning',
+                title: 'Thao tác không thực hiện',
+                text: message,
+                confirmButtonText: 'OK'
+            });
+        }
+    });
+});
+
 // change size
 $(document).on('change', '.change-size', function() {
     console.log('change-size triggered');

@@ -87,7 +87,11 @@
                                         <i class="fas fa-shopping-cart"></i> 
                                         Thêm vào giỏ hàng
                                     </a>
-                                    <a href="" class="cart-btn"><i class="fas fa-credit-card"></i> Mua ngay</a>
+                                    <a href="#" 
+                                        data-url="{{ route('cart.muaNgay', ['id' => $product->ma_san_pham]) }}"
+                                        class="cart-btn buy-now">
+                                        <i class="fas fa-credit-card"></i> Mua ngay
+                                    </a>
                                 </div> 
                             @endif
                         </form>
@@ -319,5 +323,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
+
 </script>
 @endpush
