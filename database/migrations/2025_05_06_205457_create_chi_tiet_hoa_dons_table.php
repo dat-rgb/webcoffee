@@ -15,8 +15,8 @@ return new class extends Migration
             $table->string('ma_hoa_don',50);
             $table->char('ma_san_pham',10);
             $table->string('ten_san_pham',255);
-            $table->string('ten_size',50);
-            $table->float('gia_size');
+            $table->string('ten_size',50)->nullable();
+            $table->float('gia_size')->nullable();
             $table->integer('so_luong');
             $table->float('don_gia');
             $table->float('thanh_tien');

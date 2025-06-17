@@ -78,6 +78,7 @@ class AdminMaterialController extends Controller
             'loai_nguyen_lieu' => 'required|in:0,1',
             'don_vi' => 'required|string|max:255',
             'trang_thai' => 'required|in:1,2,3',
+            'is_ban_duoc' => 'nullable|in:0,1',
         ],
             [
                 'ten_nguyen_lieu.required' => 'Tên nguyên liệu không được để trống.',

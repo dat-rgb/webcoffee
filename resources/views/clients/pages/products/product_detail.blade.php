@@ -75,7 +75,7 @@
                                     </div>
                                 </div>
                             </div>
-                            @if ( $sizes->count() == 0)
+                            @if ( $sizes->count() == 0 && $product->loai_san_pham == 0)
                                 <span style="color: #ff9900; font-weight: 600;">
                                     Sản phẩm đang cập nhật... Vui lòng quay lại sau nhé!
                                 </span>
@@ -126,6 +126,7 @@
 </div>
 <!-- end single product -->
 
+@if(!$productRelate)
 <!-- more products -->
 <div class="more-products mb-150">
     <div class="container">
@@ -165,7 +166,7 @@
     </div>
 </div>
 <!-- end more products -->
-
+@endif
 <!-- product history -->
 @if (!empty($productToHistory)) 
     <div class="more-products mb-150">
