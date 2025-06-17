@@ -64,6 +64,7 @@
 								<li class="{{ request()->routeIs('home') ? 'current-list-item ' : '' }}"><a href="{{ route('home') }}">Trang Chủ</a></li>
 								<li class="{{ request()->routeIs('product') ? 'current-list-item ' : '' }}"><a href="{{ route('product') }}">Sản Phẩm</a>
 									<ul class="sub-menu">
+										<li><a href="{{ route('product') }}">Tất cả</a></li>
 										@foreach ($danhMucCha as $dm)
 											@if ($dm->totalProductsCount > 0)
 												<li><a href="{{ route('product.category.list',$dm->slug) }}">{{ $dm->ten_danh_muc }}</a></li>

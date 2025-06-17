@@ -91,6 +91,28 @@
                 </div>
             @endforeach
         </div>
+        <div class="row">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12 text-center">
+                        <div class="pagination-wrap">
+                            <ul>
+                                <li><a href="{{ $products->previousPageUrl() ?? '#' }}">Prev</a></li>
+                                @for ($i = 1; $i <= $products->lastPage(); $i++)
+                                    <li>
+                                        <a href="{{ $products->url($i) }}"
+                                            class="{{ $products->currentPage() == $i ? 'active' : '' }}">
+                                            {{ $i }}
+                                        </a>
+                                    </li>
+                                @endfor
+                                <li><a href="{{ $products->nextPageUrl() ?? '#' }}">Next</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 <!-- end products -->
