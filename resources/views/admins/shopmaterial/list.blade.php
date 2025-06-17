@@ -45,21 +45,31 @@
 
             <div class="card">
                 <div class="card-header">
-                    <form action="{{ url()->current() }}" method="GET" class="row g-2 align-items-center">
-                        <div class="col-md-4">
-                            <input type="text" name="keyword" class="form-control" placeholder="Tìm theo mã cửa hàng, mã lô, mã nhân viên..." value="{{ request('keyword') }}">
+                    <form id="formFilter" action="{{ url()->current() }}" method="GET" class="row g-2 align-items-center">
+                        <div class="col-12 col-lg-3">
+                            <div class="input-group">
+                                <input
+                                    type="text"
+                                    name="search"
+                                    class="form-control"
+                                    placeholder="Tìm kiếm..."
+                                    value="{{ request('search') }}"
+                                    autocomplete="off"
+                                >
+                                <button type="submit" class="bg-white input-group-text">
+                                    <i class="fa fa-search text-muted"></i>
+                                </button>
+                            </div>
                         </div>
                         <div class="col-md-2">
-                            <select name="loai_phieu" class="form-select">
+                            <select name="loai_phieu" id="selectLoaiPhieu" class="form-select">
                                 <option value="">-- Loại phiếu --</option>
                                 <option value="0" {{ request('loai_phieu') === '0' ? 'selected' : '' }}>Nhập</option>
                                 <option value="1" {{ request('loai_phieu') === '1' ? 'selected' : '' }}>Xuất</option>
                                 <option value="2" {{ request('loai_phieu') === '2' ? 'selected' : '' }}>Hủy</option>
                             </select>
                         </div>
-                        <div class="col-md-2">
-                            <button type="submit" class="btn btn-primary w-100">Tìm</button>
-                        </div>
+
                     </form>
                 </div>
                 <div class="card-body">
@@ -69,7 +79,6 @@
                                 <tr class="text-center">
                                     <th>#</th>
                                     <th>Mã cửa hàng</th>
-                                    {{-- <th>Mã lô</th> --}}
                                     <th>Mã nhân viên</th>
                                     <th>Tổng tiền</th>
                                     <th>Loại phiếu</th>
@@ -79,15 +88,16 @@
                             <tbody>
                                 @forelse($danhSachPhieu as $index => $phieu)
                                     <tr class="text-center clickable-row"
-                                        {{-- data-so-lo="{{ $phieu->so_lo }}" --}}
                                         data-ma-nv="{{ $phieu->ma_nhan_vien ?? 'ADMIN' }}"
                                         data-loai-phieu="{{ $phieu->loai_phieu }}"
                                         data-ngay-tao="{{ $phieu->ngay_tao_phieu }}">
                                         <td>{{ $index + 1 }}</td>
                                         <td>{{ $phieu->ma_cua_hang }}</td>
-                                        {{-- <td>{{ $phieu->so_lo }}</td> --}}
                                         <td>{{ $phieu->ma_nhan_vien ?? 'ADMIN' }}</td>
-                                        <td>{{ number_format($phieu->tong_tien, 0, ',', '.') }} đ</td>
+                                        <td style="white-space: nowrap; text-align: center;">
+                                            {{ number_format($phieu->tong_tien, 0, ',', '.') }} đ
+                                        </td>
+
                                         <td>
                                             @php
                                                 $badgeClass = ['badge-success', 'badge-primary', 'badge-danger'][$phieu->loai_phieu] ?? 'badge-secondary';
@@ -97,11 +107,35 @@
                                         </td>
                                         <td>{{ \Carbon\Carbon::parse($phieu->ngay_tao_phieu)->format('d/m/Y H:i') }}</td>
                                     </tr>
+                                {{-- @empty
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">
+                                        @if (!empty(request('search')))
+                                            Không tìm thấy phiếu nào với từ khóa “<strong>{{ request('search') }}</strong>”.
+                                        @else
+                                            Không có phiếu nào.
+                                        @endif
+                                    </td>
+                                </tr>
+                                @endforelse --}}
                                 @empty
-                                    <tr>
-                                        <td colspan="6" class="text-center text-muted">Không có phiếu nào.</td>
-                                    </tr>
+                                <tr>
+                                    <td colspan="100%">
+                                        <div class="py-5 my-5 text-center">
+                                            <i class="mb-3 fa fa-file-invoice fa-3x text-muted"></i>
+                                            @if (!empty(request('search')))
+                                                <h5 class="text-muted">Không tìm thấy phiếu nào với từ khóa "<strong>{{ request('search') }}</strong>".</h5>
+                                                <p>Thử từ khóa khác hoặc kiểm tra lại thông tin tìm kiếm.</p>
+                                            @else
+                                                <h5 class="text-muted">Không có phiếu nào.</h5>
+                                                <p>Hiện tại chưa có phiếu nào được tạo.</p>
+                                            @endif
+                                        </div>
+                                    </td>
+                                </tr>
                                 @endforelse
+
+
                             </tbody>
                         </table>
                     </div>
@@ -126,7 +160,6 @@
                                     <tr>
                                         <th>Mã nguyên liệu</th>
                                         <th>Tên nguyên liệu</th>
-                                        {{-- <th>Mã nhân viên</th> --}}
                                         <th>Số lượng</th>
                                         <th>Lô</th>
                                         <th>Giá</th>
@@ -184,7 +217,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         tr.innerHTML = `
                             <td>${item.ma_nguyen_lieu}</td>
                             <td>${item.ten_nguyen_lieu}</td>
-                            
                             <td>${item.so_luong}</td>
                             <td>${soLoText}</td>
                             <td>${item.gia_tien.toLocaleString('vi-VN')} đ</td>
@@ -193,7 +225,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         `;
                         tbody.appendChild(tr);
                     });
-
                     new bootstrap.Modal(document.getElementById('phieuModal')).show();
                 });
         });
@@ -201,8 +232,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const selectLoaiPhieu = document.getElementById('selectLoaiPhieu');
+    const form = document.getElementById('formFilter');
 
+    if (selectLoaiPhieu && form) {
+        selectLoaiPhieu.addEventListener('change', function () {
+            form.submit(); // Tự động submit khi thay đổi select
+        });
+    }
+});
+</script>
 @endpush
-
-
 @endsection

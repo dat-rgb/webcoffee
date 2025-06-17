@@ -747,13 +747,17 @@ class AdminShopmaterialController extends Controller
     public function showAllPhieu(Request $request)
 {
     $query = PhieuNhapXuatNguyenLieu::query();
+    $search = null;
+    if ($request->filled('search')) {
+        $search = trim($request->search);
 
-    if ($request->filled('keyword')) {
-        $keyword = $request->keyword;
-        $query->where(function ($q) use ($keyword) {
-            $q->where('ma_cua_hang', 'like', "%$keyword%")
-                ->orWhere('so_lo', 'like', "%$keyword%")
-                ->orWhere('ma_nhan_vien', 'like', "%$keyword%");
+        $query->where(function ($q) use ($search) {
+            if (strtoupper($search) === 'ADMIN') {
+                $q->whereNull('ma_nhan_vien');
+            } else {
+                $q->where('ma_cua_hang', 'like', "%$search%")
+                ->orWhere('ma_nhan_vien', 'like', "%$search%");
+            }
         });
     }
 
@@ -770,7 +774,7 @@ class AdminShopmaterialController extends Controller
         ->orderBy('ma_cua_hang')
         ->orderBy('ma_nhan_vien')
         ->get();
-    //tổng tiền 
+    //tổng tiền
     $danhSachLo = $danhSachLo->map(function ($phieu) {
         $chiTiet = PhieuNhapXuatNguyenLieu::where('loai_phieu', $phieu->loai_phieu)
             ->where('ma_cua_hang', $phieu->ma_cua_hang)
@@ -783,10 +787,8 @@ class AdminShopmaterialController extends Controller
                 }
             })
             ->get();
-
-        // Tính tổng tiền từ chi tiết
         $phieu->tong_tien = $chiTiet->sum(function ($item) {
-            return ($item->tong_tien ?? 0); // hoặc $item->so_luong * $item->gia nếu bạn chưa có sẵn 'tong_tien'
+            return ($item->tong_tien ?? 0);
         });
 
         return $phieu;
@@ -797,6 +799,7 @@ class AdminShopmaterialController extends Controller
         'title' => 'Danh sách phiếu',
         'subtitle' => 'Danh sách Phiếu Nhập - Xuất - Hủy',
         'danhSachPhieu' => $danhSachLo,
+        'search'=>$search,
     ]);
 }
 
@@ -847,6 +850,8 @@ class AdminShopmaterialController extends Controller
 
     return response()->json($data);
 }
+
+
 
 
 

@@ -298,6 +298,7 @@ Route::prefix('admin/shop-materials')->middleware(AdminMiddleware::class)->name(
     Route::get('/list-all-phieu', [AdminShopmaterialController::class, 'showAllPhieu'])->name('showAllPhieu');
     //Route::get('/phieu-chi-tiet/{so_lo}', [AdminShopmaterialController::class, 'layChiTietPhieu'])->name('chiTietPhieu');
     Route::get('/phieu-chi-tiet/{ngay_tao_phieu}/{loai_phieu}/{ma_nhan_vien}', [AdminShopmaterialController::class, 'layChiTietPhieu'])->name('chiTietPhieu');
+    Route::get('/phieu-ajax', [AdminShopmaterialController::class, 'filterPhieuAjax'])->name('filterPhieuAjax');
 
 
 });
