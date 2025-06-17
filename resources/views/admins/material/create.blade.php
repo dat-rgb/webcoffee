@@ -22,7 +22,7 @@
                     <i class="icon-arrow-right"></i>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('admins.material.create') }}">thêm nguyên liệu</a>
+                    <a href="{{ route('admins.material.create') }}">Thêm nguyên liệu</a>
                 </li>
             </ul>
         </div>

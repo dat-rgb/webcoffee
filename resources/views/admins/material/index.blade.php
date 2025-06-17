@@ -72,7 +72,7 @@
                                     <div class="col-sm-12">
                                         <table id="add-row" class="table display table-striped table-hover dataTable responsive" role="grid" aria-describedby="add-row_info">
                                             <thead>
-                                                <tr>
+                                                <tr style="white-space: nowrap;">
                                                     <th>#</th>
                                                     <th>Mã nguyên liệu</th>
                                                     <th>Tên nguyên liệu</th>
@@ -110,7 +110,7 @@
                                                         <td style="min-width: 120px;">
                                                             <div class="d-flex align-items-center justify-content-start">
                                                                 {{-- Bật / Tắt hoạt động --}}
-                                                                <form action="{{ route('admins.material.toggleStatus', $item->id) }}" method="POST" style="margin-right: 8px;">
+                                                                <form action="{{ route('admins.material.toggleStatus', $item->id) }}" method="POST" style="margin-right: 8px;" title="Thay đổi trạng thái">
                                                                     @csrf
                                                                     <div class="m-0 form-check form-switch">
                                                                         <input class="form-check-input" type="checkbox" id="statusToggle{{ $item->id }}"
@@ -120,13 +120,13 @@
                                                                 </form>
                                                                 {{-- chỉnh sửa --}}
                                                                 <a href="{{ route('admins.material.edit', $item->ma_nguyen_lieu) }}" class="p-0 btn btn-sm me-4">
-                                                                    <i class="fas fa-cog text-warning"></i>
+                                                                    <i class="fas fa-cog text-warning" title="Chỉnh sửa"></i>
                                                                 </a>
                                                                 {{-- Xóa tạm --}}
                                                                 <form action="{{ route('admins.material.archive', $item->id) }}" method="POST" class="form-archive d-inline">
                                                                     @csrf
                                                                     <button type="button" class="p-0 btn btn-sm btn-archive" style="border: none; background: none;">
-                                                                        <i class="fas fa-archive text-secondary" title="Lưu trữ"></i>
+                                                                        <i class="fas fa-trash-alt text-danger" title="Xóa nguyên liệu"></i>
                                                                     </button>
                                                                 </form>
 
@@ -167,8 +167,8 @@
                     const form = this.closest('form');
 
                     Swal.fire({
-                        title: 'Xác nhận tạm xóa nguyên liệu',
-                        text: 'Bạn có chắc chắn muốn tạm xóa nguyên liệu này?',
+                        title: 'Xác nhận xóa nguyên liệu',
+                        text: 'Bạn có chắc chắn muốn xóa nguyên liệu này?',
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonText: 'Đồng ý',
@@ -176,10 +176,25 @@
                         confirmButtonColor: '#3085d6',
                         cancelButtonColor: '#d33'
                     }).then((result) => {
+
                         if (result.isConfirmed) {
-                            form.submit();
+                            // Hiển thị loading trước khi submit
+                            Swal.fire({
+                                title: 'Đang thực hiện...',
+                                text: 'Vui lòng chờ trong giây lát.',
+                                allowOutsideClick: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
+
+                            // Gửi form sau một chút để hiệu ứng loading hiển thị (nếu cần delay nhỏ)
+                            setTimeout(() => {
+                                form.submit();
+                            }, 500); // hoặc bỏ delay nếu không cần
                         }
                     });
+
                 });
             });
         });
