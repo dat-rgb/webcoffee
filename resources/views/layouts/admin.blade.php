@@ -2,10 +2,10 @@
 <html lang="en">
   <head>
       <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-      <title>@yield('title',"Admin CDMT Coffee & Tea")</title>
+      <title>@yield('title',"Admin ". $thongTinWebsite['ten_website'] )</title>
       <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport"/>
       <meta name="csrf-token" content="{{ csrf_token() }}">
-      <link rel="icon" href="{{ asset('img/favicon.png') }}" type="image/x-icon"/>
+      <link rel="icon" href="{{ asset('images/' . $thongTinWebsite['favicon']) }}" type="image/x-icon"/>
       <!-- Fonts and icons -->
       <script src="{{ asset('admins/js/plugin/webfont/webfont.min.js') }}"></script>
       <script>
@@ -45,7 +45,7 @@
           <div class="logo-header" data-background-color="dark">
             <a href="#" class="logo">
               <img
-                src="{{ asset('img/logo.png') }}"
+                src="{{ asset('images/' . $thongTinWebsite['logo']) }}"
                 alt="navbar brand"
                 class="navbar-brand"
                 height="50"
@@ -295,8 +295,8 @@
                             </a>
                           </li>
                           <li>
-                            <a href="#">
-                                <span class="sub-item">Thêm cửa hàng mới</span>
+                            <a href="{{ route('admin.thongTinWebSite') }}">
+                                <span class="sub-item">Thông tin website</span>
                             </a>
                             </li>
                         </ul>
@@ -669,22 +669,16 @@
         <div class="container">
             @yield('content')
         </div>
-
         <footer class="footer">
             <div class="container-fluid d-flex justify-content-center">
                 <div class="copyright">
-                © 2025 - Đồ án tốt nghiệp của sinh viên
-                <a href="#">Chí Đạt & Nguyễn Minh Tân</a>. Bản quyền thuộc về chúng tôi.
+                {{ $thongTinWebsite['footer_text'] }}
                 </div>
             </div>
         </footer>
-
       </div>
     </div>
-
-  <!-- Load Toastr before your custom scripts -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
-  <!-- Thêm thư viện SweetAlert -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <!-- Core JS Files -->
   <script src="{{ asset('admins/js/core/jquery-3.7.1.min.js') }}"></script>

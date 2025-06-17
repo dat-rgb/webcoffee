@@ -141,3 +141,58 @@ $(document).ready(function(){
         }
     });
 });
+
+$(document).ready(function () {
+    $('#contact-form').submit(function (e) {
+        let name = $('#name').val().trim();
+        let email = $('#email').val().trim();
+        let phone = $('#phone').val().trim();
+        let subject = $('#subject').val().trim();
+        let message = $('#message').val().trim();
+        let recaptcha = grecaptcha.getResponse();
+
+        let errorMessage = "";
+
+        // Validate Họ và tên
+        if (name.length < 2) {
+            errorMessage += "Họ và tên phải có ít nhất 2 ký tự.<br>";
+        }
+
+        // Validate Email
+        let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            errorMessage += "Email không hợp lệ.<br>";
+        }
+
+        // Validate SĐT
+        let phoneRegex = /^0\d{9}$/;
+        if (!phoneRegex.test(phone)) {
+            errorMessage += "Số điện thoại phải bắt đầu bằng 0 và đủ 10 chữ số.<br>";
+        }
+
+        // Validate Chủ đề
+        if (subject.length < 3) {
+            errorMessage += "Chủ đề phải có ít nhất 3 ký tự.<br>";
+        }
+
+        // Validate Nội dung
+        if (message.length < 10) {
+            errorMessage += "Nội dung tin nhắn phải dài hơn 10 ký tự.<br>";
+        }
+
+        // Validate reCAPTCHA
+        if (recaptcha.length === 0) {
+            errorMessage += "Vui lòng xác nhận bạn không phải là robot (reCAPTCHA).<br>";
+        }
+
+        if (errorMessage !== "") {
+            e.preventDefault();
+            Swal.fire({
+                title: 'Thông báo!',
+                html: errorMessage,
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        }
+    });
+});

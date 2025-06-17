@@ -90,7 +90,7 @@
                                                 <h5 class="text-muted">Không có voucher nào trong danh sách xóa</h5>
                                             </div>
                                         @else
-                                            <table id="add-row" class="display table table-striped table-hover dataTable" role="grid" aria-describedby="add-row_info">
+                                            <table class="table table-striped table-hover align-middle text-left">
                                                 <thead>
                                                     <tr>
                                                         <th><input type="checkbox" id="checkAll"></th>
