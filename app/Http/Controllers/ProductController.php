@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Blog;
 use App\Models\DanhMucSanPham;
 use App\Models\SanPham;
 use App\Models\SanPhamYeuThich;
@@ -61,7 +62,9 @@ class ProductController extends Controller
     public function productList()
     {
         $products = $this->getProduct();
-
+        if ($products->currentPage() > $products->lastPage()) {
+            return redirect()->route('product', ['page' => $products->lastPage()]);
+        }
         $categories = DanhMucSanPham::where('trang_thai', 1)->get();
 
         $countCate = [];
@@ -112,7 +115,9 @@ class ProductController extends Controller
 
         $selected_store_id = session('selected_store_id', null);
         $products = $this->getProductByCategoryIDs($categoryIDs, $selected_store_id);
-
+        if ($products->currentPage() > $products->lastPage()) {
+            return redirect()->route('product', ['page' => $products->lastPage()]);
+        }
         // Đếm sp theo danh mục
         $countCate = [];
         foreach ($categories as $cate) {
@@ -142,10 +147,20 @@ class ProductController extends Controller
             $countCate[$cate->ma_danh_muc] = $products->where('ma_danh_muc', $cate->ma_danh_muc)->count();
         }
 
+        $blogs = Blog::where('trang_thai', 1)
+            ->where(function ($q) use ($search) {
+                $q->where('tieu_de', 'like', "%$search%")
+                ->orWhere('noi_dung', 'like', "%$search%");
+            })
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
         $viewData = [
             'title' => 'Kết quả tìm kiếm cho từ khóa "' . $search . '" | CMDT Coffee & Tea',
             'subtitle' => 'Kết quả tìm kiếm cho từ khóa "' . $search . '"',
             'products' => $products,
+            'blogs' => $blogs,
             'categories' => $categories,
             'countCate' => $countCate,
             'search' => $search,
