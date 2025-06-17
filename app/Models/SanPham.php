@@ -21,7 +21,7 @@ class SanPham extends Model
         'thu_tu',
         'hot',
         'is_new',
-        'san_pham_dong_goi',
+        'loai_san_pham',
         'mo_ta',
         'hinh_anh',
         'luot_xem',

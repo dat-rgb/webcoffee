@@ -89,6 +89,16 @@ class DanhMucSanPhamSeeder extends Seeder
                 'thu_tu' => 5,
                 'mo_ta' => 'Trà trái cây tươi mát',
             ],
+            //7
+            [
+                'ten_danh_muc' => 'Sản phẩm đóng gói',
+                'slug' => Str::slug('Sản phẩm đóng gói'),
+                'anh_dai_dien' => 'ca-phe-sua.jpg',
+                'danh_muc_cha_id' => null, 
+                'trang_thai' => 1,
+                'thu_tu' => 5,
+                'mo_ta' => 'Sản phẩm đóng gói',
+            ],
         ];
         DB::table('danh_muc_san_phams')->insert($categories);
     }

@@ -96,6 +96,8 @@ Route::prefix('cart')->group(function(){
     Route::get('/count', [CartController::class, 'getCartCount'])->name('cart.count');
     //add to cart
     Route::get('/add-to-cart/{id}',[CartController::class,'addToCart'])->name('cart.addToCart');
+    Route::get('/mua-ngay/{id}', [CartController::class, 'muaNgay'])->name('cart.muaNgay');
+
     Route::get('/debug', function () {
         return dd([
             'cart' => session('cart'),
@@ -139,6 +141,7 @@ Route::prefix('payment')->group(function(){
 Route::prefix('blog')->group(function(){
     Route::get('/', [BlogController::class, 'index'])->name('blog');
     Route::get('/{slug}', [BlogController::class, 'detail'])->name('blog.detail');
+    Route::get('/danh-muc/{slug}', [BlogController::class, 'getBlogsByCate'])->name('blog.byCate');
 });
 
 //Khách hàng

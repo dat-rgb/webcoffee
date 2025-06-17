@@ -20,7 +20,7 @@ return new class extends Migration
             $table->integer('thu_tu')->default(0); 
             $table->tinyInteger('hot')->default(0); // 1: hot, 0: không hot (nổi bật)
             $table->tinyInteger('is_new')->default(0);
-            $table->tinyInteger('san_pham_dong_goi')->default(0); //0 sản phẩm pha chế, 1: là sản phẩm đống gói.
+            $table->tinyInteger('loai_san_pham')->default(0); // 1: sản phẩm đóng gói
             $table->text('mo_ta')->nullable();
             $table->string('hinh_anh', 255)->nullable();
             $table->integer('luot_xem')->default(0);

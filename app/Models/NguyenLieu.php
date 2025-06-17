@@ -22,6 +22,7 @@ class NguyenLieu extends Model
         'loai_nguyen_lieu',
         'don_vi',
         'trang_thai',
+        'is_ban_duoc',
     ];
     protected $dates = ['deleted_at'];
     public function parent()
@@ -46,25 +47,12 @@ class NguyenLieu extends Model
     {
         return $this->hasMany(CuaHangNguyenLieu::class, 'ma_nguyen_lieu', 'ma_nguyen_lieu');
     }
-
-
-
-
-
-
-
     public function products()
-{
-    return $this->belongsToMany(SanPham::class, 'thanh_phan_san_phams', 'ma_nguyen_lieu', 'ma_san_pham', 'ma_nguyen_lieu', 'ma_san_pham');
-}
-public function nguyenLieu()
-{
-    return $this->belongsTo(NguyenLieu::class, 'ma_nguyen_lieu', 'ma_nguyen_lieu');
-}
+    {
+        return $this->belongsToMany(SanPham::class, 'thanh_phan_san_phams', 'ma_nguyen_lieu', 'ma_san_pham', 'ma_nguyen_lieu', 'ma_san_pham');
+    }
 
-
-
-
-
-
-}
+    public function nguyenLieu()
+    {
+        return $this->belongsTo(NguyenLieu::class, 'ma_nguyen_lieu', 'ma_nguyen_lieu');
+    }

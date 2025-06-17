@@ -66,7 +66,16 @@
                                     </button>
                                 </div>
                             </div>
-
+                            <div class="col-6 col-lg-2">
+                                <select class="form-select" name="ma_danh_muc" id="categoryFilter">
+                                    <option value="">Tất cả danh mục</option>
+                                    @foreach ($categories as $cate)
+                                        <option value="{{ $cate->ma_danh_muc }}" {{ request('ma_danh_muc') == $cate->ma_danh_muc ? 'selected' : '' }}>
+                                            {{ $cate->ten_danh_muc }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
                             {{-- Thao tác nhanh --}}
                             <div class="col-6 col-lg-2">
                                 <div class="dropdown w-100">
@@ -108,7 +117,31 @@
                 @if($products->isEmpty())
                     <div class="py-5 my-5 text-center">
                         <i class="mb-3 fa fa-box-open fa-3x text-muted"></i>
-                        <h5 class="text-muted">Không có sản phẩm nào trong danh sách</h5>
+
+                        @php
+                            $search = request('search');
+                            $category = request('ma_danh_muc');
+                            $status = request()->routeIs('admin.products.hidden.list') ? 'ẩn' : 'hiển thị';
+                        @endphp
+
+                        <h5 class="text-muted">
+                            @if($search || $category)
+                                Không tìm thấy sản phẩm
+                                @if($search)
+                                    có tên hoặc mã chứa "<strong>{{ $search }}</strong>"
+                                @endif
+                                @if($search && $category)
+                                    và
+                                @endif
+                                @if($category)
+                                    trong danh mục đã chọn
+                                @endif
+                                (trạng thái: {{ $status }})
+                            @else
+                                Không có sản phẩm nào trong danh sách {{ $status }}
+                            @endif
+                        </h5>
+
                         <p>Hãy thêm sản phẩm mới để bắt đầu quản lý kho hàng.</p>
                         <a href="{{ route('admin.products.form') }}" class="mt-3 btn btn-primary">
                             <i class="fa fa-plus"></i> Thêm sản phẩm mới
@@ -150,77 +183,82 @@
                                                         <td>{{ $pro->danhMuc->ten_danh_muc }}</td>
                                                         <td>{{ number_format($pro->gia, 0, ',', '.') }}</td>
                                                         @php
-                                                            $sizes = $sizesMap[$pro->ma_san_pham] ?? collect(); // dùng collect() để đảm bảo có thể count()
+                                                            $sizes = $sizesMap[$pro->ma_san_pham] ?? collect(); 
                                                         @endphp
                                                         <td style="min-width: 150px; max-width: 200px; width: 100px;">
-                                                            @if ($sizes->count())
-                                                                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-                                                                    @foreach ($sizes as $size)
-                                                                        <span style="background: #e0f7fa; color: #00796b;
-                                                                                    padding: 4px 8px; border-radius: 6px;
-                                                                                    font-size: 11px; font-weight: 500;
-                                                                                    white-space: nowrap;">
-                                                                            {{ $size->ten_size }}
-                                                                        </span>
-                                                                    @endforeach
-                                                                    <a href="{{ route('admin.products.ingredients.show',$pro->ma_san_pham) }}" class="" data-bs-toggle="tooltip" title="Xem chi tiết thành phần">chi tiết</a>
-                                                                </div>
-                                                            @else
-                                                                <span class="text-muted">
-                                                                    <a href="{{ route('admin.products.ingredients.form', $pro->slug) }} " data-bs-toggle="tooltip" title="Thêm thành phần sản phẩm">Thêm size.</a>
-                                                                </span>
-                                                            @endif
-                                                        </td>
-                                                        <td>
-                                                            @if ($pro->trang_thai == 1)
-                                                                <span class="badge badge-success">Hiển thị</span>
-                                                            @elseif ($pro->trang_thai == 2)
-                                                                <span class="badge badge-danger">Ẩn</span>
-                                                            @else
-                                                                <span class="badge badge-secondary">Không xác định</span>
-                                                            @endif
-                                                        </td>
-                                                        <td>
-                                                            <div style="display: inline-flex; gap: 2px;">
-                                                                @for ($i = 1; $i <= 5; $i++)
-                                                                    @if ($i <= $pro->rating)
-                                                                        <i class="fas fa-star" style="color: gold;"></i>
-                                                                    @elseif ($i - 0.5 == $pro->rating)
-                                                                        <i class="fas fa-star-half-alt" style="color: gold;"></i>
+                                                                @if ($pro->loai_san_pham === 1)
+                                                                    <span class="badge bg-primary">Đóng gói</span>
+                                                                @else
+                                                                    @if ($sizes->count())
+                                                                        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                                                            @foreach ($sizes as $size)
+                                                                                <span style="background: #e0f7fa; color: #00796b;
+                                                                                            padding: 4px 8px; border-radius: 6px;
+                                                                                            font-size: 11px; font-weight: 500;
+                                                                                            white-space: nowrap;">
+                                                                                    {{ $size->ten_size }}
+                                                                                </span>
+                                                                            @endforeach
+                                                                            <a href="{{ route('admin.products.ingredients.show', $pro->ma_san_pham) }}" data-bs-toggle="tooltip" title="Xem chi tiết thành phần">chi tiết</a>
+                                                                        </div>
                                                                     @else
-                                                                        <i class="far fa-star" style="color: gold;"></i>
+                                                                        <span class="text-muted">
+                                                                            <a href="{{ route('admin.products.ingredients.form', $pro->slug) }}" data-bs-toggle="tooltip" title="Thêm thành phần sản phẩm">Thêm size.</a>
+                                                                        </span>
                                                                     @endif
-                                                                @endfor
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <div class="form-button-action">
-                                                                @if($pro->trang_thai == 1)
-                                                                    <a href="{{ route('admin.product.edit.form', $pro->ma_san_pham) }}" class="btn btn-icon btn-round btn-info" data-bs-toggle="tooltip" title="Chỉnh sửa">
-                                                                        <i class="fa fa-edit"></i>
-                                                                    </a>
-                                                                    <form action="{{ route('admin.product.hidde-or-acctive', $pro->ma_san_pham) }}" method="POST" class="hidden-or-acctive">
-                                                                        @csrf
-                                                                        <button type="button" class="btn btn-icon btn-round btn-black hidden-btn" data-bs-toggle="tooltip" title="Ẩn">
-                                                                            <i class="text-white fas fa-toggle-off"></i>
-                                                                        </button>
-                                                                    </form>
-
-                                                                @elseif($pro->trang_thai == 2)
-
-                                                                    <form action="{{ route('admin.product.hidde-or-acctive', $pro->ma_san_pham) }}" method="POST" class="acctive-form">
-                                                                        @csrf
-                                                                        <button type="button" class="btn btn-icon btn-round btn-warning acctive-btn" data-bs-toggle="tooltip" title="Hiển thị">
-                                                                            <i class="text-white fas fa-toggle-on"></i>
-                                                                        </button>
-                                                                    </form>
-                                                                    <button type="button" class="btn btn-icon btn-round btn-danger" data-bs-toggle="tooltip" title="Xóa">
-                                                                        <i class="fa fa-trash"></i>
-                                                                    </button>
                                                                 @endif
-                                                            </div>
-                                                        </td>
-                                                    </tr>
+                                                            </td>
+
+                                                            <td>
+                                                                @if ($pro->trang_thai == 1)
+                                                                    <span class="badge badge-success">Hiển thị</span>
+                                                                @elseif ($pro->trang_thai == 2)
+                                                                    <span class="badge badge-danger">Ẩn</span>
+                                                                @else
+                                                                    <span class="badge badge-secondary">Không xác định</span>
+                                                                @endif
+                                                            </td>
+                                                            <td>
+                                                                <div style="display: inline-flex; gap: 2px;">
+                                                                    @for ($i = 1; $i <= 5; $i++)
+                                                                        @if ($i <= $pro->rating)
+                                                                            <i class="fas fa-star" style="color: gold;"></i>
+                                                                        @elseif ($i - 0.5 == $pro->rating)
+                                                                            <i class="fas fa-star-half-alt" style="color: gold;"></i>
+                                                                        @else
+                                                                            <i class="far fa-star" style="color: gold;"></i>
+                                                                        @endif
+                                                                    @endfor
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div class="form-button-action">
+                                                                    @if($pro->trang_thai == 1)
+                                                                        <a href="{{ route('admin.product.edit.form', $pro->ma_san_pham) }}" class="btn btn-icon btn-round btn-info" data-bs-toggle="tooltip" title="Chỉnh sửa">
+                                                                            <i class="fa fa-edit"></i>
+                                                                        </a>
+                                                                        <form action="{{ route('admin.product.hidde-or-acctive', $pro->ma_san_pham) }}" method="POST" class="hidden-or-acctive">
+                                                                            @csrf
+                                                                            <button type="button" class="btn btn-icon btn-round btn-black hidden-btn" data-bs-toggle="tooltip" title="Ẩn">
+                                                                                <i class="text-white fas fa-toggle-off"></i>
+                                                                            </button>
+                                                                        </form>
+
+                                                                    @elseif($pro->trang_thai == 2)
+
+                                                                        <form action="{{ route('admin.product.hidde-or-acctive', $pro->ma_san_pham) }}" method="POST" class="acctive-form">
+                                                                            @csrf
+                                                                            <button type="button" class="btn btn-icon btn-round btn-warning acctive-btn" data-bs-toggle="tooltip" title="Hiển thị">
+                                                                                <i class="text-white fas fa-toggle-on"></i>
+                                                                            </button>
+                                                                        </form>
+                                                                        <button type="button" class="btn btn-icon btn-round btn-danger" data-bs-toggle="tooltip" title="Xóa">
+                                                                            <i class="fa fa-trash"></i>
+                                                                        </button>
+                                                                    @endif
+                                                                </div>
+                                                            </td>
+                                                        </tr>
                                                 @endforeach
                                             </tbody>
                                         </table>
@@ -245,6 +283,14 @@
 </div>
 @endsection
 @push('scripts')
-    <script src="{{ asset('admins/js/alert.js') }}"></script>
-    <script src="{{ asset('admins/js/admin-product.js') }}"></script>
+<script src="{{ asset('admins/js/alert.js') }}"></script>
+<script src="{{ asset('admins/js/admin-product.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const select = document.getElementById('categoryFilter');
+        select.addEventListener('change', function () {
+            this.form.submit(); 
+        });
+    });
+</script>
 @endpush

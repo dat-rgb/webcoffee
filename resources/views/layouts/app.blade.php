@@ -64,6 +64,7 @@
 								<li class="{{ request()->routeIs('home') ? 'current-list-item ' : '' }}"><a href="{{ route('home') }}">Trang Chủ</a></li>
 								<li class="{{ request()->routeIs('product') ? 'current-list-item ' : '' }}"><a href="{{ route('product') }}">Sản Phẩm</a>
 									<ul class="sub-menu">
+										<li><a href="{{ route('product') }}">Tất cả</a></li>
 										@foreach ($danhMucCha as $dm)
 											@if ($dm->totalProductsCount > 0)
 												<li><a href="{{ route('product.category.list',$dm->slug) }}">{{ $dm->ten_danh_muc }}</a></li>
@@ -73,8 +74,10 @@
 								</li>
 								<li class="{{ request()->routeIs('blog') ? 'current-list-item ' : '' }}"><a href="{{ route('blog') }}">Tin Tức</a>
 									<ul class="sub-menu">
-										<li><a href="{{ route('blog') }}">Coffee</a></li>
-										<li><a href="{{ route('blog') }}">Chuyện Trà</a></li>
+										<li><a href="{{ route('blog') }}">Tất cả</a></li>
+										@foreach ($danhMucBlog as $dmBlog)
+											<li><a href="{{ route('blog.byCate',$dmBlog->slug) }}">{{ $dmBlog->ten_danh_muc_blog }}</a></li>
+										@endforeach
 									</ul>
 								</li>
 								<li class="{{ request()->routeIs('about') ? 'current-list-item ' : '' }}"><a href="{{ route('about') }}">Giới thiệu</a></li>
@@ -163,6 +166,9 @@
 	<!-- end search area -->
 	 
 	@yield('content')
+	<a href="#" id="back-to-top" class="cart-btn" style="position: fixed; bottom: 30px; right: 30px; display: none; z-index: 999; ">
+		<i class="fas fa-arrow-up"></i> 
+	</a>
 
 	<!-- footer -->
 	<div class="footer-area">

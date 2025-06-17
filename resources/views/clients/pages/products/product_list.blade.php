@@ -54,7 +54,7 @@
             <div class="col-md-12">
                 <div class="product-filters">
                     <ul>
-                        <li class="active" data-filter="*">All</li>
+                        <li class="active" data-filter="*">Tất cả</li>
                         @foreach ($categories as $cate)
                             @if (!empty($countCate[$cate->ma_danh_muc]) && $countCate[$cate->ma_danh_muc] > 0)
                                 <li data-filter=".{{ $cate->ma_danh_muc }}" >
@@ -90,6 +90,28 @@
                     </div>
                 </div>
             @endforeach
+        </div>
+        <div class="row">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12 text-center">
+                        <div class="pagination-wrap">
+                            <ul>
+                                <li><a href="{{ $products->previousPageUrl() ?? '#' }}">Prev</a></li>
+                                @for ($i = 1; $i <= $products->lastPage(); $i++)
+                                    <li>
+                                        <a href="{{ $products->url($i) }}"
+                                            class="{{ $products->currentPage() == $i ? 'active' : '' }}">
+                                            {{ $i }}
+                                        </a>
+                                    </li>
+                                @endfor
+                                <li><a href="{{ $products->nextPageUrl() ?? '#' }}">Next</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

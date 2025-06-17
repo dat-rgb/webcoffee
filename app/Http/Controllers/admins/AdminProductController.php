@@ -37,29 +37,39 @@ class AdminProductController extends Controller
         return $ingredients;
     }
     //lấy ds sản phẩm theo trạng thái
-    public function getProductsByStatus($status, $search = null) {
+    public function getProductsByStatus($status, $search = null, $maDanhMuc = null) {
         $query = SanPham::with('danhMuc')
             ->where('trang_thai', $status)
             ->orderBy('id', 'desc');
 
-            if ($search) {
-                $query->where(function($q) use ($search) {
-                    $q->where('ten_san_pham', 'like', "%{$search}%")
-                    ->orWhere('ma_san_pham', 'like', "%{$search}%")
-                    ->orWhereHas('danhMuc', function($q2) use ($search) {
-                        $q2->where('ten_danh_muc', 'like', "%{$search}%");
-                    })
-                    ->orWhere('mo_ta', 'like', "%{$search}%"); // thêm search mô tả sản phẩm
-                });
-            }
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('ten_san_pham', 'like', "%{$search}%")
+                ->orWhere('ma_san_pham', 'like', "%{$search}%")
+                ->orWhereHas('danhMuc', function($q2) use ($search) {
+                    $q2->where('ten_danh_muc', 'like', "%{$search}%");
+                })
+                ->orWhere('mo_ta', 'like', "%{$search}%"); 
+            });
+        }
 
-        return $query->paginate(10);
+        if ($maDanhMuc) {
+            $query->where('ma_danh_muc', $maDanhMuc);
+        }
+
+        return $query->paginate(15);
     }
     // Hiển thị danh sách sản phẩm (trạng thái 1)
     public function listProducts(Request $request) {
         $search = $request->input('search');
         
-        $products = $this->getProductsByStatus(1, $search);
+        //$products = $this->getProductsByStatus(1, $search);
+        $products = $this->getProductsByStatus(
+            status: 1,
+            search: $request->search,
+            maDanhMuc: $request->ma_danh_muc
+        );
+
         $categories = $this->getCategory();
         $sizesMap = [];
         foreach ($products as $pro) {
@@ -69,11 +79,11 @@ class AdminProductController extends Controller
         $viewData = [
             'title' => 'Quản lý sản phẩm | CDMT Coffee & Tea',
             'subtitle' => 'Danh sách sản phẩm',
+            'categories' => $categories,
             'products' => $products,
             'sizesMap' => $sizesMap,
-            'search' => $search // truyền lại để giữ giá trị input search trên view (nếu muốn)
+            'search' => $search 
         ];
-
         return view('admins.products.index', $viewData);
     }
     // Hiển thị danh sách sản phẩm ẩn (trạng thái 2)
@@ -89,6 +99,7 @@ class AdminProductController extends Controller
         $viewData = [
             'title' => 'Quản lý sản phẩm | CDMT Coffee & Tea',
             'subtitle' => 'Sản phẩm đã ẩn',
+            'categories' => $categories,
             'products' => $products,
             'sizesMap' => $sizesMap,
             'search' => $search
@@ -100,7 +111,7 @@ class AdminProductController extends Controller
     public function showProductForm(){
 
         $categorys = $this->getCategory();
-        $ingredients = $this->getIngredient();
+        $ingredients = NguyenLieu::where('is_ban_duoc',1)->where('trang_thai',1)->get();
         $lastItem = SanPham::withTrashed()->orderByDesc('ma_san_pham')->first();
 
         if ($lastItem) {
@@ -125,6 +136,7 @@ class AdminProductController extends Controller
     //Thêm sản phẩm mới
     public function productAdd(Request $request)
     {
+        //dd($request);
         $request->validate([
             'ma_san_pham' => 'required|string|size:10|unique:san_phams,ma_san_pham',
             'ten_san_pham' => 'required|string|max:255|min:2',
@@ -132,6 +144,8 @@ class AdminProductController extends Controller
             'hinh_anh' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'gia' => 'required|numeric|min:0|max:10000000',
             'mo_ta' => 'nullable|string|max:1000',
+            'loai_san_pham' => 'required|in:0,1',
+            'ma_nguyen_lieu' => $request->loai_san_pham == 1 ? 'required|exists:nguyen_lieus,ma_nguyen_lieu' : 'nullable',
         ], [
             'ma_san_pham.required' => 'Mã sản phẩm là bắt buộc.',
             'ma_san_pham.size' => 'Mã sản phẩm phải có đúng 10 ký tự.',
@@ -148,16 +162,18 @@ class AdminProductController extends Controller
             'gia.min' => 'Giá sản phẩm phải lớn hơn 0.',
             'gia.max' => 'Giá sản phẩm không quá 10 triệu.',
             'mo_ta.max' => 'Mô tả không quá 1000 ký tự.',
+            'loai_san_pham.required' => 'Vui lòng chọn loại sản phẩm.',
+            'ma_nguyen_lieu.required' => 'Vui lòng chọn nguyên liệu cho sản phẩm đóng gói.',
+            'ma_nguyen_lieu.exists' => 'Nguyên liệu không tồn tại.',
         ]);
 
         $hot = $request->hot;
         $new = $request->is_new;
-        $dong_goi = $request->san_pham_dong_goi;
-
+        $loaiSP = $request->loai_san_pham;
+        
         $slug = Str::slug($request->ten_san_pham);
 
-        // Check slug trùng
-        if (SanPham::where('slug', $slug)->exists()) {
+        if (SanPham::withTrashed()->where('slug', $slug)->exists()) {
             toastr()->error('Tên sản phẩm đã trùng, vui lòng chọn tên khác');
             return redirect()->back()->withInput();
         }
@@ -182,9 +198,21 @@ class AdminProductController extends Controller
             'mo_ta' => $request->mo_ta,
             'hinh_anh' => $imagePath,
             'hot' => $hot,
+            'loai_san_pham' => $loaiSP,
             'is_new' => $new,
-            'san_pham_dong_goi' => $dong_goi
         ]);
+
+         // Nếu là sản phẩm đóng gói
+         if ($loaiSP == 1) {
+            ThanhPhanSanPham::create([
+                'ma_san_pham'     => $request->ma_san_pham,
+                'ma_nguyen_lieu'  => $request->ma_nguyen_lieu,
+                'ma_size'         => null,
+                'dinh_luong'      => 1, // 1 đơn vị nguyên liệu
+                'don_vi'          => null,
+            ]);
+        }
+
         toastr()->success('Thêm sản phẩm thành công.');
         return redirect()->route('admin.products.list');
     }

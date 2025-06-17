@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Blog;
 use App\Models\DanhMucSanPham;
 use App\Models\SanPham;
 use App\Models\SanPhamYeuThich;
@@ -33,7 +34,7 @@ class ProductController extends Controller
             });
         }
 
-        $products = $query->get();
+        $products = $query->paginate(12);
 
         return $products;
     }
@@ -47,12 +48,13 @@ class ProductController extends Controller
                 ->with('danhMuc')
                 ->where('trang_thai', 1)
                 ->whereIn('ma_danh_muc', $categoryIDs)
-                ->get();
+                ->paginate(12);
+
         } else {
             $products = SanPham::with('danhMuc')
                 ->where('trang_thai', 1)
                 ->whereIn('ma_danh_muc', $categoryIDs)
-                ->get();
+                ->paginate(12);
         }
 
         return $products;
@@ -60,7 +62,9 @@ class ProductController extends Controller
     public function productList()
     {
         $products = $this->getProduct();
-
+        if ($products->currentPage() > $products->lastPage()) {
+            return redirect()->route('product', ['page' => $products->lastPage()]);
+        }
         $categories = DanhMucSanPham::where('trang_thai', 1)->get();
 
         $countCate = [];
@@ -85,9 +89,13 @@ class ProductController extends Controller
     {
         $categoryParent = DanhMucSanPham::with('childrenRecursive')
             ->where('slug', $slug)
-            ->firstOrFail();
+            ->first();
 
-        // Đệ quy lấy danh mục con cháu
+        if(!$categoryParent){
+            toastr()->error('Danh mục không tồn tại');
+            return redirect()->back();
+        }
+
         function flattenCategories($category) {
             $flat = [];
             foreach ($category->childrenRecursive as $child) {
@@ -107,7 +115,9 @@ class ProductController extends Controller
 
         $selected_store_id = session('selected_store_id', null);
         $products = $this->getProductByCategoryIDs($categoryIDs, $selected_store_id);
-
+        if ($products->currentPage() > $products->lastPage()) {
+            return redirect()->route('product', ['page' => $products->lastPage()]);
+        }
         // Đếm sp theo danh mục
         $countCate = [];
         foreach ($categories as $cate) {
@@ -116,7 +126,7 @@ class ProductController extends Controller
 
         $viewData = [
             'title' => $categoryParent->ten_danh_muc . ' | CDMT coffee & tea',
-            'subtitle' => $categoryParent->ten_danh_muc . ' tại nhà',
+            'subtitle' => $categoryParent->ten_danh_muc,
             'products' => $products,
             'categories' => $categories,
             'categoryParent' => $categoryParent,
@@ -137,20 +147,28 @@ class ProductController extends Controller
             $countCate[$cate->ma_danh_muc] = $products->where('ma_danh_muc', $cate->ma_danh_muc)->count();
         }
 
+        $blogs = Blog::where('trang_thai', 1)
+            ->where(function ($q) use ($search) {
+                $q->where('tieu_de', 'like', "%$search%")
+                ->orWhere('noi_dung', 'like', "%$search%");
+            })
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
         $viewData = [
             'title' => 'Kết quả tìm kiếm cho từ khóa "' . $search . '" | CMDT Coffee & Tea',
             'subtitle' => 'Kết quả tìm kiếm cho từ khóa "' . $search . '"',
             'products' => $products,
+            'blogs' => $blogs,
             'categories' => $categories,
             'countCate' => $countCate,
             'search' => $search,
         ];
-
         return view('clients.pages.products.result_search', $viewData);
     }
     protected function pushProductToViewedHistory($product)
     {
-        // Lấy lịch sử hiện tại, hoặc mảng rỗng nếu chưa có
         $history = session()->get('viewed_products', []);
 
         $product_info = [
@@ -164,18 +182,14 @@ class ProductController extends Controller
             'viewed_at' => now()->timestamp,
         ];
 
-        // Loại bỏ sản phẩm nếu đã có trong lịch sử để đưa lên đầu
         $history = array_filter($history, function ($item) use ($product_info) {
             return $item['ma_san_pham'] != $product_info['ma_san_pham'];
         });
 
-        // Thêm sản phẩm vừa xem vào đầu mảng
         array_unshift($history, $product_info);
 
-        // Giới hạn số lượng sản phẩm trong lịch sử lưu 5 sản phẩm gần nhất
         $history = array_slice($history, 0, 5);
 
-        // Lưu lại vào session
         session()->put('viewed_products', $history);
     }
     public function productDetail($slug) {
@@ -242,7 +256,6 @@ class ProductController extends Controller
             'productToHistory' => $productToHistory,
         ]);
     }
-
     public function getProductToViewHistory()
     {
         $viewedProducts = session()->get('viewed_products', []);
@@ -251,7 +264,6 @@ class ProductController extends Controller
 
         return $latestFourViewedProducts;
     }
-
     public function removeProductFromViewHistory($productId)
     {
         $history = session()->get('viewed_products', []);
@@ -265,7 +277,6 @@ class ProductController extends Controller
         toastr()->success('Đã xóa sản phẩm khỏi lịch sử đã xem!');
         return redirect()->back(); 
     }
-
     public function clearAllViewHistory()
     {
         session()->forget('viewed_products'); // Xóa key 'viewed_products' khỏi session

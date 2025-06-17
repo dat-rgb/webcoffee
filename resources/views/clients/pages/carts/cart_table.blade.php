@@ -15,7 +15,7 @@
             @foreach ($cart as $item)
                 <tr class="table-body-row" id="cart-item-{{ $item['product_id'] }}-{{ $item['size_id'] }}">
                     <td class="product-remove">
-                        <a href="#" class="delete-product" data-product-id="{{ $item['product_id'] }}" data-size-id="{{ $item['size_id'] }}">
+                        <a href="#" class="delete-product" data-product-id="{{ $item['product_id'] }}" data-size-id="{{ $item['size_id'] }}"  data-loai="{{ $item['product_loai'] }}">
                             <i class="far fa-window-close"></i>
                         </a>
                     </td>
@@ -32,7 +32,8 @@
                                 name="size_update_{{ $item['product_id'] }}" 
                                 class="form-select form-select-sm mt-1 change-size" 
                                 data-old-size="{{ $item['size_id'] }}"
-                                style="max-width: 200px; border-radius: 8px; border: 1px solid #ccc; padding: 4px 8px;">
+                                style="max-width: 200px; border-radius: 8px; border: 1px solid #ccc; padding: 4px 8px;"
+                                data-loai="{{ $item['product_loai'] }}">
                                 @foreach ($productSizes[$item['product_id']] as $size)
                                  
                                     <option value="{{ $size->ma_size }}" {{ $size->ma_size == $item['size_id'] ? 'selected' : '' }}>
@@ -57,21 +58,29 @@
                     </td>
                     <td class="product-quantity">
                         <div class="quantity-wrapper">
-                            <button class="qty-btn decrease" type="button" data-id="{{ $item['product_id'] }}" data-size="{{ $item['size_id'] }}">
+                            <button class="qty-btn decrease" type="button" 
+                                    data-id="{{ $item['product_id'] }}" 
+                                    data-size="{{ $item['size_id'] }}" 
+                                    data-loai="{{ $item['product_loai'] }}">
                                 <i class="fas fa-minus"></i>
                             </button>
+
                             <input type="number" value="{{ $item['product_quantity'] }}" min="1" max="99" readonly
                                 class="update-cart-quantity"
                                 data-id="{{ $item['product_id'] }}" 
-                                data-size="{{ $item['size_id'] }}">
+                                data-size="{{ $item['size_id'] }}"
+                                data-loai="{{ $item['product_loai'] }}">
+
                             <button class="qty-btn increase" type="button" 
                                     data-id="{{ $item['product_id'] }}" 
                                     data-size="{{ $item['size_id'] }}" 
-                                    data-storeid="{{ session('selected_store_id') ?? ' ' }}">
+                                    data-storeid="{{ session('selected_store_id') ?? '' }}"
+                                    data-loai="{{ $item['product_loai'] }}">
                                 <i class="fas fa-plus"></i>
                             </button>
                         </div>
                     </td>
+
                     <td class="product-total">
                         <span class="total-money" id="money-{{ $item['product_id'] }}-{{ $item['size_id'] }}">
                             {{ number_format($item['money'], 0, ',', '.') }} đ

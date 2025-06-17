@@ -110,12 +110,14 @@ class CartController extends Controller
         }
     }
     //Check quantity
-    public function checkCartQuantity(Request $request) {
+    public function checkCartQuantity(Request $request)
+    {
         $productId = $request->product_id;
         $sizeId = $request->size_id;
+        $loai = $request->loai_san_pham; // Lấy loại sản phẩm
 
         $cart = session()->get('cart', []);
-        $key = $productId . '_' . $sizeId;
+        $key = $loai . '_' . $productId . '_' . $sizeId;
 
         $quantity = isset($cart[$key]) ? $cart[$key]['product_quantity'] : 0;
 
@@ -128,39 +130,37 @@ class CartController extends Controller
             return response()->json(['error' => 'Không tìm thấy cửa hàng.'], 404);
         }
 
-        $cart = session()->get('cart', []);
+        $product = SanPham::where('ma_san_pham', $productId)->first();
+        if (!$product) {
+            return response()->json(['error' => 'Không tìm thấy sản phẩm.'], 404);
+        }
 
+        $boQuaSize = $product->loai_san_pham == 1;
+
+        $cart = session()->get('cart', []);
         $totalUsedIngredients = [];
 
         foreach ($cart as $key => $item) {
             $itemProductId = $item['product_id'];
-            $itemSizeId = $item['size_id'];
+            $itemSizeId = $item['size_id'] ?? null;
             $quantityInCart = (int)$item['product_quantity'];
 
-            // Nếu update, bỏ nguyên liệu của sản phẩm cũ (oldSizeId, oldQuantity)
             if ($mode === 'update' && $itemProductId == $productId && $itemSizeId == $oldSizeId) {
-                // Bỏ đi số lượng cũ
                 $quantityInCart -= $oldQuantity;
-                if ($quantityInCart <= 0) {
-                    continue; // không còn trong giỏ nữa
-                }
+                if ($quantityInCart <= 0) continue;
             }
 
             $ingredients = DB::table('thanh_phan_san_phams')
                 ->where('ma_san_pham', $itemProductId)
-                ->where('ma_size', $itemSizeId)
+                ->when(!$boQuaSize && $itemSizeId, fn($q) => $q->where('ma_size', $itemSizeId))
                 ->get();
 
             foreach ($ingredients as $ingredient) {
                 $idNL = $ingredient->ma_nguyen_lieu;
-                if (!isset($totalUsedIngredients[$idNL])) {
-                    $totalUsedIngredients[$idNL] = 0;
-                }
-                $totalUsedIngredients[$idNL] += $ingredient->dinh_luong * $quantityInCart;
+                $totalUsedIngredients[$idNL] = ($totalUsedIngredients[$idNL] ?? 0) + $ingredient->dinh_luong * $quantityInCart;
             }
         }
 
-        // Lấy nguyên liệu của sản phẩm mới (size mới)
         $ingredientsForNewSize = DB::table('thanh_phan_san_phams as tpsp')
             ->join('nguyen_lieus as nl', 'tpsp.ma_nguyen_lieu', '=', 'nl.ma_nguyen_lieu')
             ->leftJoin('cua_hang_nguyen_lieus as chnl', function ($join) use ($storeId) {
@@ -175,7 +175,7 @@ class CartController extends Controller
                 'chnl.so_luong_ton'
             )
             ->where('tpsp.ma_san_pham', $productId)
-            ->where('tpsp.ma_size', $sizeId)
+            ->when(!$boQuaSize && $sizeId, fn($q) => $q->where('tpsp.ma_size', $sizeId))
             ->get();
 
         if ($ingredientsForNewSize->isEmpty()) {
@@ -185,19 +185,12 @@ class CartController extends Controller
             ];
         }
 
-        // Cộng nguyên liệu của sản phẩm mới theo số lượng mới
         foreach ($ingredientsForNewSize as $ingredient) {
             $idNL = $ingredient->ma_nguyen_lieu;
             $required = $ingredient->dinh_luong * $newQuantity;
-
-            if (!isset($totalUsedIngredients[$idNL])) {
-                $totalUsedIngredients[$idNL] = 0;
-            }
-
-            $totalUsedIngredients[$idNL] += $required;
+            $totalUsedIngredients[$idNL] = ($totalUsedIngredients[$idNL] ?? 0) + $required;
         }
 
-        // Check tồn kho nguyên liệu
         foreach ($ingredientsForNewSize as $ingredient) {
             $idNL = $ingredient->ma_nguyen_lieu;
             $stock = $ingredient->so_luong_ton;
@@ -217,12 +210,10 @@ class CartController extends Controller
             }
         }
 
-        // Giới hạn số lượng max 99
-        $maxAllowedQuantity = 99;
-        if ($newQuantity > $maxAllowedQuantity && $mode === 'add') {
+        if ($newQuantity > 99 && $mode === 'add') {
             return [
                 'success' => false,
-                'message' => "Bạn chỉ có thể mua tối đa {$maxAllowedQuantity} sản phẩm cho mỗi loại."
+                'message' => "Bạn chỉ có thể mua tối đa 99 sản phẩm cho mỗi loại."
             ];
         }
 
@@ -234,63 +225,62 @@ class CartController extends Controller
     //add to cart
     public function addToCart(Request $request, $id)
     {
-        
         try {
             $product = SanPham::where('ma_san_pham', $id)->first();
             if (!$product) {
                 return response()->json(['error' => 'Không tìm thấy sản phẩm.'], 404);
             }
 
-            $storeID =  $request->input('store');
-          
-            $store = CuaHang::where('ma_cua_hang',$storeID);
+            $storeID = $request->input('store');
+            $store = CuaHang::where('ma_cua_hang', $storeID)->first();
             if (!$store) {
                 return response()->json(['error' => 'Không tìm thấy cửa hàng.'], 404);
             }
 
-            $size = $request->input('size');
             $quantity = $request->input('quantity') ?: 1;
-            $sizeInfo = Sizes::where('ma_size', $size)->first();
-            $cartKey = $id . '_' . $size;
+            $loai = $product->loai_san_pham;
+            $size = $loai == 0 ? $request->input('size') : null;
+            $sizeInfo = $loai == 0 ? Sizes::where('ma_size', $size)->first() : null;
+            $sizeId = $loai == 0 ? $size : null;
 
-            $check = $this->checkStore($id, $storeID, $size, $quantity,'add');
+            $cartKey = $id . '_' . ($sizeId ?? 'default');
 
+            $check = $this->checkStore($id, $storeID, $sizeId, $quantity, 'add');
             if (!$check['success']) {
-                return response()->json([
-                    'error' => $check['message']
-                ], 400);
+                return response()->json(['error' => $check['message']], 400);
             }
 
-            $cart = session()->get('cart', []); 
-
-            $size_price =  $sizeInfo->gia_size;
+            $cart = session()->get('cart', []);
+            $size_price = $sizeInfo->gia_size ?? 0;
             $pro_price = $product->gia + $size_price;
             $money = $pro_price * $quantity;
 
             if (isset($cart[$cartKey])) {
                 $cart[$cartKey]['product_quantity'] += $quantity;
-                $cart[$cartKey]['money'] = $cart[$cartKey]['product_quantity'] * ($cart[$cartKey]['product_price'] + $cart[$cartKey]['size_price']);
-
+                $cart[$cartKey]['money'] = $cart[$cartKey]['product_quantity'] * (
+                    $cart[$cartKey]['product_price'] + $cart[$cartKey]['size_price']
+                );
             } else {
                 $cart[$cartKey] = [
                     'product_id' => $id,
                     'product_name' => $product->ten_san_pham,
+                    'product_loai' => $product->loai_san_pham,
                     'product_price' => $product->gia,
                     'product_quantity' => $quantity,
-                    'product_image' =>$product->hinh_anh,
-                    'product_slug' =>$product->slug,
-                    'size_id' => $size,
-                    'size_price' => $sizeInfo->gia_size,
-                    'size_name' => $sizeInfo->ten_size,
+                    'product_image' => $product->hinh_anh,
+                    'product_slug' => $product->slug,
+                    'size_id' => $sizeId,
+                    'size_price' => $size_price,
+                    'size_name' => $sizeInfo->ten_size ?? null,
                     'money' => $money
                 ];
             }
-          
+
             session()->put('cart', $cart);
-
-            $cartCount = count($cart);
-
-            return response()->json(['success' => 'Đã thêm sản phẩm vào giỏ hàng.', 'cartCount' => $cartCount]);
+            return response()->json([
+                'success' => 'Đã thêm sản phẩm vào giỏ hàng.',
+                'cartCount' => count($cart)
+            ]);
         } catch (\Throwable $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -303,7 +293,7 @@ class CartController extends Controller
             $sizeId = $request->input('size_id');
             $quantity = (int) $request->input('quantity');
 
-            $cartKey = $productId . '_' . $sizeId;
+            $cartKey = $productId . '_' . ($sizeId ?? 'default');
             $cart = session()->get('cart', []);
 
             if (!isset($cart[$cartKey])) {
@@ -320,7 +310,6 @@ class CartController extends Controller
                 return response()->json(['error' => $check['message']], 400);
             }
 
-
             // Cập nhật lại số lượng và tiền
             $cart[$cartKey]['product_quantity'] = $quantity;
             $cart[$cartKey]['money'] = $quantity * (
@@ -331,7 +320,7 @@ class CartController extends Controller
 
             // Tính lại tổng tiền
             $subtotal = collect($cart)->sum('money');
-            $shippingFee = 0; // Tuỳ logic bạn
+            $shippingFee = 0; // tuỳ bạn tính
             $total = $subtotal + $shippingFee;
 
             return response()->json([
@@ -387,6 +376,7 @@ class CartController extends Controller
                     $newCart[$newKey] = [
                         'product_id' => $productId,
                         'product_name' => $product['product_name'],
+                        'product_loai' => $product['product_loai'],
                         'product_price' => $productPrice,
                         'product_quantity' => $quantity,
                         'product_image' => $product['product_image'],
@@ -441,35 +431,27 @@ class CartController extends Controller
         $productId = $request->input('product_id');
         $sizeId = $request->input('size_id');
 
-        // Lấy giỏ hàng từ session (mảng)
         $cart = session()->get('cart', []);
 
-        $key = $productId . '_' . $sizeId;
+        $key = $productId . '_' . ($sizeId ?? 'default');
 
         if (isset($cart[$key])) {
-            // Xóa sản phẩm khỏi giỏ hàng
             unset($cart[$key]);
-
-            // Cập nhật lại giỏ hàng trong session
             session()->put('cart', $cart);
 
-            // Tính lại tổng tiền
             $subtotal = collect($cart)->sum('money');
-            $shippingFee = $subtotal >= 0;
+            $shippingFee = 0; // Tùy logic của bạn
             $total = $subtotal + $shippingFee;
 
-            $cartCount = count($cart);
-            
             return response()->json([
                 'message' => 'Xoá thành công',
                 'subtotal_format' => number_format($subtotal, 0, ',', '.') . ' đ',
                 'shipping_fee_format' => number_format($shippingFee, 0, ',', '.') . ' đ',
                 'total_format' => number_format($total, 0, ',', '.') . ' đ',
-                'cartCount' => $cartCount, 
+                'cartCount' => count($cart),
             ]);
         }
 
-        // Nếu sản phẩm không tồn tại trong giỏ hàng thì báo lỗi
         return response()->json([
             'error' => 'Sản phẩm không tồn tại trong giỏ hàng.'
         ], 400);
@@ -514,16 +496,17 @@ class CartController extends Controller
         $storeName = session('selected_store_name');
         $user = auth()->user();
 
-        if(!$cart){
+        if (!$cart) {
             return redirect()->route('cart');
         }
+
         if (!$store) {
             toastr()->error('Vui lòng chọn cửa hàng trước khi thanh toán');
             return redirect()->back();
         }
 
         foreach ($cart as $item) {
-        $product = SanPham::where('ma_san_pham', $item['product_id'])->first();
+            $product = SanPham::where('ma_san_pham', $item['product_id'])->first();
             $spCuaHang = SanPhamCuaHang::where('ma_san_pham', $item['product_id'])
                 ->where('ma_cua_hang', $store)
                 ->first();
@@ -541,17 +524,23 @@ class CartController extends Controller
 
         foreach ($cart as $item) {
             $product = SanPham::where('ma_san_pham', $item['product_id'])->first();
-            $size = Sizes::where('ma_size', $item['size_id'])->first();
+
+            if (!$product) continue;
 
             $expectedPrice = $product->gia;
-            $expectedSizePrice = $size->gia_size;
+            $expectedSizePrice = 0;
 
-            // So sánh riêng từng phần thay vì tổng
+            if ($product->loai_san_pham == 0) {
+                // Có size thì mới kiểm tra
+                $size = Sizes::where('ma_size', $item['size_id'])->first();
+                $expectedSizePrice = $size?->gia_size ?? 0;
+            }
+
             if (
                 round($item['product_price'], 0) != round($expectedPrice, 0) ||
                 round($item['size_price'], 0) != round($expectedSizePrice, 0)
             ) {
-                $cartKey = $item['product_id'] . '_' . $item['size_id'];
+                $cartKey = $item['product_id'] . '_' . ($item['size_id'] ?? 'default');
                 $item['product_price'] = $expectedPrice;
                 $item['size_price'] = $expectedSizePrice;
                 $item['money'] = ($expectedPrice + $expectedSizePrice) * $item['product_quantity'];
@@ -564,7 +553,7 @@ class CartController extends Controller
             }
         }
 
-        // Lấy info user
+        // Thông tin user
         $ma_tai_khoan = null;
         $khach_hang = null;
         $email = null;
@@ -577,10 +566,14 @@ class CartController extends Controller
             $email = $khach_hang?->taiKhoan?->email;
         }
 
-        // Lấy danh sách size theo từng sản phẩm (nếu cần)
+        // Lấy size tương ứng với sản phẩm nếu có
         $productSizes = [];
         foreach ($cart as $item) {
             $productId = $item['product_id'];
+            $product = SanPham::where('ma_san_pham', $productId)->first();
+
+            if (!$product || $product->loai_san_pham == 1) continue;
+
             if (!isset($productSizes[$productId])) {
                 $sizes = DB::table('thanh_phan_san_phams')
                     ->join('sizes', 'thanh_phan_san_phams.ma_size', '=', 'sizes.ma_size')
@@ -594,18 +587,20 @@ class CartController extends Controller
         }
 
         $subTotal = array_sum(array_column($cart, 'money'));
-        
+
         $shippingFee = 0;
-        if($subTotal < 200000){
+        if ($subTotal < 200000) {
             $shippingFee = 30000;
         }
+
         $total = $subTotal + $shippingFee;
 
         $cartCount = count($cart);
         $vouchers = $this->getVoucher();
 
-        return view('clients.pages.carts.checkout', [
-            'title' => 'Check out | CMDT Coffee & Tea',
+        $viewData = [
+            'title' => 'Xác nhận đặt hàng | CMDT Coffee & Tea',
+            'subtitle' => 'Xác nhận đặt hàng',
             'cart' => $cart,
             'productSizes' => $productSizes,
             'subTotal' => $subTotal,
@@ -616,6 +611,12 @@ class CartController extends Controller
             'khach_khach' => $khach_hang,
             'email' => $email,
             'vouchers' => $vouchers
-        ]);
+        ];
+
+        return view('clients.pages.carts.checkout', $viewData);
+    }
+    public function muaNgay(Request $request, $id)
+    {
+        return $this->addToCart($request, $id); // Gửi về giỏ như thường
     }
 }

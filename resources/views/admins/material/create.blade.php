@@ -101,6 +101,14 @@
                         </select>
                     </div>
 
+                    <div class="form-group">
+                        <label>Trạng thái bán</label>
+                        <select name="is_ban_duoc" class="form-control" required>
+                            <option value="1">Được phép bán</option>
+                            <option value="0">Không bán</option>
+                        </select>
+                    </div>
+
                     <button type="submit" class="btn btn-primary">Thêm</button>
                     <a href="{{ route('admins.material.index') }}" class="btn btn-secondary">Hủy</a>
                 </form>
