@@ -167,15 +167,16 @@
                     const form = this.closest('form');
 
                     Swal.fire({
-    title: 'Xác nhận xóa nguyên liệu',
-    text: 'Bạn có chắc chắn muốn xóa nguyên liệu này?',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Đồng ý',
-    cancelButtonText: 'Hủy bỏ',
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33'
-}).then((result) => {
+                        title: 'Xác nhận xóa nguyên liệu',
+                        text: 'Bạn có chắc chắn muốn xóa nguyên liệu này?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Đồng ý',
+                        cancelButtonText: 'Hủy bỏ',
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33'
+                    }).then((result) => {
+
                         if (result.isConfirmed) {
                             // Hiển thị loading trước khi submit
                             Swal.fire({

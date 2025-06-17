@@ -57,6 +57,11 @@ class NguyenLieu extends Model
 {
     return $this->belongsToMany(SanPham::class, 'thanh_phan_san_phams', 'ma_nguyen_lieu', 'ma_san_pham', 'ma_nguyen_lieu', 'ma_san_pham');
 }
+public function nguyenLieu()
+{
+    return $this->belongsTo(NguyenLieu::class, 'ma_nguyen_lieu', 'ma_nguyen_lieu');
+}
+
 
 
 
