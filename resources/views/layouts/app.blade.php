@@ -166,6 +166,9 @@
 	<!-- end search area -->
 	 
 	@yield('content')
+	<a href="#" id="back-to-top" class="cart-btn" style="position: fixed; bottom: 30px; right: 30px; display: none; z-index: 999; ">
+		<i class="fas fa-arrow-up"></i> 
+	</a>
 
 	<!-- footer -->
 	<div class="footer-area">

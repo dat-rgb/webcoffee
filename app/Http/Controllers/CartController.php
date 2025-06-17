@@ -604,8 +604,9 @@ class CartController extends Controller
         $cartCount = count($cart);
         $vouchers = $this->getVoucher();
 
-        return view('clients.pages.carts.checkout', [
-            'title' => 'Check out | CMDT Coffee & Tea',
+        $viewData = [
+            'title' => 'Xác nhận đặt hàng | CMDT Coffee & Tea',
+            'subtitle' => 'Xác nhận đặt hàng',
             'cart' => $cart,
             'productSizes' => $productSizes,
             'subTotal' => $subTotal,
@@ -616,7 +617,8 @@ class CartController extends Controller
             'khach_khach' => $khach_hang,
             'email' => $email,
             'vouchers' => $vouchers
-        ]);
+        ];
+        return view('clients.pages.carts.checkout', $viewData);
     }
 
     public function muaNgay(Request $request, $id)

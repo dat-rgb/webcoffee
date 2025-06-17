@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title',$title)
-
+@section('subtitle',$subtitle)
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/checkout.css') }}">
 @endpush
@@ -12,7 +12,7 @@
             <div class="col-lg-8 offset-lg-2 text-center">
                 <div class="breadcrumb-text">
                     <p>Coffee & Tea</p>
-                    <h1>Check Out</h1>
+                    <h1>{{ $subtitle }}</h1>
                 </div>
             </div>
         </div>
