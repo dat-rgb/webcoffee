@@ -33,40 +33,20 @@ class ProductController extends Controller
             });
         }
 
-        $products = $query->get();
-
-        return $products;
+        return $query->paginate(6)->appends(['search' => $search]);
     }
-    public function getProductByCategoryIDs(array $categoryIDs, $selected_store_id = null)
-    {
-        if ($selected_store_id) {
-            $products = SanPham::whereHas('sanPhamCuaHang', function ($q) use ($selected_store_id) {
-                    $q->where('ma_cua_hang', $selected_store_id)
-                    ->where('trang_thai', 1);
-                })
-                ->with('danhMuc')
-                ->where('trang_thai', 1)
-                ->whereIn('ma_danh_muc', $categoryIDs)
-                ->get();
-        } else {
-            $products = SanPham::with('danhMuc')
-                ->where('trang_thai', 1)
-                ->whereIn('ma_danh_muc', $categoryIDs)
-                ->get();
-        }
 
-        return $products;
-    }
     public function productList()
     {
         $products = $this->getProduct();
-
-        $categories = DanhMucSanPham::where('trang_thai', 1)->get();
-
-        $countCate = [];
-        foreach ($categories as $cate) {
-            $countCate[$cate->ma_danh_muc] = $products->where('ma_danh_muc', $cate->ma_danh_muc)->count();
+        if ($products->currentPage() > $products->lastPage()) {
+            return redirect()->route('product', ['page' => $products->lastPage()]);
         }
+        $categories = DanhMucSanPham::where('trang_thai', 1)
+            ->withCount(['sanPhams as product_count' => function ($q) {
+                $q->where('trang_thai', 1);
+            }])
+            ->get();
 
         $productToHistory = $this->getProductToViewHistory();
 
@@ -75,20 +55,21 @@ class ProductController extends Controller
             'subtitle' => 'Sản phẩm',
             'products' => $products,
             'categories' => $categories,
-            'countCate' => $countCate,
             'productToHistory' => $productToHistory,
+            
         ];
 
         return view('clients.pages.products.product_list', $viewData);
     }
-    public function listProductsByCategoryParent($slug)
+    public function getProductByCategorySlug($slug, $selected_store_id = null)
     {
         $categoryParent = DanhMucSanPham::with('childrenRecursive')
             ->where('slug', $slug)
             ->firstOrFail();
 
-        // Đệ quy lấy danh mục con cháu
-        function flattenCategories($category) {
+        // Đệ quy gom hết danh mục con
+        function flattenCategories($category)
+        {
             $flat = [];
             foreach ($category->childrenRecursive as $child) {
                 $flat[] = $child;
@@ -98,32 +79,56 @@ class ProductController extends Controller
         }
 
         $flatCategories = flattenCategories($categoryParent);
-        $categories = collect($flatCategories);
-        $categories->prepend($categoryParent);
+        $categories = collect($flatCategories)->prepend($categoryParent);
+        $categoryIDs = $categories->pluck('ma_danh_muc')->toArray();
 
-        $categoryIDs = collect([$categoryParent->ma_danh_muc])
-            ->merge($categories->pluck('ma_danh_muc'))
-            ->toArray();
+        // Query sản phẩm theo danh sách danh mục
+        $query = SanPham::with('danhMuc')
+            ->where('trang_thai', 1)
+            ->whereIn('ma_danh_muc', $categoryIDs);
 
+        if ($selected_store_id) {
+            $query->whereHas('sanPhamCuaHang', function ($q) use ($selected_store_id) {
+                $q->where('ma_cua_hang', $selected_store_id)
+                ->where('trang_thai', 1);
+            });
+        }
+
+        return [
+            'products' => $query->paginate(6),
+            'categoryParent' => $categoryParent,
+            'categories' => $categories
+        ];
+    }
+    public function listProductsByCategoryParent($slug)
+    {
         $selected_store_id = session('selected_store_id', null);
-        $products = $this->getProductByCategoryIDs($categoryIDs, $selected_store_id);
+        $result = $this->getProductByCategorySlug($slug, $selected_store_id);
 
-        // Đếm sp theo danh mục
+        $products = $result['products'];
+        $categoryParent = $result['categoryParent'];
+        $categories = $result['categories'];
+
+        // Nếu người dùng truy cập page quá lớn
+        if ($products->currentPage() > $products->lastPage()) {
+            return redirect()->route('product.category.list', ['slug' => $slug, 'page' => $products->lastPage()]);
+        }
+
+        // Đếm sp theo từng danh mục con
         $countCate = [];
         foreach ($categories as $cate) {
             $countCate[$cate->ma_danh_muc] = $products->where('ma_danh_muc', $cate->ma_danh_muc)->count();
         }
 
-        $viewData = [
+        return view('clients.pages.products.product_list', [
             'title' => $categoryParent->ten_danh_muc . ' | CDMT coffee & tea',
             'subtitle' => $categoryParent->ten_danh_muc . ' tại nhà',
             'products' => $products,
             'categories' => $categories,
             'categoryParent' => $categoryParent,
-            'countCate' => $countCate
-        ];
-
-        return view('clients.pages.products.product_list', $viewData);
+            'countCate' => $countCate,
+            'slugActive' => $slug,
+        ]);
     }
     public function searchProduct(Request $request) {
         $search = trim($request->input('search'));
@@ -150,7 +155,6 @@ class ProductController extends Controller
     }
     protected function pushProductToViewedHistory($product)
     {
-        // Lấy lịch sử hiện tại, hoặc mảng rỗng nếu chưa có
         $history = session()->get('viewed_products', []);
 
         $product_info = [
@@ -164,18 +168,14 @@ class ProductController extends Controller
             'viewed_at' => now()->timestamp,
         ];
 
-        // Loại bỏ sản phẩm nếu đã có trong lịch sử để đưa lên đầu
         $history = array_filter($history, function ($item) use ($product_info) {
             return $item['ma_san_pham'] != $product_info['ma_san_pham'];
         });
 
-        // Thêm sản phẩm vừa xem vào đầu mảng
         array_unshift($history, $product_info);
 
-        // Giới hạn số lượng sản phẩm trong lịch sử lưu 5 sản phẩm gần nhất
         $history = array_slice($history, 0, 5);
 
-        // Lưu lại vào session
         session()->put('viewed_products', $history);
     }
     public function productDetail($slug) {

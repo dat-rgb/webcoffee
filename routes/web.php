@@ -141,6 +141,7 @@ Route::prefix('payment')->group(function(){
 Route::prefix('blog')->group(function(){
     Route::get('/', [BlogController::class, 'index'])->name('blog');
     Route::get('/{slug}', [BlogController::class, 'detail'])->name('blog.detail');
+    Route::get('/danh-muc/{slug}', [BlogController::class, 'getBlogsByCate'])->name('blog.byCate');
 });
 
 //Khách hàng

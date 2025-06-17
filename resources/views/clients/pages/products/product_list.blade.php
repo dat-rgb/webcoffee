@@ -54,7 +54,7 @@
             <div class="col-md-12">
                 <div class="product-filters">
                     <ul>
-                        <li class="active" data-filter="*">All</li>
+                        <li class="active" data-filter="*">Tất cả</li>
                         @foreach ($categories as $cate)
                             @if (!empty($countCate[$cate->ma_danh_muc]) && $countCate[$cate->ma_danh_muc] > 0)
                                 <li data-filter=".{{ $cate->ma_danh_muc }}" >

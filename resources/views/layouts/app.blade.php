@@ -73,8 +73,10 @@
 								</li>
 								<li class="{{ request()->routeIs('blog') ? 'current-list-item ' : '' }}"><a href="{{ route('blog') }}">Tin Tức</a>
 									<ul class="sub-menu">
-										<li><a href="{{ route('blog') }}">Coffee</a></li>
-										<li><a href="{{ route('blog') }}">Chuyện Trà</a></li>
+										<li><a href="{{ route('blog') }}">Tất cả</a></li>
+										@foreach ($danhMucBlog as $dmBlog)
+											<li><a href="{{ route('blog.byCate',$dmBlog->slug) }}">{{ $dmBlog->ten_danh_muc_blog }}</a></li>
+										@endforeach
 									</ul>
 								</li>
 								<li class="{{ request()->routeIs('about') ? 'current-list-item ' : '' }}"><a href="{{ route('about') }}">Giới thiệu</a></li>
