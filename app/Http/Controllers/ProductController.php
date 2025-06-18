@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 class ProductController extends Controller
 {
-    public function getProduct($search = '')
+    public function getProduct($search = '', $loaiSP = 0)
     {
         $selected_store_id = session('selected_store_id', null);
 
@@ -19,7 +19,7 @@ class ProductController extends Controller
         if ($selected_store_id) {
             $query->whereHas('sanPhamCuaHang', function ($q) use ($selected_store_id) {
                 $q->where('ma_cua_hang', $selected_store_id)
-                ->where('trang_thai', 1);
+                    ->where('trang_thai', 1);
             });
         }
 
@@ -34,10 +34,13 @@ class ProductController extends Controller
             });
         }
 
-        $products = $query->paginate(12);
+        if ($loaiSP != 0) {
+            $query->where('loai_san_pham', $loaiSP);
+        }
 
-        return $products;
+        return $query->paginate(12);
     }
+
     public function getProductByCategoryIDs(array $categoryIDs, $selected_store_id = null)
     {
         if ($selected_store_id) {

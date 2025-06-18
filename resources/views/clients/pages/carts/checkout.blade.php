@@ -306,7 +306,6 @@
 <script>
 $(document).ready(function () {
     $('#checkVoucherBtn').on('click', function () {
-        //e.preventDefault(); 
         let code = $('#voucherCodeInput').val().trim();
         if (!code) return Swal.fire('Lỗi', 'Vui lòng nhập mã voucher', 'warning');
 
@@ -319,7 +318,6 @@ $(document).ready(function () {
                     Swal.fire('Không hợp lệ', res.message || 'Mã không tồn tại hoặc đã hết hạn', 'error');
                     return;
                 }
-                // Nếu hợp lệ → render như một voucher bình thường
                 const v = res.voucher;
                 const isDisabled = false;
                 const reason = null;
@@ -353,11 +351,9 @@ $(document).ready(function () {
                 $('#manualVoucherContainer').html(html);
                 $('#voucherCodeInput').val('');
 
-                // Kích hoạt lại sự kiện tính toán
                 $('.voucher-radio').off('change').on('change', function () {
-                    $('.voucher-radio').trigger('change'); // hoặc gọi lại hàm xử lý bạn đã viết
+                    $('.voucher-radio').trigger('change'); 
                 });
-                //Swal.fire('Thành công', 'Áp dụng voucher thành công!', 'success');
             },
             error: function () {
                 Swal.fire('Lỗi server', 'Vui lòng thử lại sau.', 'error');

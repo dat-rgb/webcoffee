@@ -5,29 +5,39 @@ document.addEventListener("DOMContentLoaded", function () {
   const shippingFeeText = document.getElementById("shippingFeeText");
   const shippingFeeInput = document.getElementById("shippingFeeInput");
 
-  const originalFee = parseInt(shippingFeeInput.dataset.originalFee); // Lưu phí gốc
+  const originalFee = parseInt(shippingFeeInput.dataset.originalFee); 
 
   shippingMethods.forEach(method => {
-      method.addEventListener("change", () => {
-          if (method.value === "delivery" && method.checked) {
-              deliverySection.style.display = "block";
-              pickupSection.style.display = "none";
-              shippingFeeText.innerText = formatCurrency(originalFee);
-              shippingFeeInput.value = originalFee;
-          } else if (method.value === "pickup" && method.checked) {
-              deliverySection.style.display = "none";
-              pickupSection.style.display = "block";
-              shippingFeeText.innerText = "0 đ";
-              shippingFeeInput.value = 0;
-          }
-      });
+    method.addEventListener("change", () => {
+      if (method.value === "delivery" && method.checked) {
+        deliverySection.style.display = "block";
+        pickupSection.style.display = "none";
+        shippingFeeText.innerText = formatCurrency(originalFee);
+        shippingFeeInput.value = originalFee;
+      } else if (method.value === "pickup" && method.checked) {
+        deliverySection.style.display = "none";
+        pickupSection.style.display = "block";
+        shippingFeeText.innerText = "0 đ";
+        shippingFeeInput.value = 0;
+      }
+
+      updateTotal(); 
+    });
   });
 
-  // Hàm định dạng tiền tệ
+  function updateTotal() {
+    const subtotal = parseInt(document.getElementById("subtotal").innerText.replace(/\D/g, ""));
+    const shippingFee = parseInt(shippingFeeInput.value);
+    const discount = parseInt(document.getElementById("discount").innerText.replace(/\D/g, ""));
+    const total = subtotal + shippingFee - discount;
+    document.getElementById("total").innerText = formatCurrency(total);
+  }
+
   function formatCurrency(number) {
-      return number.toLocaleString('vi-VN') + ' đ';
+    return number.toLocaleString('vi-VN') + ' đ';
   }
 });
+
 
 document.addEventListener("DOMContentLoaded", () => {
   const provinceSelect = document.getElementById("provinceSelect");
@@ -38,55 +48,69 @@ document.addEventListener("DOMContentLoaded", () => {
   const districtName = document.getElementById("districtName");
   const wardName = document.getElementById("wardName");
 
-  // Gắn cứng TP.HCM
-  fetch("https://provinces.open-api.vn/api/p/79?depth=2") // 79 = TP.HCM
+  // Load danh sách tỉnh/thành phố
+  fetch("https://provinces.open-api.vn/api/?depth=1")
+    .then(res => res.json())
+    .then(data => {
+      data.forEach(p => {
+        const opt = new Option(p.name, p.code);
+        provinceSelect.add(opt);
+      });
+    });
+
+  // Khi chọn tỉnh → load quận/huyện
+  provinceSelect.addEventListener("change", () => {
+    const code = provinceSelect.value;
+    provinceName.value = provinceSelect.options[provinceSelect.selectedIndex].text;
+
+    districtSelect.innerHTML = '<option selected>Chọn quận/huyện</option>';
+    wardSelect.innerHTML = '<option selected>Chọn xã/phường</option>';
+    districtSelect.disabled = true;
+    wardSelect.disabled = true;
+
+    if (!code) return;
+
+    fetch(`https://provinces.open-api.vn/api/p/${code}?depth=2`)
       .then(res => res.json())
       .then(data => {
-          // Gán tên và mã tỉnh
-          provinceSelect.innerHTML = `<option value="${data.code}" selected>${data.name}</option>`;
-          provinceSelect.disabled = true; // Không cho đổi
-
-          provinceName.value = data.name;
-
-          // Load danh sách quận
-          districtSelect.disabled = false;
-          data.districts.forEach(d => {
-              const opt = new Option(d.name, d.code);
-              districtSelect.add(opt);
-          });
+        districtSelect.disabled = false;
+        data.districts.forEach(d => {
+          const opt = new Option(d.name, d.code);
+          districtSelect.add(opt);
+        });
       });
-
-  // Khi chọn quận → load xã
-  districtSelect.addEventListener("change", () => {
-      const code = districtSelect.value;
-      districtName.value = districtSelect.options[districtSelect.selectedIndex].text;
-      wardSelect.innerHTML = '<option selected>Chọn xã/phường</option>';
-
-      if (!code) {
-          wardSelect.disabled = true;
-          return;
-      }
-
-      fetch(`https://provinces.open-api.vn/api/d/${code}?depth=2`)
-          .then(res => res.json())
-          .then(data => {
-              wardSelect.disabled = false;
-              data.wards.forEach(w => {
-                  const opt = new Option(w.name, w.code);
-                  wardSelect.add(opt);
-              });
-          });
   });
 
-  // Gán tên xã vào input hidden
+  // Khi chọn quận/huyện → load xã/phường
+  districtSelect.addEventListener("change", () => {
+    const code = districtSelect.value;
+    districtName.value = districtSelect.options[districtSelect.selectedIndex].text;
+
+    wardSelect.innerHTML = '<option selected>Chọn xã/phường</option>';
+    wardSelect.disabled = true;
+
+    if (!code) return;
+
+    fetch(`https://provinces.open-api.vn/api/d/${code}?depth=2`)
+      .then(res => res.json())
+      .then(data => {
+        wardSelect.disabled = false;
+        data.wards.forEach(w => {
+          const opt = new Option(w.name, w.code);
+          wardSelect.add(opt);
+        });
+      });
+  });
+
+  // Gán tên xã/phường vào input hidden
   wardSelect.addEventListener("change", () => {
-      wardName.value = wardSelect.options[wardSelect.selectedIndex].text;
+    wardName.value = wardSelect.options[wardSelect.selectedIndex].text;
   });
 });
 
 $(document).ready(function(){
   $('#check-out-form').submit(function (e) { 
-    e.preventDefault(); // chặn form submit ngay lập tức để kiểm tra validate
+    e.preventDefault(); 
 
     let ho_ten_khach_hang = $('input[name="ho_ten_khach_hang"]').val().trim();
     let email = $('input[name="email"]').val().trim();
@@ -147,7 +171,7 @@ $(document).ready(function(){
         icon: 'warning',
         confirmButtonText: 'OK'
       });
-      return; // dừng nếu có lỗi
+      return;
     }
 
     Swal.fire({
@@ -159,23 +183,20 @@ $(document).ready(function(){
       cancelButtonText: 'Hủy'
     }).then((result) => {
       if (result.isConfirmed) {
-        // Hiện đang xử lý
         Swal.fire({
           title: 'Đang xử lý...',
           allowOutsideClick: false,
           didOpen: () => Swal.showLoading()
         });
 
-        // Submit form thật sau 800ms để loading đẹp
         setTimeout(() => {
-          e.target.submit(); // submit form thủ công
+          e.target.submit();
         }, 800);
       }
     });
   });
 });
 
-// Tính lại giá khi áp dụng voucher
 $(document).ready(function () {
   $(document).on('change', '.voucher-radio', function () {
     const giaTriGiam = parseFloat($(this).data('gia-tri-giam'));
@@ -183,7 +204,7 @@ $(document).ready(function () {
     const dieuKien = parseFloat($(this).data('dieu-kien'));
 
     let subtotal = parseFloat($('#subtotal').text().replace(/\./g, '').replace(' đ', ''));
-    let shippingFee = parseFloat($('#shippingFee').text().replace(/\./g, '').replace(' đ', ''));
+    let shippingFee = parseFloat($('#shippingFeeText').text().replace(/\./g, '').replace(' đ', ''));
 
     if (subtotal < dieuKien) {
       Swal.fire({
@@ -194,7 +215,7 @@ $(document).ready(function () {
       $(this).prop('checked', false);
       return;
     }
-  
+
     let discount = 0;
     if (giaTriGiam <= 100) {
         discount = subtotal * (giaTriGiam / 100);
@@ -202,7 +223,6 @@ $(document).ready(function () {
     } else {
         discount = giaTriGiam;
     }
-    
 
     let total = subtotal + shippingFee - discount;
     if (total < 0) total = 0;
@@ -215,6 +235,7 @@ $(document).ready(function () {
     $('#discount').text(formatCurrency(discount));
   });
 });
+
 
 
 
