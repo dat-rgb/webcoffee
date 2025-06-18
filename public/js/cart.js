@@ -122,6 +122,7 @@ $('.add-to-cart').click(function(e){
         method: 'GET',
         data: {
             product_id: url.split('/').pop(),
+            size_id: size, 
             quantity: quantity,
             _token: $('input[name="_token"]').val()
         },

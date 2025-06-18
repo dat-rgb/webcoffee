@@ -182,7 +182,7 @@
 				</div>
 				<div class="col-lg-3 col-md-6">
 					<div class="footer-box get-in-touch">
-						<h2 class="widget-title">Liên hiện</h2>
+						<h2 class="widget-title">Liên hệ</h2>
 						<ul>
 							<li>{{ $thongTinWebsite['dia_chi'] }}</li>
 							<li>{{ $thongTinWebsite['email'] }}</li>

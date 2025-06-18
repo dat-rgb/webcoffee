@@ -201,14 +201,16 @@ class AdminProductController extends Controller
             'loai_san_pham' => $loaiSP,
             'is_new' => $new,
         ]);
+        $nguyenLieu = NguyenLieu::where('ma_nguyen_lieu',$request->ma_nguyen_lieu)->first();
 
-         // Nếu là sản phẩm đóng gói
-         if ($loaiSP == 1) {
+        
+        // Nếu là sản phẩm đóng gói
+        if ($loaiSP == 1) {
             ThanhPhanSanPham::create([
                 'ma_san_pham'     => $request->ma_san_pham,
                 'ma_nguyen_lieu'  => $request->ma_nguyen_lieu,
                 'ma_size'         => null,
-                'dinh_luong'      => 1, // 1 đơn vị nguyên liệu
+                'dinh_luong'      => $nguyenLieu->so_luong, // 1 đơn vị nguyên liệu
                 'don_vi'          => null,
             ]);
         }

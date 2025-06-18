@@ -114,10 +114,9 @@ class CartController extends Controller
     {
         $productId = $request->product_id;
         $sizeId = $request->size_id;
-        $loai = $request->loai_san_pham; // Lấy loại sản phẩm
-
+    
         $cart = session()->get('cart', []);
-        $key = $loai . '_' . $productId . '_' . $sizeId;
+        $key = $productId . '_' . ($sizeId ?? 'default');
 
         $quantity = isset($cart[$key]) ? $cart[$key]['product_quantity'] : 0;
 
