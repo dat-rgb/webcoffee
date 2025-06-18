@@ -68,8 +68,8 @@ class Napas247Controller extends Controller
             'so_dien_thoai' => $hoaDon->so_dien_thoai,
             'dia_chi' => $hoaDon->dia_chi,
             'items_json' => json_encode($orderData['cart_items']),
-            'payment_link' => null, // sẽ cập nhật sau khi có response
-            'trang_thai' => 'PENDING', //
+            'payment_link' => null, 
+            'trang_thai' => 'PENDING', 
         ]);
 
         // Tạo chi tiết hóa đơn
@@ -213,7 +213,6 @@ class Napas247Controller extends Controller
 
         if ($hoaDon && $hoaDon->trang_thai_thanh_toan != 1) {
             $hoaDon->trang_thai_thanh_toan = 1; // Đã thanh toán
-            $hoaDon->trang_thai = 1;            // Đã xác nhận
             $hoaDon->save();
 
             $cartItems = json_decode($transaction->items_json ?? '[]', true);
@@ -260,7 +259,6 @@ class Napas247Controller extends Controller
         $maHoaDon = 'HD' . $orderCode;
 
         $hoaDon = HoaDon::where('ma_hoa_don', $maHoaDon)->first();
-        //dd('mã hóa đơn nhận được khi cancel: '.$hoaDon);
         if (!$hoaDon) return;
 
         if ($hoaDon->ma_voucher) {
@@ -275,7 +273,6 @@ class Napas247Controller extends Controller
         $hoaDon->trang_thai = 5; // Đã hủy
         $hoaDon->save();
 
-        // Update trạng thái giao dịch
         Transactions::where('ma_hoa_don', $maHoaDon)->update([
             'trang_thai' => 'CANCELLED'
         ]);

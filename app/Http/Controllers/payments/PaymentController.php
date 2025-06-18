@@ -55,12 +55,23 @@ class PaymentController extends Controller
 
         $storeId = session('selected_store_id');
         if(!$storeId){
-            return redirect()->route('cart')->with('error', 'Vui lòng chọn cửa hàng.');
+            toastr()->error('Vui lòng chọn cửa hàng.');
+            return redirect()->route('cart');
         }
+        $store = CuaHang::where('ma_cua_hang', $storeId)->first();
+        $now = Carbon::now();
+        $openTime = Carbon::createFromFormat('H:i:s', $store->gio_mo_cua);
+        $closeTime = Carbon::createFromFormat('H:i:s', $store->gio_dong_cua);
+
+        if (!$now->between($openTime, $closeTime)) {
+            toastr()->error('Cửa hàng hiện đang đóng cửa. Vui lòng chọn cửa hàng khác hoặc quay lại trong giờ mở cửa.');
+            return redirect()->route('cart');
+        }  
 
         $storeCheck = $this->checkStore($storeId);
         if (!$storeCheck['success']) {
-            return redirect()->route('cart')->with('error', $storeCheck['message'] ?? 'Lỗi không xác định.');
+            toastr()->error($storeCheck['message'] ?? 'Lỗi không xác định.');
+            return redirect()->route('cart');
         }
 
         if ($this->checkCartPrices()) {
@@ -70,7 +81,8 @@ class PaymentController extends Controller
 
         $cart = session('cart', []);
         if (empty($cart)) {
-            return redirect()->route('cart')->with('error', 'Giỏ hàng của bạn đang trống.');
+            toastr()->warning('Giỏ hàng của bạn đang trống.');
+            return redirect()->route('cart');
         }
 
         $shippingFee = $request->shippingFee ?? 0;
@@ -268,6 +280,16 @@ class PaymentController extends Controller
             $sizeId = $item['size_id'];
             $quantity = (int)$item['product_quantity'];
 
+            // Lấy loại sản phẩm để check nếu là đóng gói (loai_san_pham == 1) thì bỏ qua
+            $product = DB::table('san_phams')
+                ->select('loai_san_pham')
+                ->where('ma_san_pham', $productId)
+                ->first();
+
+            if ($product && $product->loai_san_pham == 1) {
+                continue; // bỏ qua sản phẩm đóng gói
+            }
+
             $ingredients = DB::table('thanh_phan_san_phams')
                 ->where('ma_san_pham', $productId)
                 ->where('ma_size', $sizeId)
@@ -285,16 +307,18 @@ class PaymentController extends Controller
 
         foreach ($totalUsedIngredients as $ingredientId => $requiredQty) {
             $stock = $ingredientStocks[$ingredientId] ?? null;
+
             if (is_null($stock) || $requiredQty > $stock) {
                 return [
                     'success' => false,
-                    'message' => "Nguyên liệu không đủ cung cấp cho sản phẩm của bạn. Hãy chọn cửa hàng khác!"
+                    'message' => "Nguyên liệu không đủ cung cấp cho sản phẩm trong giỏ hàng. Hãy chọn cửa hàng khác!"
                 ];
             }
         }
 
         return ['success' => true, 'usedIngredients' => $totalUsedIngredients];
     }
+
     public function checkStatus($cart, $storeId)
     {
         $storeName = session('selected_store_name');
@@ -326,20 +350,28 @@ class PaymentController extends Controller
 
         return ['success' => true];
     }
-    public function checkCartPrices() {
+    public function checkCartPrices()
+    {
         $cart = session('cart', []);
+
         foreach ($cart as $item) {
             $product = SanPham::where('ma_san_pham', $item['product_id'])->first();
-            $size = Sizes::where('ma_size', $item['size_id'])->first();
+            if (!$product) continue;
 
             $expectedPrice = $product->gia;
-            $expectedSizePrice = $size->gia_size;
+            $expectedSizePrice = 0;
+
+            // Mặc định giá size là 0 nếu là sản phẩm đóng gói
+            if ($product->loai_san_pham != 1 && !empty($item['size_id'])) {
+                $size = Sizes::where('ma_size', $item['size_id'])->first();
+                $expectedSizePrice = $size ? $size->gia_size : 0;
+            }
 
             if (
                 round($item['product_price'], 0) != round($expectedPrice, 0) ||
                 round($item['size_price'], 0) != round($expectedSizePrice, 0)
             ) {
-                $cartKey = $item['product_id'] . '_' . $item['size_id'];
+                $cartKey = $item['product_id'] . '_' . ($item['size_id'] ?? '0');
                 $item['product_price'] = $expectedPrice;
                 $item['size_price'] = $expectedSizePrice;
                 $item['money'] = ($expectedPrice + $expectedSizePrice) * $item['product_quantity'];
@@ -352,6 +384,7 @@ class PaymentController extends Controller
             }
         }
     }
+
     public function subtractIngredients($storeId, $usedIngredients)
     {
         foreach ($usedIngredients as $ingredientId => $requiredQty) {
@@ -360,7 +393,36 @@ class PaymentController extends Controller
                 ->where('ma_nguyen_lieu', $ingredientId)
                 ->decrement('so_luong_ton', $requiredQty);
         }
+
+        $cart = session('cart', []);
+        foreach ($cart as $item) {
+            $product = DB::table('san_phams')
+                ->select('loai_san_pham')
+                ->where('ma_san_pham', $item['product_id'])
+                ->first();
+
+            if (!$product || $product->loai_san_pham != 1) {
+                continue;
+            }
+
+            $quantity = (int)$item['product_quantity'];
+
+            $ingredients = DB::table('thanh_phan_san_phams')
+                ->where('ma_san_pham', $item['product_id'])
+                ->whereNull('ma_size') // đặc trưng sản phẩm đóng gói
+                ->get();
+
+            foreach ($ingredients as $ingredient) {
+                $totalQty = $ingredient->dinh_luong * $quantity;
+
+                DB::table('cua_hang_nguyen_lieus')
+                    ->where('ma_cua_hang', $storeId)
+                    ->where('ma_nguyen_lieu', $ingredient->ma_nguyen_lieu)
+                    ->decrement('so_luong_ton', $totalQty);
+            }
+        }
     }
+
     private function calculateDistance($lat1, $lon1, $lat2, $lon2)
     {
         $earthRadius = 6371; // km

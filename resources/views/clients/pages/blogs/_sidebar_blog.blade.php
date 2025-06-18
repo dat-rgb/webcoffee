@@ -20,7 +20,7 @@
             <h4>Tags</h4>
             <ul>
                 @foreach ($danhMucBlog as $dm)
-                <li><a href="#">{{ $dm->ten_danh_muc_blog }}</a></li>
+                <li><a href="{{ route('blog.byCate', $dm->slug) }}">{{ $dm->ten_danh_muc_blog }}</a></li>
                 @endforeach
             </ul>
         </div>

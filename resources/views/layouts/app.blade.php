@@ -320,7 +320,7 @@
 			} else {
 				document.getElementById('storeList').innerHTML = `
 					<li class="list-group-item text-center text-muted">
-						Nhấn "Vị trí của bạn" để hiển thị các cửa hàng gần nhất
+						Nhấn "Vị trí" để hiển thị các cửa hàng gần nhất
 					</li>`;
 			}
 		});
@@ -335,10 +335,17 @@
 			});
 		}
 
+		function parseTimeToDate(timeStr) {
+			const [hours, minutes] = timeStr.split(':').map(Number);
+			const now = new Date();
+			return new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
+		}
+
 		function renderStores(stores) {
 			const ul = document.getElementById('storeList');
 			const selectedStoreId = ul.getAttribute('data-selected-store');
 			const hasLocation = !!sessionStorage.getItem('nearest_stores');
+			const now = new Date();
 
 			if (stores.length === 0) {
 				ul.innerHTML = `<li class="list-group-item text-center text-muted">Không tìm thấy cửa hàng nào</li>`;
@@ -347,18 +354,36 @@
 
 			ul.innerHTML = stores.map(store => {
 				const isSelected = store.ma_cua_hang === selectedStoreId;
-				const btnText = isSelected ? 'Đã chọn' : 'Chọn';
-				const btnClass = isSelected ? 'btn-success' : 'btn-outline-primary';
-				const btnDisabled = !hasLocation || isSelected ? 'disabled' : '';
+
+				const openTime = parseTimeToDate(store.gio_mo_cua);
+				const closeTime = parseTimeToDate(store.gio_dong_cua);
+				const isOpen = now >= openTime && now <= closeTime;
+				const remainingMinutes = Math.floor((closeTime - now) / 60000);
+
+				let statusText = '';
+				if (!isOpen) {
+					statusText = `<small class="text-danger fw-bold">Đã đóng cửa</small>`;
+				} else if (remainingMinutes <= 60) {
+					statusText = `<small class="text-warning">⏰ Còn ${remainingMinutes} phút nữa đóng cửa</small>`;
+				}
+
+				const btnDisabled = !hasLocation || isSelected || !isOpen ? 'disabled' : '';
+				const btnText = !isOpen ? 'Đã đóng cửa' : (isSelected ? 'Đã chọn' : 'Chọn');
+				const btnClass = isSelected ? 'btn' : 'btn btn-outline-primary';
+				const btnStyle = isSelected ? 'background-color: #F28123; border-color: #F28123; color: white;' : '';
 
 				return `
 					<li class="list-group-item d-flex justify-content-between align-items-center" data-store-name="${store.ten_cua_hang.toLowerCase()}">
 						<div>
 							<strong>${store.ten_cua_hang}</strong><br>
-							<small>${store.dia_chi}</small><br>
-							<small class="text-muted">Cách bạn ~ ${store.khoang_cach.toFixed(1)} km</small>
+							<small><strong>Địa chỉ:</strong> ${store.dia_chi}</small><br>
+							<small><strong>Số điện thoại:</strong> ${store.so_dien_thoai}</small><br>
+							<small><strong>Giờ hoạt động:</strong> ${store.gio_mo_cua} - ${store.gio_dong_cua}</small><br>
+							${statusText}
+							<br><small class="text-muted">Cách bạn ~ ${store.khoang_cach.toFixed(1)} km</small>
 						</div>
-						<button class="btn btn-sm ${btnClass}" ${btnDisabled} onclick="selectStore('${store.ma_cua_hang}')">${btnText}</button>
+						<button class="btn btn-sm ${btnClass}" style=" min-width: 120px; ${btnStyle}" ${btnDisabled}
+							onclick="selectStore('${store.ma_cua_hang}')">${btnText}</button>
 					</li>`;
 			}).join('');
 		}
@@ -418,7 +443,6 @@
 		function closeStoreModal() {
 			$('#store-modal').modal('hide');
 		}
-	
 	</script>
 </body>
 </html>

@@ -10,6 +10,7 @@ use App\Models\SanPhamCuaHang;
 use App\Models\Sizes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class CartController extends Controller
 {
@@ -129,6 +130,17 @@ class CartController extends Controller
             return response()->json(['error' => 'Không tìm thấy cửa hàng.'], 404);
         }
 
+        $now = Carbon::now();
+        $openTime = Carbon::createFromFormat('H:i:s', $store->gio_mo_cua);
+        $closeTime = Carbon::createFromFormat('H:i:s', $store->gio_dong_cua);
+
+        if (!$now->between($openTime, $closeTime)) {
+            return [
+                'success' => false,
+                'message' => 'Cửa hàng hiện đang đóng cửa. Vui lòng chọn cửa hàng khác hoặc quay lại trong giờ mở cửa.'
+            ];
+        }
+
         $product = SanPham::where('ma_san_pham', $productId)->first();
         if (!$product) {
             return response()->json(['error' => 'Không tìm thấy sản phẩm.'], 404);
@@ -234,6 +246,13 @@ class CartController extends Controller
             $store = CuaHang::where('ma_cua_hang', $storeID)->first();
             if (!$store) {
                 return response()->json(['error' => 'Không tìm thấy cửa hàng.'], 404);
+            }
+            $now = Carbon::now();
+            $openTime = Carbon::createFromFormat('H:i:s', $store->gio_mo_cua);
+            $closeTime = Carbon::createFromFormat('H:i:s', $store->gio_dong_cua);
+
+            if (!$now->between($openTime, $closeTime)) {
+                return response()->json(['error' =>'Cửa hàng hiện đang đóng cửa. Vui lòng chọn cửa hàng khác hoặc quay lại trong giờ mở cửa.'],400);
             }
 
             $quantity = $request->input('quantity') ?: 1;
@@ -491,7 +510,7 @@ class CartController extends Controller
     //check out page
     public function checkout() {
         $cart = session()->get('cart', []);
-        $store = session('selected_store_id');
+        $storeId = session('selected_store_id');
         $storeName = session('selected_store_name');
         $user = auth()->user();
 
@@ -499,15 +518,25 @@ class CartController extends Controller
             return redirect()->route('cart');
         }
 
-        if (!$store) {
+        if (!$storeId) {
             toastr()->error('Vui lòng chọn cửa hàng trước khi thanh toán');
             return redirect()->back();
+        }
+
+        $store = CuaHang::where('ma_cua_hang', $storeId)->first();
+        $now = Carbon::now();
+        $openTime = Carbon::createFromFormat('H:i:s', $store->gio_mo_cua);
+        $closeTime = Carbon::createFromFormat('H:i:s', $store->gio_dong_cua);
+
+        if (!$now->between($openTime, $closeTime)) {
+                toastr()->error('Cửa hàng hiện đang đóng cửa. Vui lòng chọn cửa hàng khác hoặc quay lại trong giờ mở cửa.');
+                return redirect()->back();
         }
 
         foreach ($cart as $item) {
             $product = SanPham::where('ma_san_pham', $item['product_id'])->first();
             $spCuaHang = SanPhamCuaHang::where('ma_san_pham', $item['product_id'])
-                ->where('ma_cua_hang', $store)
+                ->where('ma_cua_hang', $storeId)
                 ->first();
 
             if (!$product || $product->trang_thai != 1) {
