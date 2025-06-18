@@ -80,7 +80,7 @@
                                                     <th>Định lượng</th>
                                                     <th>Giá(VNĐ)</th>
                                                     <th>Loại</th>
-                                                    <th>Trạng thái</th>
+                                                    {{-- <th>Trạng thái</th> --}}
                                                     <th>Hành động</th>
                                                 </tr>
                                             </thead>
@@ -100,24 +100,24 @@
 
                                                         <td>{{ number_format($item->gia) }}</td>
                                                         <td>{{ $item->loai_nguyen_lieu == 0 ? 'nguyên liệu' : 'vật liệu' }}</td>
-                                                        <td style="text-align: center;">
+                                                        {{-- <td style="text-align: center;">
                                                             @if($item->trang_thai == 1)
                                                                 <span class="badge bg-success">Hoạt động</span>
                                                             @else
                                                                 <span class="badge bg-danger">Không hoạt động</span>
                                                             @endif
-                                                        </td>
+                                                        </td> --}}
                                                         <td style="min-width: 120px;">
                                                             <div class="d-flex align-items-center justify-content-start">
                                                                 {{-- Bật / Tắt hoạt động --}}
-                                                                <form action="{{ route('admins.material.toggleStatus', $item->id) }}" method="POST" style="margin-right: 8px;" title="Thay đổi trạng thái">
+                                                                {{-- <form action="{{ route('admins.material.toggleStatus', $item->id) }}" method="POST" style="margin-right: 8px;" title="Thay đổi trạng thái">
                                                                     @csrf
                                                                     <div class="m-0 form-check form-switch">
                                                                         <input class="form-check-input" type="checkbox" id="statusToggle{{ $item->id }}"
                                                                             {{ $item->trang_thai == 1 ? 'checked' : '' }}
                                                                             onclick="this.form.submit();">
                                                                     </div>
-                                                                </form>
+                                                                </form> --}}
                                                                 {{-- chỉnh sửa --}}
                                                                 <a href="{{ route('admins.material.edit', $item->ma_nguyen_lieu) }}" class="p-0 btn btn-sm me-4">
                                                                     <i class="fas fa-cog text-warning" title="Chỉnh sửa"></i>

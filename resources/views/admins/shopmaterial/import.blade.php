@@ -55,7 +55,7 @@
                                         <th class="px-2 py-2">Tên nguyên liệu</th>
                                         <th class="px-2 py-2">Định lượng</th>
                                         <th class="px-2 py-2">Số lượng tồn</th>
-                                        <th class="px-2 py-2">Số lượng tối đa</th>
+                                        {{-- <th class="px-2 py-2">Số lượng tối đa</th> --}}
                                         <th class="px-2 py-2" style="white-space: nowrap;">
                                             Số lượng <br>
                                             <small>(kg, lít, gói, túi, thùng)</small>
@@ -73,23 +73,23 @@
                                         <td class="px-2 py-2">{{ $material->nguyenLieu->ten_nguyen_lieu }}</td>
                                         <td class="px-2 py-2">{{ $material->nguyenLieu->so_luong .' '. $material->nguyenLieu->don_vi }}</td>
                                         <td class="px-2 py-2">{{ $material->so_luong_ton .' '. $material->don_vi }}</td>
-                                        <td class="px-2 py-2">{{ $material->so_luong_ton_max .' '. $material->don_vi }}</td>
+                                        {{-- <td class="px-2 py-2">{{ $material->so_luong_ton_max .' '. $material->don_vi }}</td> --}}
                                         <td class="px-2 py-2">
-                                            @php
+                                            {{-- @php
                                                 $maxImport = $material->so_luong_ton_max - $material->so_luong_ton;
                                                 if ($maxImport < 1) $maxImport = 0;
                                             @endphp
                                             @if ($maxImport == 0)
                                                 <input type="hidden" name="import[{{ $material->ma_cua_hang }}][{{ $material->ma_nguyen_lieu }}]" value="0">
-                                            @endif
+                                            @endif --}}
                                             <input
                                                 type="number"
                                                 name="import[{{ $material->ma_cua_hang }}][{{ $material->ma_nguyen_lieu }}]"
                                                 class="form-control form-control-sm"
                                                 step="any"
                                                 min="0.01"
-                                                max="{{ $maxImport }}"
-                                                {{ $maxImport == 0 ? 'disabled' : '' }}
+                                                {{-- max="{{ $maxImport }}"
+                                                {{ $maxImport == 0 ? 'disabled' : '' }} --}}
                                             >
                                         </td>
                                         <td>

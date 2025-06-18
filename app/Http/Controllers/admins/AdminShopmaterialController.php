@@ -74,40 +74,44 @@ class AdminShopmaterialController extends Controller
     }
     public function store(Request $request)
     {
-        //dd($request->all());
         $request->validate([
             'ma_cua_hang' => 'required|exists:cua_hangs,ma_cua_hang',
-            'ma_nguyen_lieu' => 'required|exists:nguyen_lieus,ma_nguyen_lieu',
-            'so_luong_ton_min' => 'required|numeric|min:0',
-            'so_luong_ton_max' => 'required|numeric|min:0',
+            'ma_nguyen_lieu' => 'required|array|min:1',
+            'ma_nguyen_lieu.*' => 'required|exists:nguyen_lieus,ma_nguyen_lieu',
+            'so_luong_ton_min' => 'required|array',
         ], [
-            'ma_nguyen_lieu.required' => 'Vui lòng chọn nguyên liệu.',
-            'ma_nguyen_lieu.exists' => 'Nguyên liệu không tồn tại.',
+            'ma_nguyen_lieu.required' => 'Vui lòng chọn ít nhất một nguyên liệu.',
+            'ma_nguyen_lieu.*.exists' => 'Một trong các nguyên liệu không tồn tại.',
             'ma_cua_hang.exists' => 'Cửa hàng không hợp lệ.',
             'so_luong_ton_min.required' => 'Vui lòng nhập số lượng tồn tối thiểu.',
-            'so_luong_ton_max.required' => 'Vui lòng nhập số lượng tồn tối đa.',
         ]);
 
-        // Kiểm tra nếu đã có nguyên liệu đó trong kho
+        foreach ($request->ma_nguyen_lieu as $maNL) {
+            $daTonTai = CuaHangNguyenLieu::where([
+                ['ma_cua_hang', $request->ma_cua_hang],
+                ['ma_nguyen_lieu', $maNL]
+            ])->exists();
 
+            if (!$daTonTai) {
+                $nguyenLieu = NguyenLieu::where('ma_nguyen_lieu', $maNL)->first();
 
-        $nguyenLieu = NguyenLieu::where('ma_nguyen_lieu',$request->ma_nguyen_lieu)->first();
-        if (!$nguyenLieu ) {
-            return back()->withErrors(['Nguyên liệu không tồn tại.']);
+                // Lấy tồn tối thiểu người nhập (theo từng mã nguyên liệu)
+                $inputSoLuongMin = $request->so_luong_ton_min[$maNL] ?? 0;
+                $dinhLuong = $nguyenLieu->so_luong ?? 1; // nếu cần nhân theo định lượng
+                $soLuongTonMin = (float)$inputSoLuongMin * (float)$dinhLuong;
+
+                CuaHangNguyenLieu::create([
+                    'ma_cua_hang' => $request->ma_cua_hang,
+                    'ma_nguyen_lieu' => $maNL,
+                    'so_luong_ton' => 0,
+                    'so_luong_ton_min' => $soLuongTonMin,
+                    'don_vi' => $nguyenLieu->don_vi,
+                ]);
+            }
         }
-        //dd($nguyenLieu);
 
-        CuaHangNguyenLieu::create([
-            'ma_cua_hang' => $request->ma_cua_hang,
-            'ma_nguyen_lieu' => $request->ma_nguyen_lieu,
-            'so_luong_ton' => 0,
-            'so_luong_ton_min' => $request->so_luong_ton_min,
-            'so_luong_ton_max' => $request->so_luong_ton_max,
-            'don_vi' =>$nguyenLieu->don_vi,
-        ]);
         toastr()->success('Đã thêm nguyên liệu vào kho.');
         return redirect()->route('admins.shopmaterial.index', ['ma_cua_hang' => $request->ma_cua_hang]);
-
     }
     public function edit($id)
     {
@@ -210,8 +214,8 @@ class AdminShopmaterialController extends Controller
                             throw new \Exception("Hạn sử dụng (HSD) cho nguyên liệu $maNguyenLieu không được để trống.");
                         }
 
-                        $nsxDate = \Carbon\Carbon::parse($nsx)->startOfDay();
-                        $hsdDate = \Carbon\Carbon::parse($hsd)->startOfDay();
+                        $nsxDate = Carbon::parse($nsx)->startOfDay();
+                        $hsdDate = Carbon::parse($hsd)->startOfDay();
 
                         if ($nsxDate->gt($now)) {
                             throw new \Exception("Ngày sản xuất (NSX) cho nguyên liệu $maNguyenLieu không được sau ngày hiện tại.");
@@ -237,10 +241,10 @@ class AdminShopmaterialController extends Controller
 
                         $dinhluong = $soLuongNhap * $material->nguyenLieu->so_luong;
 
-                        $maxImport = $material->so_luong_ton_max - $material->so_luong_ton;
-                        if ($dinhluong > $maxImport) {
-                            throw new \Exception("Định lượng nhập vượt quá mức tối đa cho nguyên liệu $maNguyenLieu (tối đa có thể nhập: $maxImport).");
-                        }
+                        //$maxImport = $material->so_luong_ton_max - $material->so_luong_ton;
+                        //if ($dinhluong > $maxImport) {
+                            //throw new \Exception("Định lượng nhập vượt quá mức tối đa cho nguyên liệu $maNguyenLieu (tối đa có thể nhập: $maxImport).");
+                        //}
 
                         $updateKey = $maCuaHang . '_' . $maNguyenLieu;
                         if (!isset($updateData[$updateKey])) {
@@ -415,55 +419,15 @@ class AdminShopmaterialController extends Controller
 
                         // Kiểm tra tồn tối thiểu
                         $tonSauKhiXuat = $material->so_luong_ton - $dinhLuongCan;
-                        $tonToiThieu = $material->nguyenLieu->so_luong_ton_toi_thieu ?? 0;
+                        $tonToiThieu = $material->so_luong_ton_min ?? 0;
 
                         if ($tonSauKhiXuat < $tonToiThieu) {
                             throw new \Exception("Không thể xuất nguyên liệu $maNguyenLieu vì sau xuất tồn kho sẽ nhỏ hơn tồn tối thiểu.");
                         }
 
-
                         $dinhLuongConLai = $dinhLuongCan;
                         $tongXuatThucTe = 0;
 
-                        //foreach ($phieuNhapList as $lo) {
-                            //$dinhLuongDaXuat = PhieuNhapXuatNguyenLieu::where('ma_cua_hang', $maCuaHang)
-                                //->where('ma_nguyen_lieu', $maNguyenLieu)
-                                //->where('loai_phieu', 1)
-                                //->where('so_lo', $lo->so_lo)
-                                //->sum('dinh_luong');
-
-                            //$tonLo = $lo->dinh_luong - $dinhLuongDaXuat;
-                            //if ($tonLo <= 0) continue;
-
-                            //$xuatTuLo = min($dinhLuongConLai, $tonLo);
-
-                            //PhieuNhapXuatNguyenLieu::create([
-                                //'ma_cua_hang'         => $maCuaHang,
-                                //'ma_nguyen_lieu'      => $maNguyenLieu,
-                                //'loai_phieu'          => 1,
-                                //'so_lo'               => $lo->so_lo,
-                                //'ngay_san_xuat'       => $lo->ngay_san_xuat,
-                                //'han_su_dung'         => $lo->han_su_dung,
-                                //'so_luong'            => $xuatTuLo / $material->nguyenLieu->so_luong,
-                                //'dinh_luong'          => $xuatTuLo,
-                                //'so_luong_ton_truoc'  => $material->so_luong_ton,
-                                //'don_vi'              => $material->don_vi,
-                                //'gia_tien'            => $material->nguyenLieu->gia ?? 0,
-                                //'tong_tien'           => ($material->nguyenLieu->gia ?? 0) * ($xuatTuLo / $material->nguyenLieu->so_luong),
-                                //'ngay_tao_phieu'      => now(),
-                                //'ghi_chu' => ($noteData[$maCuaHang][$maNguyenLieu] ?? '') . ' | Xuất theo FIFO từ lô ' . $lo->so_lo,
-
-                            //]);
-
-                            //$tongXuatThucTe += $xuatTuLo;
-                            //$dinhLuongConLai -= $xuatTuLo;
-
-                            //if ($dinhLuongConLai <= 0) break;
-                        //}
-
-
-
-                        //test hàm
                         $tonLoCache = [];
 
                         foreach ($phieuNhapList as $lo) {
@@ -605,6 +569,7 @@ class AdminShopmaterialController extends Controller
             'title' => 'Hủy nguyên liệu | CDMT & tea and coffee',
             'subtitle' => 'Hủy nguyên liệu theo lô',
             'today' => Carbon::now()->format('d/m/Y'),
+            'ma_cua_hang' => $maCuaHang,
         ]);
     }
     public function destroy(Request $request)
@@ -743,119 +708,110 @@ class AdminShopmaterialController extends Controller
             return redirect()->back()->withErrors('Lỗi khi hủy nguyên liệu: ' . $e->getMessage());
         }
     }
-
     public function showAllPhieu(Request $request)
-{
-    $query = PhieuNhapXuatNguyenLieu::query();
-    $search = null;
-    if ($request->filled('search')) {
-        $search = trim($request->search);
+    {
+        $query = PhieuNhapXuatNguyenLieu::query();
+        $search = null;
+        if ($request->filled('search')) {
+            $search = trim($request->search);
 
-        $query->where(function ($q) use ($search) {
-            if (strtoupper($search) === 'ADMIN') {
-                $q->whereNull('ma_nhan_vien');
-            } else {
-                $q->where('ma_cua_hang', 'like', "%$search%")
-                ->orWhere('ma_nhan_vien', 'like', "%$search%");
-            }
-        });
-    }
-
-    if ($request->filled('loai_phieu')) {
-        $query->where('loai_phieu', $request->loai_phieu);
-    }
-
-    // 👉 Gộp các phiếu có cùng so_lo, loai_phieu, ngay_tao_phieu
-    $danhSachLo = $query
-        ->select('loai_phieu', 'ma_cua_hang', 'ma_nhan_vien', 'ngay_tao_phieu')
-        ->groupBy('loai_phieu', 'ma_cua_hang', 'ma_nhan_vien', 'ngay_tao_phieu')
-        ->orderByDesc('ngay_tao_phieu')
-        ->orderBy('loai_phieu')
-        ->orderBy('ma_cua_hang')
-        ->orderBy('ma_nhan_vien')
-        ->get();
-    //tổng tiền
-    $danhSachLo = $danhSachLo->map(function ($phieu) {
-        $chiTiet = PhieuNhapXuatNguyenLieu::where('loai_phieu', $phieu->loai_phieu)
-            ->where('ma_cua_hang', $phieu->ma_cua_hang)
-            ->where('ngay_tao_phieu', $phieu->ngay_tao_phieu)
-            ->where(function ($q) use ($phieu) {
-                if ($phieu->ma_nhan_vien === null) {
+            $query->where(function ($q) use ($search) {
+                if (strtoupper($search) === 'ADMIN') {
                     $q->whereNull('ma_nhan_vien');
                 } else {
-                    $q->where('ma_nhan_vien', $phieu->ma_nhan_vien);
+                    $q->where('ma_cua_hang', 'like', "%$search%")
+                    ->orWhere('ma_nhan_vien', 'like', "%$search%");
                 }
-            })
+            });
+        }
+
+        if ($request->filled('loai_phieu')) {
+            $query->where('loai_phieu', $request->loai_phieu);
+        }
+
+        // 👉 Gộp các phiếu có cùng so_lo, loai_phieu, ngay_tao_phieu
+        $danhSachLo = $query
+            ->select('loai_phieu', 'ma_cua_hang', 'ma_nhan_vien', 'ngay_tao_phieu')
+            ->groupBy('loai_phieu', 'ma_cua_hang', 'ma_nhan_vien', 'ngay_tao_phieu')
+            ->orderByDesc('ngay_tao_phieu')
+            ->orderBy('loai_phieu')
+            ->orderBy('ma_cua_hang')
+            ->orderBy('ma_nhan_vien')
             ->get();
-        $phieu->tong_tien = $chiTiet->sum(function ($item) {
-            return ($item->tong_tien ?? 0);
+        //tổng tiền
+        $danhSachLo = $danhSachLo->map(function ($phieu) {
+            $chiTiet = PhieuNhapXuatNguyenLieu::where('loai_phieu', $phieu->loai_phieu)
+                ->where('ma_cua_hang', $phieu->ma_cua_hang)
+                ->where('ngay_tao_phieu', $phieu->ngay_tao_phieu)
+                ->where(function ($q) use ($phieu) {
+                    if ($phieu->ma_nhan_vien === null) {
+                        $q->whereNull('ma_nhan_vien');
+                    } else {
+                        $q->where('ma_nhan_vien', $phieu->ma_nhan_vien);
+                    }
+                })
+                ->get();
+            $phieu->tong_tien = $chiTiet->sum(function ($item) {
+                return ($item->tong_tien ?? 0);
+            });
+
+            return $phieu;
         });
 
-        return $phieu;
-    });
 
-
-    return view('admins.shopmaterial.list', [
-        'title' => 'Danh sách phiếu',
-        'subtitle' => 'Danh sách Phiếu Nhập - Xuất - Hủy',
-        'danhSachPhieu' => $danhSachLo,
-        'search'=>$search,
-    ]);
-}
-
-    public function layChiTietPhieu($ngay_tao, $loai_phieu, $ma_nv)
-{
-    $chiTiet = PhieuNhapXuatNguyenLieu::with('nguyenLieu')
-        ->whereRaw('DATE_FORMAT(ngay_tao_phieu, "%Y-%m-%d %H:%i:%s") = ?', [$ngay_tao])
-        ->where('loai_phieu', $loai_phieu)
-        ->where(function($q) use ($ma_nv) {
-            if ($ma_nv === 'ADMIN') {
-                $q->whereNull('ma_nhan_vien');
-            } else {
-                $q->where('ma_nhan_vien', $ma_nv);
-            }
-        })
-        ->orderBy('ngay_tao_phieu')
-        ->get();
-
-    if ($chiTiet->isEmpty()) {
-        return response()->json(['error' => 'Không tìm thấy phiếu'], 404);
+        return view('admins.shopmaterial.list', [
+            'title' => 'Danh sách phiếu',
+            'subtitle' => 'Danh sách Phiếu Nhập - Xuất - Hủy',
+            'danhSachPhieu' => $danhSachLo,
+            'search'=>$search,
+        ]);
     }
+    public function layChiTietPhieu($ngay_tao, $loai_phieu, $ma_nv)
+    {
+        $chiTiet = PhieuNhapXuatNguyenLieu::with('nguyenLieu')
+            ->whereRaw('DATE_FORMAT(ngay_tao_phieu, "%Y-%m-%d %H:%i:%s") = ?', [$ngay_tao])
+            ->where('loai_phieu', $loai_phieu)
+            ->where(function($q) use ($ma_nv) {
+                if ($ma_nv === 'ADMIN') {
+                    $q->whereNull('ma_nhan_vien');
+                } else {
+                    $q->where('ma_nhan_vien', $ma_nv);
+                }
+            })
+            ->orderBy('ngay_tao_phieu')
+            ->get();
 
-    $first = $chiTiet->first();
+        if ($chiTiet->isEmpty()) {
+            return response()->json(['error' => 'Không tìm thấy phiếu'], 404);
+        }
 
-    $data = [
-        'meta' => [
-            'loai_phieu' => $first->loai_phieu,
-            'ngay_tao_phieu' => $first->ngay_tao_phieu,
-            'ma_nhan_vien' => $first->ma_nhan_vien,
-        ],
-        'chi_tiet' => $chiTiet->map(function ($item) use ($first) {
-    $gia_tien = $item->gia_tien ?? 0;
-    $tong_tien=$item->tong_tien ?? 0;
-    $so_luong = $item->so_luong ?? 0;
-    return [
-        'ma_nguyen_lieu' => $item->nguyenLieu->ma_nguyen_lieu ?? 'N/A',
-        'ten_nguyen_lieu' => $item->nguyenLieu->ten_nguyen_lieu ?? 'N/A',
-        'so_luong' => $so_luong,
-        'so_lo' => $item->so_lo,
-        'gia_tien' => $gia_tien,
-        'tong_tien'=> $tong_tien,
-        //'tong_gia' => $gia_tien * $so_luong,
-        'ghi_chu' => $item->ghi_chu ?? '',
-    ];
-}),
+        $first = $chiTiet->first();
 
-    ];
+        $data = [
+            'meta' => [
+                'loai_phieu' => $first->loai_phieu,
+                'ngay_tao_phieu' => $first->ngay_tao_phieu,
+                'ma_nhan_vien' => $first->ma_nhan_vien,
+            ],
+            'chi_tiet' => $chiTiet->map(function ($item) use ($first) {
+        $gia_tien = $item->gia_tien ?? 0;
+        $tong_tien=$item->tong_tien ?? 0;
+        $so_luong = $item->so_luong ?? 0;
+        return [
+            'ma_nguyen_lieu' => $item->nguyenLieu->ma_nguyen_lieu ?? 'N/A',
+            'ten_nguyen_lieu' => $item->nguyenLieu->ten_nguyen_lieu ?? 'N/A',
+            'so_luong' => $so_luong,
+            'so_lo' => $item->so_lo,
+            'gia_tien' => $gia_tien,
+            'tong_tien'=> $tong_tien,
+            //'tong_gia' => $gia_tien * $so_luong,
+            'ghi_chu' => $item->ghi_chu ?? '',
+        ];
+    }),
 
-    return response()->json($data);
-}
+        ];
 
-
-
-
-
-
-
+        return response()->json($data);
+    }
 }
 
