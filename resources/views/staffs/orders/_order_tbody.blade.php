@@ -93,6 +93,26 @@
                     </span>
                 @endif
             </td>
+            <td class="text-start">
+                @php
+                    $paymentStatuses = [
+                        0 => 'Chưa thanh toán',
+                        1 => 'Đã thanh toán',
+                        2 => 'Đang hoàn tiền',
+                        3 => 'Hoàn tiền thành công',
+                    ];
+                    $status = $order->trang_thai_thanh_toan;
+                @endphp
+
+                <span class="
+                    {{ $status == 0 ? 'text-secondary fw-bold' : '' }}
+                    {{ $status == 1 ? 'text-success fw-bold' : '' }}
+                    {{ $status == 2 ? 'text-warning fw-bold' : '' }}
+                    {{ $status == 3 ? 'text-info fw-bold' : '' }}
+                ">
+                    {{ $paymentStatuses[$status] ?? 'Không xác định' }}
+                </span>
+            </td>
         </tr>
     @endforeach
 @endif  

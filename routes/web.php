@@ -26,8 +26,8 @@ use App\Http\Controllers\customers\CustomerReviewController;
 use App\Http\Controllers\dashboards\AdminDashboardController;
 use App\Http\Controllers\dashboards\StaffDashboardController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\payments\Napas247Controller;
 use App\Http\Controllers\payments\PaymentController;
+use App\Http\Controllers\payments\PayOSController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\staffs\StaffHomeController;
 use App\Http\Controllers\staffs\StaffOrderController;
@@ -131,10 +131,15 @@ Route::prefix('cart')->group(function(){
 //Route Payment
 Route::prefix('payment')->group(function(){
     Route::post('/',[PaymentController::class,'payment'])->name('payment');
-    Route::get('/payos-return', [Napas247Controller::class, 'handleReturn'])->name('payos.return');
-    Route::get('/payos-cancel', [Napas247Controller::class, 'handleCancel'])->name('payos.cancel');
-    Route::get('/status/{orderCode}', [Napas247Controller::class, 'checkPaymentStatus']);
     Route::get('/checkout-status',[PaymentController::class,'checkoutStatus'])->name('checkout_status');
+    Route::get('/payos/info/{orderCode}', [PayOSController::class, 'getPaymentLinkInformation']);
+    Route::post('/payos/cancel/{orderCode}', [PayOSController::class, 'cancelPaymentLink']);
+    Route::post('/webhook/payos', [PayOSController::class, 'handleWebhook'])
+        ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+    Route::post('/payos/confirm-webhook', [PayOSController::class, 'confirmWebhook']);
+    Route::get('/test-webhook-confirm', [PayOSController::class, 'testConfirmWebhook']);
+    Route::get('/thanh-cong', [PayOSController::class, 'paymentSuccess']);
+    Route::get('/that-bai', [PayOSController::class, 'paymentCancel']);
 });
 
 //Tin tức

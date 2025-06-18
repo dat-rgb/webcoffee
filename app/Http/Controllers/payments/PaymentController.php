@@ -195,7 +195,6 @@ class PaymentController extends Controller
             }
         }
         if ($request->paymentMethod === 'NAPAS247') {
-            $napas = new Napas247Controller();
 
             $orderData = [
                 'ma_cua_hang' => $storeId,
@@ -215,8 +214,9 @@ class PaymentController extends Controller
                 'tong_tien' => $total,
                 'cart_items' => $cart,
             ];
-            
-            return $napas->createPaymentLink($orderData); 
+            $payOS = app(\App\Http\Controllers\payments\PayOSController::class);
+            return $payOS->createPaymentLinkFromOrderData($orderData);
+        
         }
         return redirect()->back()->with('error', 'Phương thức thanh toán không hợp lệ.');
     }
