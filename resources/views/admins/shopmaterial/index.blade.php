@@ -119,7 +119,7 @@
                                         <th>Mã nguyên liệu</th>
                                         <th>Tên nguyên liệu</th>
                                         <th>Slg tồn</th>
-                                        <th>Slg max</th>
+                                        <th>Slg min</th>
                                         <th>Đơn vị</th>
                                         <th>Trạng thái</th>
                                         <th>Yêu cầu</th>
@@ -144,7 +144,7 @@
                                             <td>{{ optional($material->nguyenLieu)->ma_nguyen_lieu ?? 'N/A' }}</td>
                                             <td>{{ optional($material->nguyenLieu)->ten_nguyen_lieu ?? 'N/A' }}</td>
                                             <td>{{ $material->so_luong_ton }}</td>
-                                            <td>{{ $material->so_luong_ton_max }}</td>
+                                            <td>{{ $material->so_luong_ton_min }}</td>
                                             <td class="text-center align-middle">{{ $material->don_vi }}</td>
                                             <td class="text-center align-middle">
                                                 @php $trangThai = optional($material->cuaHang)->trang_thai; @endphp

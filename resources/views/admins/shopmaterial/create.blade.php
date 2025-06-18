@@ -1,6 +1,16 @@
 @extends('layouts.admin')
 @section('title',$title)
 @section('subtitle',$subtitle)
+
+@push('styles')
+<style>
+    .nguyen-lieu-row:hover {
+        background-color: #f0f9ff;
+        cursor: pointer;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="page-inner">
     <div class="page-header">
@@ -10,6 +20,12 @@
                 <a href="{{ route('admin') }}">
                     <i class="icon-home"></i>
                 </a>
+            </li>
+            <li class="separator">
+                <i class="icon-arrow-right"></i>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('admins.shopmaterial.index', ['ma_cua_hang' => request('ma_cua_hang')]) }}">Kho cửa hàng nguyên liệu</a>
             </li>
             <li class="separator">
                 <i class="icon-arrow-right"></i>
@@ -27,45 +43,31 @@
     </div>
 
     <div class="border-0 shadow-sm card rounded-4">
+        <div class="p-4 card-header d-flex justify-content-between align-items-center">
+            <strong>DANH SÁCH NGUYÊN LIỆU NHẬP KHO</strong>
+            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modal-chon-nguyen-lieu">
+                + Chọn nguyên liệu
+            </button>
+        </div>
         <div class="p-4 card-body">
-
-            {{-- Hiển thị lỗi nếu có --}}
-            @if ($errors->any())
-                <div class="alert alert-danger rounded-3">
-                    <ul class="mb-0 ps-3">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-
-            {{-- Form thêm nguyên liệu --}}
             <form id="form-them-nguyen-lieu" action="{{ route('admins.shopmaterial.store') }}" method="POST">
                 @csrf
                 <input type="hidden" name="ma_cua_hang" value="{{ request('ma_cua_hang') }}">
 
-                <div class="mb-4">
-                    <label for="ma_nguyen_lieu" class="form-label fw-semibold">Chọn nguyên liệu:</label>
-                    <select name="ma_nguyen_lieu" id="ma_nguyen_lieu" class="form-select" required>
-                        <option value="" disabled selected>-- Chọn nguyên liệu --</option>
-                        @foreach($materials as $material)
-                            <option value="{{ $material->ma_nguyen_lieu }}" {{ old('ma_nguyen_lieu') == $material->ma_nguyen_lieu ? 'selected' : '' }}>
-                                {{ $material->ten_nguyen_lieu }} ({{ $material->don_vi }})
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="row">
-                    <div class="mb-3 col-md-6">
-                        <label for="so_luong_ton_min" class="form-label fw-semibold">Số lượng tồn tối thiểu:</label>
-                        <input type="number" name="so_luong_ton_min" class="form-control" min="0" placeholder="Nhập số lượng min..." required>
-                    </div>
-                    <div class="mb-3 col-md-6">
-                        <label for="so_luong_ton_max" class="form-label fw-semibold">Số lượng tối đa trong kho:</label>
-                        <input type="number" name="so_luong_ton_max" class="form-control" min="0" placeholder="Nhập số lượng max..." required>
-                    </div>
+                <div class="mb-4 table-responsive">
+                    <table class="table display table-striped table-hover" id="nguyen-lieu-table">
+                        <thead>
+                            <tr>
+                                <th>Mã NL</th>
+                                <th>Tên nguyên liệu</th>
+                                <th>Đơn vị</th>
+                                <th>Số lượng tồn tối thiểu</th>
+                            </tr>
+                        </thead>
+                        <tbody id="nguyen-lieu-da-chon-body">
+                            <!-- JavaScript sẽ render dữ liệu -->
+                        </tbody>
+                    </table>
                 </div>
 
                 <div class="d-flex justify-content-end">
@@ -77,16 +79,81 @@
         </div>
     </div>
 </div>
-@endsection
 
+<!-- Modal chọn nguyên liệu -->
+<div class="modal fade" id="modal-chon-nguyen-lieu" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content rounded-4">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalLabel">Chọn nguyên liệu để thêm vào kho</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>
+                                <input type="checkbox" id="check-all-nguyen-lieu">
+                            </th>
+                            <th>Mã NL</th>
+                            <th>Tên nguyên liệu</th>
+                            <th>Đơn vị</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($materials as $index => $material)
+                            <tr class="nguyen-lieu-row" data-index="{{ $index }}">
+                                <td>
+                                    <input type="checkbox" class="chon-nguyen-lieu" data-id="{{ $material->ma_nguyen_lieu }}"
+                                        data-ten="{{ $material->ten_nguyen_lieu }}"
+                                        data-donvi="{{ $material->don_vi }}">
+                                </td>
+                                <td>{{ $material->ma_nguyen_lieu }}</td>
+                                <td>{{ $material->ten_nguyen_lieu }}</td>
+                                <td>{{ $material->don_vi }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-them-nguyen-lieu" type="button" class="btn btn-primary" data-bs-dismiss="modal">Thêm vào danh sách</button>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    document.getElementById('btn-them-nguyen-lieu').addEventListener('click', function () {
+        const checked = document.querySelectorAll('.chon-nguyen-lieu:checked');
+        const tbody = document.getElementById('nguyen-lieu-da-chon-body');
+        tbody.innerHTML = '';
+
+        checked.forEach(item => {
+            const id = item.dataset.id;
+            const ten = item.dataset.ten;
+            const donvi = item.dataset.donvi;
+
+            tbody.innerHTML += `
+                <tr>
+                    <td><input type="hidden" name="ma_nguyen_lieu[]" value="${id}">${id}</td>
+                    <td>${ten}</td>
+                    <td>${donvi}</td>
+                    <td>
+                        <input type="number" name="so_luong_ton_min[${id}]" class="form-control" min="0" required>
+                    </td>
+                </tr>
+            `;
+        });
+    });
+
     document.getElementById('btn-luu-nguyen-lieu').addEventListener('click', function () {
         Swal.fire({
             title: 'Xác nhận',
-            text: 'Bạn có muốn thêm nguyên liệu này vào cửa hàng không?',
+            text: 'Bạn có muốn thêm các nguyên liệu này vào cửa hàng không?',
             icon: 'question',
             showCancelButton: true,
             confirmButtonText: 'Có, thêm vào!',
@@ -103,4 +170,36 @@
         });
     });
 </script>
+<script>
+    // Xử lý check all
+    document.getElementById('check-all-nguyen-lieu').addEventListener('change', function () {
+        const isChecked = this.checked;
+        const checkboxes = document.querySelectorAll('.chon-nguyen-lieu');
+        checkboxes.forEach(cb => cb.checked = isChecked);
+    });
+
+    // Nếu bỏ chọn một ô riêng lẻ thì tự động bỏ check all
+    document.querySelectorAll('.chon-nguyen-lieu').forEach(cb => {
+        cb.addEventListener('change', function () {
+            const allCheckboxes = document.querySelectorAll('.chon-nguyen-lieu');
+            const allChecked = Array.from(allCheckboxes).every(cb => cb.checked);
+            document.getElementById('check-all-nguyen-lieu').checked = allChecked;
+        });
+    });
+    document.querySelectorAll('.nguyen-lieu-row').forEach((row, index) => {
+        row.addEventListener('click', function (e) {
+            // Nếu click vào chính checkbox thì bỏ qua (tránh toggle 2 lần)
+            if (e.target.type === 'checkbox') return;
+
+            const checkbox = row.querySelector('.chon-nguyen-lieu');
+            checkbox.checked = !checkbox.checked;
+
+            // Cập nhật trạng thái check all nếu cần
+            const allCheckboxes = document.querySelectorAll('.chon-nguyen-lieu');
+            const allChecked = Array.from(allCheckboxes).every(cb => cb.checked);
+            document.getElementById('check-all-nguyen-lieu').checked = allChecked;
+        });
+    });
+</script>
+
 @endpush

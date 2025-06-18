@@ -54,7 +54,7 @@
                                         <th class="px-2 py-2">Tên nguyên liệu</th>
                                         <th class="px-2 py-2">Định lượng</th>
                                         <th class="px-2 py-2">Số lượng tồn</th>
-                                        <th class="px-2 py-2">Số lượng tối đa</th>
+                                        <th class="px-2 py-2">Số lượng tối thiểu</th>
                                         <th>Số lô còn hàng và số lượng hàng của lô đó</th>
                                         <th class="px-2 py-2" style="white-space: nowrap;">
                                             Số lượng xuất <br>
@@ -73,7 +73,7 @@
                                         <td class="px-2 py-2">{{ $material->nguyenLieu->ten_nguyen_lieu }}</td>
                                         <td class="px-2 py-2">{{ $material->nguyenLieu->so_luong .' '. $material->nguyenLieu->don_vi }}</td>
                                         <td class="px-2 py-2">{{ $material->so_luong_ton .' '. $material->don_vi }}</td>
-                                        <td class="px-2 py-2">{{ $material->so_luong_ton_max .' '. $material->don_vi }}</td>
+                                        <td class="px-2 py-2">{{ $material->so_luong_ton_min .' '. $material->don_vi }}</td>
                                         <td class="px-2 py-2 text-start">
                                             @if(!empty($material->available_batches))
                                                 <ul class="mb-0">
@@ -103,7 +103,7 @@
 
                                         <td class="px-2 py-2">
                                             @php
-                                                $maxExport = $material->so_luong_ton;
+                                                $maxExport = max(0, $material->so_luong_ton - $material->so_luong_ton_min);
                                             @endphp
                                             @if ($maxExport == 0)
                                                 <input type="hidden" name="export[{{ $material->ma_cua_hang }}][{{ $material->ma_nguyen_lieu }}]" value="0">
@@ -118,17 +118,6 @@
                                                 {{ $maxExport == 0 ? 'disabled' : '' }}
                                             >
                                         </td>
-                                        {{-- <td class="px-2 py-2">
-                                            @php
-                                                $lastImport = $material->phieuNhapXuat()
-                                                    ->where('loai_phieu', 0)
-                                                    ->latest('ngay_tao_phieu')
-                                                    ->first();
-
-                                                $hsd = $lastImport?->han_su_dung ?? $material->han_su_dung;
-                                            @endphp
-                                            {{ \Carbon\Carbon::parse($hsd)->format('d/m/Y') }}
-                                        </td> --}}
 
                                         <td class="px-2 py-2" style="width: 200px;">
                                             <input type="text" name="note[{{ $material->ma_cua_hang }}][{{ $material->ma_nguyen_lieu }}]" class="form-control form-control-sm" placeholder="nhập...">

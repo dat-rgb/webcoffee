@@ -15,7 +15,7 @@
             <div class="card">
                 <div class="shadow-sm card rounded-4">
                     <div class="card-header bg-light rounded-top-4">
-                        <h3 class="fw-bold">Hủy nguyên liệu khỏi kho cửa hàng</h3>
+                        <h3 class="fw-bold">Hủy nguyên liệu khỏi kho cửa hàng <strong>{{ $ma_cua_hang }}</strong></h3>
                         <h5>Ngày hủy: {{ $today }}</h5>
                     </div>
 

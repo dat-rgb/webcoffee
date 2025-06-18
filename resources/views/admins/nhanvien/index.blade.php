@@ -65,7 +65,7 @@
                                 <div class="flex-wrap gap-2 mb-3 d-flex align-items-center">
                                     <a href="{{ route('admins.nhanvien.lich.showForm') }}" class="btn btn-info">Phân công lịch làm việc</a>
                                     <a href="{{ route('admins.nhanvien.lich.tuan') }}" class="btn btn-success">Lịch làm việc</a>
-                                    <a href="#" class="btn btn-outline-secondary">Đổi ca làm</a>
+                                    {{-- <a href="#" class="btn btn-outline-secondary">Đổi ca làm</a> --}}
 
                                     <button type="submit" class="btn btn-danger"
                                         onclick="return confirm('Bạn có chắc muốn chuyển trạng thái nhân viên sang Tạm nghỉ?')">

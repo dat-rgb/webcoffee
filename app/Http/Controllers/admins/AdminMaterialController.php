@@ -34,7 +34,7 @@ class AdminMaterialController extends Controller
             });
         }
 
-        $page = $query->paginate(7)->appends($request->query());
+        $page = $query->paginate(10)->appends($request->query());
 
         return view('admins.material.index', [
             'title' => 'Danh sách nguyên liệu',
@@ -208,7 +208,7 @@ class AdminMaterialController extends Controller
     public function archive($id)
     {
         $material = NguyenLieu::with(['cuaHangNguyenLieus', 'products'])->findOrFail($id);
-        
+
         $productInUse = $material->products->first(function ($product) {
             return $product->trang_thai == 1;
         });
