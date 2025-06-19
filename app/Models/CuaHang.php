@@ -27,6 +27,12 @@ class CuaHang extends Model
         return 'CH' . str_pad($number, 8, '0', STR_PAD_LEFT);
     }
 
+    public function hoaDon()
+    {
+        return $this->hasMany(HoaDon::class, 'ma_hoa_don', 'ma_hoa_don');
+    }
+
+
     // Auto tạo mã khi tạo mới
     protected static function booted()
     {

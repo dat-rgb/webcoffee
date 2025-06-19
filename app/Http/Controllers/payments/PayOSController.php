@@ -203,7 +203,7 @@ class PayOSController extends Controller
         $status = $request->query('status');
         $maHoaDon = 'HD' . $orderCode;
 
-        $hoaDon = HoaDon::with('chiTietHoaDon', 'transaction')->where('ma_hoa_don', $maHoaDon)->first();
+        $hoaDon = HoaDon::with('chiTietHoaDon', 'transaction', 'cuaHang')->where('ma_hoa_don', $maHoaDon)->first();
 
         $viewData = [
             'title' => 'Đặt hàng thành công',

@@ -141,7 +141,7 @@ Route::prefix('payment')->group(function(){
     Route::get('/thanh-cong', [PayOSController::class, 'paymentSuccess']);
     Route::get('/that-bai', [PayOSController::class, 'paymentCancel']);
 });
-
+Route::get('/thanh-cong/{orderCode}', [PaymentController::class, 'paymentSuccess'])->name('thanhCong');
 //Tin tức
 Route::prefix('blog')->group(function(){
     Route::get('/', [BlogController::class, 'index'])->name('blog');

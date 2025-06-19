@@ -49,6 +49,11 @@ class HoaDon extends Model
         return $this->belongsTo(KhuyenMai::class, 'ma_khuyen_mai', 'ma_khuyen_mai');
     }
 
+    public function cuaHang()
+    {
+        return $this->belongsTo(CuaHang::class, 'ma_cua_hang', 'ma_cua_hang');
+    }
+
     public function transaction()
     {
         return $this->hasOne(Transactions::class, 'ma_hoa_don', 'ma_hoa_don');

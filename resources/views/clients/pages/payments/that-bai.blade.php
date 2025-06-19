@@ -27,33 +27,55 @@
                     </a>
                 </div>
             @else
-                <div class="card border-0 shadow-lg p-4">
-                    <div class="card-body">
-                        <div class="mb-4">
-                            <i class="fas fa-times-circle fa-4x text-danger mb-3"></i>
-                            <h3 class="text-danger">Thanh toán thất bại!</h3>
-                            <p>Đơn hàng chưa được xử lý do bạn đã hủy hoặc gặp sự cố khi thanh toán.</p>
-                        </div>
-                        <ul class="list-group text-start mb-4">
-                            <li class="list-group-item d-flex justify-content-between">
-                                <strong>Mã hóa đơn:</strong>
-                                <span>{{ $hoaDon->ma_hoa_don }}</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between">
-                                <strong>Trạng thái:</strong>
-                                
-                                <span>{{ $status }}</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between">
-                                <strong>Tổng tiền:</strong>
-                                <span>{{ number_format($hoaDon->tong_tien, 0, ',', '.') }}đ</span>
-                            </li>
-                        </ul>
-                        <a href="{{ route('home') }}" class="btn btn-danger">
-                            <i class="fas fa-arrow-left me-1"></i> Quay về trang chủ
-                        </a>
-                    </div>
+            <div class="card border-0 shadow-lg p-4">
+                <div class="cart-header text-left mb-3">
+                    <h6 class="mb-0 font-weight-bold">{{ $hoaDon->cuaHang->ten_cua_hang }}</h6>
+                    <small class="text-muted"><strong>Địa chỉ: </strong>{{ $hoaDon->cuaHang->dia_chi }}</small><br>
+                    <small class="text-muted"><strong>Số điện thoại: </strong>{{ $hoaDon->cuaHang->so_dien_thoai }}</small><br>
+                    <small class="text-muted"><strong>Giờ hoạt động: </strong>{{ $hoaDon->cuaHang->gio_mo_cua }} - {{ $hoaDon->cuaHang->gio_dong_cua }}</small>
                 </div>
+
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-times-circle fa-4x text-danger mb-3"></i>
+                        <h3 class="text-danger">Thanh toán thất bại!</h3>
+                        <p>Đơn hàng chưa được xử lý do bạn đã hủy hoặc gặp sự cố khi thanh toán.</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="mb-1"><strong>Mã hóa đơn:</strong> {{ $hoaDon->ma_hoa_don }}</p>
+                        <p class="mb-1"><strong>Trạng thái:</strong>
+                            @if($status === 'CANCELLED')
+                                <span class="badge badge-danger"><i class="fas fa-ban mr-1"></i> Đã hủy</span>
+                            @endif
+                        </p>
+                    </div>
+
+                    <div class="bg-light rounded p-3 mb-4">
+                        <h6 class="font-weight-bold mb-3">Chi tiết thanh toán</h6>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Tạm tính:</span>
+                            <span>{{ number_format($hoaDon->tam_tinh, 0, ',', '.') }} đ</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Giảm giá:</span>
+                            <span>-{{ number_format($hoaDon->giam_gia, 0, ',', '.') }} đ</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Phí ship:</span>
+                            <span>{{ number_format($hoaDon->tien_ship, 0, ',', '.') }} đ</span>
+                        </div>
+                        <div class="d-flex justify-content-between border-top pt-2 mt-2 font-weight-bold text-danger">
+                            <span>Tổng tiền:</span>
+                            <span>{{ number_format($hoaDon->tong_tien, 0, ',', '.') }} đ</span>
+                        </div>
+                    </div>
+
+                    <a href="{{ route('home') }}" class="btn btn-danger">
+                        <i class="fas fa-arrow-left me-1"></i> Quay về trang chủ
+                    </a>
+                </div>
+            </div>
             @endif
         </div>
     </div>
