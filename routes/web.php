@@ -26,8 +26,8 @@ use App\Http\Controllers\customers\CustomerReviewController;
 use App\Http\Controllers\dashboards\AdminDashboardController;
 use App\Http\Controllers\dashboards\StaffDashboardController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\payments\Napas247Controller;
 use App\Http\Controllers\payments\PaymentController;
+use App\Http\Controllers\payments\PayOSController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\staffs\StaffHomeController;
 use App\Http\Controllers\staffs\StaffOrderController;
@@ -44,15 +44,14 @@ use Illuminate\Support\Facades\Route;
 
 //Start - user
 //Route Home
-Route::prefix('/')->group(function(){
+Route::prefix('')->group(function(){
     Route::get('',[HomeController::class, 'home'])->name('home');
     Route::get('/gioi-thieu', [HomeController::class, 'about'])->name('about');
     Route::get('/lien-he', [HomeController::class, 'contact'])->name('contact');
     Route::post('/lien-he/submit',[ContactController::class,'submitContactForm'])->name('contact.submit');
     Route::post('/select-store', [StoreController::class, 'selectStore'])->name('select.store');
-    Route::get('/tra-cuu-don-hang', [CustomerOrderController::class, 'showFormTraCuuDonHang'])->name('traCuuDonHang.show');
-    Route::post('/tra-cuu-don-hang', [CustomerOrderController::class, 'traCuuDonHang'])->name('traCuuDonHang.search');
     Route::post('/orders/{orderId}/cancel', [CustomerOrderController::class, 'cancelOrderByCustomer'])->name('customer.orders.cancel');
+    Route::get('/theo-doi-don-hang/{orderCode}', [PaymentController::class, 'paymentSuccess'])->name('theoDoiDonHang');
     //Auth Clients
     Route::get('/login',[AuthController::class,'showLoginForm'])->name('login');
     Route::post('/login',[AuthController::class,'login'])->name('login.post');
@@ -65,7 +64,6 @@ Route::prefix('/')->group(function(){
     Route::post( '/forgot-password',[ForgotPasswordController::class,'sendResetPasswordLink'])->name('forgotPassword.send');
     Route::get('/reset-password/{token}',[ResetPasswordController::class,'showRetsetForm'])->name('password.reset');
     Route::post('/reset-password',[ResetPasswordController::class,'resetPassword'])->name('resetPassword.update');
-
 });
 Route::get('/stores', [StoreController::class, 'index']);
 Route::post('/stores/nearest', [StoreController::class, 'ganNhat']);
@@ -131,12 +129,16 @@ Route::prefix('cart')->group(function(){
 //Route Payment
 Route::prefix('payment')->group(function(){
     Route::post('/',[PaymentController::class,'payment'])->name('payment');
-    Route::get('/payos-return', [Napas247Controller::class, 'handleReturn'])->name('payos.return');
-    Route::get('/payos-cancel', [Napas247Controller::class, 'handleCancel'])->name('payos.cancel');
-    Route::get('/status/{orderCode}', [Napas247Controller::class, 'checkPaymentStatus']);
     Route::get('/checkout-status',[PaymentController::class,'checkoutStatus'])->name('checkout_status');
+    Route::get('/payos/info/{orderCode}', [PayOSController::class, 'getPaymentLinkInformation']);
+    Route::post('/payos/cancel/{orderCode}', [PayOSController::class, 'cancelPaymentLink']);
+    Route::post('/webhook/payos', [PayOSController::class, 'handleWebhook'])
+        ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+    Route::post('/payos/confirm-webhook', [PayOSController::class, 'confirmWebhook']);
+    Route::get('/test-webhook-confirm', [PayOSController::class, 'testConfirmWebhook']);
+    Route::get('/thanh-cong', [PayOSController::class, 'paymentSuccess']);
+    Route::get('/that-bai', [PayOSController::class, 'paymentCancel']);
 });
-
 //Tin tức
 Route::prefix('blog')->group(function(){
     Route::get('/', [BlogController::class, 'index'])->name('blog');

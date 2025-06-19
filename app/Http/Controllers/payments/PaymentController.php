@@ -123,7 +123,7 @@ class PaymentController extends Controller
         $total = $subTotal + $shippingFee - $discount;
 
         if($validated['shippingMethod'] == 'pickup'){
-            $address = 'Đến lấy tại cửa hàng: ' . session('selected_store_name').' - '.session('selected_store_dia_chi');
+            $address = session('selected_store_name').' - '.session('selected_store_dia_chi');
         }
         if ($validated['shippingMethod'] == 'delivery') {
 
@@ -163,12 +163,15 @@ class PaymentController extends Controller
                 'giam_gia' => $discount,
                 'tong_tien' => $total,
                 'cart_items' => $cart,
+                
             ];
 
             try {
                 $maHoaDon = $this->processCOD($orderData);
-               
+                    // Lấy lại token từ DB sau khi insert
+                    $hoaDon = HoaDon::where('ma_hoa_don', $maHoaDon)->first();
                     $orderData['maHoaDon'] = $maHoaDon;
+                    $orderData['token_bao_mat'] = $hoaDon->token_bao_mat;
                     $orderData['trang_thai'] = 'Chờ xác nhận';
                     $orderData['trang_thai_thanh_toan'] = 'Thanh toán khi nhận hàng';
 
@@ -183,19 +186,26 @@ class PaymentController extends Controller
                         $orderData['trang_thai_thanh_toan'],
                         $orderData['dia_chi'],
                         $orderData['cart_items'],
+                        $orderData['tam_tinh'],
+                        $orderData['giam_gia'],
+                        $orderData['tien_ship'],
                         $orderData['tong_tien'],
+                        $orderData['token_bao_mat'],
                     );
 
                 session()->forget('cart'); 
-                toastr()->success('Đặt hàng thành công!');
-                return redirect()->route('checkout_status')->with('status', 'success');
+                    
+                return redirect()->route('theoDoiDonHang', [
+                    'orderCode' => $maHoaDon,
+                    'token' => $orderData['token_bao_mat'],
+                ]);
+
             } catch (\Exception $e) {
                 toastr()->error('Có lỗi xảy ra khi xử lý đơn hàng. Vui lòng thử lại sau! '. $e->getMessage());
                 return redirect()->back();
             }
         }
         if ($request->paymentMethod === 'NAPAS247') {
-            $napas = new Napas247Controller();
 
             $orderData = [
                 'ma_cua_hang' => $storeId,
@@ -215,14 +225,15 @@ class PaymentController extends Controller
                 'tong_tien' => $total,
                 'cart_items' => $cart,
             ];
-            
-            return $napas->createPaymentLink($orderData); 
+            $payOS = app(\App\Http\Controllers\payments\PayOSController::class);
+            return $payOS->createPaymentLinkFromOrderData($orderData);
         }
         return redirect()->back()->with('error', 'Phương thức thanh toán không hợp lệ.');
     }
     public function processCOD(array $data)
     {
         $maHoaDon = HoaDon::generateMaHoaDon();
+        $token_bao_mat = Str::random(32);
 
         DB::table('hoa_dons')->insert([
             'ma_hoa_don' => $maHoaDon,
@@ -243,6 +254,7 @@ class PaymentController extends Controller
             'tong_tien' => $data['tong_tien'],
             'trang_thai_thanh_toan' => 0,
             'trang_thai' => 0,
+            'token_bao_mat' => $token_bao_mat,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -318,7 +330,6 @@ class PaymentController extends Controller
 
         return ['success' => true, 'usedIngredients' => $totalUsedIngredients];
     }
-
     public function checkStatus($cart, $storeId)
     {
         $storeName = session('selected_store_name');
@@ -384,7 +395,6 @@ class PaymentController extends Controller
             }
         }
     }
-
     public function subtractIngredients($storeId, $usedIngredients)
     {
         foreach ($usedIngredients as $ingredientId => $requiredQty) {
@@ -422,7 +432,6 @@ class PaymentController extends Controller
             }
         }
     }
-
     private function calculateDistance($lat1, $lon1, $lat2, $lon2)
     {
         $earthRadius = 6371; // km
@@ -501,7 +510,7 @@ class PaymentController extends Controller
             'address' => $address
         ];
     }
-    public function sendEmail($order_id, $name, $email, $phone, $shippingMethod, $paymentMethod, $status, $statusPayment, $address, $cartItems, $tongTien)
+    public function sendEmail($order_id, $name, $email, $phone, $shippingMethod, $paymentMethod, $status, $statusPayment, $address, $cartItems, $tamTinh, $giamGia, $tienShip, $tongTien, $token)
     {
         try {
             Mail::to($email)->send(new OrderMail(
@@ -516,7 +525,11 @@ class PaymentController extends Controller
                 $address,
                 now()->format('d/m/Y H:i'),
                 $cartItems,
-                $tongTien
+                $tamTinh,
+                $giamGia,
+                $tienShip,
+                $tongTien,
+                $token,
             ));
         } catch (\Exception $e) {
             // Ghi log lỗi nếu cần
@@ -528,5 +541,22 @@ class PaymentController extends Controller
             'title' => 'Trạng thái đơn hàng | CDMT Coffee & Tea',    
         ];
         return view('clients.pages.payments.checkout_status', $viewData);
+    }
+    public function paymentSuccess(Request $request, $orderCode)
+    {
+        $token = $request->query('token');
+
+        $hoaDon = HoaDon::with('chiTietHoaDon', 'transaction', 'cuaHang')
+            ->where('ma_hoa_don', $orderCode)
+            ->where('token_bao_mat', $token)
+            ->first();
+
+        $viewData = [
+            'title' => 'Thông tin đơn hàng ' . $orderCode,
+            'hoaDon' => $hoaDon,
+            'error' => !$hoaDon ? 'Không tìm thấy hóa đơn hoặc token không hợp lệ.' : null
+        ];
+
+        return view('clients.pages.payments.thanh-cong', $viewData);
     }
 }

@@ -69,7 +69,7 @@
                                             <th>Ngày lập HĐ</th>
                                             <th>Thông tin khách hàng</th>
                                             <th>
-                                                PT thanh toán<br>
+                                                Phương thức thanh toán<br>
                                                 <select id="pt_thanh_toan" class="form-select form-select-sm mt-1">
                                                     <option value="">Tất cả</option>
                                                     <option value="COD">Thanh toán khi nhận hàng (COD)</option>
@@ -77,7 +77,7 @@
                                                 </select>
                                             </th>
                                             <th>
-                                                Trạng thái<br>
+                                                Trạng thái đơn hàng<br>
                                                 <select id="trang_thai" class="form-select form-select-sm mt-1">
                                                     <option value="">Tất cả</option>
                                                     <option value="0">Chờ xác nhận</option>
@@ -88,12 +88,22 @@
                                                     <option value="5">Đã hủy</option>
                                                 </select>
                                             </th>
+                                            <th>
+                                                Trạng thái thanh toán<br>
+                                                <select id="trang_thai" class="form-select form-select-sm mt-1">
+                                                    <option value="">Tất cả</option>
+                                                    <option value="0">Chưa thanh toán</option>
+                                                    <option value="1">Đã thanh toán</option>
+                                                    <option value="2">Đang hoàn tiền</option>
+                                                    <option value="3">Đã hoàn tiền</option>
+                                                </select>
+                                            </th>
                                         </tr>
                                     </thead>    
                                     <tbody id="order-tbody">
                                         @include('staffs.orders._order_tbody', ['orders' => $orders])
                                         <div class="modal fade" id="orderDetailModal" tabindex="-1" aria-hidden="true"> 
-                                            <div class="modal-dialog modal-lg"> <!-- modal-lg cho rộng hơn -->
+                                            <div class="modal-dialog modal-lg"> 
                                                 <div class="modal-content">
                                                     <div id="order-detail-content"></div>
                                                 </div>

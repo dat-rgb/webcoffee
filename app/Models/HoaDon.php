@@ -32,6 +32,7 @@ class HoaDon extends Model
         'tong_tien',
         'trang_thai_thanh_toan',
         'trang_thai',
+        'token_bao_mat'
     ];
     
     public function khachHang()
@@ -47,6 +48,11 @@ class HoaDon extends Model
     public function khuyenMai()
     {
         return $this->belongsTo(KhuyenMai::class, 'ma_khuyen_mai', 'ma_khuyen_mai');
+    }
+
+    public function cuaHang()
+    {
+        return $this->belongsTo(CuaHang::class, 'ma_cua_hang', 'ma_cua_hang');
     }
 
     public function transaction()

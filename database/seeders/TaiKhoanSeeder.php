@@ -32,7 +32,7 @@ class TaiKhoanSeeder extends Seeder
             ['email' => 'nv12@cdmtcoffeetea.com', 'mat_khau' => Hash::make('Password@123'), 'loai_tai_khoan' => 2, 'trang_thai' => 1],
             ['email' => 'nv13@cdmtcoffeetea.com', 'mat_khau' => Hash::make('Password@123'), 'loai_tai_khoan' => 2, 'trang_thai' => 1],
             // Khách Hàng
-            ['email' => 'kh1@gmail.com', 'mat_khau' => Hash::make('Password@123'), 'loai_tai_khoan' => 3, 'trang_thai' => 1],
+            ['email' => 'trdatt3737@gmail.com', 'mat_khau' => Hash::make('Password@123'), 'loai_tai_khoan' => 3, 'trang_thai' => 1],
             ['email' => 'kh2@gmail.com', 'mat_khau' => Hash::make('Password@123'), 'loai_tai_khoan' => 3, 'trang_thai' => 1],
             ['email' => 'kh3@gmail.com', 'mat_khau' => Hash::make('Password@123'), 'loai_tai_khoan' => 3, 'trang_thai' => 1],
             ['email' => 'kh4@gmail.com', 'mat_khau' => Hash::make('Password@123'), 'loai_tai_khoan' => 3, 'trang_thai' => 1],

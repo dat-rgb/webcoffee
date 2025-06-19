@@ -23,12 +23,16 @@ class OrderMail extends Mailable
     public $statusPayment;
     public $order_time;
     public $cart;
+    public $subtotal;
+    public $giamGia;
+    public $tienShip;
     public $total;
+    public $token;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($order_id, $name, $email, $phone, $shippingMethod, $paymentMethod, $status, $statusPayment, $address, $order_time, $cart, $total)
+    public function __construct($order_id, $name, $email, $phone, $shippingMethod, $paymentMethod, $status, $statusPayment, $address, $order_time, $cart, $subtotal, $giamGia, $tienShip, $total, $token)
     {
         $this->order_id = $order_id;
         $this->name = $name;
@@ -41,7 +45,11 @@ class OrderMail extends Mailable
         $this->address = $address;
         $this->order_time = $order_time;
         $this->cart = $cart;
+        $this->subtotal = $subtotal;
+        $this->giamGia = $giamGia;
+        $this->tienShip = $tienShip;
         $this->total = $total;
+        $this->token = $token;
     }
 
     /**
@@ -72,8 +80,12 @@ class OrderMail extends Mailable
                 'statusPayment' => $this->statusPayment,
                 'address' => $this->address,
                 'order_time' => $this->order_time,
+                'subtotal' => $this->subtotal,
+                'giamGia' => $this->giamGia,
+                'tienShip' => $this->tienShip,
                 'cart' => $this->cart,
                 'total' => $this->total,
+                'token' => $this->token,
             ]
         );
     }
