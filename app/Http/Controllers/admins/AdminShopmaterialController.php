@@ -16,10 +16,14 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+
+use function Laravel\Prompts\search;
+
 class AdminShopmaterialController extends Controller
 {
     public function index(Request $request)
     {
+        $search = null;
         $query = CuaHangNguyenLieu::with('nguyenLieu', 'cuaHang');
         if ($request->filled('ma_cua_hang')) {
             $query->where('ma_cua_hang', $request->ma_cua_hang);
@@ -31,13 +35,15 @@ class AdminShopmaterialController extends Controller
                 ->orWhere('ten_nguyen_lieu', 'like', '%' . $search . '%');
             });
         }
+
         $materials = $query->paginate(10);
         $stores = CuaHang::all();
         return view('admins.shopmaterial.index', [
             'materials' => $materials,
             'stores' => $stores,
             'title' => 'Quản lý nguyên vật liệu cửa hàng',
-            'subtitle' => 'Quản lý danh sách nguyên vật liệu'
+            'subtitle' => 'Quản lý danh sách nguyên vật liệu',
+            'search'=>$search
         ]);
     }
     public function create(Request $request)
@@ -240,12 +246,6 @@ class AdminShopmaterialController extends Controller
                         }
 
                         $dinhluong = $soLuongNhap * $material->nguyenLieu->so_luong;
-
-                        //$maxImport = $material->so_luong_ton_max - $material->so_luong_ton;
-                        //if ($dinhluong > $maxImport) {
-                            //throw new \Exception("Định lượng nhập vượt quá mức tối đa cho nguyên liệu $maNguyenLieu (tối đa có thể nhập: $maxImport).");
-                        //}
-
                         $updateKey = $maCuaHang . '_' . $maNguyenLieu;
                         if (!isset($updateData[$updateKey])) {
                             $updateData[$updateKey] = [

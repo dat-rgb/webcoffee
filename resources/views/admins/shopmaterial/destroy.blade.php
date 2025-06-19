@@ -84,7 +84,9 @@
 
                     <div class="card-footer text-end">
                         <button type="submit" class="btn btn-danger">Xác nhận hủy hàng</button>
-                        <a href="{{ route('admins.shopmaterial.index') }}" class="btn btn-secondary">Quay lại</a>
+                        {{-- <a href="{{ route('admins.shopmaterial.index') }}" class="btn btn-secondary">Quay lại</a> --}}
+                        <a href="{{ route('admins.shopmaterial.index', ['ma_cua_hang' => $ma_cua_hang]) }}" class="btn btn-secondary">Quay lại</a>
+
                     </div>
                 </div>
             </div>
