@@ -1,39 +1,57 @@
 @if($orders->isEmpty())
     <tr>
-        <td colspan="9" class="text-center">
-            Không có đơn hàng
-            @if(request()->pt_thanh_toan || request()->tt_thanh_toan || request()->trang_thai)
-                theo bộ lọc:
-                <ul style="list-style:none; padding-left:0;">
+        <td colspan="9" class="text-center text-muted py-4">
+            <div>Không tìm thấy đơn hàng nào phù hợp.</div>
+
+            @if(request()->pt_thanh_toan || request()->tt_thanh_toan !== null || request()->trang_thai !== null || request()->search)
+                <div class="mt-2">Bộ lọc đang áp dụng:</div>
+                <ul class="list-unstyled mb-0">
                     @if(request()->pt_thanh_toan)
-                        <li>PT. thanh toán: 
+                        <li>
+                            - PT thanh toán: 
                             <strong>
-                                @if( request()->pt_thanh_toan == "COD")
-                                    Tiền mặt
-                                @elseif (request()->pt_thanh_toan == "NAPAS247")
-                                    Chuyển khoản
-                                @endif
-                            </strong></li>
+                                {{ request()->pt_thanh_toan == 'COD' ? 'Tiền mặt' : (request()->pt_thanh_toan == 'NAPAS247' ? 'Chuyển khoản' : 'Không xác định') }}
+                            </strong>
+                        </li>
                     @endif
+
                     @if(request()->tt_thanh_toan !== null && request()->tt_thanh_toan !== '')
-                        <li>TT. thanh toán: <strong>
-                            @if(request()->tt_thanh_toan == 0) Chờ thanh toán
-                            @elseif(request()->tt_thanh_toan == 1) Đã thanh toán
-                            @endif
-                        </strong></li>
+                        <li>
+                            - TT thanh toán: 
+                            <strong>
+                                @switch((int) request()->tt_thanh_toan)
+                                    @case(0) Chờ thanh toán @break
+                                    @case(1) Đã thanh toán @break
+                                    @case(2) Đang hoàn tiền @break
+                                    @case(3) Hoàn tiền thành công @break
+                                    @default Không xác định
+                                @endswitch
+                            </strong>
+                        </li>
                     @endif
+
                     @if(request()->trang_thai !== null && request()->trang_thai !== '')
-                        <li>Trạng thái: <strong>
-                            @switch(request()->trang_thai)
-                                @case(0) Chờ xác nhận @break
-                                @case(1) Đã xác nhận @break
-                                @case(2) Hoàn tất đơn hàng @break
-                                @case(3) Đang giao @break
-                                @case(4) Đã nhận @break
-                                @case(5) Đã hủy @break
-                                @default Không xác định
-                            @endswitch
-                        </strong></li>
+                        <li>
+                            - Trạng thái đơn hàng: 
+                            <strong>
+                                @switch((int) request()->trang_thai)
+                                    @case(0) Chờ xác nhận @break
+                                    @case(1) Đã xác nhận @break
+                                    @case(2) Hoàn tất đơn hàng @break
+                                    @case(3) Đang giao / Chờ nhận @break
+                                    @case(4) Đã nhận @break
+                                    @case(5) Đã hủy @break
+                                    @default Không xác định
+                                @endswitch
+                            </strong>
+                        </li>
+                    @endif
+
+                    @if(request()->search)
+                        <li>
+                            - Từ khóa tìm kiếm: 
+                            <strong>{{ request()->search }}</strong>
+                        </li>
                     @endif
                 </ul>
             @endif
@@ -78,15 +96,17 @@
                 @endphp
 
                 @if ($order->trang_thai < 4 && isset($statuses[$order->trang_thai]))
-                    <select name="order_status" class="form-select order-status-select"
-                        data-order-id="{{ $order->ma_hoa_don }}"
-                        data-pt-nhan-hang="{{ $order->phuong_thuc_nhan_hang }}">
-                        @foreach ($statuses as $key => $label)
-                            @if ($key >= $order->trang_thai)
-                                <option value="{{ $key }}" {{ $order->trang_thai == $key ? 'selected' : '' }}>{{ $label }}</option>
-                            @endif
-                        @endforeach
-                    </select>
+                <select name="order_status" class="form-select order-status-select"
+                    data-order-id="{{ $order->ma_hoa_don }}"
+                    data-pt-nhan-hang="{{ $order->phuong_thuc_nhan_hang }}"
+                    data-previous="{{ $order->trang_thai }}">
+                    @foreach ($statuses as $key => $label)
+                        @if ($key >= $order->trang_thai)
+                            <option value="{{ $key }}" {{ $order->trang_thai == $key ? 'selected' : '' }}>{{ $label }}</option>
+                        @endif
+                    @endforeach
+                </select>
+
                 @else
                     <span class="{{ $order->trang_thai == 4 ? 'text-success fw-bold' : ($order->trang_thai == 5 ? 'text-danger fw-bold' : '') }}">
                         {{ $statuses[$order->trang_thai] ?? 'Không xác định' }}

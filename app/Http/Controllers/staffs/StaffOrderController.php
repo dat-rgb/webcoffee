@@ -45,24 +45,32 @@ class StaffOrderController extends Controller
     }
     public function filter(Request $request)
     {
-        $nhanVien = Auth::guard('staff')->user()->nhanvien ?? null;
+        \Log::info($request->all()); // 👈 Log ra để kiểm tra
+
         $query = HoaDon::query();
 
-        if ($nhanVien && $nhanVien->ma_cua_hang) {
-            $query->where('ma_cua_hang', $nhanVien->ma_cua_hang);
+        if (Auth::guard('staff')->check()) {
+            $nhanVien = Auth::guard('staff')->user()->nhanvien;
+            if ($nhanVien && $nhanVien->ma_cua_hang) {
+                $query->where('ma_cua_hang', $nhanVien->ma_cua_hang);
+            }
         }
 
         if ($request->pt_thanh_toan) {
             $query->where('phuong_thuc_thanh_toan', $request->pt_thanh_toan);
         }
 
-        if (is_numeric($request->trang_thai)) {
+        if ($request->filled('trang_thai')) {
             $query->where('trang_thai', $request->trang_thai);
+        }
+
+        if ($request->filled('tt_thanh_toan')) {
+            $query->where('trang_thai_thanh_toan', $request->tt_thanh_toan);
         }
 
         if ($request->search) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('ma_hoa_don', 'like', "%$search%")
                 ->orWhere('ten_khach_hang', 'like', "%$search%");
             });
@@ -72,6 +80,8 @@ class StaffOrderController extends Controller
 
         return view('staffs.orders._order_tbody', compact('orders'))->render();
     }
+
+
     public function detail($id)
     {
         $order = HoaDon::with(['khachHang', 'chiTietHoaDon','khuyenMai','giaoHang','lichSuHuyDonHang'])->where('ma_hoa_don',$id)->first();
@@ -213,7 +223,7 @@ class StaffOrderController extends Controller
                     ->increment('so_luong_ton', $soLuongHoanTra);
             }
         }
-    }
+    }  
     public function tinhDiemThanhVien($order)
     {
         if (!$order->ma_khach_hang) {
