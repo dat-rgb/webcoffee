@@ -56,14 +56,14 @@
                                     value="{{ request('search') }}"
                                     autocomplete="off"
                                 >
-                                <button type="submit" class="bg-white input-group-text">
+                                <button type="submit" class="btn btn-outline-secondary">
                                     <i class="fa fa-search text-muted"></i>
                                 </button>
                             </div>
                         </div>
                         <div class="col-md-2">
                             <select name="loai_phieu" id="selectLoaiPhieu" class="form-select">
-                                <option value="">-- Loại phiếu --</option>
+                                <option value="">-- Các loại phiếu --</option>
                                 <option value="0" {{ request('loai_phieu') === '0' ? 'selected' : '' }}>Nhập</option>
                                 <option value="1" {{ request('loai_phieu') === '1' ? 'selected' : '' }}>Xuất</option>
                                 <option value="2" {{ request('loai_phieu') === '2' ? 'selected' : '' }}>Hủy</option>
@@ -107,17 +107,6 @@
                                         </td>
                                         <td>{{ \Carbon\Carbon::parse($phieu->ngay_tao_phieu)->format('d/m/Y H:i') }}</td>
                                     </tr>
-                                {{-- @empty
-                                <tr>
-                                    <td colspan="6" class="text-center text-muted">
-                                        @if (!empty(request('search')))
-                                            Không tìm thấy phiếu nào với từ khóa “<strong>{{ request('search') }}</strong>”.
-                                        @else
-                                            Không có phiếu nào.
-                                        @endif
-                                    </td>
-                                </tr>
-                                @endforelse --}}
                                 @empty
                                 <tr>
                                     <td colspan="100%">

@@ -89,6 +89,10 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
             </div>
             <div class="modal-body">
+                {{-- tìm kiếm --}}
+                <div class="mb-3">
+                    <input type="text" id="search-material" class="form-control" placeholder="Tìm mã hoặc tên nguyên liệu...">
+                </div>
                 <table class="table table-bordered table-hover">
                     <thead class="table-light">
                         <tr>
@@ -200,6 +204,18 @@
             document.getElementById('check-all-nguyen-lieu').checked = allChecked;
         });
     });
+        document.getElementById('search-material').addEventListener('input', function () {
+        const keyword = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#modal-chon-nguyen-lieu tbody tr');
+
+        rows.forEach(row => {
+            const maNL = row.cells[1].textContent.toLowerCase();
+            const tenNL = row.cells[2].textContent.toLowerCase();
+            const matched = maNL.includes(keyword) || tenNL.includes(keyword);
+            row.style.display = matched ? '' : 'none';
+        });
+    });
+
 </script>
 
 @endpush

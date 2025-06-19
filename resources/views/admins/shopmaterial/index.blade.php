@@ -40,10 +40,7 @@
                 </ul>
                 </div>
             <div class="card">
-
                 <div class="card-header">
-                    {{-- Tìm kiếm nguyên liệu --}}
-                    <div></div>
                     {{-- Dropdown chọn cửa hàng--}}
                     <div class="flex-wrap gap-3 card-header d-flex align-items-center justify-content-between">
 
@@ -62,7 +59,7 @@
                         </form>
                         <div class="gap-2 d-flex align-items-center">
                             <a href="{{ route('admins.shopmaterial.create', ['ma_cua_hang' => request('ma_cua_hang')]) }}"
-                            class="btn btn-primary {{ !request('ma_cua_hang') ? 'disabled' : '' }}"
+                            class="btn btn-success {{ !request('ma_cua_hang') ? 'disabled' : '' }}"
                             onclick="{{ !request('ma_cua_hang') ? 'return alert(\'Vui lòng chọn cửa hàng trước.\')' : '' }}">
                             <i class="fa fa-plus"></i> Thêm nguyên liệu
                             </a>
@@ -87,7 +84,7 @@
                             <form id="destroyMaterialsForm" action="{{ route('admins.shopmaterial.showDestroyPage') }}" method="GET">
                                 @csrf
                                 <button type="submit"
-                                        class="btn btn-primary"
+                                        class="btn btn-danger"
                                         {{ !request('ma_cua_hang') ? 'disabled' : '' }}
                                         onclick="{{ !request('ma_cua_hang') ? 'return alert(\'Vui lòng chọn cửa hàng trước.\')' : '' }}">
                                     <i class="fas fa-file-excel"></i> Hủy nguyên liệu
@@ -96,6 +93,25 @@
 
                         </div>
                     </div>
+                    {{-- Tìm kiếm nguyên liệu --}}
+                    <form method="GET" action="{{ url()->current() }}" class="gap-2 d-flex align-items-center" style="max-width: 500px;">
+                        @if (request('ma_cua_hang'))
+                            <input type="hidden" name="ma_cua_hang" value="{{ request('ma_cua_hang') }}">
+                        @endif
+                        <div class="shadow-sm input-group">
+                            <input
+                            type="text"
+                            name="search"
+                            class="form-control"
+                            placeholder="Tìm theo mã nguyên liệu, tên nguyên liệu..."
+                            value="{{ request('search') }}"
+                            autocomplete="off"
+                            >
+                            <button type="submit" class="btn btn-outline-secondary">
+                                <i class="fa fa-search text-muted"></i>
+                            </button>
+                        </div>
+                    </form>
                 </div>
                 {{-- Hiển thị danh sách kho --}}
                 <div class="card-body">
@@ -118,9 +134,9 @@
                                         <th><input type="checkbox" id="checkAll"></th>
                                         <th>Mã nguyên liệu</th>
                                         <th>Tên nguyên liệu</th>
-                                        <th>Slg tồn</th>
-                                        <th>Slg min</th>
-                                        <th>Đơn vị</th>
+                                        <th>Số lượng tồn</th>
+                                        <th>Số lượng tồn tối thiểu</th>
+                                        {{-- <th>Đơn vị</th> --}}
                                         <th>Trạng thái</th>
                                         <th>Yêu cầu</th>
                                     </tr>
@@ -143,9 +159,12 @@
                                             </td>
                                             <td>{{ optional($material->nguyenLieu)->ma_nguyen_lieu ?? 'N/A' }}</td>
                                             <td>{{ optional($material->nguyenLieu)->ten_nguyen_lieu ?? 'N/A' }}</td>
-                                            <td>{{ $material->so_luong_ton }}</td>
+                                            {{-- <td>{{ $material->so_luong_ton }}</td>
                                             <td>{{ $material->so_luong_ton_min }}</td>
-                                            <td class="text-center align-middle">{{ $material->don_vi }}</td>
+                                            <td class="text-center align-middle">{{ $material->don_vi }}</td> --}}
+                                            <td class="text-center align-middle">{{ $material->so_luong_ton . ' ' . $material->don_vi }}</td>
+                                            <td class="text-center align-middle">{{ $material->so_luong_ton_min . ' ' . $material->don_vi }}</td>
+
                                             <td class="text-center align-middle">
                                                 @php $trangThai = optional($material->cuaHang)->trang_thai; @endphp
                                                 @if ($trangThai == 1)
@@ -188,11 +207,20 @@
 document.addEventListener('DOMContentLoaded', function () {
     // 1. Xóa localStorage nếu reload trang (F5)
     const navEntry = performance.getEntriesByType("navigation")[0];
-    if (navEntry && navEntry.type === "reload") {
+    if ((navEntry && navEntry.type === "reload") || sessionStorage.getItem('formSubmitted') || sessionStorage.getItem('backToIndex')) {
         localStorage.removeItem('selectedMaterialsImport');
         localStorage.removeItem('selectedMaterialsExport');
-        console.log('Reload detected, cleared selectedMaterials');
+        sessionStorage.removeItem('formSubmitted');
+        sessionStorage.removeItem('backToIndex');
+        console.log('Cleared localStorage due to reload or back navigation');
     }
+
+    // 2. Bắt sự kiện các nút "Quay lại"
+    // document.querySelectorAll('a.btn-secondary, a.back-to-index').forEach(el => {
+    //     el.addEventListener('click', function () {
+    //         sessionStorage.setItem('backToIndex', 'true');
+    //     });
+    // });
 
     // 2. Lấy các phần tử checkbox và nút chọn tất cả
     const checkAll = document.getElementById('checkAll');
@@ -302,6 +330,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
 
             localStorage.removeItem(localStorageKey);
+            sessionStorage.setItem('formSubmitted', 'true');
             form.submit();
         });
     }
