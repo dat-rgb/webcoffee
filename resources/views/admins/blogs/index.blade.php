@@ -93,7 +93,7 @@
                                 </div>
                                 {{-- Thêm mới --}}
                                 <div class="col-6 col-lg-2">
-                                    <a href="" class="btn btn-primary w-100">
+                                    <a href="{{ route('admin.blog.add') }}" class="btn btn-primary w-100">
                                         <i class="fa fa-plus"></i> Thêm mới
                                     </a>
                                 </div>

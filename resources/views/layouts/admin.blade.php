@@ -26,7 +26,7 @@
         });
       </script>
       <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
-
+      <script src="https://cdn.tiny.cloud/1/pu87m0gh8r1tj8scy6wbxga6he21qzar3bf6356d19qwm6x6/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
       <!-- CSS Files -->
       <link rel="stylesheet" href="{{ asset('admins/css/bootstrap.min.css') }}" />
       <link rel="stylesheet" href="{{ asset('admins/css/plugins.min.css') }}" />
