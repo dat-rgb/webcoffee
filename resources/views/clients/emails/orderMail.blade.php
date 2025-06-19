@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Xác nhận đơn hàng | CDMT Coffee & Tea</title>
+    <title>Thông tin đơn hàng | CDMT Coffee & Tea</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600&display=swap');
 
@@ -117,7 +117,7 @@
         <div class="title">Cảm ơn bạn đã đặt hàng tại CDMT Coffee & Tea!</div>
         <div class="info" style="margin-bottom: 16px;">
             <strong>Hóa đơn:</strong> {{ $order_id }}
-            <a href="{{ url('/thanh-cong/' . $order_id . '?token=' . $token) }}"
+            <a href="{{ url('/theo-doi-don-hang/' . $order_id . '?token=' . $token) }}"
             style="display: inline-block; margin-left: 10px; padding: 6px 12px;
                     font-size: 14px; color: #fff; background-color: #F28123;
                     border-radius: 4px; text-decoration: none; font-weight: 500;">
@@ -146,7 +146,6 @@
                 <tr>
                     <th>#</th>
                     <th>Sản phẩm</th>
-                    <th>Size</th>
                     <th>SL</th>
                     <th>Giá</th>
                 </tr>
@@ -155,8 +154,7 @@
                 @foreach($cart as $item)
                     <tr>
                         <td>{{ $loop->iteration }}</td>
-                        <td>{{ $item['product_name'] }}</td>
-                        <td>{{ $item['size_name'] }}</td>
+                        <td>{{ $item['product_name'] -  $item['size_name']?? null}}</td>
                         <td>{{ $item['product_quantity'] }}</td>
                         <td>{{ number_format($item['product_price'] + $item['size_price'], 0, ',', '.') }} đ</td>
                     </tr>
@@ -172,7 +170,6 @@
             </div>
         </div>
     </div>
-
     <div class="footer">
         Đây là email tự động. Vui lòng không phản hồi lại email này.<br>
         Cần hỗ trợ? Liên hệ CDMT Coffee & Tea qua

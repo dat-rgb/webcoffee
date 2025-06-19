@@ -44,15 +44,14 @@ use Illuminate\Support\Facades\Route;
 
 //Start - user
 //Route Home
-Route::prefix('/')->group(function(){
+Route::prefix('')->group(function(){
     Route::get('',[HomeController::class, 'home'])->name('home');
     Route::get('/gioi-thieu', [HomeController::class, 'about'])->name('about');
     Route::get('/lien-he', [HomeController::class, 'contact'])->name('contact');
     Route::post('/lien-he/submit',[ContactController::class,'submitContactForm'])->name('contact.submit');
     Route::post('/select-store', [StoreController::class, 'selectStore'])->name('select.store');
-    Route::get('/tra-cuu-don-hang', [CustomerOrderController::class, 'showFormTraCuuDonHang'])->name('traCuuDonHang.show');
-    Route::post('/tra-cuu-don-hang', [CustomerOrderController::class, 'traCuuDonHang'])->name('traCuuDonHang.search');
     Route::post('/orders/{orderId}/cancel', [CustomerOrderController::class, 'cancelOrderByCustomer'])->name('customer.orders.cancel');
+    Route::get('/theo-doi-don-hang/{orderCode}', [PaymentController::class, 'paymentSuccess'])->name('theoDoiDonHang');
     //Auth Clients
     Route::get('/login',[AuthController::class,'showLoginForm'])->name('login');
     Route::post('/login',[AuthController::class,'login'])->name('login.post');
@@ -65,7 +64,6 @@ Route::prefix('/')->group(function(){
     Route::post( '/forgot-password',[ForgotPasswordController::class,'sendResetPasswordLink'])->name('forgotPassword.send');
     Route::get('/reset-password/{token}',[ResetPasswordController::class,'showRetsetForm'])->name('password.reset');
     Route::post('/reset-password',[ResetPasswordController::class,'resetPassword'])->name('resetPassword.update');
-
 });
 Route::get('/stores', [StoreController::class, 'index']);
 Route::post('/stores/nearest', [StoreController::class, 'ganNhat']);
@@ -141,7 +139,6 @@ Route::prefix('payment')->group(function(){
     Route::get('/thanh-cong', [PayOSController::class, 'paymentSuccess']);
     Route::get('/that-bai', [PayOSController::class, 'paymentCancel']);
 });
-Route::get('/thanh-cong/{orderCode}', [PaymentController::class, 'paymentSuccess'])->name('thanhCong');
 //Tin tức
 Route::prefix('blog')->group(function(){
     Route::get('/', [BlogController::class, 'index'])->name('blog');

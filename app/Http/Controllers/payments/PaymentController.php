@@ -195,7 +195,7 @@ class PaymentController extends Controller
 
                 session()->forget('cart'); 
                     
-                return redirect()->route('thanhCong', [
+                return redirect()->route('theoDoiDonHang', [
                     'orderCode' => $maHoaDon,
                     'token' => $orderData['token_bao_mat'],
                 ]);

@@ -28,13 +28,6 @@
                 </div>
             @else
             <div class="card border-0 shadow-lg p-4">
-                <div class="cart-header text-left mb-3">
-                    <h6 class="mb-0 font-weight-bold">{{ $hoaDon->cuaHang->ten_cua_hang }}</h6>
-                    <small class="text-muted"><strong>Địa chỉ: </strong>{{ $hoaDon->cuaHang->dia_chi }}</small><br>
-                    <small class="text-muted"><strong>Số điện thoại: </strong>{{ $hoaDon->cuaHang->so_dien_thoai }}</small><br>
-                    <small class="text-muted"><strong>Giờ hoạt động: </strong>{{ $hoaDon->cuaHang->gio_mo_cua }} - {{ $hoaDon->cuaHang->gio_dong_cua }}</small>
-                </div>
-
                 <div class="card-body">
                     <div class="text-center mb-4">
                         <i class="fas fa-times-circle fa-4x text-danger mb-3"></i>

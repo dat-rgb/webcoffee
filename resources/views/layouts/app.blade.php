@@ -96,7 +96,6 @@
 										</a>
 										<ul class="sub-menu">
 											<li><a href="{{ route('customer.index') }}"><i class="fas fa-user-circle"></i> Hồ sơ</a></li>
-											<li><a href="{{ route('traCuuDonHang.show') }}"><i class="fas fa-search"></i> Tra cứu đơn hàng</a></li>
 											<li><a href="{{ route('favorite.show') }}"><i class="fas fa-heart"></i> Yêu thích</a></li>
 											<li><a href="{{ route('customer.order.history') }}"><i class="fas fa-receipt"></i> Lịch sử mua hàng</a></li>
 											<li><a href="#"><i class="fas fa-eye"></i> Sản phẩm đã xem</a></li>
@@ -117,7 +116,6 @@
 										<ul class="sub-menu">
 											<li><a href="{{ route('login') }}"><i class="fas fa-sign-in-alt me-2"></i> Đăng nhập</a></li>
 											<li><a href="{{ route('register') }}"><i class="fas fa-user-plus me-2"></i> Đăng ký</a></li>
-											<li><a href="{{ route('traCuuDonHang.show') }}"><i class="fas fa-search me-2"></i> Tra cứu đơn hàng</a></li>
 										</ul>
 									</li>
 								@endif	

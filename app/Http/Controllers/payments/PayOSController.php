@@ -9,7 +9,7 @@ use App\Models\Transactions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-
+use Illuminate\Support\Str;
 class PayOSController extends Controller
 {
     public function createPaymentLinkFromOrderData(array $orderData)
@@ -18,7 +18,7 @@ class PayOSController extends Controller
 
         try {
             $maHoaDon = HoaDon::generateMaHoaDon();
-
+            $token_bao_mat = Str::random(32);
             $hoaDon = HoaDon::create([
                 'ma_hoa_don' => $maHoaDon,
                 'ma_khach_hang' => $orderData['ma_khach_hang'],
@@ -37,6 +37,7 @@ class PayOSController extends Controller
                 'tong_tien' => $orderData['tong_tien'],
                 'trang_thai_thanh_toan' => 0,
                 'trang_thai' => 0,
+                'tonken_bao_mat' => $token_bao_mat,
             ]);
 
             foreach ($orderData['cart_items'] as $item) {

@@ -41,16 +41,21 @@
                             @elseif($hoaDon->trang_thai == 2)
                                 <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
                                 <h3 class="text-success">Đơn hàng đã hoàn tất</h3>
-                                <p>Cửa hàng đang chuẩn bị món của bạn.</p>
-                                @elseif($hoaDon->trang_thai == 3)
+                                <p>Cửa hàng đã hoàn tất món của bạn.</p>
+                            @elseif($hoaDon->trang_thai == 3)
                                 <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
                                 @if($hoaDon->phuong_thuc_nhan_hang === 'pickup')
                                     <h3 class="text-success">Chờ nhận món</h3>
                                     <p>Mời bạn đến cửa hàng để nhận món.</p>
+                                    <div class="mt-2">
+                                        <p><strong>Cửa hàng:</strong> {{ $hoaDon->cuaHang->ten_cua_hang .' - ' . $hoaDon->cuaHang->dia_chi ?? 'Chưa có địa chỉ' }}</p>
+                                    </div>
                                 @else
                                     <h3 class="text-success">Đang giao hàng</h3>
                                     <p>Shipper đang giao hàng đến bạn. Vui lòng giữ điện thoại bên cạnh để tiện liên lạc.</p>
-                                    <p>Thông tin giao hàng</p>
+                                    <div class="mt-2">
+                                        <p><strong>Shipper:</strong> {{ $hoaDon->giaoHang->ho_ten_shipper ?? 'Đang phân công' }} <strong>SĐT:</strong> {{ $hoaDon->giaoHang->so_dien_thoai ?? 'Đang cập nhật' }}</p>
+                                    </div>
                                 @endif
                             @elseif($hoaDon->trang_thai == 4)
                                 <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
@@ -65,11 +70,6 @@
                                 <p>Đơn hàng của bạn đang được xử lý.</p>
                             @endif
                         </div>
-
-                        <div class="mb-4">
-                            <p class="mb-1"><strong>Mã hóa đơn:</strong> {{ $hoaDon->ma_hoa_don }}</p>
-                        </div>
-
                         @php
                             $trangThai = $hoaDon->trang_thai;
                             $isNapas = $hoaDon->phuong_thuc_thanh_toan === 'NAPAS247';
@@ -106,11 +106,7 @@
                                             <small class="{{ $active ? 'text-success' : 'text-muted' }}">{{ $step }}</small>
                                         </div>
                                     @endforeach
-
-                                    {{-- Đường kẻ nền xám --}}
                                     <div class="position-absolute" style="top: 16px; left: 28px; right: 28px; height: 2px; background-color: #ccc; z-index: 0;"></div>
-
-                                    {{-- Đường kẻ tiến trình --}}
                                     @php
                                         $totalSteps = count($timelineSteps);
                                         $progressPercent = $isNapas
@@ -133,6 +129,7 @@
                         <div class="card shadow-sm border-0 mb-4">
                             <div class="card-header bg-white border-bottom">
                                 <h6 class="mb-0 font-weight-bold">Thông tin đơn hàng</h6>
+                                <p class="mb-1"><strong>Mã hóa đơn:</strong> {{ $hoaDon->ma_hoa_don }}</p>
                             </div>
                             <div class="card-body p-0">
                                 <div class="table-responsive">
@@ -164,7 +161,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="card border-0 bg-light mb-4">
+                        <div class="card border-0 bg-light mb-8">
                             <div class="card-body">
                                 <h6 class="font-weight-bold mb-3">Chi tiết thanh toán</h6>
                                 <div class="d-flex justify-content-between mb-2">
