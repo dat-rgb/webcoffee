@@ -284,6 +284,7 @@ Route::prefix('admin/orders')->middleware(AdminMiddleware::class)->group(functio
     Route::get('/',[AdminOrderController::class,'index'])->name('admin.orders.list');
     Route::get('/{id}/detail', [AdminOrderController::class, 'detail'])->name('admin.orders.detail');
     Route::post('/filter', [AdminOrderController::class, 'filter'])->name('admin.orders.filter');
+    Route::post('/update-status', [AdminOrderController::class, 'updateStatusOrder'])->name('admin.orders.updateStatus');
 });
 
 //Route Admin Dashboard
@@ -317,6 +318,7 @@ Route::prefix('admin/blog')->middleware(AdminMiddleware::class)->group(function(
     Route::get('/',[AdminBlogController::class,'index'])->name('admin.blog.index');
     Route::get('/add-blog',[AdminBlogController::class,'showFormBlog'])->name('admin.blog.form');
     Route::post('/add-blog',[AdminBlogController::class,'add'])->name('admin.blog.add');
+    Route::post('/tinymce/upload', [AdminBlogController::class, 'tinymceUpload'])->name('tinymce.upload');
 });
 
 

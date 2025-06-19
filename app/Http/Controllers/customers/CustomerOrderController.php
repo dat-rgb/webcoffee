@@ -63,7 +63,7 @@ class CustomerOrderController extends Controller
 
             (new StaffOrderController)->restoreIngredientsAndVoucher($order);
 
-            $maKhachHang = optional(auth()->user())->ma_khach_hang;
+            $maKhachHang = Auth::user()->khachHang->ma_khach_hang;
 
             $lichSu = new LichSuHuyDonHang();
             $lichSu->ma_hoa_don = $order->ma_hoa_don;
