@@ -37,7 +37,7 @@ class PayOSController extends Controller
                 'tong_tien' => $orderData['tong_tien'],
                 'trang_thai_thanh_toan' => 0,
                 'trang_thai' => 0,
-                'tonken_bao_mat' => $token_bao_mat,
+                'token_bao_mat' => $token_bao_mat,
             ]);
 
             foreach ($orderData['cart_items'] as $item) {
@@ -80,6 +80,7 @@ class PayOSController extends Controller
             ]);
 
             DB::commit();
+            session()->forget('cart');
 
             return redirect($response['checkoutUrl']);
         } catch (\Throwable $th) {
@@ -205,7 +206,49 @@ class PayOSController extends Controller
         $maHoaDon = 'HD' . $orderCode;
 
         $hoaDon = HoaDon::with('chiTietHoaDon', 'transaction', 'cuaHang')->where('ma_hoa_don', $maHoaDon)->first();
+        $transaction = Transactions::where('ma_hoa_don', $maHoaDon)->first();
 
+        
+        if ($hoaDon && $hoaDon->trang_thai_thanh_toan != 1) {
+            $hoaDon->trang_thai_thanh_toan = 1; // Đã thanh toán
+            $hoaDon->save();
+
+            $cartItems = $hoaDon->chiTietHoaDon->map(function ($item) {
+                return [
+                    'product_name'     => $item->ten_san_pham ?? 'N/A',
+                    'size_name'        => $item->ten_size ?? '',
+                    'product_quantity' => $item->so_luong,
+                    'product_price'    => $item->don_gia,
+                    'size_price'       => $item->gia_size ?? 0,
+                ];
+            })->toArray();
+            
+            $sendEmail = new PaymentController();
+            $statusPayment = 'Đã thanh toán';
+            $status = 'Chờ xác nhận';
+
+            $sendEmail->sendEmail(
+                $hoaDon->ma_hoa_don,
+                $hoaDon->ten_khach_hang,
+                $hoaDon->email,
+                $hoaDon->so_dien_thoai,
+                $hoaDon->phuong_thuc_nhan_hang,
+                $hoaDon->phuong_thuc_thanh_toan,
+                $status, 
+                $statusPayment, 
+                $hoaDon->dia_chi,
+                $cartItems,
+                $hoaDon->tam_tinh,
+                $hoaDon->giam_gia,
+                $hoaDon->tien_ship,
+                $hoaDon->tong_tien,
+                $hoaDon->token_bao_mat,
+            );
+        }
+        if ($transaction && $transaction->trang_thai != 'SUCCESS') {
+            $transaction->trang_thai = 'SUCCESS';
+            $transaction->save();
+        }
         $viewData = [
             'title' => 'Đặt hàng thành công',
             'hoaDon' => $hoaDon,
@@ -215,7 +258,6 @@ class PayOSController extends Controller
 
         return view('clients.pages.payments.thanh-cong', $viewData);
     }
-
     public function paymentCancel(Request $request)
     {
         $orderCode = $request->query('orderCode');

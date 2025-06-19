@@ -232,7 +232,11 @@ class Napas247Controller extends Controller
                 $hoaDon->$statusPayment,
                 $hoaDon->dia_chi,
                 $cartItems,
-                $hoaDon->tong_tien
+                $hoaDon->tam_tinh,
+                $hoaDon->giam_gia,
+                $hoaDon->tien_ship,
+                $hoaDon->tong_tien,
+                $hoaDon->token_bao_mat,
             );
         }
 

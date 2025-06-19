@@ -154,7 +154,7 @@
                 @foreach($cart as $item)
                     <tr>
                         <td>{{ $loop->iteration }}</td>
-                        <td>{{ $item['product_name'] -  $item['size_name']?? null}}</td>
+                        <td>{{ $item['product_name'] .' - '.  $item['size_name']?? null}}</td>
                         <td>{{ $item['product_quantity'] }}</td>
                         <td>{{ number_format($item['product_price'] + $item['size_price'], 0, ',', '.') }} đ</td>
                     </tr>

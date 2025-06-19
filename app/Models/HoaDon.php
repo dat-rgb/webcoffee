@@ -32,6 +32,7 @@ class HoaDon extends Model
         'tong_tien',
         'trang_thai_thanh_toan',
         'trang_thai',
+        'token_bao_mat'
     ];
     
     public function khachHang()
