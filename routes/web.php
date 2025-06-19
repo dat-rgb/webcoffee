@@ -176,7 +176,6 @@ Route::prefix('auth')->group(function(){
 //Start - Admin
 //Route Admin home
 Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function(){
-    Route::get('/', [AdminHomeController::class, 'index'])->name('admin');
     Route::get('/thong-tin-website',[AdminHomeController::class,'thongTinWebsite'])->name('admin.thongTinWebSite');
     Route::put('/thong-tin-website/update',[AdminHomeController::class, 'updateThongTinWebsite'])->name('admin.thong_tin_website.update');
 });

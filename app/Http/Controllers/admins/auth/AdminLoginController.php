@@ -50,7 +50,7 @@ class AdminLoginController extends Controller
 
             $request->session()->regenerate();
             toastr()->success('Đăng nhập thành công.');
-            return redirect()->route('admin');
+            return redirect()->route('admin.dashboard');
         }
         else if($admin->loai_tai_khoan == 2){
             Auth::guard('staff')->login($admin);

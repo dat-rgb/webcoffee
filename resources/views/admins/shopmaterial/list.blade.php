@@ -34,7 +34,7 @@
                 <h3 class="mb-3 fw-bold">{{ $subtitle }}</h3>
                 <ul class="mb-3 breadcrumbs">
                     <li class="nav-home">
-                        <a href="{{ route('admin') }}"><i class="icon-home"></i></a>
+                        <a href="{{ route('admin.dashboard') }}"><i class="icon-home"></i></a>
                     </li>
                     <li class="separator"><i class="icon-arrow-right"></i></li>
                     <li class="nav-item"><a href="#">Cửa hàng nguyên liệu</a></li>

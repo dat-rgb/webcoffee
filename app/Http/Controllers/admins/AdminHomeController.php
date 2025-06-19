@@ -9,14 +9,6 @@ use Illuminate\Support\Facades\Auth;
 
 class AdminHomeController extends Controller
 {
-    public function index(){
-    
-        $viewData = [
-            
-        ];
-        return view('admins.pages.index');
-    }
-
     public function thongTinWebsite(){
 
         $thongTinWebsite = ThongTinWebsite::first(); 
@@ -90,5 +82,4 @@ class AdminHomeController extends Controller
         toastr()->success('Cập nhật thông tin thành công!');
         return redirect()->back();
     }
-
 }
