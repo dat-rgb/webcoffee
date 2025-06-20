@@ -107,32 +107,20 @@ document.addEventListener("DOMContentLoaded", () => {
     wardName.value = wardSelect.options[wardSelect.selectedIndex].text;
   });
 });
-
 $(document).ready(function(){
   $('#check-out-form').submit(function (e) { 
     e.preventDefault(); 
 
     let ho_ten_khach_hang = $('input[name="ho_ten_khach_hang"]').val().trim();
     let email = $('input[name="email"]').val().trim();
-    let dia_chi = $('input[name="dia_chi"]').val().trim();
+    let so_nha = $('input[name="so_nha"]').val().trim();
+    let ten_duong = $('input[name="ten_duong"]').val().trim();
     let so_dien_thoai = $('input[name="so_dien_thoai"]').val().trim();
     let shippingMethod = $('input[name="shippingMethod"]:checked').val();
     let province = $('input[name="provinceName"]').val().trim();
     let district = $('input[name="districtName"]').val().trim();
     let ward = $('input[name="wardName"]').val().trim();
     let paymentMethod = $('input[name="paymentMethod"]:checked').val();
-
-    if(shippingMethod === "pickup"){
-      $('input[name="dia_chi"]').prop('required', false);
-      $('input[name="provinceName"]').prop('required', false);
-      $('input[name="districtName"]').prop('required', false);
-      $('input[name="wardName"]').prop('required', false);
-    } else {
-      $('input[name="dia_chi"]').prop('required', true);
-      $('input[name="provinceName"]').prop('required', true);
-      $('input[name="districtName"]').prop('required', true);
-      $('input[name="wardName"]').prop('required', true);
-    }
 
     let errorMessage = "";
 
@@ -145,18 +133,17 @@ $(document).ready(function(){
       errorMessage += "- Email không hợp lệ hoặc để trống.<br>";
     }
 
-    if(shippingMethod === "delivery" && dia_chi === ""){
-      errorMessage += "- Địa chỉ nhận hàng không được để trống.<br>";
-    }
-
     let phoneRegex = /^[0-9]{9,11}$/;
     if(!phoneRegex.test(so_dien_thoai)){
       errorMessage += "- Số điện thoại không hợp lệ.<br>";
     }
 
     if(shippingMethod === "delivery"){
+      if(so_nha === "" || ten_duong === ""){
+        errorMessage += "- Vui lòng nhập đầy đủ Số nhà và Tên đường.<br>";
+      }
       if(province === "" || district === "" || ward === ""){
-        errorMessage += "- Vui lòng chọn đầy đủ tỉnh, quận, phường.<br>";
+        errorMessage += "- Vui lòng chọn Tỉnh, Quận và Phường.<br>";
       }
     }
 
@@ -196,6 +183,7 @@ $(document).ready(function(){
     });
   });
 });
+
 
 $(document).ready(function () {
   $(document).on('change', '.voucher-radio', function () {

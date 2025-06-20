@@ -3,8 +3,6 @@
 @section('subtitle',$subtitle)
 
 @push('styles')
-
-
 @endpush
 @section('content')
 <div class="page-inner">
@@ -12,7 +10,7 @@
         <h3 class="fw-bold mb-3">{{ $subtitle }}</h3>
         <ul class="breadcrumbs mb-3">
             <li class="nav-home">
-                <a href="{{ route('admin') }}">
+                <a href="{{ route('admin.dashboard') }}">
                     <i class="icon-home"></i>
                 </a>
             </li>
@@ -20,9 +18,8 @@
                 <i class="icon-arrow-right"></i>
             </li>
             <li class="nav-item">
-                <a href="#">Sản phẩm</a>
+                <a href="{{ route('admin.products.list') }}">Sản phẩm</a>
             </li>
-
             @if(request('ma_cua_hang'))
                 @php
                     $cuahangSelected = $cuaHangs->firstWhere('ma_cua_hang', request('ma_cua_hang'));
@@ -95,7 +92,6 @@
                         </div>
                     </form>
                 </div>
-
                 @if(!request()->filled('ma_cua_hang'))
                     <div class="text-center my-5 py-5">
                         <i class="fa fa-box-open fa-3x text-muted mb-3"></i>
@@ -105,18 +101,24 @@
                     @if($productShop->isEmpty())
                         @php
                             $storeName = $cuaHangs->where('ma_cua_hang', request('ma_cua_hang'))->first()->ten_cua_hang ?? 'chưa xác định';
+                            $hasSearch = request()->has('search') && request('search') !== '';
                         @endphp
                         <div class="text-center my-5 py-5">
                             <i class="fa fa-box-open fa-3x text-muted mb-3"></i>
-                            <h5 class="text-muted">Không có sản phẩm nào tại cửa hàng {{ $storeName }}</h5>
+                            <h5 class="text-muted">
+                                @if($hasSearch)
+                                    Không tìm thấy sản phẩm nào tại cửa hàng {{ $storeName }} với từ khóa "{{ request('search') }}"
+                                @else
+                                    Không có sản phẩm nào tại cửa hàng {{ $storeName }}
+                                @endif
+                            </h5>
                         </div>
                     @else
                         <div class="card-body">
                             <form id="deleteProductsForm" method="POST" action="{{ route('admin.product-shop.delete') }}">
                                 @csrf
                                 <input type="hidden" name="ma_cua_hang" value="{{ request('ma_cua_hang') }}">
-                                <div id="productIdsContainer"></div> {{-- Sẽ được JS đổ input vào đây --}}
-
+                                <div id="productIdsContainer"></div>
                                 <div class="table-responsive">
                                     <table class="table table-striped table-hover align-middle text-center">
                                         <thead>
@@ -222,6 +224,7 @@
             </div>
         </div>
     </div>
+</div>
 @endsection
 
 @push('scripts')

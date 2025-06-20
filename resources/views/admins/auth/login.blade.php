@@ -16,7 +16,6 @@
     body {
       font-family: 'Roboto', sans-serif;
     }
-
     .background-radial-gradient {
       background-color: hsl(218, 41%, 15%);
       background-image: radial-gradient(650px circle at 0% 0%,
@@ -32,13 +31,11 @@
           hsl(218, 41%, 19%) 80%,
           transparent 100%);
     }
-
     #radius-shape-1,
     #radius-shape-2 {
       position: absolute;
       overflow: hidden;
     }
-
     #radius-shape-1 {
       height: 220px;
       width: 220px;
@@ -47,7 +44,6 @@
       background: radial-gradient(#44006b, #ad1fff);
       border-radius: 50%;
     }
-
     #radius-shape-2 {
       bottom: -60px;
       right: -110px;
@@ -56,7 +52,6 @@
       background: radial-gradient(#44006b, #ad1fff);
       border-radius: 38% 62% 63% 37% / 70% 33% 67% 30%;
     }
-
     .bg-glass {
       background-color: rgba(255, 255, 255, 0.9);
       backdrop-filter: saturate(200%) blur(25px);
