@@ -11,14 +11,25 @@ use Illuminate\Support\Str;
 
 class AdminSupplierController extends Controller
 {
-    public function index() {
-        $ViewData = [
+    public function index(Request $request)
+    {
+        $query = NhaCungCap::query();
+
+        // Chỉ lấy những nhà cung cấp có trạng thái 1 hoặc 2
+        $query->whereIn('trang_thai', [1, 2]);
+
+        // Nếu có tìm kiếm tên
+        if ($request->filled('search')) {
+            $query->where('ten_nha_cung_cap', 'like', '%' . $request->search . '%');
+        }
+
+        $suppliers = $query->paginate(10)->withQueryString();
+
+        return view('admins.supplier.index', [
             'title' => 'Danh Sách Nhà Cung Cấp',
             'subtitle' => 'Danh Sách Nhà Cung Cấp',
-            'suppliers' => NhaCungCap::all(),
-        ];
-
-        return view('admins.supplier.index', $ViewData);
+            'suppliers' => $suppliers,
+        ]);
     }
 
 
@@ -72,8 +83,6 @@ class AdminSupplierController extends Controller
             return redirect()->back()->withInput();
         }
     }
-
-
     public function edit($id)
     {
         $ncc = NhaCungCap::findOrFail($id);
@@ -143,7 +152,6 @@ class AdminSupplierController extends Controller
     public function destroy($id)
     {
         $supplier = NhaCungCap::findOrFail($id);
-
         try {
             $supplier->delete();
             toastr()->success('Xóa nhà cung cấp thành công!');
@@ -153,25 +161,39 @@ class AdminSupplierController extends Controller
 
         return redirect()->route('admins.supplier.index');
     }
-
-
-
-
-    public function archive($id)
+   public function archive($id)
     {
         $supplier = NhaCungCap::find($id);
 
         if (!$supplier) {
-            toastr()->error('Nhà cung cấp không tồn tại.');
+            toastr()->error('Không tìm thấy nhà cung cấp!');
             return redirect()->route('admins.supplier.index');
         }
 
-        $supplier->trang_thai = 3;
+        // Chỉ cho phép tạm xóa nếu đang ở trạng thái ngưng hoạt động (2)
+        if ($supplier->trang_thai != 2) {
+            toastr()->error('Chỉ có thể tạm xóa nhà cung cấp đang ở trạng thái "Ngưng hoạt động"!');
+            return redirect()->route('admins.supplier.index');
+        }
+
+        // Kiểm tra nếu nhà cung cấp vẫn còn nguyên liệu đang hoạt động
+        $hasActiveMaterials = NguyenLieu::where('ma_nha_cung_cap', $supplier->ma_nha_cung_cap)
+            ->where('trang_thai', 1)
+            ->exists();
+
+        if ($hasActiveMaterials) {
+            toastr()->error('Không thể tạm xóa nhà cung cấp vì vẫn còn nguyên liệu đang được cung cấp!');
+            return redirect()->route('admins.supplier.index');
+        }
+
+        // Thực hiện lưu trữ
+        $supplier->trang_thai = 3; // Trạng thái lưu trữ
         $supplier->save();
 
-        toastr()->success('Nhà cung cấp đã được lưu trữ.');
+        toastr()->success('Tạm xóa nhà cung cấp thành công!');
         return redirect()->route('admins.supplier.index');
     }
+
 
     public function restore($id)
     {
@@ -181,21 +203,25 @@ class AdminSupplierController extends Controller
             toastr()->info('Nhà cung cấp không ở trạng thái lưu trữ.');
             return redirect()->route('admins.supplier.archived');
         }
-
         $supplier->trang_thai = 1; // Phục hồi về trạng thái "hoạt động"
         $supplier->save();
-
         toastr()->success('Đã khôi phục nhà cung cấp thành công!');
         return redirect()->route('admins.supplier.archived');
     }
 
-    public function archived()
+    public function archived(Request $request)
     {
-        $suppliers = NhaCungCap::where('trang_thai', 3)->get();
+        $query = NhaCungCap::where('trang_thai', 3);
+
+        if ($request->filled('search')) {
+            $query->where('ten_nha_cung_cap', 'like', '%' . $request->search . '%');
+        }
+
+        $suppliers = $query->get();
 
         return view('admins.supplier.archive', [
-            'title' => 'Danh sách Nhà cung cấp đã lưu trữ',
-            'subtitle' => 'Danh sách nhà cung cấp trạng thái lưu trữ',
+            'title' => 'Nhà cung cấp đã xóa',
+            'subtitle' => 'Danh sách nhà cung cấp đã xóa',
             'suppliers' => $suppliers,
         ]);
     }
@@ -204,16 +230,64 @@ class AdminSupplierController extends Controller
     {
         $supplier = NhaCungCap::find($id);
 
+        if (!$supplier) {
+            toastr()->error('Không tìm thấy nhà cung cấp!');
+            return redirect()->route('admins.supplier.index');
+        }
+
+        // Nếu đang bật và muốn tắt, kiểm tra nguyên liệu
         if ($supplier->trang_thai == 1) {
+            $hasActiveMaterials = NguyenLieu::where('ma_nha_cung_cap', $supplier->ma_nha_cung_cap)
+                ->where('trang_thai', 1)
+                ->exists();
+
+            if ($hasActiveMaterials) {
+                toastr()->error('Không thể tắt nhà cung cấp vì vẫn còn nguyên liệu đang được cung cấp!');
+                return redirect()->route('admins.supplier.index');
+            }
+
             $supplier->trang_thai = 2; // Tắt hoạt động
         } elseif ($supplier->trang_thai == 2) {
             $supplier->trang_thai = 1; // Bật hoạt động
         }
 
         $supplier->save();
-
-        return redirect()->route('admins.supplier.index')->with('success', 'Cập nhật trạng thái thành công');
+        toastr()->success('Cập nhật trạng thái thành công!');
+        return redirect()->route('admins.supplier.index');
     }
+    public function bulkRestore(Request $request)
+    {
+        $ids = $request->selected_ids;
+
+        if (!$ids || !is_array($ids)) {
+            return back()->with('info', 'Vui lòng chọn ít nhất một nhà cung cấp để khôi phục!');
+        }
+
+        NhaCungCap::whereIn('ma_nha_cung_cap', $ids)
+            ->where('trang_thai', 3) // chỉ khôi phục những cái đã lưu trữ
+            ->update(['trang_thai' => 2]); // đưa về trạng thái "ngưng hoạt động"
+        toastr()->success('Khôi phục nhà cung cấp đã chọn thành công!');
+        return back();
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        $ids = $request->selected_ids;
+
+        if (!$ids || !is_array($ids)) {
+            return back()->with('info', 'Vui lòng chọn ít nhất một nhà cung cấp để xóa!');
+        }
+
+        NhaCungCap::whereIn('ma_nha_cung_cap', $ids)
+            ->where('trang_thai', 3) // chỉ xóa nếu đang ở trạng thái lưu trữ
+            ->delete();
+
+        toastr()->success('Xóa nhà cung cấp đã chọn thành công!');
+        return back();
+    }
+
+
+
 
 
 }
