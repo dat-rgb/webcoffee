@@ -71,26 +71,35 @@
                                             </div>
 
                                             <div class="shipping-address-form p-4 rounded-3 border shadow-sm bg-white" id="deliverySection">
-                                                <div class="mb-3">
-                                                    <label for="dia_chi" class="form-label fw-semibold">Số nhà, tên đường</label>
-                                                    <input type="text" id="dia_chi" name="dia_chi" class="form-control" placeholder="Nhập số nhà, tên đường..." value="{{ Auth::user()->khachHang->dia_chi ?? '' }}">
+                                                <div class="row g-4">
+                                                    <div class="col-12 col-md-4">
+                                                        <label for="so_nha" class="form-label fw-semibold">Số nhà, Hẻm,</label>
+                                                        <input type="text" id="so_nha" name="so_nha" class="form-control" 
+                                                            placeholder="VD: 123/4 Hẻm 5" 
+                                                            value="{{ old('so_nha', Auth::user()->khachHang->so_nha ?? '') }}">
+                                                    </div>
+                                                    <div class="col-12 col-md-8">
+                                                        <label for="ten_duong" class="form-label fw-semibold">Tên đường</label>
+                                                        <input type="text" id="ten_duong" name="ten_duong" class="form-control" 
+                                                            placeholder="VD: Đường Lê Lợi" 
+                                                            value="{{ old('ten_duong', Auth::user()->khachHang->ten_duong ?? '') }}">
+                                                    </div>
                                                 </div>
 
-                                                <div class="row g-3">
+                                                {{-- Chọn khu vực --}}
+                                                <div class="row g-4">
                                                     <div class="col-12 col-md-4">
-                                                        <label for="provinceSelect" class="form-label fw-semibold">Tỉnh/Thành phố</label>
+                                                        <label for="provinceSelect" class="form-label fw-semibold">Tỉnh/Thành</label>
                                                         <select class="form-select w-100" name="province" id="provinceSelect">
-                                                            <option value="" selected>Chọn tỉnh/thành phố</option>
+                                                            <option value="" selected>Chọn tỉnh/thành</option>
                                                         </select>
                                                     </div>
-
                                                     <div class="col-12 col-md-4">
                                                         <label for="districtSelect" class="form-label fw-semibold">Quận/Huyện</label>
                                                         <select class="form-select w-100" name="district" id="districtSelect" disabled>
                                                             <option value="" selected>Chọn quận/huyện</option>
                                                         </select>
                                                     </div>
-
                                                     <div class="col-12 col-md-4">
                                                         <label for="wardSelect" class="form-label fw-semibold">Xã/Phường</label>
                                                         <select class="form-select w-100" name="ward" id="wardSelect" disabled>
@@ -98,7 +107,6 @@
                                                         </select>
                                                     </div>
                                                 </div>
-
                                                 <input type="hidden" id="provinceName" name="provinceName" value="">
                                                 <input type="hidden" id="districtName" name="districtName" value="">
                                                 <input type="hidden" id="wardName" name="wardName" value="">
@@ -115,6 +123,7 @@
                                     </div>
                                 </div>
                             </div>
+                            <!-- Patyment method -->
                             <div class="card single-accordion">
                                 <div class="card-header" id="headingThree">
                                     <h5 class="mb-0">
@@ -177,11 +186,8 @@
                                                     <button type="button" id="checkVoucherBtn" class="btn btn-outline-primary">Áp dụng</button>
                                                 </div>
                                             </div>
-
-                                            <!-- Khu vực để append voucher nếu hợp lệ -->
                                             <div id="manualVoucherContainer"></div>
 
-                                            <!-- Danh sách voucher -->
                                             @foreach($vouchers as $voucher)
                                                 @php
                                                     $isDisabled = $subTotal < $voucher->dieu_kien_ap_dung;

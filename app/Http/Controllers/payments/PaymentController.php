@@ -26,11 +26,9 @@ class PaymentController extends Controller
             'ho_ten_khach_hang' => 'required|string|min:2|max:255',
             'so_dien_thoai' => 'required|regex:/^0\d{9}$/',
             'email' => 'required|email|max:255',
-            'dia_chi' => 'nullable|string|max:255',
             'paymentMethod' => 'required|string|max:50',
             'ghi_chu' => 'nullable|string',
-            'shippingMethod' => 'required',
-            
+            'shippingMethod' => 'required|in:delivery,pickup',
         ], [
             'ho_ten_khach_hang.required' => 'Vui lòng nhập tên của bạn.',
             'ho_ten_khach_hang.min' => 'Tên ít nhất 2 ký tự.',
@@ -40,18 +38,16 @@ class PaymentController extends Controller
             'email.required' => 'Vui lòng nhập email.',
             'email.email' => 'Email không đúng định dạng.',
             'email.max' => 'Email không quá 255 ký tự.',
-            'dia_chi.max' => 'Địa chỉ không quá 255 ký tự.',
             'paymentMethod.required' => 'Vui lòng chọn phương thức thanh toán.',
             'shippingMethod.required' => 'Vui lòng chọn hình thức nhận hàng.',
         ]);
+
 
         $khachHang = optional(Auth::user())->khachHang;
         $customerId = null;
         if ($khachHang) {
             $customerId = $khachHang->ma_khach_hang;
         }   
-
-        $address = $request->dia_chi .' '. $request->wardName .' '. $request-> districtName .' '. $request->provinceName;
 
         $storeId = session('selected_store_id');
         if(!$storeId){
@@ -123,7 +119,7 @@ class PaymentController extends Controller
         $total = $subTotal + $shippingFee - $discount;
 
         if($validated['shippingMethod'] == 'pickup'){
-            $address = 'Đến lấy tại cửa hàng: ' . session('selected_store_name').' - '.session('selected_store_dia_chi');
+            $address = session('selected_store_name').' - '.session('selected_store_dia_chi');
         }
         if ($validated['shippingMethod'] == 'delivery') {
 
@@ -131,15 +127,14 @@ class PaymentController extends Controller
                 toastr()->error('Địa chỉ giao hàng không hợp lệ.');
                 return redirect()->back();
             }
-
+            $address = $request->ten_duong . ', ' . $request->wardName . ', ' . $request->districtName . ', ' . $request->provinceName;
             $check = $this->checkAddress($address);
-
+            //dd($check);
             if (!$check['success']) {
                 toastr()->error($check['message'] ?? 'Khoảng cách giao hàng không được quá 3 km');
                 return redirect()->back();
             }
-
-            $address = $check['address']; 
+            $address = $request->so_nha . ' ' . $check['address']; 
         }
 
         $this->subtractIngredients($storeId, $storeCheck['usedIngredients']);
@@ -163,12 +158,15 @@ class PaymentController extends Controller
                 'giam_gia' => $discount,
                 'tong_tien' => $total,
                 'cart_items' => $cart,
+                
             ];
 
             try {
                 $maHoaDon = $this->processCOD($orderData);
-               
+                    // Lấy lại token từ DB sau khi insert
+                    $hoaDon = HoaDon::where('ma_hoa_don', $maHoaDon)->first();
                     $orderData['maHoaDon'] = $maHoaDon;
+                    $orderData['token_bao_mat'] = $hoaDon->token_bao_mat;
                     $orderData['trang_thai'] = 'Chờ xác nhận';
                     $orderData['trang_thai_thanh_toan'] = 'Thanh toán khi nhận hàng';
 
@@ -183,19 +181,26 @@ class PaymentController extends Controller
                         $orderData['trang_thai_thanh_toan'],
                         $orderData['dia_chi'],
                         $orderData['cart_items'],
+                        $orderData['tam_tinh'],
+                        $orderData['giam_gia'],
+                        $orderData['tien_ship'],
                         $orderData['tong_tien'],
+                        $orderData['token_bao_mat'],
                     );
 
                 session()->forget('cart'); 
-                toastr()->success('Đặt hàng thành công!');
-                return redirect()->route('checkout_status')->with('status', 'success');
+                    
+                return redirect()->route('theoDoiDonHang', [
+                    'orderCode' => $maHoaDon,
+                    'token' => $orderData['token_bao_mat'],
+                ]);
+
             } catch (\Exception $e) {
                 toastr()->error('Có lỗi xảy ra khi xử lý đơn hàng. Vui lòng thử lại sau! '. $e->getMessage());
                 return redirect()->back();
             }
         }
         if ($request->paymentMethod === 'NAPAS247') {
-            $napas = new Napas247Controller();
 
             $orderData = [
                 'ma_cua_hang' => $storeId,
@@ -215,14 +220,16 @@ class PaymentController extends Controller
                 'tong_tien' => $total,
                 'cart_items' => $cart,
             ];
-            
-            return $napas->createPaymentLink($orderData); 
+            $payOS = app(\App\Http\Controllers\payments\PayOSController::class);
+            return $payOS->createPaymentLinkFromOrderData($orderData);
         }
-        return redirect()->back()->with('error', 'Phương thức thanh toán không hợp lệ.');
+        toastr()->error('Phương thức thanh toán không hợp lệ.');
+        return redirect()->back();
     }
     public function processCOD(array $data)
     {
         $maHoaDon = HoaDon::generateMaHoaDon();
+        $token_bao_mat = Str::random(32);
 
         DB::table('hoa_dons')->insert([
             'ma_hoa_don' => $maHoaDon,
@@ -243,6 +250,7 @@ class PaymentController extends Controller
             'tong_tien' => $data['tong_tien'],
             'trang_thai_thanh_toan' => 0,
             'trang_thai' => 0,
+            'token_bao_mat' => $token_bao_mat,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -318,7 +326,6 @@ class PaymentController extends Controller
 
         return ['success' => true, 'usedIngredients' => $totalUsedIngredients];
     }
-
     public function checkStatus($cart, $storeId)
     {
         $storeName = session('selected_store_name');
@@ -384,7 +391,6 @@ class PaymentController extends Controller
             }
         }
     }
-
     public function subtractIngredients($storeId, $usedIngredients)
     {
         foreach ($usedIngredients as $ingredientId => $requiredQty) {
@@ -422,15 +428,9 @@ class PaymentController extends Controller
             }
         }
     }
-
     private function calculateDistance($lat1, $lon1, $lat2, $lon2)
     {
         $earthRadius = 6371; // km
-
-        $lat1 = floatval($lat1);
-        $lon1 = floatval($lon1);
-        $lat2 = floatval($lat2);
-        $lon2 = floatval($lon2);
 
         $latDelta = deg2rad($lat2 - $lat1);
         $lonDelta = deg2rad($lon2 - $lon1);
@@ -441,7 +441,7 @@ class PaymentController extends Controller
 
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
 
-        return $earthRadius * $c;
+        return round($earthRadius * $c, 2); 
     }
     private function checkAddress($address)
     {
@@ -451,33 +451,35 @@ class PaymentController extends Controller
                 'message' => 'Địa chỉ không hợp lệ.'
             ];
         }
-        $geoData = Http::withHeaders([
-            'User-Agent' => 'CDMT Coffee & Tea'
-        ])->get('https://nominatim.openstreetmap.org/search', [
-            'format' => 'json',
+
+        $address = trim(preg_replace('/\s+/', ' ', $address)) . ', Việt Nam';
+        $geoData = Http::get('https://us1.locationiq.com/v1/search.php', [
+            'key' => 'pk.5d26a9b9c838efaf212bce38a4a99682',
             'q' => $address,
-            'limit' => 1,
-            'addressdetails' => 1
+            'format' => 'json',
+            'limit' => 1
         ]);
 
-        $data = $geoData->json();
 
-        if ($geoData->failed() || count($data) == 0) {
+        if ($geoData->failed() || empty($geoData->json())) {
             return [
                 'success' => false,
                 'message' => 'Không thể xác định vị trí từ địa chỉ giao hàng.'
             ];
         }
-        $latUser = $data[0]['lat'];
-        $lngUser = $data[0]['lon'];
 
-        $storeId = session('selected_store_id'); 
+        $data = $geoData->json()[0];
+        $latUser = floatval($data['lat']);
+        $lngUser = floatval($data['lon']);
+
+        $storeId = session('selected_store_id');
         if (!$storeId) {
             return [
                 'success' => false,
                 'message' => 'Không xác định được mã cửa hàng.'
             ];
         }
+
         $store = CuaHang::where('ma_cua_hang', $storeId)->first();
         if (!$store || !$store->latitude || !$store->longitude) {
             return [
@@ -485,23 +487,32 @@ class PaymentController extends Controller
                 'message' => 'Không xác định được tọa độ cửa hàng.'
             ];
         }
-        $latStore = $store->latitude;
-        $lngStore = $store->longitude;
-        $distance = $this->calculateDistance($latUser, $lngUser, $latStore, $lngStore);
+
+        $distance = $this->calculateDistance(
+            floatval($store->latitude),
+            floatval($store->longitude),
+            $latUser,
+            $lngUser
+        );
 
         if ($distance > 3) {
             return [
                 'success' => false,
-                'message' => 'Khoảng cách giao hàng không được quá 3 km'
+                'message' => "Khoảng cách giao hàng vượt quá 3 km (hiện tại: {$distance} km)"
             ];
-        }             
+        }
+
         return [
             'success' => true,
             'message' => '',
-            'address' => $address
+            'lat' => $latUser,
+            'lng' => $lngUser,
+            'distance' => $distance,
+            'address' => $address 
         ];
     }
-    public function sendEmail($order_id, $name, $email, $phone, $shippingMethod, $paymentMethod, $status, $statusPayment, $address, $cartItems, $tongTien)
+
+    public function sendEmail($order_id, $name, $email, $phone, $shippingMethod, $paymentMethod, $status, $statusPayment, $address, $cartItems, $tamTinh, $giamGia, $tienShip, $tongTien, $token)
     {
         try {
             Mail::to($email)->send(new OrderMail(
@@ -516,7 +527,11 @@ class PaymentController extends Controller
                 $address,
                 now()->format('d/m/Y H:i'),
                 $cartItems,
-                $tongTien
+                $tamTinh,
+                $giamGia,
+                $tienShip,
+                $tongTien,
+                $token,
             ));
         } catch (\Exception $e) {
             // Ghi log lỗi nếu cần
@@ -528,5 +543,22 @@ class PaymentController extends Controller
             'title' => 'Trạng thái đơn hàng | CDMT Coffee & Tea',    
         ];
         return view('clients.pages.payments.checkout_status', $viewData);
+    }
+    public function paymentSuccess(Request $request, $orderCode)
+    {
+        $token = $request->query('token');
+
+        $hoaDon = HoaDon::with('chiTietHoaDon', 'transaction', 'cuaHang')
+            ->where('ma_hoa_don', $orderCode)
+            ->where('token_bao_mat', $token)
+            ->first();
+
+        $viewData = [
+            'title' => 'Thông tin đơn hàng ' . $orderCode,
+            'hoaDon' => $hoaDon,
+            'error' => !$hoaDon ? 'Không tìm thấy hóa đơn hoặc token không hợp lệ.' : null
+        ];
+
+        return view('clients.pages.payments.thanh-cong', $viewData);
     }
 }

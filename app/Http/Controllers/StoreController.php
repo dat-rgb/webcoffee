@@ -103,7 +103,7 @@ class StoreController extends Controller
             ])->get("https://nominatim.openstreetmap.org/reverse", [
                 'format' => 'json',
                 'lat' => $lat,
-                'lon' => $lng
+                'lon' => $lng   
             ]);
 
             if ($response->successful()) {

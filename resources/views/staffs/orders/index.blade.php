@@ -69,7 +69,7 @@
                                             <th>Ngày lập HĐ</th>
                                             <th>Thông tin khách hàng</th>
                                             <th>
-                                                PT thanh toán<br>
+                                                Phương thức thanh toán<br>
                                                 <select id="pt_thanh_toan" class="form-select form-select-sm mt-1">
                                                     <option value="">Tất cả</option>
                                                     <option value="COD">Thanh toán khi nhận hàng (COD)</option>
@@ -77,7 +77,7 @@
                                                 </select>
                                             </th>
                                             <th>
-                                                Trạng thái<br>
+                                                Trạng thái đơn hàng<br>
                                                 <select id="trang_thai" class="form-select form-select-sm mt-1">
                                                     <option value="">Tất cả</option>
                                                     <option value="0">Chờ xác nhận</option>
@@ -88,12 +88,22 @@
                                                     <option value="5">Đã hủy</option>
                                                 </select>
                                             </th>
+                                            <th>
+                                                Trạng thái thanh toán<br>
+                                                <select id="tt_thanh_toan" class="form-select form-select-sm mt-1">
+                                                    <option value="">Tất cả</option>
+                                                    <option value="0">Chưa thanh toán</option>
+                                                    <option value="1">Đã thanh toán</option>
+                                                    <option value="2">Đang hoàn tiền</option>
+                                                    <option value="3">Đã hoàn tiền</option>
+                                                </select>
+                                            </th>
                                         </tr>
                                     </thead>    
                                     <tbody id="order-tbody">
                                         @include('staffs.orders._order_tbody', ['orders' => $orders])
                                         <div class="modal fade" id="orderDetailModal" tabindex="-1" aria-hidden="true"> 
-                                            <div class="modal-dialog modal-lg"> <!-- modal-lg cho rộng hơn -->
+                                            <div class="modal-dialog modal-lg"> 
                                                 <div class="modal-content">
                                                     <div id="order-detail-content"></div>
                                                 </div>
@@ -111,134 +121,50 @@
 @endsection
 @push('scripts')
 <script>
-document.querySelectorAll('.order-status-select').forEach(select => {
-  // Lấy giá trị trạng thái trước để rollback khi cần
-  let previousValue = parseInt(select.getAttribute('data-previous') || select.value);
+function bindOrderStatusEvents() {
+    document.querySelectorAll('.order-status-select').forEach(select => {
+        let previousValue = parseInt(select.getAttribute('data-previous') || select.value);
 
-  select.addEventListener('change', function () {
-    const orderId = this.dataset.orderId;
-    const newStatus = parseInt(this.value);
-    const pt_nhan_hang = this.dataset.ptNhanHang;
+        select.addEventListener('change', function () {
+            const orderId = this.dataset.orderId;
+            const newStatus = parseInt(this.value);
+            const pt_nhan_hang = this.dataset.ptNhanHang;
 
-    // Check trạng thái nếu không phải hủy đơn (5)
-    if (newStatus !== 5 && newStatus - previousValue !== 1) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Không hợp lệ',
-        text: 'Không được phép bỏ qua trạng thái. Vui lòng chọn theo thứ tự.',
-      });
-      this.value = previousValue;
-      return;
-    }
-
-    Swal.fire({
-      title: 'Xác nhận thay đổi trạng thái?',
-      text: 'Bạn có chắc muốn cập nhật trạng thái đơn hàng này không?',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'Xác nhận',
-      cancelButtonText: 'Hủy',
-    }).then(result => {
-      if (result.isConfirmed) {
-        if (newStatus === 3) {
-          if (pt_nhan_hang === 'pickup') {
-            updateOrderStatus(orderId, newStatus, {}, this);
-          } else {
-            showDeliverInfoModal(orderId, newStatus, this);
-          }
-        } else if (newStatus === 5) {
-          showCancelReasonModal(orderId, newStatus, this);
-        } else {
-          updateOrderStatus(orderId, newStatus, {}, this);
-        }
-      } else {
-        this.value = previousValue;
-      }
-    });
-  });
-});
-
-function showDeliverInfoModal(orderId, newStatus, selectElement) {
-    Swal.fire({
-        title: 'Nhập thông tin giao hàng',
-        html: `
-            <p><strong>Mã đơn hàng:</strong> ${orderId}</p>
-            <input type="text" id="shipperName" class="swal2-input" placeholder="Họ tên shipper">
-            <input type="text" id="shipperPhone" class="swal2-input" placeholder="SĐT shipper">
-            <textarea id="note" class="swal2-textarea" placeholder="Ghi chú (nếu có)"></textarea>
-        `,
-        confirmButtonText: 'Xác nhận',
-        focusConfirm: false,
-        preConfirm: () => {
-            const name = document.getElementById('shipperName').value.trim();
-            const phone = document.getElementById('shipperPhone').value.trim();
-            const note = document.getElementById('note').value.trim();
-
-            if (!name || !phone) {
-                Swal.showValidationMessage(`Vui lòng nhập đầy đủ thông tin`);
-                return false;  // dừng submit
-            }
-            if (name.length < 2) {
-                Swal.showValidationMessage(`Tên ít nhất 2 ký tự`);
-                return false;
-            }
-            if (name.length > 255){
-                Swal.showValidationMessage(`Tên không vượt quá 255 ký tự`);
-                return false;
+            if (newStatus !== 5 && newStatus - previousValue !== 1) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Không hợp lệ',
+                    text: 'Không được phép bỏ qua trạng thái. Vui lòng chọn theo thứ tự.',
+                });
+                this.value = previousValue;
+                return;
             }
 
-            const phoneRegex = /^0\d{9}$/;  // số 0 + 9 số còn lại = 10 số
-            if (!phoneRegex.test(phone)) {
-                Swal.showValidationMessage(`Số điện thoại phải đủ 10 số và bắt đầu bằng số 0`);
-                return false;
-            }
-
-            if ( note.length > 255){
-                Swal.showValidationMessage(`Ghi chú không vượt quá 255 ký tự`);
-                return false;
-            }
-
-            return { name, phone, note };
-        }
-
-    }).then((result) => {
-        if (result.isConfirmed) {
-            updateOrderStatus(orderId, newStatus, {
-                shipper_name: result.value.name,
-                shipper_phone: result.value.phone,
-                note: result.value.note,
-            }, selectElement);
-        } else {
-            // reset select về giá trị cũ khi huỷ modal
-            if (selectElement) selectElement.value = selectElement.getAttribute('data-previous');
-        }
-    });
-}
-
-function showCancelReasonModal(orderId, newStatus, selectElement) {
-    Swal.fire({
-        title: 'Lý do hủy đơn hàng',
-        html: `
-            <p><strong>Mã đơn hàng:</strong> ${orderId}</p>
-            <textarea id="cancelReason" class="swal2-textarea" placeholder="Nhập lý do hủy đơn hàng"></textarea>
-        `,
-        confirmButtonText: 'Xác nhận',
-        focusConfirm: false,
-        preConfirm: () => {
-            const reason = document.getElementById('cancelReason').value.trim();
-            if (!reason) {
-                Swal.showValidationMessage(`Vui lòng nhập lý do hủy`);
-            }
-            return { reason };
-        }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            updateOrderStatus(orderId, newStatus, {
-                cancel_reason: result.value.reason,
-            }, selectElement);
-        } else {
-            if (selectElement) selectElement.value = selectElement.getAttribute('data-previous');
-        }
+            Swal.fire({
+                title: 'Xác nhận thay đổi trạng thái?',
+                text: 'Bạn có chắc muốn cập nhật trạng thái đơn hàng này không?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Xác nhận',
+                cancelButtonText: 'Hủy',
+            }).then(result => {
+                if (result.isConfirmed) {
+                    if (newStatus === 3) {
+                        if (pt_nhan_hang === 'pickup') {
+                            updateOrderStatus(orderId, newStatus, {}, this);
+                        } else {
+                            showDeliverInfoModal(orderId, newStatus, this);
+                        }
+                    } else if (newStatus === 5) {
+                        showCancelReasonModal(orderId, newStatus, this);
+                    } else {
+                        updateOrderStatus(orderId, newStatus, {}, this);
+                    }
+                } else {
+                    this.value = previousValue;
+                }
+            });
+        });
     });
 }
 
@@ -295,11 +221,135 @@ function updateOrderStatus(orderId, status, extraData = {}, selectElement = null
     })
     .finally(() => {
         if (selectElement) {
-            // Cập nhật data-previous chỉ khi thành công (đã reload trang rồi nên cũng ko ảnh hưởng nhiều)
             selectElement.setAttribute('data-previous', status);
         }
     });
 }
+
+function showDeliverInfoModal(orderId, newStatus, selectElement) {
+    Swal.fire({
+        title: 'Nhập thông tin giao hàng',
+        html: `
+            <p><strong>Mã đơn hàng:</strong> ${orderId}</p>
+            <input type="text" id="shipperName" class="swal2-input" placeholder="Họ tên shipper">
+            <input type="text" id="shipperPhone" class="swal2-input" placeholder="SĐT shipper">
+            <textarea id="note" class="swal2-textarea" placeholder="Ghi chú (nếu có)"></textarea>
+        `,
+        confirmButtonText: 'Xác nhận',
+        focusConfirm: false,
+        preConfirm: () => {
+            const name = document.getElementById('shipperName').value.trim();
+            const phone = document.getElementById('shipperPhone').value.trim();
+            const note = document.getElementById('note').value.trim();
+
+            if (!name || !phone) {
+                Swal.showValidationMessage(`Vui lòng nhập đầy đủ thông tin`);
+                return false;
+            }
+            if (name.length < 2 || name.length > 255) {
+                Swal.showValidationMessage(`Tên phải từ 2 đến 255 ký tự`);
+                return false;
+            }
+            if (!/^0\d{9}$/.test(phone)) {
+                Swal.showValidationMessage(`Số điện thoại phải đủ 10 số và bắt đầu bằng số 0`);
+                return false;
+            }
+            if (note.length > 255) {
+                Swal.showValidationMessage(`Ghi chú không vượt quá 255 ký tự`);
+                return false;
+            }
+
+            return { name, phone, note };
+        }
+    }).then(result => {
+        if (result.isConfirmed) {
+            updateOrderStatus(orderId, newStatus, {
+                shipper_name: result.value.name,
+                shipper_phone: result.value.phone,
+                note: result.value.note,
+            }, selectElement);
+        } else {
+            if (selectElement) selectElement.value = selectElement.getAttribute('data-previous');
+        }
+    });
+}
+
+function showCancelReasonModal(orderId, newStatus, selectElement) {
+    Swal.fire({
+        title: 'Lý do hủy đơn hàng',
+        html: `
+            <p><strong>Mã đơn hàng:</strong> ${orderId}</p>
+            <textarea id="cancelReason" class="swal2-textarea" placeholder="Nhập lý do hủy đơn hàng"></textarea>
+        `,
+        confirmButtonText: 'Xác nhận',
+        focusConfirm: false,
+        preConfirm: () => {
+            const reason = document.getElementById('cancelReason').value.trim();
+            if (!reason) {
+                Swal.showValidationMessage(`Vui lòng nhập lý do hủy`);
+            }
+            return { reason };
+        }
+    }).then(result => {
+        if (result.isConfirmed) {
+            updateOrderStatus(orderId, newStatus, {
+                cancel_reason: result.value.reason,
+            }, selectElement);
+        } else {
+            if (selectElement) selectElement.value = selectElement.getAttribute('data-previous');
+        }
+    });
+}
+
+// Xem chi tiết đơn hàng
+$(document).on('click', '.order-detail-btn', function () {
+    const orderId = $(this).data('id');
+    const modal = new bootstrap.Modal(document.getElementById('orderDetailModal'));
+    const modalBody = $('#order-detail-content');
+
+    modalBody.html(`<div class="text-center"><div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span></div></div>`);
+    modal.show();
+
+    fetch(`/staff/orders/${orderId}/detail`)
+        .then(response => response.text())
+        .then(html => modalBody.html(html))
+        .catch(() => modalBody.html(`<p class="text-danger">Lỗi tải dữ liệu chi tiết!</p>`));
+});
+
+$(document).ready(function () {
+    function fetchOrders() {
+        $.ajax({
+            url: "{{ route('staff.orders.filter') }}",
+            method: "POST",
+            data: {
+                _token: "{{ csrf_token() }}",
+                pt_thanh_toan: $('#pt_thanh_toan').val(),
+                tt_thanh_toan: $('#tt_thanh_toan').val(),
+                trang_thai: $('#trang_thai').val(),
+                search: $('#searchInput').val()
+            },
+            success: function (res) {
+                $('#order-tbody').html(res);
+                bindOrderStatusEvents(); // 👈 bind lại sau khi lọc
+            },
+            error: function () {
+                alert('Có lỗi xảy ra khi tìm kiếm hoặc lọc đơn hàng.');
+            }
+        });
+    }
+
+    $('#pt_thanh_toan, #tt_thanh_toan, #trang_thai').on('change', fetchOrders);
+    $('#searchInput').on('keypress', function (e) {
+        if (e.which === 13) {
+            e.preventDefault();
+            fetchOrders();
+        }
+    });
+    $('#searchBtn').on('click', fetchOrders);
+
+    bindOrderStatusEvents(); // 👈 lần đầu trang load
+});
 </script>
-<script src="{{ asset('staffs/staff-orders.js') }}"></script>
 @endpush
+

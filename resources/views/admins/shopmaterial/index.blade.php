@@ -27,7 +27,7 @@
                 <h3 class="mb-3 fw-bold">{{ $displaySubtitle }}</h3>
                 <ul class="mb-3 breadcrumbs">
                     <li class="nav-home">
-                        <a href="{{ route('admin') }}">
+                        <a href="{{ route('admin.dashboard') }}">
                             <i class="icon-home"></i>
                         </a>
                     </li>

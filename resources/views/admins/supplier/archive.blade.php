@@ -45,12 +45,10 @@
                     </button>
                 </div>
             </form>
-
             <a href="{{ route('admins.supplier.index') }}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left me-1"></i> Quay lại danh sách
             </a>
         </div>
-
         <form id="bulk-action-form" method="POST">
             @csrf
             <div class="card-body">
@@ -65,8 +63,6 @@
                             <span>Xóa vĩnh viễn</span>
                         </button>
                     </div>
-
-
                     <div class="table-responsive">
                         <table class="table text-center align-middle table-striped table-hover">
                             <thead class="table-light">
@@ -74,7 +70,6 @@
                                     <th style="width: 40px;">
                                         <input type="checkbox" id="checkAll" class="form-check-input">
                                     </th>
-                                    {{-- <th>#</th> --}}
                                     <th>Tên NCC</th>
                                     <th>Địa chỉ</th>
                                     <th>SĐT</th>
@@ -88,7 +83,6 @@
                                         <td>
                                             <input type="checkbox" name="selected_ids[]" value="{{ $supplier->ma_nha_cung_cap }}" class="form-check-input check-item">
                                         </td>
-                                        {{-- <td>{{ $index + 1 }}</td> --}}
                                         <td class="text-start">{{ $supplier->ten_nha_cung_cap }}</td>
                                         <td class="text-start">{{ $supplier->dia_chi }}</td>
                                         <td>{{ $supplier->so_dien_thoai }}</td>
@@ -118,42 +112,6 @@
 </div>
 @endsection
 
-{{-- @push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const checkAllBox = document.getElementById('checkAll');
-    const checkboxes = document.querySelectorAll('.check-item');
-
-    // Check all
-    if (checkAllBox) {
-        checkAllBox.addEventListener('change', function () {
-            checkboxes.forEach(cb => cb.checked = this.checked);
-        });
-    }
-
-    // Đồng bộ checkAll
-    checkboxes.forEach(cb => {
-        cb.addEventListener('change', function () {
-            checkAllBox.checked = document.querySelectorAll('.check-item:checked').length === checkboxes.length;
-        });
-    });
-
-    // Click cả dòng để toggle checkbox
-    document.querySelectorAll('.table-row').forEach(row => {
-        row.addEventListener('click', function (e) {
-            // Không toggle nếu click trúng chính ô checkbox
-            if (e.target.tagName.toLowerCase() === 'input') return;
-
-            const checkbox = this.querySelector('.check-item');
-            checkbox.checked = !checkbox.checked;
-
-            // Đồng bộ lại checkbox tổng
-            checkAllBox.checked = document.querySelectorAll('.check-item:checked').length === checkboxes.length;
-        });
-    });
-});
-</script>
-@endpush --}}
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>

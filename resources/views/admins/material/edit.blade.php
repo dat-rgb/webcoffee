@@ -16,7 +16,7 @@
             <h4 class="page-title">{{ $subtitle }}</h4>
             <ul class="breadcrumbs">
                 <li class="nav-home">
-                    <a href="{{ route('admin') }}">
+                    <a href="{{ route('admin.dashboard') }}">
                         <i class="icon-home"></i>
                     </a>
                 </li>

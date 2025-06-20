@@ -74,92 +74,190 @@
 </style>
 
 <div class="order-details">
-    <p><strong>Mã Hóa Đơn:</strong> {{ $order->ma_hoa_don }}</p>
-    <p><strong>Cửa hàng:</strong> {{ $order->ma_cua_hang }}</p>
-    <p><strong>Ngày lập:</strong> {{ $order->created_at->format('d/m/Y H:i:s') }}</p>   
-    @if($order->ma_khach_hang)
-        <p><strong>Khách hàng:</strong> {{ $order->ten_khach_hang }}</p>
-        <p><strong>Điểm hiện tại:</strong> {{ $order->khachHang->diem_thanh_vien }} - <strong>Hạng:</strong> {{$order->khachHang->hang_thanh_vien }}</p>
-    @else   
-        <p><strong>Khách hàng:</strong> {{ 'Guest - ' . $order->ten_khach_hang }}</p>
-    @endif
-    <p><strong>Số điện thoại:</strong> {{ $order->so_dien_thoai }}</p>
-    <p><strong>Email:</strong> {{ $order->email }}</p>
-    <p><strong>Phương thức thanh toán:</strong>
-        @if ($order->phuong_thuc_thanh_toan === "COD")
-            Tiền mặt
-        @elseif ($order->phuong_thuc_thanh_toan === "NAPAS247")
-            Chuyển khoản
-        @endif
-    </p>
-    @if($order->phuong_thuc_nhan_hang === "pickup")
-        <p><strong>Phương thức nhận hàng:</strong>
-        {{ $order->dia_chi }}
-        </p>
-    @else 
-        <p><strong>Giao hàng đến:</strong>
-        {{ $order->dia_chi }}
-        </p>
-    @endif
-    <p><strong>Trạng thái đơn hàng:</strong>
-        @switch($order->trang_thai)
-            @case(0)
-                <span class="status status-0">Chờ xác nhận</span>
-                @break
-            @case(1)
-                <span class="status status-1">Đã xác nhận</span>
-                @break
-            @case(2)
-                <span class="status status-2">Hoàn tất đơn hàng</span>
-                @break
-            @case(3)
-                <span class="status status-3">Đang giao</span>
-                <p><strong>Thông tin giao hàng:</strong></p>
-                <p>Người nhận: {{ $order->giaoHang->ho_ten_ ?? 'Chưa có' }}</p>
-                <p>Số điện thoại: {{ $order->giaoHang->so_dien_thoai ?? 'Chưa có' }}</p>
-                <p>Địa chỉ: {{ $order->giaoHang->dia_chi ?? 'Chưa có' }}</p>
-                @break
-            @case(4)
-                <span class="status status-4">Đã nhận</span>
-                @break
-            @case(5)
-                <span class="status status-5">Đã hủy</span>
-                @break
-            @default
-                <span class="status status-default">Không xác định</span>
-        @endswitch
-    </p>
-    <h6 class="mt-4"><strong>Chi tiết sản phẩm:</strong></h6>
-    <table>
-        <thead>
-            <tr>
-                <th>#</th>
-                <th class="text-left">Sản phẩm</th>
-                <th>Số lượng</th>
-                <th class="text-end">Đơn giá</th>
-                <th class="text-end">Thành tiền</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($order->chiTietHoaDon as $index => $item)
+    <div style="max-width: 700px; margin: 0 auto; font-family: Arial, sans-serif; line-height: 1.5; display: flex; gap: 30px; flex-wrap: wrap;">
+        <!-- Cột trái -->
+        <div style="flex: 1 1 300px;">
+            <div style="margin-bottom: 12px;">
+                <strong>Cửa hàng:</strong> <span>{{ $order->cuaHang->ten_cua_hang}}</span><br>
+                <small>Thời gian mở cửa: {{ $order->cuaHang->gio_mo_cua .' - ' . $order->cuaHang->gio_dong_cua }}</small><br>
+                <small>Địa chỉ: {{ $order->cuaHang->dia_chi}}</small>
+            </div>
+            <div style="margin-bottom: 12px;">
+                <strong>Mã Hóa Đơn:</strong> <span>{{ $order->ma_hoa_don }}</span>
+            </div>
+            <div style="margin-bottom: 12px;">
+                <strong>Nhân viên:</strong> <span>{{ $order->ma_nhan_vien ?? '' }}</span>
+            </div>
+            <div style="margin-bottom: 12px;">
+                <strong>Thời gian:</strong> <span>{{ \Carbon\Carbon::parse($order->ngay_lap_hoa_don)->format('d/m/Y H:i:s') }}</span>
+            </div>
+            <div style="margin-bottom: 12px;">
+                <strong>Số điện thoại:</strong> <span>{{ $order->so_dien_thoai }}</span>
+            </div>
+            <div style="margin-bottom: 12px;">
+                <strong>Email:</strong> <span>{{ $order->email }}</span>
+            </div>
+        </div>
+
+        <!-- Cột phải -->
+        <div style="flex: 1 1 300px;">
+            @if($order->ma_khach_hang)
+            <div style="margin-bottom: 6px;">
+                <strong>Khách hàng:</strong> <span>{{ $order->ten_khach_hang }}</span>
+            </div>
+            <div style="margin-bottom: 12px; font-size: 0.9em; color: #555; display: flex; gap: 15px;">
+                <span>Điểm hiện tại: {{ $order->khachHang->diem_thanh_vien }}</span>
+                <span>Hạng: {{ $order->khachHang->hang_thanh_vien }}</span>
+            </div>
+            @else
+            <div style="margin-bottom: 12px;">
+                <strong>Khách hàng:</strong> <span>Guest - {{ $order->ten_khach_hang }}</span>
+            </div>
+            @endif
+            <div style="margin-bottom: 12px;">
+                <strong>{{ $order->phuong_thuc_nhan_hang === "pickup" ? 'Phương thức nhận hàng:' : 'Giao hàng đến:' }}</strong>
+                <span>{{ $order->dia_chi }}</span>
+            </div>
+            <div style="margin-bottom: 12px;">
+                <strong>Phương thức thanh toán:</strong>
+                @if ($order->phuong_thuc_thanh_toan === "COD")
+                    <span>Thanh toán khi nhận hàng (COD)</span>
+                    <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                        <strong>Trạng thái thanh toán</strong>
+                        @php
+                            $statusColors = [
+                                0 => '#ff9800', 1 => '#2196f3','default' => '#9e9e9e',
+                            ];
+                            $statusTexts = [
+                                0 => 'Chưa thanh toán', 1 => 'Đã thanh toán', 
+                            ];
+                            $st = $order->trang_thai_thanh_toan;
+                            $color = $statusColors[$st] ?? $statusColors['default'];
+                            $text = $statusTexts[$st] ?? 'Không xác định';
+                        @endphp
+                        <span style="padding: 6px 14px; border-radius: 20px; background-color: {{ $color }}; color: white; font-weight: 600;">
+                            {{ $text }}
+                        </span>
+                    </div>  
+                @elseif ($order->phuong_thuc_thanh_toan === "NAPAS247")
+                    <span>Chuyển khoản qua ngân hàng MB Bank </span>
+                    <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                        <strong>Trạng thái thanh toán</strong>
+                        @php
+                            $statusColors = [
+                                'PENDING' => '#ff9800', 
+                                'CANCELLED' => '#9e9e9e',
+                                'SUCCESS' => '#2e7d32', 
+                                'FAILED' => '#f44336',                            
+                                'default' => '#9e9e9e',
+                            ];
+                            $statusTexts = [
+                                'PENDING' => 'Đang xử lý', 
+                                'CANCELLED' => 'Đã hủy giao dịch',
+                                'SUCCESS' => 'Đã thanh toán',
+                                'FAILED' => 'Thanh toán thất bại',
+                            ];
+                            $st = $order->transaction->trang_thai;
+                            $color = $statusColors[$st] ?? $statusColors['default'];
+                            $text = $statusTexts[$st] ?? 'Không xác định';
+                        @endphp
+                        <span style="padding: 6px 14px; border-radius: 20px; background-color: {{ $color }}; color: white; font-weight: 600;">
+                            {{ $text }}
+                        </span>
+                    </div>
+                @endif
+            </div>
+
+            <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                <strong>Trạng thái đơn hàng:</strong>
+                @php
+                    $statusColors = [
+                    0 => '#ff9800', 1 => '#2196f3', 2 => '#4caf50',
+                    3 => '#03a9f4', 4 => '#2e7d32', 5 => '#f44336',
+                    'default' => '#9e9e9e',
+                    ];
+                    $statusTexts = [
+                    0 => 'Chờ xác nhận', 1 => 'Đã xác nhận', 2 => 'Hoàn tất đơn hàng',
+                    3 => $order->phuong_thuc_nhan_hang === 'pickup' ? 'Chờ nhận hàng' : 'Đang giao', 4 => 'Đã nhận', 5 => 'Đã hủy',
+                    ];
+                    $st = $order->trang_thai;
+                    $color = $statusColors[$st] ?? $statusColors['default'];
+                    $text = $statusTexts[$st] ?? 'Không xác định';
+                @endphp
+                <span style="padding: 6px 14px; border-radius: 20px; background-color: {{ $color }}; color: white; font-weight: 600;">
+                    {{ $text }}
+                </span>
+            </div>
+            @if ($order->trang_thai === 3 && $order->phuong_thuc_nhan_hang !== 'pickup')
+                <div style="margin-bottom: 6px;">
+                    <strong>Shipper: </strong> <span>{{ $order->giaoHang->ho_ten_shipper ?? 'Chưa có' }}</span>
+                </div>
+                <div style="margin-bottom: 12px; font-size: 0.9em; color: #555; gap: 15px;">
+                    <span>Số điện thoại: {{ $order->giaoHang->so_dien_thoai ?? 'Chưa có' }}</span>
+                    <span>Trạng thái: 
+                        @if ( $order->giaoHang->trang_thai === 0)
+                            Đang giao hàng    
+                        @elseif ( $order->giaoHang->trang_thai === 1)       
+                            Giao hàng thàng công
+                        @elseif ( $order->giaoHang->trang_thai === 2)   
+                            Giao hàng không thành công
+                        @endif
+                    </span><br>
+                    <span>Ghi chú: {{  $order->giaoHang->ghi_chu ?? ''}} </span>
+                </div>
+            @elseif($order->trang_thai === 5)
+                @php
+                    $huy = $order->lichSuHuyDonHang->first();
+                @endphp
+                @if ($order->trang_thai === 5 && $huy)
+                    <div style="margin-bottom: 6px;">
+                        <strong>Người hủy: </strong> 
+                        <span>{{ $huy->nguoi_huy }}</span>
+                    </div>
+                    <div style="margin-bottom: 12px; font-size: 0.9em; color: #555; display: flex; gap: 15px;">
+                        <span>Lý do hủy: {{ $huy->ly_do_huy }}</span>
+                    </div>
+                @endif
+            @endif
+        </div>
+    </div>
+    <h6 class="mt-4 mb-3"><strong>Chi tiết đơn hàng:</strong></h6>
+    <div style="overflow-x:auto;">
+        <table class="table table-striped align-middle" style="min-width: 600px;">
+            <thead>
+                <tr>
+                    <th style="width: 40px;">#</th>
+                    <th>Sản phẩm</th>
+                    <th style="width: 80px;" class="text-center">Số lượng</th>
+                    <th style="width: 120px;" class="text-end">Đơn giá</th>
+                    <th style="width: 140px;" class="text-end">Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($order->chiTietHoaDon as $index => $item)
                 <tr>
                     <td class="text-center">{{ $index + 1 }}</td>
-                    <td class="text-left">
-                        <img src="{{ asset('storage/' . ($item->sanPham->hinh_anh ?? 'default.png')) }}" alt="Ảnh" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">
-                        {{ $item->ten_san_pham }} - {{ $item->ten_size }}
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <img src="{{ asset('storage/' . ($item->sanPham->hinh_anh ?? 'default.png')) }}" alt="Ảnh" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px;">
+                            <div>
+                                <div>{{ $item->ten_san_pham }} - {{ $item->ten_size }}</div>
+                            </div>
+                        </div>
                     </td>
                     <td class="text-center">{{ $item->so_luong }}</td>
-                    <td class="text-end">{{ number_format($item->don_gia + $item->gia_size, 0, ',', '.') }}đ</td>
-                    <td class="text-end">{{ number_format($item->thanh_tien, 0, ',', '.') }}đ</td>
+                    <td class="text-end">{{ number_format($item->don_gia + $item->gia_size, 0, ',', '.') }} đ</td>
+                    <td class="text-end">{{ number_format($item->thanh_tien, 0, ',', '.') }} đ</td>
                 </tr>
-            @endforeach
-        </tbody>
-    </table>
-
-    <div class="order-summary">
-        <p><strong>Tạm tính:</strong> <span>{{ number_format($order->tong_tien - $order->tien_ship - $order->giamn_gia,0,',','.') }} đ</span></p>
-        <p><strong>Giảm giá:</strong> <span>{{ number_format($order->giam_gia,0,',','.') }} đ</span></p>
-        <p><strong>Phí ship:</strong> <span>{{ number_format($order->tien_ship,0,',','.') }} đ</span></p>
-        <p><strong>Thành tiền:</strong> <span class="text-danger fw-bold">{{ number_format($order->tong_tien,0,',','.') }} đ</span></p>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+    <div class="order-summary mt-3" style="max-width: 320px; margin-left: auto; font-size: 1rem;">
+        <p class="d-flex justify-content-between"><strong>Tạm tính:</strong> <span>{{ number_format($order->tam_tinh, 0, ',', '.') }} đ</span></p>
+        <p class="d-flex justify-content-between"><strong>Giảm giá:</strong> <span>- {{ number_format($order->giam_gia, 0, ',', '.') }} đ</span></p>
+        <p class="d-flex justify-content-between"><strong>Phí ship:</strong> <span>{{ number_format($order->tien_ship, 0, ',', '.') }} đ</span></p>
+        <hr>
+        <p class="d-flex justify-content-between fw-bold fs-5 text-danger"><strong>Thành tiền:</strong> <span>{{ number_format($order->tong_tien, 0, ',', '.') }} đ</span></p>
     </div>
 </div>

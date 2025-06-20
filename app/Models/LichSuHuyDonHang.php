@@ -13,8 +13,7 @@ class LichSuHuyDonHang extends Model
 
     protected $fillable = [
         'ma_hoa_don',
-        'ma_nhan_vien',
-        'ma_khach_hang',
+        'nguoi_huy',
         'ly_do_huy',
         'thoi_gian_huy',
     ];

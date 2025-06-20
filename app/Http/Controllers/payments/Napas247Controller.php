@@ -121,7 +121,7 @@ class Napas247Controller extends Controller
                 'buyerPhone' => $hoaDon->so_dien_thoai,
                 'buyerAddress' => $hoaDon->dia_chi,
                 'items' => $items,
-                'expiredAt' => now()->addMinutes(15)->timestamp,
+                'expiredAt' => now()->addMinutes(1)->timestamp,
             ]);
 
             Transactions::where('ma_hoa_don', $maHoaDon)->update([
@@ -219,7 +219,7 @@ class Napas247Controller extends Controller
             
             $sendEmail = new PaymentController();
             $statusPayment = 'Đã thanh toán';
-            $status = 'Đã xác nhận';
+            $status = 'Chờ xác nhận';
 
             $sendEmail->sendEmail(
                 $hoaDon->ma_hoa_don,
@@ -232,7 +232,11 @@ class Napas247Controller extends Controller
                 $hoaDon->$statusPayment,
                 $hoaDon->dia_chi,
                 $cartItems,
-                $hoaDon->tong_tien
+                $hoaDon->tam_tinh,
+                $hoaDon->giam_gia,
+                $hoaDon->tien_ship,
+                $hoaDon->tong_tien,
+                $hoaDon->token_bao_mat,
             );
         }
 

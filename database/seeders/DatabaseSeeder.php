@@ -30,6 +30,8 @@ class DatabaseSeeder extends Seeder
             BlogSeeder::class,
             SanPhamCuaHangSeeder::class,
             ThongTinWebsiteSeeder::class,
+            //HoaDonSeeder::class,
+            //TransactionSeeder::class,
         ]);
     }
 }

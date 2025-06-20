@@ -45,24 +45,30 @@ class StaffOrderController extends Controller
     }
     public function filter(Request $request)
     {
-        $nhanVien = Auth::guard('staff')->user()->nhanvien ?? null;
         $query = HoaDon::query();
 
-        if ($nhanVien && $nhanVien->ma_cua_hang) {
-            $query->where('ma_cua_hang', $nhanVien->ma_cua_hang);
+        if (Auth::guard('staff')->check()) {
+            $nhanVien = Auth::guard('staff')->user()->nhanvien;
+            if ($nhanVien && $nhanVien->ma_cua_hang) {
+                $query->where('ma_cua_hang', $nhanVien->ma_cua_hang);
+            }
         }
 
         if ($request->pt_thanh_toan) {
             $query->where('phuong_thuc_thanh_toan', $request->pt_thanh_toan);
         }
 
-        if (is_numeric($request->trang_thai)) {
+        if ($request->filled('trang_thai')) {
             $query->where('trang_thai', $request->trang_thai);
+        }
+
+        if ($request->filled('tt_thanh_toan')) {
+            $query->where('trang_thai_thanh_toan', $request->tt_thanh_toan);
         }
 
         if ($request->search) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('ma_hoa_don', 'like', "%$search%")
                 ->orWhere('ten_khach_hang', 'like', "%$search%");
             });
@@ -159,9 +165,26 @@ class StaffOrderController extends Controller
                 'ma_nhan_vien' => $nhanVien->ma_nhan_vien,
             ]);
 
-            // Rollback nguyên liệu và voucher nếu đơn chưa xử lý
             if ($oldStatus < 2) {
                 $this->restoreIngredientsAndVoucher($order);
+                if ($oldStatus < 2) {
+                    $this->restoreIngredientsAndVoucher($order);
+
+                    if (
+                        $order->phuong_thuc_thanh_toan === 'NAPAS247' &&
+                        $order->trang_thai_thanh_toan === 1 &&
+                        $order->transaction &&
+                        $order->transaction->trang_thai === 'SUCCESS'
+                    ) {
+                        $order->update([
+                            'trang_thai_thanh_toan' => 2, // Đang hoàn tiền
+                        ]);
+
+                        $order->transaction->update([
+                            'trang_thai' => 'REFUNDING',
+                        ]);
+                    }
+                }
             }
 
             // Lưu lịch sử hủy đơn
@@ -169,7 +192,7 @@ class StaffOrderController extends Controller
             $lichSu->ma_hoa_don = $order->ma_hoa_don;
             $lichSu->ly_do_huy = $data['cancel_reason'];
             $lichSu->thoi_gian_huy = now();
-            $lichSu->ma_nhan_vien = $nhanVien->ma_nhan_vien;
+            $lichSu->nguoi_huy = 'NV - ' . $nhanVien->ho_ten_nhan_vien;
             $lichSu->save();
 
             // Nếu đơn có giao hàng thì cập nhật trạng thái giao hàng
@@ -213,7 +236,7 @@ class StaffOrderController extends Controller
                     ->increment('so_luong_ton', $soLuongHoanTra);
             }
         }
-    }
+    }  
     public function tinhDiemThanhVien($order)
     {
         if (!$order->ma_khach_hang) {

@@ -26,8 +26,8 @@ use App\Http\Controllers\customers\CustomerReviewController;
 use App\Http\Controllers\dashboards\AdminDashboardController;
 use App\Http\Controllers\dashboards\StaffDashboardController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\payments\Napas247Controller;
 use App\Http\Controllers\payments\PaymentController;
+use App\Http\Controllers\payments\PayOSController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\staffs\StaffHomeController;
 use App\Http\Controllers\staffs\StaffOrderController;
@@ -44,15 +44,14 @@ use Illuminate\Support\Facades\Route;
 
 //Start - user
 //Route Home
-Route::prefix('/')->group(function(){
+Route::prefix('')->group(function(){
     Route::get('',[HomeController::class, 'home'])->name('home');
     Route::get('/gioi-thieu', [HomeController::class, 'about'])->name('about');
     Route::get('/lien-he', [HomeController::class, 'contact'])->name('contact');
     Route::post('/lien-he/submit',[ContactController::class,'submitContactForm'])->name('contact.submit');
     Route::post('/select-store', [StoreController::class, 'selectStore'])->name('select.store');
-    Route::get('/tra-cuu-don-hang', [CustomerOrderController::class, 'showFormTraCuuDonHang'])->name('traCuuDonHang.show');
-    Route::post('/tra-cuu-don-hang', [CustomerOrderController::class, 'traCuuDonHang'])->name('traCuuDonHang.search');
     Route::post('/orders/{orderId}/cancel', [CustomerOrderController::class, 'cancelOrderByCustomer'])->name('customer.orders.cancel');
+    Route::get('/theo-doi-don-hang/{orderCode}', [PaymentController::class, 'paymentSuccess'])->name('theoDoiDonHang');
     //Auth Clients
     Route::get('/login',[AuthController::class,'showLoginForm'])->name('login');
     Route::post('/login',[AuthController::class,'login'])->name('login.post');
@@ -65,7 +64,6 @@ Route::prefix('/')->group(function(){
     Route::post( '/forgot-password',[ForgotPasswordController::class,'sendResetPasswordLink'])->name('forgotPassword.send');
     Route::get('/reset-password/{token}',[ResetPasswordController::class,'showRetsetForm'])->name('password.reset');
     Route::post('/reset-password',[ResetPasswordController::class,'resetPassword'])->name('resetPassword.update');
-
 });
 Route::get('/stores', [StoreController::class, 'index']);
 Route::post('/stores/nearest', [StoreController::class, 'ganNhat']);
@@ -131,12 +129,16 @@ Route::prefix('cart')->group(function(){
 //Route Payment
 Route::prefix('payment')->group(function(){
     Route::post('/',[PaymentController::class,'payment'])->name('payment');
-    Route::get('/payos-return', [Napas247Controller::class, 'handleReturn'])->name('payos.return');
-    Route::get('/payos-cancel', [Napas247Controller::class, 'handleCancel'])->name('payos.cancel');
-    Route::get('/status/{orderCode}', [Napas247Controller::class, 'checkPaymentStatus']);
     Route::get('/checkout-status',[PaymentController::class,'checkoutStatus'])->name('checkout_status');
+    Route::get('/payos/info/{orderCode}', [PayOSController::class, 'getPaymentLinkInformation']);
+    Route::post('/payos/cancel/{orderCode}', [PayOSController::class, 'cancelPaymentLink']);
+    Route::post('/webhook/payos', [PayOSController::class, 'handleWebhook'])
+        ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+    Route::post('/payos/confirm-webhook', [PayOSController::class, 'confirmWebhook']);
+    Route::get('/test-webhook-confirm', [PayOSController::class, 'testConfirmWebhook']);
+    Route::get('/thanh-cong', [PayOSController::class, 'paymentSuccess']);
+    Route::get('/that-bai', [PayOSController::class, 'paymentCancel']);
 });
-
 //Tin tức
 Route::prefix('blog')->group(function(){
     Route::get('/', [BlogController::class, 'index'])->name('blog');
@@ -174,7 +176,7 @@ Route::prefix('auth')->group(function(){
 //Start - Admin
 //Route Admin home
 Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function(){
-    Route::get('/', [AdminHomeController::class, 'index'])->name('admin');
+    Route::get('/', [AdminDashboardController::class, 'index'])->name('admin');
     Route::get('/thong-tin-website',[AdminHomeController::class,'thongTinWebsite'])->name('admin.thongTinWebSite');
     Route::put('/thong-tin-website/update',[AdminHomeController::class, 'updateThongTinWebsite'])->name('admin.thong_tin_website.update');
 });
@@ -284,6 +286,8 @@ Route::prefix('admin/orders')->middleware(AdminMiddleware::class)->group(functio
     Route::get('/',[AdminOrderController::class,'index'])->name('admin.orders.list');
     Route::get('/{id}/detail', [AdminOrderController::class, 'detail'])->name('admin.orders.detail');
     Route::post('/filter', [AdminOrderController::class, 'filter'])->name('admin.orders.filter');
+    Route::post('/update-status', [AdminOrderController::class, 'updateStatusOrder'])->name('admin.orders.updateStatus');
+    Route::post('/refund/{maHoaDon}', [AdminOrderController::class, 'manualRefund'])->name('admin.orders.refund');
 });
 
 //Route Admin Dashboard
@@ -316,6 +320,7 @@ Route::prefix('admin/blog')->middleware(AdminMiddleware::class)->group(function(
     Route::get('/',[AdminBlogController::class,'index'])->name('admin.blog.index');
     Route::get('/add-blog',[AdminBlogController::class,'showFormBlog'])->name('admin.blog.form');
     Route::post('/add-blog',[AdminBlogController::class,'add'])->name('admin.blog.add');
+    Route::post('/tinymce/upload', [AdminBlogController::class, 'tinymceUpload'])->name('tinymce.upload');
 });
 
 

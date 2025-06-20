@@ -93,7 +93,7 @@
                                 </div>
                                 {{-- Thêm mới --}}
                                 <div class="col-6 col-lg-2">
-                                    <a href="" class="btn btn-primary w-100">
+                                    <a href="{{ route('admin.blog.add') }}" class="btn btn-primary w-100">
                                         <i class="fa fa-plus"></i> Thêm mới
                                     </a>
                                 </div>
@@ -105,7 +105,7 @@
                             <i class="mb-3 fa fa-box-open fa-3x text-muted"></i>
                             <h5 class="text-muted">Không có Blog nào trong danh sách</h5>
                             <p>Hãy thêm Blog mới để bắt đầu quản lý.</p>
-                            <a href="#" class="mt-3 btn btn-primary">
+                            <a href="{{ route('admin.blog.form') }}" class="mt-3 btn btn-primary">
                                 <i class="fa fa-plus"></i> Thêm Blog mới
                             </a>
                         </div>

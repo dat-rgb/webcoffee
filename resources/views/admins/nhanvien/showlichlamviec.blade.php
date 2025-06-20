@@ -7,7 +7,7 @@
         <h2 class="mb-4">Lịch làm việc @if($weekOffset == 0) tuần này @else tuần sau @endif</h2>
         <ul class="mb-3 breadcrumbs">
             <li class="nav-home">
-                <a href="{{ route('admin') }}">
+                <a href="{{ route('admin.dashboard') }}">
                     <i class="icon-home"></i>
                 </a>
             </li>
