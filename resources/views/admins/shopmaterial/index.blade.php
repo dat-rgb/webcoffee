@@ -38,7 +38,7 @@
                         <a href="#">Quản lý kho nguyên liệu</a>
                     </li>
                 </ul>
-                </div>
+            </div>
             <div class="card">
                 <div class="card-header">
                     {{-- Dropdown chọn cửa hàng--}}

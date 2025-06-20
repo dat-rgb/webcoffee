@@ -186,7 +186,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     const meta = data.meta;
                     const chiTiet = data.chi_tiet;
 
-                    document.getElementById('modal_ma_lo').textContent = (loaiPhieu == 0) ? 'Không có' : meta.so_lo;
+                    // document.getElementById('modal_ma_lo').textContent = (loaiPhieu == 0) ? 'Không có' : meta.so_lo;
+                    document.getElementById('modal_ma_lo').textContent = meta.so_lo;
                     document.getElementById('modal_nguoi_lam').textContent = meta.ma_nhan_vien ?? 'ADMIN';
 
                     const loaiPhieuLabel = ['Nhập', 'Xuất', 'Hủy'][parseInt(meta.loai_phieu)] ?? 'Không rõ';
@@ -202,7 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     tbody.innerHTML = '';
                     chiTiet.forEach(item => {
                         const tr = document.createElement('tr');
-                        const soLoText = loaiPhieu == 0 ? 'Không có' : item.so_lo ?? 'Không có';
+                        const soLoText = item.so_lo ?? 'Không có';
                         tr.innerHTML = `
                             <td>${item.ma_nguyen_lieu}</td>
                             <td>${item.ten_nguyen_lieu}</td>

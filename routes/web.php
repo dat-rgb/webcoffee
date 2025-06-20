@@ -255,6 +255,8 @@ Route::prefix('admin/suppliers')->middleware(AdminMiddleware::class)->name('admi
     Route::get('/archived', [AdminSupplierController::class, 'archived'])->name('archived');    // Danh sách lưu trữ
     Route::patch('/restore/{id}', [AdminSupplierController::class, 'restore'])->name('restore'); // Khôi phục
     Route::post('/toggle-status/{id}', [AdminSupplierController::class, 'toggleStatus'])->name('toggleStatus');
+    Route::post('/bulk-restore', [AdminSupplierController::class, 'bulkRestore'])->name('bulkRestore');
+    Route::post('/bulk-destroy', [AdminSupplierController::class, 'bulkDestroy'])->name('bulkDestroy');
 });
 
 //Route Admin NhanVien
@@ -303,7 +305,6 @@ Route::prefix('admin/shop-materials')->middleware(AdminMiddleware::class)->name(
     Route::post('/destroy', [AdminShopmaterialController::class, 'destroy'])->name('destroy');
     Route::get('/destroy-page', [AdminShopmaterialController::class, 'showDestroyPage'])->name('showDestroyPage');
     Route::get('/list-all-phieu', [AdminShopmaterialController::class, 'showAllPhieu'])->name('showAllPhieu');
-    //Route::get('/phieu-chi-tiet/{so_lo}', [AdminShopmaterialController::class, 'layChiTietPhieu'])->name('chiTietPhieu');
     Route::get('/phieu-chi-tiet/{ngay_tao_phieu}/{loai_phieu}/{ma_nhan_vien}', [AdminShopmaterialController::class, 'layChiTietPhieu'])->name('chiTietPhieu');
     Route::get('/phieu-ajax', [AdminShopmaterialController::class, 'filterPhieuAjax'])->name('filterPhieuAjax');
 
