@@ -115,23 +115,28 @@
             </td>
             <td class="text-start">
                 @php
-                    $paymentStatuses = [
-                        0 => 'Chưa thanh toán',
-                        1 => 'Đã thanh toán',
-                        2 => 'Đang hoàn tiền',
-                        3 => 'Hoàn tiền thành công',
-                    ];
                     $status = $order->trang_thai_thanh_toan;
+                    $paymentStatuses = [
+                        0 => ['label' => 'Chưa thanh toán', 'class' => 'text-secondary fw-bold'],
+                        1 => ['label' => 'Đã thanh toán', 'class' => 'text-success fw-bold'],
+                        2 => ['label' => '', 'class' => ''], 
+                        3 => ['label' => 'Đã hoàn tiền', 'class' => 'text-info fw-bold'],
+                    ];
                 @endphp
-
-                <span class="
-                    {{ $status == 0 ? 'text-secondary fw-bold' : '' }}
-                    {{ $status == 1 ? 'text-success fw-bold' : '' }}
-                    {{ $status == 2 ? 'text-warning fw-bold' : '' }}
-                    {{ $status == 3 ? 'text-info fw-bold' : '' }}
-                ">
-                    {{ $paymentStatuses[$status] ?? 'Không xác định' }}
-                </span>
+                @if ($status !== 2)
+                    <span class="{{ $paymentStatuses[$status]['class'] ?? '' }}">
+                        {{ $paymentStatuses[$status]['label'] ?? 'Không xác định' }}
+                    </span>
+                @endif
+                @if ($status == 2 && $order->transaction)
+                    @php
+                        $jsonTransaction = json_encode($order->transaction, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+                    @endphp
+                    <button class="btn btn-sm btn-warning mt-1"
+                            onclick='showRefundModal("{{ $order->ma_hoa_don }}", {!! $jsonTransaction !!})'>
+                        <i class="fa fa-undo"></i> Xử lý hoàn tiền
+                    </button>
+                @endif
             </td>
         </tr>
     @endforeach

@@ -38,6 +38,20 @@
   </head>
   <body>
     <div class="wrapper">
+        @php
+          $isOrderActive = request()->routeIs('admin.orders.*');
+          $isProductActive = request()->routeIs('admin.products.*');
+          $isCategoryActive = request()->routeIs('admins.category.*');
+          $isMaterialActive = request()->routeIs('admins.material.*');
+          $isShopMaterialActive = request()->routeIs('admins.shopmaterial.*');
+          $isSupplierActive = request()->routeIs('admins.supplier.*');
+          $isStoreActive = request()->routeIs('admin.store.*') || request()->routeIs('admin.product-shop.*');
+          $isVoucherActive = request()->routeIs('admin.vouchers.*');
+          $isBlogActive = request()->routeIs('admin.blog.*');
+          $isNhanVienActive = request()->routeIs('admins.nhanvien.*');
+          $isThongTinWebsite = request()->routeIs('admin.thongTinWebSite');
+        @endphp
+
       <!-- Sidebar -->
       <div class="sidebar" data-background-color="dark">
         <div class="sidebar-logo">
@@ -95,15 +109,16 @@
                 </span>
                 <h4 class="text-section">Thao Tác</h4>
               </li>
+              <!-- Đơn hàng -->
               <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#base">
                   <i class="fas fa-shopping-cart"></i>
                   <p>Đơn hàng</p>
                   <span class="caret"></span>
                 </a>
-                <div class="collapse" id="base">
+                <div class="collapse {{ $isOrderActive ? 'show' : '' }}" id="base">
                   <ul class="nav nav-collapse">
-                    <li>
+                    <li class="{{ $isOrderActive ? 'current-list-item' : '' }}">
                       <a href="{{ route('admin.orders.list') }}">
                         <span class="sub-item">Danh sách Đơn hàng</span>
                       </a>
@@ -111,13 +126,14 @@
                   </ul>
                 </div>
               </li>
+              <!-- Sản phẩm -->
               <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#sidebarLayouts">
                   <i class="fas fa-coffee"></i>
                   <p>Sản phẩm</p>
                   <span class="caret"></span>
                 </a>
-                <div class="collapse" id="sidebarLayouts">
+                <div class="collapse {{ $isProductActive ? 'show' : '' }}" id="sidebarLayouts">
                   <ul class="nav nav-collapse">
                     <li>
                       <a href="{{ route('admin.products.list') }}">
@@ -126,49 +142,25 @@
                     </li>
                     <li>
                       <a href="{{ route('admin.products.add') }}">
-                        <span class="sub-item">Thêm sản phẩm mới</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="{{ route('admin.products.hidden.list') }}">
-                        <span class="sub-item">Sản phẩm ẩn</span>
+                        <span class="sub-item">Thêm sản phẩm</span>
                       </a>
                     </li>
                     <li>
                       <a href="{{ route('admin.products.list.delete') }}">
-                        <span class="sub-item">Danh sách sản phẩm đã xóa</span>
+                        <span class="sub-item">Sản phẩm đã xóa</span>
                       </a>
-                    </li>
-                    <li>
-                      <a data-bs-toggle="collapse" href="#subnav5">
-                        <span class="sub-item">Sản phẩm tại cửa hàng</span>
-                        <span class="caret"></span>
-                      </a>
-                      <div class="collapse" id="subnav5">
-                        <ul class="nav nav-collapse subnav">
-                          <li>
-                            <a href="{{ route('admin.product-shop.index') }}">
-                              <span class="sub-item">Sản phẩm tại cửa hàng</span>
-                            </a>
-                          </li>
-                          <li>
-                            <a href="#">
-                                <span class="sub-item">xxxx</span>
-                            </a>
-                            </li>
-                        </ul>
-                      </div>
                     </li>
                   </ul>
                 </div>
               </li>
+              <!-- Danh mục sản phẩm -->
               <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#forms">
-                  <i class="fas fa-list-alt"></i>
+                  <i class="fas fa-wine-glass-alt"></i>
                   <p>Danh mục sản phẩm</p>
                   <span class="caret"></span>
                 </a>
-                <div class="collapse" id="forms">
+                <div class="collapse {{ $isCategoryActive ? 'show' : '' }}" id="forms">
                   <ul class="nav nav-collapse">
                     <li>
                       <a href="{{ route('admins.category.index') }}">
@@ -180,21 +172,21 @@
                         <span class="sub-item">Tạo danh mục</span>
                       </a>
                     </li>
-
                   </ul>
                 </div>
               </li>
+              <!-- Nguyên liệu -->
               <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#tables">
                   <i class="fas fa-leaf"></i>
                   <p>Nguyên liệu</p>
                   <span class="caret"></span>
                 </a>
-                <div class="collapse" id="tables">
+                <div class="collapse {{  $isMaterialActive ? 'show' : '' }}" id="tables">
                   <ul class="nav nav-collapse">
                     <li>
                       <a href="{{ route('admins.material.index') }}">
-                        <span class="sub-item">Kho nguyên liệu</span>
+                        <span class="sub-item">Danh sách nguyên liệu</span>
                       </a>
                     </li>
                     <li>
@@ -205,13 +197,14 @@
                   </ul>
                 </div>
               </li>
+              <!-- Cửa hàng nguyên liệu -->
               <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#materials">
-                  <i class="fas fa-laptop"></i>
+                  <i class="fas fa-blender"></i>
                   <p>Cửa hàng nguyên liệu</p>
                   <span class="caret"></span>
                 </a>
-                <div class="collapse" id="materials">
+                <div class="collapse {{  $isShopMaterialActive ? 'show' : '' }}" id="materials">
                   <ul class="nav nav-collapse">
                     <li>
                       <a href="{{ route('admins.shopmaterial.index') }}">
@@ -229,11 +222,11 @@
               {{-- Nhà cung cấp --}}
               <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#suppliers">
-                  <i class="fas fa-warehouse"></i>
+                  <i class="fas fa-boxes"></i>
                   <p>Nhà cung cấp</p>
                   <span class="caret"></span>
                 </a>
-                <div class="collapse" id="suppliers">
+                <div class="collapse {{ $isSupplierActive ? 'show' : '' }}" id="suppliers">
                   <ul class="nav nav-collapse">
                     <li>
                       <a href="{{ route('admins.supplier.index') }}">
@@ -253,11 +246,87 @@
                   </ul>
                 </div>
               </li>
-              {{-- Quan li nhan vien --}}
+              {{-- Cửa hàng --}}
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#store">
+                  <i class="fas fa-store"></i>
+                  <p>Cửa hàng</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse {{ $isStoreActive ? 'show' : '' }}" id="store">
+                  <ul class="nav nav-collapse">
+                    <li>
+                      <a href="{{ route('admin.store.index') }}">
+                        <span class="sub-item">Danh sách cửa hàng</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="{{ route('admin.product-shop.index') }}">
+                        <span class="sub-item">Sản phẩm tại cửa hàng</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              {{-- Voucher --}}
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#voucher">
+                  <i class="fas fa-gift"></i>
+                  <p>Voucher</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse {{  $isVoucherActive ? 'show' : '' }}" id="voucher">
+                  <ul class="nav nav-collapse">
+                    <li>
+                        <a href="{{ route('admin.vouchers.list') }}">
+                          <span class="sub-item">Danh sách Vouchers</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a href="{{ route('admin.vouchers.form') }}">
+                            <span class="sub-item">Thêm Voucher</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a href="{{ route('admin.vouchers.list-vouchers-off') }}">
+                            <span class="sub-item">Voucher đã ẩn</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a href="{{ route('admin.vouchers.deleted-list') }}">
+                          <span class="sub-item">Voucher đã xóa</span>
+                        </a>
+                      </li>
+                  </ul>
+                </div>
+              </li>
+              {{-- Blog --}}
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#blog">
+                  <i class="fas fa-newspaper"></i>
+                  <p>Blog</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse {{  $isBlogActive ? 'show' : '' }}" id="blog">
+                  <ul class="nav nav-collapse">
+                    <li>
+                      <a href="{{ route('admin.blog.index') }}">
+                        <span class="sub-item">Danh sách blog</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="{{ route('admin.blog.add') }}">
+                          <span class="sub-item">Thêm blog</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              {{-- Admin --}}
               <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#submenu">
                   <i class="fas fa-user-tie"></i>
-                  <p>Quản trị viên</p>
+                  <p>Admin</p>
                   <span class="caret"></span>
                 </a>
                 <div class="collapse" id="submenu">
@@ -267,7 +336,7 @@
                         <span class="sub-item">Nhân viên</span>
                         <span class="caret"></span>
                       </a>
-                      <div class="collapse" id="subnav1">
+                      <div class="collapse {{ $isNhanVienActive ? 'show' : '' }}" id="subnav1">
                         <ul class="nav nav-collapse subnav">
                           <li>
                             <a href="{{ route('admins.nhanvien.index') }}">
@@ -284,69 +353,14 @@
                     </li>
                     <li>
                       <a data-bs-toggle="collapse" href="#subnav2">
-                        <span class="sub-item">Cửa hàng</span>
+                        <span class="sub-item">Cài đặc chung</span>
                         <span class="caret"></span>
                       </a>
-                      <div class="collapse" id="subnav2">
+                      <div class="collapse {{ $isThongTinWebsite ? 'show' : ''}}" id="subnav2">
                         <ul class="nav nav-collapse subnav">
-                          <li>
-                            <a href="{{ route('admin.store.index') }}">
-                              <span class="sub-item">Danh sách cửa hàng</span>
-                            </a>
-                          </li>
                           <li>
                             <a href="{{ route('admin.thongTinWebSite') }}">
                                 <span class="sub-item">Thông tin website</span>
-                            </a>
-                            </li>
-                        </ul>
-                      </div>
-                    </li>
-                    <li>
-                      <a data-bs-toggle="collapse" href="#subnav3">
-                        <span class="sub-item">Vouchers</span>
-                        <span class="caret"></span>
-                      </a>
-                      <div class="collapse" id="subnav3">
-                        <ul class="nav nav-collapse subnav">
-                          <li>
-                            <a href="{{ route('admin.vouchers.list') }}">
-                              <span class="sub-item">Danh sách Vouchers</span>
-                            </a>
-                          </li>
-                          <li>
-                            <a href="{{ route('admin.vouchers.form') }}">
-                                <span class="sub-item">Thêm Voucher</span>
-                            </a>
-                          </li>
-                          <li>
-                            <a href="{{ route('admin.vouchers.list-vouchers-off') }}">
-                                <span class="sub-item">Voucher đã ẩn</span>
-                            </a>
-                          </li>
-                          <li>
-                            <a href="{{ route('admin.vouchers.deleted-list') }}">
-                              <span class="sub-item">Voucher đã xóa</span>
-                            </a>
-                          </li>
-                        </ul>
-                      </div>
-                    </li>
-                    <li>
-                      <a data-bs-toggle="collapse" href="#subnav4">
-                        <span class="sub-item">Blogs</span>
-                        <span class="caret"></span>
-                      </a>
-                      <div class="collapse" id="subnav4">
-                        <ul class="nav nav-collapse subnav">
-                          <li>
-                            <a href="{{ route('admin.blog.index') }}">
-                              <span class="sub-item">Danh sách blog</span>
-                            </a>
-                          </li>
-                          <li>
-                            <a href="#">
-                                <span class="sub-item">Thêm blog</span>
                             </a>
                             </li>
                         </ul>
@@ -360,7 +374,6 @@
         </div>
       </div>
       <!-- End Sidebar -->
-
       <div class="main-panel">
         <div class="main-header">
           <div class="main-header-logo">

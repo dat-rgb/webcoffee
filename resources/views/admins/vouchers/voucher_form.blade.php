@@ -20,7 +20,7 @@
         <h3 class="fw-bold mb-3">{{ $subtitle }}</h3>
         <ul class="breadcrumbs mb-3">
         <li class="nav-home">
-            <a href="{{ route('admin') }}">
+            <a href="{{ route('admin.dashboard') }}">
             <i class="icon-home"></i>
             </a>
         </li>

@@ -26,11 +26,9 @@ class PaymentController extends Controller
             'ho_ten_khach_hang' => 'required|string|min:2|max:255',
             'so_dien_thoai' => 'required|regex:/^0\d{9}$/',
             'email' => 'required|email|max:255',
-            'dia_chi' => 'nullable|string|max:255',
             'paymentMethod' => 'required|string|max:50',
             'ghi_chu' => 'nullable|string',
-            'shippingMethod' => 'required',
-            
+            'shippingMethod' => 'required|in:delivery,pickup',
         ], [
             'ho_ten_khach_hang.required' => 'Vui lòng nhập tên của bạn.',
             'ho_ten_khach_hang.min' => 'Tên ít nhất 2 ký tự.',
@@ -40,18 +38,16 @@ class PaymentController extends Controller
             'email.required' => 'Vui lòng nhập email.',
             'email.email' => 'Email không đúng định dạng.',
             'email.max' => 'Email không quá 255 ký tự.',
-            'dia_chi.max' => 'Địa chỉ không quá 255 ký tự.',
             'paymentMethod.required' => 'Vui lòng chọn phương thức thanh toán.',
             'shippingMethod.required' => 'Vui lòng chọn hình thức nhận hàng.',
         ]);
+
 
         $khachHang = optional(Auth::user())->khachHang;
         $customerId = null;
         if ($khachHang) {
             $customerId = $khachHang->ma_khach_hang;
         }   
-
-        $address = $request->dia_chi .' '. $request->wardName .' '. $request-> districtName .' '. $request->provinceName;
 
         $storeId = session('selected_store_id');
         if(!$storeId){
@@ -131,15 +127,14 @@ class PaymentController extends Controller
                 toastr()->error('Địa chỉ giao hàng không hợp lệ.');
                 return redirect()->back();
             }
-
+            $address = $request->ten_duong . ', ' . $request->wardName . ', ' . $request->districtName . ', ' . $request->provinceName;
             $check = $this->checkAddress($address);
-
+            //dd($check);
             if (!$check['success']) {
                 toastr()->error($check['message'] ?? 'Khoảng cách giao hàng không được quá 3 km');
                 return redirect()->back();
             }
-
-            $address = $check['address']; 
+            $address = $request->so_nha . ' ' . $check['address']; 
         }
 
         $this->subtractIngredients($storeId, $storeCheck['usedIngredients']);
@@ -228,7 +223,8 @@ class PaymentController extends Controller
             $payOS = app(\App\Http\Controllers\payments\PayOSController::class);
             return $payOS->createPaymentLinkFromOrderData($orderData);
         }
-        return redirect()->back()->with('error', 'Phương thức thanh toán không hợp lệ.');
+        toastr()->error('Phương thức thanh toán không hợp lệ.');
+        return redirect()->back();
     }
     public function processCOD(array $data)
     {
@@ -436,11 +432,6 @@ class PaymentController extends Controller
     {
         $earthRadius = 6371; // km
 
-        $lat1 = floatval($lat1);
-        $lon1 = floatval($lon1);
-        $lat2 = floatval($lat2);
-        $lon2 = floatval($lon2);
-
         $latDelta = deg2rad($lat2 - $lat1);
         $lonDelta = deg2rad($lon2 - $lon1);
 
@@ -450,7 +441,7 @@ class PaymentController extends Controller
 
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
 
-        return $earthRadius * $c;
+        return round($earthRadius * $c, 2); 
     }
     private function checkAddress($address)
     {
@@ -460,33 +451,35 @@ class PaymentController extends Controller
                 'message' => 'Địa chỉ không hợp lệ.'
             ];
         }
-        $geoData = Http::withHeaders([
-            'User-Agent' => 'CDMT Coffee & Tea'
-        ])->get('https://nominatim.openstreetmap.org/search', [
-            'format' => 'json',
+
+        $address = trim(preg_replace('/\s+/', ' ', $address)) . ', Việt Nam';
+        $geoData = Http::get('https://us1.locationiq.com/v1/search.php', [
+            'key' => 'pk.5d26a9b9c838efaf212bce38a4a99682',
             'q' => $address,
-            'limit' => 1,
-            'addressdetails' => 1
+            'format' => 'json',
+            'limit' => 1
         ]);
 
-        $data = $geoData->json();
 
-        if ($geoData->failed() || count($data) == 0) {
+        if ($geoData->failed() || empty($geoData->json())) {
             return [
                 'success' => false,
                 'message' => 'Không thể xác định vị trí từ địa chỉ giao hàng.'
             ];
         }
-        $latUser = $data[0]['lat'];
-        $lngUser = $data[0]['lon'];
 
-        $storeId = session('selected_store_id'); 
+        $data = $geoData->json()[0];
+        $latUser = floatval($data['lat']);
+        $lngUser = floatval($data['lon']);
+
+        $storeId = session('selected_store_id');
         if (!$storeId) {
             return [
                 'success' => false,
                 'message' => 'Không xác định được mã cửa hàng.'
             ];
         }
+
         $store = CuaHang::where('ma_cua_hang', $storeId)->first();
         if (!$store || !$store->latitude || !$store->longitude) {
             return [
@@ -494,22 +487,31 @@ class PaymentController extends Controller
                 'message' => 'Không xác định được tọa độ cửa hàng.'
             ];
         }
-        $latStore = $store->latitude;
-        $lngStore = $store->longitude;
-        $distance = $this->calculateDistance($latUser, $lngUser, $latStore, $lngStore);
+
+        $distance = $this->calculateDistance(
+            floatval($store->latitude),
+            floatval($store->longitude),
+            $latUser,
+            $lngUser
+        );
 
         if ($distance > 3) {
             return [
                 'success' => false,
-                'message' => 'Khoảng cách giao hàng không được quá 3 km'
+                'message' => "Khoảng cách giao hàng vượt quá 3 km (hiện tại: {$distance} km)"
             ];
-        }             
+        }
+
         return [
             'success' => true,
             'message' => '',
-            'address' => $address
+            'lat' => $latUser,
+            'lng' => $lngUser,
+            'distance' => $distance,
+            'address' => $address 
         ];
     }
+
     public function sendEmail($order_id, $name, $email, $phone, $shippingMethod, $paymentMethod, $status, $statusPayment, $address, $cartItems, $tamTinh, $giamGia, $tienShip, $tongTien, $token)
     {
         try {
