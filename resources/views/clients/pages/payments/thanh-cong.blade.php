@@ -64,7 +64,22 @@
                             @elseif($hoaDon->trang_thai == 5)
                                 <i class="fas fa-times-circle fa-4x text-danger mb-3"></i>
                                 <h3 class="text-danger">Đơn hàng đã bị hủy</h3>
-                                <p>Đơn hàng đã được hủy. Cảm ơn bạn đã ghé thăm cửa hàng!</p>
+                                @if($hoaDon->phuong_thuc_thanh_toan === 'NAPAS247')
+                                    @switch($hoaDon->trang_thai_thanh_toan)
+                                        @case(2)
+                                            <span class="badge bg-warning text-dark fs-5 px-3 py-2">
+                                                Đang xử lý hoàn tiền...
+                                            </span>
+                                            <p>Đơn hàng đã được hủy. Chúng tôi đang tiến hành hoàn tiền, vui lòng chờ trong giây lát!</p>
+                                            @break
+                                        @case(3)
+                                            <span class="badge bg-success text-white fs-5 px-3 py-2">
+                                                Đã hoàn tiền thành công
+                                            </span>
+                                            <p>Đơn hàng đã được hoàn tiền. Cảm ơn bạn đã ghé thăm cửa hàng!</p>
+                                            @break
+                                    @endswitch
+                                @endif
                             @else
                                 <h3 class="text-success">Trạng thái đơn hàng</h3>
                                 <p>Đơn hàng của bạn đang được xử lý.</p>
@@ -74,15 +89,12 @@
                             $trangThai = $hoaDon->trang_thai;
                             $isNapas = $hoaDon->phuong_thuc_thanh_toan === 'NAPAS247';
                             $isPickup = $hoaDon->phuong_thuc_nhan_hang === 'pickup';
-
                             $giaoHangLabel = $isPickup ? 'Chờ nhận món' : 'Đang giao hàng';
-
                             $timelineSteps = $isNapas
                                 ? ['Đã thanh toán', 'Đã xác nhận', 'Đã hoàn tất', $giaoHangLabel, 'Hoàn thành']
                                 : ['Chờ xác nhận', 'Đã xác nhận', 'Đã hoàn tất', $giaoHangLabel, 'Hoàn thành', 'Đã thanh toán'];
                             
                             $icons = ['fas fa-money-check-alt', 'fas fa-clipboard-check', 'fas fa-cogs', 'fas fa-motorcycle', 'fas fa-check-circle', 'fas fa-dollar-sign'];
-
                         @endphp
                         @if($hoaDon->trang_thai < 5)
                         <div class="timeline mb-4">
@@ -96,7 +108,6 @@
                                                 ? $trangThai >= $stepIndex
                                                 : ($index < 5 ? $trangThai >= $stepIndex : $hoaDon->trang_thai_thanh_toan == 1);
                                         @endphp
-
                                         <div class="text-center flex-grow-1 position-relative" style="min-width: 100px; z-index: 1;">
                                             <div class="rounded-circle mx-auto mb-1 d-flex align-items-center justify-content-center"
                                                 style="width: 32px; height: 32px; background-color: {{ $active ? '#28a745' : '#ccc' }};
@@ -187,7 +198,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <a href="{{ route('home') }}" class="btn btn-danger">
                             <i class="fas fa-arrow-left me-1"></i> Quay về trang chủ
                         </a>

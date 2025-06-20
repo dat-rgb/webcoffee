@@ -5,6 +5,9 @@ namespace App\Http\Controllers\payments;
 use App\Http\Controllers\Controller;
 use App\Models\ChiTietHoaDon;
 use App\Models\HoaDon;
+use App\Models\KhuyenMai;
+use App\Models\Sizes;
+use App\Models\ThanhPhanSanPham;
 use App\Models\Transactions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -281,6 +284,38 @@ class PayOSController extends Controller
             Transactions::where('ma_hoa_don', $maHoaDon)->update([
                 'trang_thai' => 'CANCELLED',
             ]);
+            // Lấy chi tiết hóa đơn
+            $chiTietHoaDons = ChiTietHoaDon::where('ma_hoa_don', $maHoaDon)->get();
+
+            foreach ($chiTietHoaDons as $chiTiet) {
+                $maSanPham = $chiTiet->ma_san_pham;
+
+                $maSize = Sizes::where('ten_size', $chiTiet->ten_size)->value('ma_size');
+                if (!$maSize) {
+                    // Size không tồn tại, bỏ qua
+                    continue;
+                }
+
+                $thanhPhanNLs = ThanhPhanSanPham::where('ma_san_pham', $maSanPham)
+                    ->where('ma_size', $maSize)
+                    ->get();
+
+                foreach ($thanhPhanNLs as $tp) {
+                    $soLuongHoanTra = $tp->dinh_luong * $chiTiet->so_luong;
+
+                    // Cập nhật tồn kho bằng query builder vì composite key
+                    DB::table('cua_hang_nguyen_lieus')
+                        ->where('ma_cua_hang', $hoaDon->ma_cua_hang)
+                        ->where('ma_nguyen_lieu', $tp->ma_nguyen_lieu)
+                        ->increment('so_luong_ton', $soLuongHoanTra);
+                }
+            }
+            if ($hoaDon->ma_voucher) {
+                $voucher = KhuyenMai::where('ma_voucher', $hoaDon->ma_voucher)->first();
+                if ($voucher) {
+                    $voucher->increment('so_luong', 1);
+                }
+            }
         }
 
         $viewData = [

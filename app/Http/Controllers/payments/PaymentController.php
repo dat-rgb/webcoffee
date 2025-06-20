@@ -26,11 +26,6 @@ class PaymentController extends Controller
             'ho_ten_khach_hang' => 'required|string|min:2|max:255',
             'so_dien_thoai' => 'required|regex:/^0\d{9}$/',
             'email' => 'required|email|max:255',
-            'so_nha' => 'required_if:shippingMethod,delivery|string|max:100',
-            'ten_duong' => 'required_if:shippingMethod,delivery|string|max:100',
-            'provinceName' => 'required_if:shippingMethod,delivery|string',
-            'districtName' => 'required_if:shippingMethod,delivery|string',
-            'wardName' => 'required_if:shippingMethod,delivery|string',
             'paymentMethod' => 'required|string|max:50',
             'ghi_chu' => 'nullable|string',
             'shippingMethod' => 'required|in:delivery,pickup',
@@ -43,11 +38,6 @@ class PaymentController extends Controller
             'email.required' => 'Vui lòng nhập email.',
             'email.email' => 'Email không đúng định dạng.',
             'email.max' => 'Email không quá 255 ký tự.',
-            'so_nha.required_if' => 'Vui lòng nhập số nhà.',
-            'ten_duong.required_if' => 'Vui lòng nhập tên đường.',
-            'provinceName.required_if' => 'Vui lòng chọn tỉnh/thành.',
-            'districtName.required_if' => 'Vui lòng chọn quận/huyện.',
-            'wardName.required_if' => 'Vui lòng chọn xã/phường.',
             'paymentMethod.required' => 'Vui lòng chọn phương thức thanh toán.',
             'shippingMethod.required' => 'Vui lòng chọn hình thức nhận hàng.',
         ]);
@@ -58,9 +48,6 @@ class PaymentController extends Controller
         if ($khachHang) {
             $customerId = $khachHang->ma_khach_hang;
         }   
-
-        $address = $request->ten_duong . ', ' . $request->wardName . ', ' . $request->districtName . ', ' . $request->provinceName;
-
 
         $storeId = session('selected_store_id');
         if(!$storeId){
@@ -140,7 +127,7 @@ class PaymentController extends Controller
                 toastr()->error('Địa chỉ giao hàng không hợp lệ.');
                 return redirect()->back();
             }
-
+            $address = $request->ten_duong . ', ' . $request->wardName . ', ' . $request->districtName . ', ' . $request->provinceName;
             $check = $this->checkAddress($address);
             //dd($check);
             if (!$check['success']) {
@@ -236,7 +223,8 @@ class PaymentController extends Controller
             $payOS = app(\App\Http\Controllers\payments\PayOSController::class);
             return $payOS->createPaymentLinkFromOrderData($orderData);
         }
-        return redirect()->back()->with('error', 'Phương thức thanh toán không hợp lệ.');
+        toastr()->error('Phương thức thanh toán không hợp lệ.');
+        return redirect()->back();
     }
     public function processCOD(array $data)
     {
@@ -455,7 +443,6 @@ class PaymentController extends Controller
 
         return round($earthRadius * $c, 2); 
     }
-
     private function checkAddress($address)
     {
         if (!$address || strlen(trim($address)) < 5) {
