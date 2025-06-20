@@ -75,14 +75,15 @@
 
 <div class="order-details">
     <div style="max-width: 700px; margin: 0 auto; font-family: Arial, sans-serif; line-height: 1.5; display: flex; gap: 30px; flex-wrap: wrap;">
-    
         <!-- Cột trái -->
         <div style="flex: 1 1 300px;">
             <div style="margin-bottom: 12px;">
-                <strong>Mã Hóa Đơn:</strong> <span>{{ $order->ma_hoa_don }}</span>
+                <strong>Cửa hàng:</strong> <span>{{ $order->cuaHang->ten_cua_hang}}</span><br>
+                <small>Thời gian mở cửa: {{ $order->cuaHang->gio_mo_cua .' - ' . $order->cuaHang->gio_dong_cua }}</small><br>
+                <small>Địa chỉ: {{ $order->cuaHang->dia_chi}}</small>
             </div>
             <div style="margin-bottom: 12px;">
-                <strong>Cửa hàng:</strong> <span>{{ $order->ma_cua_hang }}</span>
+                <strong>Mã Hóa Đơn:</strong> <span>{{ $order->ma_hoa_don }}</span>
             </div>
             <div style="margin-bottom: 12px;">
                 <strong>Nhân viên:</strong> <span>{{ $order->ma_nhan_vien ?? '' }}</span>

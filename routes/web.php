@@ -176,6 +176,7 @@ Route::prefix('auth')->group(function(){
 //Start - Admin
 //Route Admin home
 Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function(){
+    Route::get('/', [AdminDashboardController::class, 'index'])->name('admin');
     Route::get('/thong-tin-website',[AdminHomeController::class,'thongTinWebsite'])->name('admin.thongTinWebSite');
     Route::put('/thong-tin-website/update',[AdminHomeController::class, 'updateThongTinWebsite'])->name('admin.thong_tin_website.update');
 });
@@ -284,6 +285,7 @@ Route::prefix('admin/orders')->middleware(AdminMiddleware::class)->group(functio
     Route::get('/{id}/detail', [AdminOrderController::class, 'detail'])->name('admin.orders.detail');
     Route::post('/filter', [AdminOrderController::class, 'filter'])->name('admin.orders.filter');
     Route::post('/update-status', [AdminOrderController::class, 'updateStatusOrder'])->name('admin.orders.updateStatus');
+    Route::post('/refund/{maHoaDon}', [AdminOrderController::class, 'manualRefund'])->name('admin.orders.refund');
 });
 
 //Route Admin Dashboard

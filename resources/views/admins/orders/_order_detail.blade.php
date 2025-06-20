@@ -75,14 +75,15 @@
 
 <div class="order-details">
     <div style="max-width: 700px; margin: 0 auto; font-family: Arial, sans-serif; line-height: 1.5; display: flex; gap: 30px; flex-wrap: wrap;">
-    
         <!-- Cột trái -->
         <div style="flex: 1 1 300px;">
             <div style="margin-bottom: 12px;">
-                <strong>Mã Hóa Đơn:</strong> <span>{{ $order->ma_hoa_don }}</span>
+                <strong>Cửa hàng:</strong> <span>{{ $order->cuaHang->ten_cua_hang}}</span><br>
+                <small>Thời gian mở cửa: {{ $order->cuaHang->gio_mo_cua .' - ' . $order->cuaHang->gio_dong_cua }}</small><br>
+                <small>Địa chỉ: {{ $order->cuaHang->dia_chi}}</small>
             </div>
             <div style="margin-bottom: 12px;">
-                <strong>Cửa hàng:</strong> <span>{{ $order->ma_cua_hang }}</span>
+                <strong>Mã Hóa Đơn:</strong> <span>{{ $order->ma_hoa_don }}</span>
             </div>
             <div style="margin-bottom: 12px;">
                 <strong>Nhân viên:</strong> <span>{{ $order->ma_nhan_vien ?? '' }}</span>
@@ -191,7 +192,7 @@
                 <div style="margin-bottom: 6px;">
                     <strong>Shipper: </strong> <span>{{ $order->giaoHang->ho_ten_shipper ?? 'Chưa có' }}</span>
                 </div>
-                <div style="margin-bottom: 12px; font-size: 0.9em; color: #555; display: flex; gap: 15px;">
+                <div style="margin-bottom: 12px; font-size: 0.9em; color: #555; gap: 15px;">
                     <span>Số điện thoại: {{ $order->giaoHang->so_dien_thoai ?? 'Chưa có' }}</span>
                     <span>Trạng thái: 
                         @if ( $order->giaoHang->trang_thai === 0)
@@ -201,7 +202,8 @@
                         @elseif ( $order->giaoHang->trang_thai === 2)   
                             Giao hàng không thành công
                         @endif
-                    </span>
+                    </span><br>
+                    <span>Ghi chú: {{  $order->giaoHang->ghi_chu ?? ''}} </span>
                 </div>
             @elseif($order->trang_thai === 5)
                 @php
@@ -210,19 +212,8 @@
                 @if ($order->trang_thai === 5 && $huy)
                     <div style="margin-bottom: 6px;">
                         <strong>Người hủy: </strong> 
-                        <span>
-                            @if ($huy->ma_khach_hang !== null)
-                                Khách hàng
-                            @elseif ($huy->ma_nhan_vien !== null)
-                                Nhân viên {{ optional($huy->nhanVien)->ho_ten_nhan_vien ?? '(Không rõ tên)' }}
-                            @elseif ($order->ma_khach_hang === null)
-                                Khách (Guest)
-                            @else
-                                Admin
-                            @endif
-                        </span>
+                        <span>{{ $huy->nguoi_huy }}</span>
                     </div>
-
                     <div style="margin-bottom: 12px; font-size: 0.9em; color: #555; display: flex; gap: 15px;">
                         <span>Lý do hủy: {{ $huy->ly_do_huy }}</span>
                     </div>

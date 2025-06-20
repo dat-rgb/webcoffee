@@ -60,7 +60,7 @@
                             @elseif($hoaDon->trang_thai == 4)
                                 <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
                                 <h3 class="text-success">Hoàn thành</h3>
-                                <p>Cảm ơn bạn đã sử dụng dịch vụ!</p>
+                                <p>Cảm ơn bạn đã mua hàng!</p>
                             @elseif($hoaDon->trang_thai == 5)
                                 <i class="fas fa-times-circle fa-4x text-danger mb-3"></i>
                                 <h3 class="text-danger">Đơn hàng đã bị hủy</h3>
@@ -136,6 +136,7 @@
                                     <table class="table align-middle text-nowrap">
                                         <thead class="table-light">
                                             <tr>
+                                                <th>#</th>
                                                 <th class="w-50">Sản phẩm</th>
                                                 <th class="text-center">SL</th>
                                                 <th class="text-end">Đơn giá</th>
@@ -145,11 +146,14 @@
                                         <tbody>
                                             @foreach ($hoaDon->chiTietHoaDon as $item)
                                                 <tr>
+                                                    <td>{{ $loop->iteration }}</td>
                                                     <td>
-                                                        {{ $item->ten_san_pham ?? 'N/A' }}
-                                                        @if (!empty($item->ten_size))
-                                                        <small class="text-muted"> - {{ $item->ten_size }}</small>
-                                                        @endif
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <img src="{{ asset('storage/' . ($item->sanPham->hinh_anh ?? 'default.png')) }}" alt="Ảnh" style="width: 40px; height: 50px; object-fit: cover; border-radius: 6px;">
+                                                            <div>
+                                                                <div>{{ $item->ten_san_pham }} - {{ $item->ten_size }}</div>
+                                                            </div>
+                                                        </div>
                                                     </td>
                                                     <td class="text-center">{{ $item->so_luong }}</td>
                                                     <td class="text-end">{{ number_format($item->don_gia + ($item->gia_size ?? 0), 0, ',', '.') }} đ</td>

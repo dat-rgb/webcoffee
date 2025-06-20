@@ -87,7 +87,6 @@ class AdminOrderController extends Controller
         $order = HoaDon::with(['khachHang', 'chiTietHoaDon'])->where('ma_hoa_don',$id)->first();
         return view('admins.orders._order_detail', compact('order'));
     }
-
     public function updateStatusOrder(Request $request)
     {
         try {
@@ -129,7 +128,6 @@ class AdminOrderController extends Controller
             ], 500);
         }
     }
-
     private function handleCancelStatusAdmin(Request $request, HoaDon $order, int $status)
     {
         $data = $request->validate([
@@ -140,18 +138,37 @@ class AdminOrderController extends Controller
             $oldStatus = $order->trang_thai;
 
             $order->update([
+                'ma_nhan_vien' => null,
                 'trang_thai' => 5,
             ]);
 
             if ($oldStatus < 2) {
                 $this->restoreIngredientsAndVoucher($order);
+                if ($oldStatus < 2) {
+                    $this->restoreIngredientsAndVoucher($order);
+
+                    if (
+                        $order->phuong_thuc_thanh_toan === 'NAPAS247' &&
+                        $order->trang_thai_thanh_toan === 1 &&
+                        $order->transaction &&
+                        $order->transaction->trang_thai === 'SUCCESS'
+                    ) {
+                        $order->update([
+                            'trang_thai_thanh_toan' => 2, 
+                        ]);
+
+                        $order->transaction->update([
+                            'trang_thai' => 'REFUNDING',
+                        ]);
+                    }
+                }
             }
 
             LichSuHuyDonHang::create([
                 'ma_hoa_don' => $order->ma_hoa_don,
                 'ly_do_huy' => $data['cancel_reason'],
                 'thoi_gian_huy' => now(),
-                'ma_nhan_vien' => null // không có nhân viên
+                'nguoi_huy' => 'Admin',
             ]);
 
             $giaoHang = GiaoHang::where('ma_hoa_don', $order->ma_hoa_don)->first();
@@ -161,5 +178,107 @@ class AdminOrderController extends Controller
                 ]);
             }
         }
+    }
+    public function restoreIngredientsAndVoucher($hoaDon)
+    {
+        if ($hoaDon->ma_voucher) {
+            $voucher = KhuyenMai::where('ma_voucher', $hoaDon->ma_voucher)->first();
+            if ($voucher) {
+                $voucher->increment('so_luong', 1);
+            }
+        }
+
+        // Lấy chi tiết hóa đơn
+        $chiTietHoaDons = ChiTietHoaDon::where('ma_hoa_don', $hoaDon->ma_hoa_don)->get();
+
+        foreach ($chiTietHoaDons as $chiTiet) {
+            $maSanPham = $chiTiet->ma_san_pham;
+            $maSize = Sizes::where('ten_size', $chiTiet->ten_size)->value('ma_size');
+
+            if (!$maSize) continue; // nếu size không tồn tại thì skip
+
+            $thanhPhanNLs = ThanhPhanSanPham::where('ma_san_pham', $maSanPham)
+                ->where('ma_size', $maSize)
+                ->get();
+
+            foreach ($thanhPhanNLs as $tp) {
+                $soLuongHoanTra = $tp->dinh_luong * $chiTiet->so_luong;
+
+                DB::table('cua_hang_nguyen_lieus')
+                    ->where('ma_cua_hang', $hoaDon->ma_cua_hang)
+                    ->where('ma_nguyen_lieu', $tp->ma_nguyen_lieu)
+                    ->increment('so_luong_ton', $soLuongHoanTra);
+            }
+        }
+    } 
+    private function handleStatus3(Request $request, HoaDon $order)
+    {
+        $data = $request->validate([
+            'shipper_name' => 'required|string',
+            'shipper_phone' => 'required|string',
+            'note' => 'nullable|string',
+        ]);
+
+        GiaoHang::create([
+            'ma_hoa_don' => $order->ma_hoa_don,
+            'ma_van_don' => GiaoHang::generateMaVanDon(),
+            'ho_ten_shipper' => $data['shipper_name'],
+            'so_dien_thoai' => $data['shipper_phone'],
+            'ghi_chu' => $data['note'] ?? null,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+    }
+    public function tinhDiemThanhVien($order)
+    {
+        if (!$order->ma_khach_hang) {
+            return;
+        }
+
+        $diem = floor(($order->tong_tien - $order->tien_ship) / 10000); // 10k = 1 điểm
+
+        if ($diem > 0) {
+            $khach = $order->khachHang;
+            $diemHienTai = $khach->diem_thanh_vien ?? 0;
+            $diemSau = $diemHienTai + $diem;
+
+            $khach->diem_thanh_vien = $diemSau;
+
+            if ($diemSau >= 600) {
+                $khach->hang_thanh_vien = 'Vàng';
+            } elseif ($diemSau >= 300) {
+                $khach->hang_thanh_vien = 'Bạc';
+            } else {
+                $khach->hang_thanh_vien = 'Đồng';
+            }
+
+            $khach->save();
+        }
+    }
+    public function manualRefund(Request $request, $maHoaDon)
+    {
+        $hoaDon = HoaDon::with('transaction')->where('ma_hoa_don', $maHoaDon)->first();
+
+        if (!$hoaDon) {
+            return response()->json(['success' => false, 'message' => 'Không tìm thấy hóa đơn'], 404);
+        }
+
+        if (
+            $hoaDon->trang_thai_thanh_toan == 2 &&
+            $hoaDon->transaction &&
+            $hoaDon->transaction->trang_thai === 'REFUNDING'
+        ) {
+            $hoaDon->update([
+                'trang_thai_thanh_toan' => 3,
+            ]);
+
+            $hoaDon->transaction->update([
+                'trang_thai' => 'REFUNDED',
+            ]);
+
+            return response()->json(['success' => true, 'message' => 'Đã hoàn tiền thành công.']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Không thể hoàn tiền cho đơn hàng này.'], 400);
     }
 }

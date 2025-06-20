@@ -45,8 +45,6 @@ class StaffOrderController extends Controller
     }
     public function filter(Request $request)
     {
-        \Log::info($request->all()); // 👈 Log ra để kiểm tra
-
         $query = HoaDon::query();
 
         if (Auth::guard('staff')->check()) {
@@ -80,8 +78,6 @@ class StaffOrderController extends Controller
 
         return view('staffs.orders._order_tbody', compact('orders'))->render();
     }
-
-
     public function detail($id)
     {
         $order = HoaDon::with(['khachHang', 'chiTietHoaDon','khuyenMai','giaoHang','lichSuHuyDonHang'])->where('ma_hoa_don',$id)->first();
@@ -169,9 +165,26 @@ class StaffOrderController extends Controller
                 'ma_nhan_vien' => $nhanVien->ma_nhan_vien,
             ]);
 
-            // Rollback nguyên liệu và voucher nếu đơn chưa xử lý
             if ($oldStatus < 2) {
                 $this->restoreIngredientsAndVoucher($order);
+                if ($oldStatus < 2) {
+                    $this->restoreIngredientsAndVoucher($order);
+
+                    if (
+                        $order->phuong_thuc_thanh_toan === 'NAPAS247' &&
+                        $order->trang_thai_thanh_toan === 1 &&
+                        $order->transaction &&
+                        $order->transaction->trang_thai === 'SUCCESS'
+                    ) {
+                        $order->update([
+                            'trang_thai_thanh_toan' => 2, // Đang hoàn tiền
+                        ]);
+
+                        $order->transaction->update([
+                            'trang_thai' => 'REFUNDING',
+                        ]);
+                    }
+                }
             }
 
             // Lưu lịch sử hủy đơn
@@ -179,7 +192,7 @@ class StaffOrderController extends Controller
             $lichSu->ma_hoa_don = $order->ma_hoa_don;
             $lichSu->ly_do_huy = $data['cancel_reason'];
             $lichSu->thoi_gian_huy = now();
-            $lichSu->ma_nhan_vien = $nhanVien->ma_nhan_vien;
+            $lichSu->nguoi_huy = 'NV - ' . $nhanVien->ho_ten_nhan_vien;
             $lichSu->save();
 
             // Nếu đơn có giao hàng thì cập nhật trạng thái giao hàng

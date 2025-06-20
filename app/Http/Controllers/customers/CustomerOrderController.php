@@ -63,15 +63,12 @@ class CustomerOrderController extends Controller
 
             (new StaffOrderController)->restoreIngredientsAndVoucher($order);
 
-            $maKhachHang = Auth::user()->khachHang->ma_khach_hang;
-
             $lichSu = new LichSuHuyDonHang();
             $lichSu->ma_hoa_don = $order->ma_hoa_don;
             $lichSu->ly_do_huy = $data['cancel_reason'];
             $lichSu->thoi_gian_huy = now();
-            if ($maKhachHang) {
-                $lichSu->ma_khach_hang = $maKhachHang;
-            }
+            $lichSu->nguoi_huy = 'KH - ' .$order->ten_khach_hang;
+            
             $lichSu->save();
 
             toastr()->success('Đã huỷ đơn hàng thành công');

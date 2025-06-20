@@ -173,6 +173,12 @@ class PayOSController extends Controller
 
                 Transactions::where('ma_hoa_don', $maHoaDon)->update([
                     'trang_thai' => 'success',
+                    'counter_account_bank_id' => $data['counterAccountBankId'] ?? null,
+                    'counter_account_bank_name' => $data['counterAccountBankName'] ?? null,
+                    'counter_account_name' => $data['counterAccountName'] ?? null,
+                    'counter_account_number' => $data['counterAccountNumber'] ?? null,
+                    'virtual_account_name' => $data['virtualAccountName'] ?? null,
+                    'virtual_account_number' => $data['virtualAccountNumber'] ?? null,
                 ]);
             }
 

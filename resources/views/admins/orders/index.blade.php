@@ -327,6 +327,67 @@ function showCancelReasonModal(orderId, newStatus, selectElement) {
     });
 }
 
+function showRefundModal(orderId, transaction) {
+    const accountName = transaction.counter_account_name || 'Không rõ';
+    const accountNumber = transaction.counter_account_number || 'Không rõ';
+    const bankId = transaction.counter_account_bank_id || '';
+
+    fetch("/data/vietnam-banks.json")
+        .then((res) => res.json())
+        .then((banks) => {
+            const bank = banks.find(b => String(b.atmBin) === String(bankId));
+            const bankName = bank 
+                ? `${bank.vn_name} - ${bank.shortName}` 
+                : `Mã ngân hàng: ${bankId}`;
+
+            Swal.fire({
+                title: 'Xử lý hoàn tiền',
+                html: `
+                    <p><strong>Mã đơn hàng:</strong> ${orderId}</p>
+                    <p><strong>Chủ tài khoản:</strong> ${accountName}</p>
+                    <p><strong>Số tài khoản:</strong> ${accountNumber}</p>
+                    <p><strong>Ngân hàng:</strong> ${bankName}</p>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Xác nhận hoàn tiền',
+                cancelButtonText: 'Hủy',
+                focusConfirm: false,
+            }).then(result => {
+                if (result.isConfirmed) {
+                    processRefund(orderId);
+                }
+            });
+        })
+        .catch((err) => {
+            console.error("Lỗi khi lấy danh sách ngân hàng:", err);
+            Swal.fire('Lỗi', 'Không thể lấy thông tin ngân hàng. Vui lòng thử lại sau.', 'error');
+        });
+}
+
+function processRefund(orderId) {
+    fetch(`/admin/orders/refund/${orderId}`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire('Thành công', data.message, 'success').then(() => {
+                location.reload();
+            });
+        } else {
+            Swal.fire('Lỗi', data.message, 'error');
+        }
+    })
+    .catch(err => {
+        console.error('Lỗi xử lý hoàn tiền:', err);
+        Swal.fire('Lỗi', 'Đã có lỗi xảy ra. Vui lòng thử lại sau.', 'error');
+    });
+}
+
 $(document).ready(function () {
     bindOrderStatusEvents(); // chạy khi DOM ready
 
