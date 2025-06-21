@@ -286,6 +286,8 @@ Route::prefix('admin/orders')->middleware(AdminMiddleware::class)->group(functio
     Route::post('/filter', [AdminOrderController::class, 'filter'])->name('admin.orders.filter');
     Route::post('/update-status', [AdminOrderController::class, 'updateStatusOrder'])->name('admin.orders.updateStatus');
     Route::post('/refund/{maHoaDon}', [AdminOrderController::class, 'manualRefund'])->name('admin.orders.refund');
+    Route::get('orders/{id}/export-pdf', [AdminOrderController::class, 'exportPDF'])->name('admin.orders.exportPDF');
+
 });
 
 //Route Admin Dashboard

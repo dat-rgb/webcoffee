@@ -72,7 +72,7 @@
     .status-5 { background-color: #dc3545; }  /* Đã hủy - đỏ */
     .status-default { background-color: #6c757d; } /* Không xác định - xám */
 </style>
-
+<a href="{{ route('admin.orders.exportPDF', $order->ma_hoa_don) }}" target="_blank" class="btn btn-danger">Xuất PDF</a>
 <div class="order-details">
     <div style="max-width: 700px; margin: 0 auto; font-family: Arial, sans-serif; line-height: 1.5; display: flex; gap: 30px; flex-wrap: wrap;">
         <!-- Cột trái -->
