@@ -76,7 +76,7 @@
                                         <div class="custom-error">{{ $message }}</div>
                                     @enderror
                                 </div>
-                                 <div class="form-group">
+                                <div class="form-group">
                                     <label for="dia_chi">Địa chỉ</label>
                                     <textarea name="dia_chi" class="form-control" id="dia_chi" rows="2">{{ old('dia_chi', $thongTinWebsite['dia_chi']) }}</textarea>
                                     @error('dia_chi')
