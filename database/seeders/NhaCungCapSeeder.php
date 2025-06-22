@@ -35,7 +35,21 @@ class NhaCungCapSeeder extends Seeder
                 'trang_thai' => 1
             ],
             //4
+            [
+                'ten_nha_cung_cap' => 'Highlands Coffee',
+                'dia_chi' => '', 
+                'so_dien_thoai' => '',
+                'mail' => 'customerservice@highlandscoffee.com.vn', 
+                'trang_thai' => 1
+            ],
             //5
+            [
+                'ten_nha_cung_cap' => 'Công ty CP Phúc Long',
+                'dia_chi' => 'Phòng 702, Tầng 7, Tòa nhà Central Plaza, số 17 Lê Duẩn, phường Bến Nghé, quận 1, Hồ Chí Minh', 
+                'so_dien_thoai' => '1900234518',
+                'mail' => 'csales@phuclong.masangroup.com', 
+                'trang_thai' => 1
+            ],
             //6
             //7
             //8

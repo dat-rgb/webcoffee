@@ -20,7 +20,8 @@ class NguyenLieuSeeder extends Seeder
                 'so_luong' => 1000,
                 'gia' => 455000,
                 'loai_nguyen_lieu' => 0,
-                'don_vi' => 'g/túi'
+                'don_vi' => 'g/túi',
+                'is_ban_duoc' => 1,
             ],
             //2
             [
@@ -31,7 +32,8 @@ class NguyenLieuSeeder extends Seeder
                 'so_luong' => 380,
                 'gia'=> 458006,
                 'loai_nguyen_lieu' => 0,
-                'don_vi' => 'g/hộp'
+                'don_vi' => 'g/hộp',
+                'is_ban_duoc' => 0,
             ],
             //3
             [
@@ -42,7 +44,8 @@ class NguyenLieuSeeder extends Seeder
                 'so_luong' => 1000,
                 'gia'=> 408240,
                 'loai_nguyen_lieu' => 0,
-                'don_vi' => 'ml/hộp'
+                'don_vi' => 'ml/hộp',
+                'is_ban_duoc' => 0,
             ],
             //4
             [
@@ -53,7 +56,8 @@ class NguyenLieuSeeder extends Seeder
                 'so_luong' => 1000,
                 'gia'=> 408240,
                 'loai_nguyen_lieu' => 0,
-                'don_vi' => 'ml/hộp'
+                'don_vi' => 'ml/hộp',
+                'is_ban_duoc' => 0,
             ],
             //5
             [
@@ -64,7 +68,8 @@ class NguyenLieuSeeder extends Seeder
                 'so_luong' => 1000,
                 'gia'=> 408262,
                 'loai_nguyen_lieu' => 0,
-                'don_vi' => 'ml/hộp'
+                'don_vi' => 'ml/hộp',
+                'is_ban_duoc' => 0,
             ],
             //6
             [
@@ -75,7 +80,8 @@ class NguyenLieuSeeder extends Seeder
                 'so_luong' => 6000,
                 'gia'=> 145000,
                 'loai_nguyen_lieu' => 0,
-                'don_vi' => 'g/chai'
+                'don_vi' => 'g/chai',
+                'is_ban_duoc' => 0,
             ],
             //7
             [
@@ -86,7 +92,8 @@ class NguyenLieuSeeder extends Seeder
                 'so_luong' => 1000,
                 'gia'=> 65000,
                 'loai_nguyen_lieu' => 0,
-                'don_vi' => 'g/túi'
+                'don_vi' => 'g/túi',
+                'is_ban_duoc' => 0,
             ],
             //8
             [
@@ -97,18 +104,20 @@ class NguyenLieuSeeder extends Seeder
                 'so_luong' => 907,
                 'gia'=> 80000,
                 'loai_nguyen_lieu' => 0,
-                'don_vi' => 'g/hộp'
+                'don_vi' => 'g/hộp',
+                'is_ban_duoc' => 0,
             ],
             //9
             [
                 'ma_nguyen_lieu' => 'NL00000009',
                 'ten_nguyen_lieu' => 'TRÀ ĐEN PHÚC LONG 500G',
                 'slug' => Str::slug('TRÀ ĐEN PHÚC LONG 500G'),
-                'ma_nha_cung_cap' => 3,
+                'ma_nha_cung_cap' => 5,
                 'so_luong' => 500,
                 'gia'=> 105000,
                 'loai_nguyen_lieu' => 0,
-                'don_vi' => 'g/túi'
+                'don_vi' => 'g/túi',
+                'is_ban_duoc' => 1,
             ],
             //10
             [
@@ -119,7 +128,8 @@ class NguyenLieuSeeder extends Seeder
                 'so_luong' => 480,
                 'gia'=> 65000,
                 'loai_nguyen_lieu' => 0,
-                'don_vi' => 'g/hộp'
+                'don_vi' => 'g/hộp',
+                'is_ban_duoc' => 0,
             ],
             //11
             [
@@ -130,7 +140,8 @@ class NguyenLieuSeeder extends Seeder
                 'so_luong' => 230,
                 'gia'=> 51000,
                 'loai_nguyen_lieu' => 0,
-                'don_vi' => 'g/hộp'
+                'don_vi' => 'g/hộp',
+                'is_ban_duoc' => 0,
             ],
             //12
             [
@@ -141,7 +152,8 @@ class NguyenLieuSeeder extends Seeder
                 'so_luong' => 2250,
                 'gia'=> 200000,
                 'loai_nguyen_lieu' => 0,
-                'don_vi' => 'ml/chai'
+                'don_vi' => 'ml/chai',
+                'is_ban_duoc' => 0,
             ],
             //13
             [
@@ -152,7 +164,8 @@ class NguyenLieuSeeder extends Seeder
                 'so_luong' => 1300,
                 'gia'=> 205000,
                 'loai_nguyen_lieu' => 0,
-                'don_vi' => 'ml/chai'
+                'don_vi' => 'ml/chai',
+                'is_ban_duoc' => 0,
             ],
             //14 LY NHỰA PET NẮP CẦU 350ML/ THÙNG (1000 LY)	1.020.000 ₫	Thùng 1000ly
             [
@@ -163,7 +176,8 @@ class NguyenLieuSeeder extends Seeder
                 'so_luong' => 1000,
                 'gia'=> 1020000,
                 'loai_nguyen_lieu' => 1,
-                'don_vi' => 'ly/thùng'
+                'don_vi' => 'ly/thùng',
+                'is_ban_duoc' => 0,
             ],
             //15 LY NHỰA PET NẮP CẦU 500ML/ THÙNG (1000 LY)	1.070.000 ₫	Thùng 1000ly
             [
@@ -174,7 +188,8 @@ class NguyenLieuSeeder extends Seeder
                 'so_luong' => 1000,
                 'gia'=> 1070000,
                 'loai_nguyen_lieu' => 1,
-                'don_vi' => 'ly/thùng'
+                'don_vi' => 'ly/thùng',
+                'is_ban_duoc' => 0,
             ],
             //16 LY NHỰA PET NẮP CẦU 700ML/ THÙNG (1000 LY)	1.400.000 ₫	Thùng 1000ly
             [
@@ -185,7 +200,8 @@ class NguyenLieuSeeder extends Seeder
                 'so_luong' => 1000,
                 'gia'=> 1400000,
                 'loai_nguyen_lieu' => 1,
-                'don_vi' => 'ly/thùng'
+                'don_vi' => 'ly/thùng',
+                'is_ban_duoc' => 0,
             ],
             //17 Ly giấy 12oz - 360ml	753.000 ₫	Thùng 1000ly
             [
@@ -196,7 +212,8 @@ class NguyenLieuSeeder extends Seeder
                 'so_luong' => 1000,
                 'gia'=> 753000,
                 'loai_nguyen_lieu' => 1,
-                'don_vi' => 'ly/thùng'
+                'don_vi' => 'ly/thùng',
+                'is_ban_duoc' => 0,
             ],
             //18 Cà phê rang PHA MÁY gói 1000G 430.000 đ
             [
@@ -207,11 +224,45 @@ class NguyenLieuSeeder extends Seeder
                 'so_luong' => 1000,
                 'gia'=> 438000,
                 'loai_nguyen_lieu' => 1,
-                'don_vi' => 'g/gói'
+                'don_vi' => 'g/gói',
+                'is_ban_duoc' => 0,
             ],
-            //19
+            //19 Cà Phê Hòa Tan 3 trong 1 (50 gói)
+            [
+                'ma_nguyen_lieu' => 'NL00000019',
+                'ten_nguyen_lieu' => 'Cà Phê Hòa Tan 3 trong 1 (50 gói)',
+                'slug' => Str::slug('Cà Phê Hòa Tan 3 trong 1 (50 gói)'),
+                'ma_nha_cung_cap' => 4,
+                'so_luong' => 50,
+                'gia'=> 179000,
+                'loai_nguyen_lieu' => 0,
+                'don_vi' => 'gói/túi',
+                'is_ban_duoc' => 1,
+            ],
             //20
+            [
+                'ma_nguyen_lieu' => 'NL00000020',
+                'ten_nguyen_lieu' => 'Cà Phê Hòa Tan 3 trong 1 (20 gói)',
+                'slug' => Str::slug('Cà Phê Hòa Tan 3 trong 1 (20 gói)'),
+                'ma_nha_cung_cap' => 4,
+                'so_luong' => 20,
+                'gia'=> 75000,
+                'loai_nguyen_lieu' => 2,
+                'don_vi' => 'gói/hộp',
+                'is_ban_duoc' => 1,
+            ],
             //21
+            [
+                'ma_nguyen_lieu' => 'NL00000021',
+                'ten_nguyen_lieu' => 'Trà lài hộp giấy 150g',
+                'slug' => Str::slug('Trà lài hộp giấy 150g'),
+                'ma_nha_cung_cap' => 5,
+                'so_luong' => 20,
+                'gia'=> 75000,
+                'loai_nguyen_lieu' => 0,
+                'don_vi' => 'g/hộp',
+                'is_ban_duoc' => 1,
+            ],
             //22
             //23
             //24

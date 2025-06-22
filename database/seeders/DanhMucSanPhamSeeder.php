@@ -89,15 +89,25 @@ class DanhMucSanPhamSeeder extends Seeder
                 'thu_tu' => 5,
                 'mo_ta' => 'Trà trái cây tươi mát',
             ],
-            //7
+            //8
             [
-                'ten_danh_muc' => 'Sản phẩm đóng gói',
-                'slug' => Str::slug('Sản phẩm đóng gói'),
-                'anh_dai_dien' => 'ca-phe-sua.jpg',
-                'danh_muc_cha_id' => null, 
+                'ten_danh_muc' => 'Cà phê tại nhà',
+                'slug' => Str::slug('Cà phê tại nhà'),
+                'anh_dai_dien' => 'ca-phe-tai-nha.jpg',
+                'danh_muc_cha_id' => 1, //Thuộc danh mục cà phê
                 'trang_thai' => 1,
-                'thu_tu' => 5,
-                'mo_ta' => 'Sản phẩm đóng gói',
+                'thu_tu' => 1,
+                'mo_ta' => 'Cà phê đóng gói nguyên chất, tiện lợi pha chế tại nhà với hương vị đậm đà, chuẩn gu Việt. Phù hợp cho cả pha phin và pha máy.',
+            ],
+            //9
+            [
+                'ten_danh_muc' => 'Trà tại nhà',
+                'slug' => Str::slug('Trà tại nhà'),
+                'anh_dai_dien' => 'tra-tai-nha.jpg',
+                'danh_muc_cha_id' => 2, //Thuộc danh mục trà
+                'trang_thai' => 1,
+                'thu_tu' => 1,
+                'mo_ta' => 'Trà túi lọc và trà lá đóng gói tiện lợi, dễ pha tại nhà. Hương thơm tự nhiên, vị thanh mát, thích hợp cho cả uống nóng và lạnh.',
             ],
         ];
         DB::table('danh_muc_san_phams')->insert($categories);
