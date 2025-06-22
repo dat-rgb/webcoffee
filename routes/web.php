@@ -166,7 +166,6 @@ Route::get('api/dia-chi', [CustomerController::class, 'getDiaChi'])->name('api.d
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //auth adim & staff
-
 Route::prefix('auth')->group(function(){
     Route::get('/login',[AdminLoginController::class,'showLoginForm'])->name('admin.login.show');
     Route::post('/login',[AdminLoginController::class,'login'])->name('admin.login');
@@ -177,12 +176,12 @@ Route::prefix('auth')->group(function(){
 //Route Admin home
 Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function(){
     Route::get('/', [AdminDashboardController::class, 'index'])->name('admin');
-    Route::get('/thong-tin-website',[AdminHomeController::class,'thongTinWebsite'])->name('admin.thongTinWebSite');
-    Route::put('/thong-tin-website/update',[AdminHomeController::class, 'updateThongTinWebsite'])->name('admin.thong_tin_website.update');
-    Route::get('/banners',[AdminHomeController::class,'banners'])->name('admin.banner.show');
-    Route::post('/banners/{id}', [AdminHomeController::class, 'destroy'])->name('admin.banners.destroy');
-    Route::post('/admin/banners', [AdminHomeController::class, 'store'])->name('admin.banners.store');
-    Route::post('/admin/banners/update-group/{position}', [AdminHomeController::class, 'updateGroup'])->name('admin.banners.updateGroup');
+    Route::get('/thong-tin-website',[AdminHomeController::class,'thongTinWebsite'])->name('admin.home.thongTinWebSite');
+    Route::put('/thong-tin-website/update',[AdminHomeController::class, 'updateThongTinWebsite'])->name('admin.home.thong_tin_website.update');
+    Route::get('/banners',[AdminHomeController::class,'banners'])->name('admin.home.banner.show');
+    Route::post('/banners/{id}', [AdminHomeController::class, 'destroy'])->name('admin.home.banners.destroy');
+    Route::post('/admin/banners', [AdminHomeController::class, 'store'])->name('admin.home.banners.store');
+    Route::post('/admin/banners/update-group/{position}', [AdminHomeController::class, 'updateGroup'])->name('admin.home.banners.updateGroup');
 });
 //Route Products Admin
 Route::prefix('admin/products')->middleware(AdminMiddleware::class)->group(function(){

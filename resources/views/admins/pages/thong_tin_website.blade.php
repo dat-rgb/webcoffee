@@ -30,11 +30,11 @@
                 <i class="icon-arrow-right"></i>
             </li>
             <li class="nav-item">
-                <a href="{{ route('admin.thongTinWebSite') }}">{{ $subtitle }}</a>
+                <a href="{{ route('admin.home.thongTinWebSite') }}">{{ $subtitle }}</a>
             </li>
         </ul>
     </div>
-    <form id="thongTinWebsite-edit-form" method="POST" enctype="multipart/form-data" action="{{ route('admin.thong_tin_website.update') }}">
+    <form id="thongTinWebsite-edit-form" method="POST" enctype="multipart/form-data" action="{{ route('admin.home.thong_tin_website.update') }}">
         @csrf
         @method('PUT')
         <div class="row">

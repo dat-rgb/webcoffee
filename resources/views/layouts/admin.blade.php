@@ -39,6 +39,7 @@
   <body>
     <div class="wrapper">
         @php
+          $isHomeActive = request()->routeIs('admin.home.*');
           $isOrderActive = request()->routeIs('admin.orders.*');
           $isProductActive = request()->routeIs('admin.products.*');
           $isCategoryActive = request()->routeIs('admins.category.*');
@@ -90,14 +91,24 @@
                   aria-expanded="false"
                 >
                   <i class="fas fa-home"></i>
-                  <p>Dashboard</p>
+                  <p>Home</p>
                   <span class="caret"></span>
                 </a>
-                <div class="collapse" id="dashboard">
+                <div class="collapse {{ $isHomeActive ? 'show' : '' }}" id="dashboard">
                   <ul class="nav nav-collapse">
                     <li>
                       <a href="{{ route('admin.dashboard') }}">
                         <span class="sub-item">Dashboard</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="{{ route('admin.home.thongTinWebSite') }}">
+                        <span class="sub-item">Thông tin website</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="{{ route('admin.home.banner.show') }}">
+                        <span class="sub-item">Banners</span>
                       </a>
                     </li>
                   </ul>
@@ -348,21 +359,6 @@
                                 <span class="sub-item">Danh sách nhân viên nghỉ việc</span>
                             </a>
                           </li>
-                        </ul>
-                      </div>
-                    </li>
-                    <li>
-                      <a data-bs-toggle="collapse" href="#subnav2">
-                        <span class="sub-item">Cài đặc chung</span>
-                        <span class="caret"></span>
-                      </a>
-                      <div class="collapse {{ $isThongTinWebsite ? 'show' : ''}}" id="subnav2">
-                        <ul class="nav nav-collapse subnav">
-                          <li>
-                            <a href="{{ route('admin.thongTinWebSite') }}">
-                                <span class="sub-item">Thông tin website</span>
-                            </a>
-                            </li>
                         </ul>
                       </div>
                     </li>

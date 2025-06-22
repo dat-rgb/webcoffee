@@ -30,14 +30,14 @@
                 <i class="icon-arrow-right"></i>
             </li>
             <li class="nav-item">
-                <a href="{{ route('admin.banner.show') }}">{{ $subtitle }}</a>
+                <a href="{{ route('admin.home.banner.show') }}">{{ $subtitle }}</a>
             </li>
         </ul>
     </div>
     <div class="row">
         <div class="col-md-12">
             @foreach($banners as $position => $group)
-                <form action="{{ route('admin.banners.updateGroup', $position) }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('admin.home.banners.updateGroup', $position) }}" method="POST" enctype="multipart/form-data">
                     <div class="card">
                         <div class="card-body">
                             <div class="row">
@@ -48,7 +48,7 @@
                                 @foreach($group as $banner)
                                     <div class="col-md-6 col-lg-3">
                                         <!-- Nút Xóa -->
-                                        <form action="{{ route('admin.banners.destroy', $banner->id) }}" method="POST" class="form-delete-banner d-inline">
+                                        <form action="{{ route('admin.home.banners.destroy', $banner->id) }}" method="POST" class="form-delete-banner d-inline">
                                             @csrf
                                             <button type="submit" class="btn p-0 border-0 bg-transparent" title="Xóa banner">
                                                 <i class="fas fa-trash-alt text-danger"></i>
@@ -127,7 +127,7 @@
             <div class="modal fade" id="addBannerModal" tabindex="-1" aria-labelledby="addBannerModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content">
-                <form action="{{ route('admin.banners.store') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('admin.home.banners.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-header">
                     <h5 class="modal-title fw-bold" id="addBannerModalLabel">Thêm banner mới</h5>
@@ -221,7 +221,6 @@ document.querySelectorAll('.btn-confirm-update').forEach(button => {
             cancelButtonColor: '#aaa',
         }).then((result) => {
             if (result.isConfirmed) {
-                // Gửi form cha của nút này
                 this.closest('form').submit();
             }
         });
