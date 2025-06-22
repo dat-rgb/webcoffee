@@ -362,66 +362,40 @@ class AdminProductController extends Controller
             'don_vis' => 'required|array',
         ]);
 
-        $productId = $request->input('ma_san_pham');
-        $sizes = $request->input('sizes');
-
-        $updatedCount = 0;
-        $insertedCount = 0;
+        $productId = $request->ma_san_pham;
+        $selectedSizes = $request->sizes;
 
         try {
-            foreach ($sizes as $size) {
+            // Xóa tất cả thành phần cũ của sản phẩm
+            ThanhPhanSanPham::where('ma_san_pham', $productId)->delete();
+
+            $total = 0;
+
+            foreach ($selectedSizes as $size) {
                 $ings = $request->input("ingredients.$size", []);
                 $dls = $request->input("dinh_luongs.$size", []);
                 $dvs = $request->input("don_vis.$size", []);
 
-                foreach ($ings as $index => $ingredientId) {
-                    $quantity = $dls[$index] ?? null;
-                    $unit = $dvs[$index] ?? null;
+                foreach ($ings as $i => $ingredientId) {
+                    $dl = $dls[$i] ?? null;
+                    $dv = $dvs[$i] ?? null;
 
-                    if ($ingredientId && $quantity && $unit) {
-                        // Kiểm tra nếu đã tồn tại thì cập nhật
-                        $existing = ThanhPhanSanPham::where([
-                            ['ma_san_pham', '=', $productId],
-                            ['ma_size', '=', $size],
-                            ['ma_nguyen_lieu', '=', $ingredientId],
-                        ])->first();
-
-                        if ($existing) {
-                            $existing->update([
-                                'dinh_luong' => $quantity,
-                                'don_vi' => $unit,
-                            ]);
-                            $updatedCount++;
-                        } else {
-                            // Chưa có thì thêm mới
-                            ThanhPhanSanPham::create([
-                                'ma_san_pham' => $productId,
-                                'ma_size' => $size,
-                                'ma_nguyen_lieu' => $ingredientId,
-                                'dinh_luong' => $quantity,
-                                'don_vi' => $unit,
-                            ]);
-                            $insertedCount++;
-                        }
+                    if ($ingredientId && $dl && $dv) {
+                        ThanhPhanSanPham::create([
+                            'ma_san_pham' => $productId,
+                            'ma_size' => $size,
+                            'ma_nguyen_lieu' => $ingredientId,
+                            'dinh_luong' => $dl,
+                            'don_vi' => $dv,
+                        ]);
+                        $total++;
                     }
                 }
             }
 
-            // Gửi thông báo
-            if ($updatedCount > 0) {
-                toastr()->success("Đã cập nhật $updatedCount nguyên liệu.");
-            }
-
-            if ($insertedCount > 0) {
-                toastr()->info("Đã thêm mới $insertedCount nguyên liệu.");
-            }
-
-            if ($updatedCount == 0 && $insertedCount == 0) {
-                toastr()->warning('Không có dữ liệu nào được thay đổi.');
-            }
-
+            toastr()->success("Đã lưu $total nguyên liệu thành công.");
         } catch (\Exception $e) {
-            toastr()->error('Đã xảy ra lỗi: ' . $e->getMessage());
+            toastr()->error("Lỗi: " . $e->getMessage());
         }
 
         return redirect()->route('admin.products.list');
@@ -487,12 +461,17 @@ class AdminProductController extends Controller
     }
     //show form cập nhật
     public function showProductEdit($proId) {
-        $product = SanPham::where('ma_san_pham', $proId)->first();
+        $product = SanPham::with('thanhPhans')->where('ma_san_pham', $proId)->first();
+        $ingredients = NguyenLieu::where('is_ban_duoc',1)->where('trang_thai',1)->get();
         if (!$product) {
             toastr()->error('Không tìm thấy sản phẩm.');
             return redirect()->back();
         }
+        $thanhPhans = collect();
 
+        if ($product->loai_san_pham == 1) {
+            $thanhPhans = ThanhPhanSanPham::where('ma_san_pham', $product->ma_san_pham)->get();
+        }
         // Lấy danh mục để select trong form
         $categorys = $this->getCategory();
 
@@ -500,6 +479,8 @@ class AdminProductController extends Controller
             'title' => 'Chỉnh sửa sản phẩm ' . $product->ma_san_pham . ' | CMDT Coffee & Tea',
             'subtitle' => 'Chỉnh sửa sản phẩm ' . $product->ma_san_pham,
             'product' => $product,
+            'ingredients' => $ingredients,
+            'thanhPhans' => $thanhPhans,
             'categorys' => $categorys
         ];
 
@@ -515,7 +496,6 @@ class AdminProductController extends Controller
         }
 
         $request->validate([
-            // Bỏ qua id hiện tại khi check unique ma_san_pham
             'ma_san_pham' => 'required|string|size:10|unique:san_phams,ma_san_pham,' . $product->id,
             'ten_san_pham' => 'required|string|max:255|min:2',
             'ma_danh_muc' => 'required',
@@ -570,8 +550,6 @@ class AdminProductController extends Controller
         $product->mo_ta = $request->mo_ta;
         $product->hot = $request->hot;
         $product->is_new = $request->is_new;
-        $product->san_pham_dong_goi = $request->san_pham_dong_goi;
-
         $product->save();
 
         toastr()->success('Cập nhật sản phẩm thành công.');

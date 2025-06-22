@@ -166,7 +166,6 @@ Route::get('api/dia-chi', [CustomerController::class, 'getDiaChi'])->name('api.d
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //auth adim & staff
-
 Route::prefix('auth')->group(function(){
     Route::get('/login',[AdminLoginController::class,'showLoginForm'])->name('admin.login.show');
     Route::post('/login',[AdminLoginController::class,'login'])->name('admin.login');
@@ -177,8 +176,12 @@ Route::prefix('auth')->group(function(){
 //Route Admin home
 Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function(){
     Route::get('/', [AdminDashboardController::class, 'index'])->name('admin');
-    Route::get('/thong-tin-website',[AdminHomeController::class,'thongTinWebsite'])->name('admin.thongTinWebSite');
-    Route::put('/thong-tin-website/update',[AdminHomeController::class, 'updateThongTinWebsite'])->name('admin.thong_tin_website.update');
+    Route::get('/thong-tin-website',[AdminHomeController::class,'thongTinWebsite'])->name('admin.home.thongTinWebSite');
+    Route::put('/thong-tin-website/update',[AdminHomeController::class, 'updateThongTinWebsite'])->name('admin.home.thong_tin_website.update');
+    Route::get('/banners',[AdminHomeController::class,'banners'])->name('admin.home.banner.show');
+    Route::post('/banners/{id}', [AdminHomeController::class, 'destroy'])->name('admin.home.banners.destroy');
+    Route::post('/admin/banners', [AdminHomeController::class, 'store'])->name('admin.home.banners.store');
+    Route::post('/admin/banners/update-group/{position}', [AdminHomeController::class, 'updateGroup'])->name('admin.home.banners.updateGroup');
 });
 //Route Products Admin
 Route::prefix('admin/products')->middleware(AdminMiddleware::class)->group(function(){
@@ -288,6 +291,8 @@ Route::prefix('admin/orders')->middleware(AdminMiddleware::class)->group(functio
     Route::post('/filter', [AdminOrderController::class, 'filter'])->name('admin.orders.filter');
     Route::post('/update-status', [AdminOrderController::class, 'updateStatusOrder'])->name('admin.orders.updateStatus');
     Route::post('/refund/{maHoaDon}', [AdminOrderController::class, 'manualRefund'])->name('admin.orders.refund');
+    Route::get('orders/{id}/export-pdf', [AdminOrderController::class, 'exportPDF'])->name('admin.orders.exportPDF');
+
 });
 
 //Route Admin Dashboard
@@ -343,7 +348,6 @@ Route::prefix('/admin/store')->middleware(AdminMiddleware::class)->group(functio
 Route::prefix('admin/contact')->middleware(AdminMiddleware::class)->group(function(){
     Route::get('/',[ContactController::class,'showListContact'])->name('admin.contact.list');
     Route::post('/reply', [ContactController::class, 'sendMailContact'])->name('admin.contact.reply');
-
 });
 
 //End - Admin

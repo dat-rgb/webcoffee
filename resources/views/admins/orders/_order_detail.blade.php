@@ -72,7 +72,13 @@
     .status-5 { background-color: #dc3545; }  /* Đã hủy - đỏ */
     .status-default { background-color: #6c757d; } /* Không xác định - xám */
 </style>
-
+@if(in_array($order->trang_thai, [4, 5]))
+    <a href="{{ route('admin.orders.exportPDF', $order->ma_hoa_don) }}" target="_blank" 
+       class="btn btn-outline-danger btn-sm d-inline-flex align-items-center" 
+       style="gap: 6px;">
+        <i class="fa fa-file-pdf-o" aria-hidden="true"></i> Xuất PDF
+    </a>
+@endif
 <div class="order-details">
     <div style="max-width: 700px; margin: 0 auto; font-family: Arial, sans-serif; line-height: 1.5; display: flex; gap: 30px; flex-wrap: wrap;">
         <!-- Cột trái -->

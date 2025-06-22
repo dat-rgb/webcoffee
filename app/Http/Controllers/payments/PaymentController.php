@@ -122,12 +122,11 @@ class PaymentController extends Controller
             $address = session('selected_store_name').' - '.session('selected_store_dia_chi');
         }
         if ($validated['shippingMethod'] == 'delivery') {
-
+            $address = $request->ten_duong . ', ' . $request->wardName . ', ' . $request->districtName . ', ' . $request->provinceName;
             if (!$address || strlen(trim($address)) < 5) {
                 toastr()->error('Địa chỉ giao hàng không hợp lệ.');
                 return redirect()->back();
             }
-            $address = $request->ten_duong . ', ' . $request->wardName . ', ' . $request->districtName . ', ' . $request->provinceName;
             $check = $this->checkAddress($address);
             //dd($check);
             if (!$check['success']) {
@@ -511,7 +510,6 @@ class PaymentController extends Controller
             'address' => $address 
         ];
     }
-
     public function sendEmail($order_id, $name, $email, $phone, $shippingMethod, $paymentMethod, $status, $statusPayment, $address, $cartItems, $tamTinh, $giamGia, $tienShip, $tongTien, $token)
     {
         try {

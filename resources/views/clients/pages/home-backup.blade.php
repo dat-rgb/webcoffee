@@ -1,36 +1,43 @@
 @extends('layouts.app')
 @section('title', $title)
+
 @push('styles')
 <style>
     .hero-bg {
+        background-image: url('{{ asset('storage/home/h6.jpg') }}');          
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
     }
+    .abt-bg {
+        background-image: url('{{ asset('storage/home/h7.jpg') }}');
+    }
+    .homepage-bg-1 {
+        background-image: url('{{ asset('storage/home/h8.jpg') }}');
+    }
+
+    .homepage-bg-2 {
+        background-image: url('{{ asset('storage/home/h9.jpg') }}');
+    }
+
+    .homepage-bg-3 {
+        background-image: url('{{ asset('storage/home/h6.jpg') }}');
+    }
 </style>
 @endpush
 @section('content')
+<!-- 1 ảnh -->
 <!-- hero area -->
-@if (!empty($banners['top_banner']) && $banners['top_banner']->first())
-@php
-    $hero = $banners['top_banner']->first();
-@endphp
-<div class="hero-area" style="background-image: url('{{ asset('storage/' . $hero->hinh_anh) }}'); background-size: cover; background-position: center; background-attachment: fixed;">
+<div class="hero-area hero-bg">
     <div class="container">
         <div class="row">
             <div class="col-lg-9 offset-lg-2 text-center">
                 <div class="hero-text">
                     <div class="hero-text-tablecell">
-                        @if ($hero->tieu_de)
-                            <p class="subtitle">{{ $hero->tieu_de }}</p>
-                        @endif
-                        @if ($hero->noi_dung)
-                            <h1>{{ $hero->noi_dung }}</h1>
-                        @endif
+                    <p class="subtitle">CDMT Coffee & Tea</p>
+                        <h1>Thức uống thơm ngon  Đậm vị riêng</h1>
                         <div class="hero-btns">
-                            @if ($hero->link_dich)
-                                <a href="{{ $hero->link_dich }}" class="boxed-btn">Khám phá menu</a>
-                            @endif
+                            <a href="{{ route('product') }}" class="boxed-btn">Khám phá menu</a>
                             <a href="{{ route('contact') }}" class="bordered-btn">Liên hệ với chúng tôi</a>
                         </div>
                     </div>
@@ -39,8 +46,6 @@
         </div>
     </div>
 </div>
-@endif
-<!-- end hero area -->
 <!-- start product hot -->
 <div class="product-section mt-150 mb-150">
     <div class="container">
@@ -85,38 +90,70 @@
     </div>
 </div>
 <!-- end product hot -->
+
 <!-- home page slider -->
-@if (!empty($banners['main_slider']))
+<!--  3 ảnh -->
 <div class="homepage-slider">
-    @foreach ($banners['main_slider'] as $slider)
-        <div class="single-homepage-slider" style="background-image: url('{{ asset('storage/' . $slider->hinh_anh) }}'); background-size: cover; background-position: center;">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-10 {{ $loop->index === 0 ? 'offset-lg-1 text-left' : ($loop->index === 1 ? 'offset-lg-1 text-center' : 'offset-lg-1 text-right') }}">
-                        <div class="hero-text">
-                            <div class="hero-text-tablecell">
-                                @if ($slider->tieu_de)
-                                    <p class="subtitle">{{ $slider->tieu_de }}</p>
-                                @endif
-                                @if ($slider->noi_dung)
-                                    <h1>{{ $slider->noi_dung }}</h1>
-                                @endif
-                                <div class="hero-btns">
-                                    @if ($slider->link_dich)
-                                        <a href="{{ $slider->link_dich }}" class="boxed-btn">Xem thêm</a>
-                                    @endif
-                                    <a href="{{ route('contact') }}" class="bordered-btn">Liên hệ với chúng tôi</a>
-                                </div>
+    <!-- single home slider -->
+    <div class="single-homepage-slider homepage-bg-1">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 col-lg-7 offset-lg-1 offset-xl-0">
+                    <div class="hero-text">
+                        <div class="hero-text-tablecell">
+                            <p class="subtitle">Không gian đậm chất Coffee & Tea</p>
+                            <h1>Thư giãn trong không gian ấm cúng & hiện đại</h1>
+                            <div class="hero-btns">
+                                <a href="{{ route('product') }}" class="boxed-btn">Khám phá menu</a>
+                                <a href="{{ route('contact') }}" class="bordered-btn">Liên hệ với chúng tôi</a>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    @endforeach
+    </div>
+    <!-- single home slider -->
+    <div class="single-homepage-slider homepage-bg-2">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-10 offset-lg-1 text-center">
+                    <div class="hero-text">
+                        <div class="hero-text-tablecell">
+                            <p class="subtitle">Coffee & Tea</p>
+                            <h1>Cà phê nguyên chất 100% Đậm đà hương vị Việt</h1>
+                            <div class="hero-btns">
+                                <a href="{{ route('product.category.list', 'ca-phe') }}" class="boxed-btn">Khám phá ngay</a>
+                                <a href="{{ route('contact') }}" class="bordered-btn">Liên hệ với chúng tôi</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- single home slider -->
+    <div class="single-homepage-slider homepage-bg-3">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-10 offset-lg-1 text-right">
+                    <div class="hero-text">
+                        <div class="hero-text-tablecell">
+                            <p class="subtitle">Coffee & Tea</p>
+                            <h1>Khám phá thế giới Trà thơm mát</h1>
+                            <div class="hero-btns">
+                                <a href="{{ route('product.category.list', 'tra') }}" class="boxed-btn">Xem danh mục Trà</a>
+                                <a href="{{ route('contact') }}" class="bordered-btn">Liên hệ với chúng tôi</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-@endif
 <!-- end home page slider -->
+
 <!-- Tin tức nổi bật -->
 <div class="latest-news pt-150 pb-150">
     <div class="container">
@@ -157,23 +194,14 @@
 </div>
 <!-- end Tin tức nổi bật -->
 <!-- start about  -->
+<!-- 1 ảnh nền -->
 <div class="abt-section mb-150">
     <div class="container">
         <div class="row">
             <div class="col-lg-6 col-md-12">
-            @if(!empty($banners['about_section_bg']) && count($banners['about_section_bg']) > 0)
-                @php
-                    $aboutBg = $banners['about_section_bg'][0];
-                @endphp
-                <div class="abt-bg" style="background-image: url('{{ asset('storage/' . $aboutBg->hinh_anh) }}'); background-size: cover; background-position: center;">
-                    <a href="#" class="video-play-btn popup-youtube"><i class="fas fa-play"></i></a>
-                </div>
-            @else
                 <div class="abt-bg">
                     <a href="#" class="video-play-btn popup-youtube"><i class="fas fa-play"></i></a>
                 </div>
-            @endif
-
             </div>
             <div class="col-lg-6 col-md-12">
                 <div class="abt-text">
@@ -189,28 +217,30 @@
 </div>
 <!-- end about  -->
 <!-- logo carousel -->
-@if(!empty($banners['store_gallery']))
 <div class="logo-carousel-section">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
                 <div class="logo-carousel-inner">
-                    @foreach($banners['store_gallery'] as $item)
-                        <div class="single-logo-item">
-                            @if($item->link_dich)
-                                <a href="{{ $item->link_dich }}" target="_blank">
-                                    <img src="{{ asset('storage/' . $item->hinh_anh) }}" alt="{{ $item->tieu_de }}">
-                                </a>
-                            @else
-                                <img src="{{ asset('storage/' . $item->hinh_anh) }}" alt="{{ $item->tieu_de }}">
-                            @endif
-                        </div>
-                    @endforeach
+                    <div class="single-logo-item">
+                        <img src="{{ asset('storage/home/h1.jpg') }}" alt="">
+                    </div>
+                    <div class="single-logo-item">
+                        <img src="{{ asset('storage/home/h2.jpg') }}" alt="">
+                    </div>
+                    <div class="single-logo-item">
+                        <img src="{{ asset('storage/home/h3.jpg') }}" alt="">
+                    </div>
+                    <div class="single-logo-item">
+                        <img src="{{ asset('storage/home/h4.jpg') }}" alt="">
+                    </div>
+                    <div class="single-logo-item">
+                        <img src="{{ asset('storage/home/h5.jpg') }}" alt="">
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-@endif
 <!-- end logo carousel -->
 @endsection

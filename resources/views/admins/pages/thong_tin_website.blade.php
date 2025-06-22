@@ -30,11 +30,11 @@
                 <i class="icon-arrow-right"></i>
             </li>
             <li class="nav-item">
-                <a href="{{ route('admin.thongTinWebSite') }}">{{ $subtitle }}</a>
+                <a href="{{ route('admin.home.thongTinWebSite') }}">{{ $subtitle }}</a>
             </li>
         </ul>
     </div>
-    <form id="thongTinWebsite-edit-form" method="POST" enctype="multipart/form-data" action="{{ route('admin.thong_tin_website.update') }}">
+    <form id="thongTinWebsite-edit-form" method="POST" enctype="multipart/form-data" action="{{ route('admin.home.thong_tin_website.update') }}">
         @csrf
         @method('PUT')
         <div class="row">
@@ -76,7 +76,7 @@
                                         <div class="custom-error">{{ $message }}</div>
                                     @enderror
                                 </div>
-                                 <div class="form-group">
+                                <div class="form-group">
                                     <label for="dia_chi">Địa chỉ</label>
                                     <textarea name="dia_chi" class="form-control" id="dia_chi" rows="2">{{ old('dia_chi', $thongTinWebsite['dia_chi']) }}</textarea>
                                     @error('dia_chi')

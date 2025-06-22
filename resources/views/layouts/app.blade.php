@@ -283,6 +283,7 @@
 	<script src="{{ asset('js/cart.js') }}"></script>
 	<!--  -->
 	<script src="https://cdn.payos.vn/payos-checkout/v1/stable/payos-initialize.js"></script>
+	<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 	@stack('scripts')
 	<x-store-popup />
 	<script>
@@ -442,5 +443,6 @@
 			$('#store-modal').modal('hide');
 		}
 	</script>
+	<script lang="javascript">var __vnp = {code : 25338,key:'', secret : 'd3920272b894f48f2d92802d63fd3db2'};(function() {var ga = document.createElement('script');ga.type = 'text/javascript';ga.async=true; ga.defer=true;ga.src = '//core.vchat.vn/code/tracking.js?v=35925'; var s = document.getElementsByTagName('script');s[0].parentNode.insertBefore(ga, s[0]);})();</script>
 </body>
 </html>

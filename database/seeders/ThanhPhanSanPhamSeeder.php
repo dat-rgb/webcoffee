@@ -502,8 +502,8 @@ class ThanhPhanSanPhamSeeder extends Seeder
                 'dinh_luong' => 1,
                 'don_vi' => 'ly'
             ],
-             //14
-             [
+            //14
+            [
                 'ma_san_pham' => 'SP00000014',  
                 'ma_nguyen_lieu' => 'NL00000006',  // Nước đường
                 'ma_size' => 2,
@@ -531,7 +531,40 @@ class ThanhPhanSanPhamSeeder extends Seeder
                 'dinh_luong' => 1,
                 'don_vi' => 'ly'
             ],
-
+            //15
+            [
+                'ma_san_pham' => 'SP00000015',  
+                'ma_nguyen_lieu' => 'NL00000019',  
+                'ma_size' => null,
+                'dinh_luong' => 1,
+                'don_vi' => null
+            ],
+            //16
+            [
+                'ma_san_pham' => 'SP00000016',  
+                'ma_nguyen_lieu' => 'NL00000020',  
+                'ma_size' => null,
+                'dinh_luong' => 1,
+                'don_vi' => null
+            ],
+            //17
+            [
+                'ma_san_pham' => 'SP00000017',  
+                'ma_nguyen_lieu' => 'NL00000009',  
+                'ma_size' => null,
+                'dinh_luong' => 1,
+                'don_vi' => null
+            ],
+            //18
+            [
+                'ma_san_pham' => 'SP00000018',  
+                'ma_nguyen_lieu' => 'NL00000021',  
+                'ma_size' => null,
+                'dinh_luong' => 1,
+                'don_vi' => null
+            ],
+            //19
+            //...
         ];
         DB::table('thanh_phan_san_phams')->insert($data);
     }

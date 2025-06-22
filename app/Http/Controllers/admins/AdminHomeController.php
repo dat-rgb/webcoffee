@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\admins;
 
 use App\Http\Controllers\Controller;
+use App\Models\Banners;
 use App\Models\ThongTinWebsite;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class AdminHomeController extends Controller
 {
@@ -82,4 +84,113 @@ class AdminHomeController extends Controller
         toastr()->success('Cập nhật thông tin thành công!');
         return redirect()->back();
     }
+
+    public function banners(){
+        $banners = [
+            'top_banner' => Banners::where('vi_tri', 'top_banner')->get(),
+            'main_slider' => Banners::where('vi_tri', 'main_slider')->get(),
+            'about_section_bg' => Banners::where('vi_tri', 'about_section_bg')->get(),
+            'store_gallery' => Banners::where('vi_tri', 'store_gallery')->get(),
+        ];
+
+        $viewData = [
+            'title' => 'Banner website | CDMT Coffee & tea',
+            'subtitle' => 'Banner website',
+            'banners' => $banners,
+        ];
+        return view('admins.pages.banner_page', $viewData);
+    }
+    public function destroy($id)
+    {
+        $banner = Banners::findOrFail($id);
+
+        $countByPosition = Banners::where('vi_tri', $banner->vi_tri)->count();
+
+        $minLimits = [
+            'top_banner' => 1,
+            'about_section_bg' => 1,
+            'main_slider' => 3,
+            'store_gallery' => 5,
+        ];
+
+        if (isset($minLimits[$banner->vi_tri]) && $countByPosition <= $minLimits[$banner->vi_tri]) {
+            toastr()->error('Không thể xóa banner.');
+            return redirect()->back();
+        }
+
+        // Xóa ảnh nếu có
+        if ($banner->hinh_anh && Storage::disk('public')->exists($banner->hinh_anh)) {
+            Storage::disk('public')->delete($banner->hinh_anh);
+        }
+
+        // Lưu vị trí trước khi xóa
+        $viTri = $banner->vi_tri;
+
+        $banner->delete();
+
+        // Sau khi xóa, cập nhật lại thứ tự trong group đó
+        $banners = Banners::where('vi_tri', $viTri)->orderBy('thu_tu')->get();
+        foreach ($banners as $index => $item) {
+            $item->thu_tu = $index + 1;
+            $item->save();
+        }
+
+        toastr()->success('Đã xóa banner thành công.');
+        return redirect()->back();
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'vi_tri' => 'required|string',
+            'hinh_anh' => 'required|image',
+            'tieu_de' => 'nullable|string',
+            'sub_tieu_de' => 'nullable|string',
+            'link_dich' => 'nullable|string',
+        ]);
+
+        $path = $request->file('hinh_anh')->store('banners', 'public');
+
+        Banners::create([
+            'vi_tri' => $request->vi_tri,
+            'hinh_anh' => $path,
+            'tieu_de' => $request->tieu_de,
+            'sub_tieu_de' => $request->sub_tieu_de,
+            'link_dich' => $request->link_dich,
+            'thu_tu' => Banners::where('vi_tri', $request->vi_tri)->max('thu_tu') + 1,
+            'trang_thai' => 1
+        ]);
+        toastr()->success('Đã thêm banner thành công');
+        return redirect()->back();
+    }
+    public function updateGroup(Request $request, $position)
+    {
+        $banners = Banners::where('vi_tri', $position)->get();
+
+        foreach ($banners as $banner) {
+            $id = $banner->id;
+
+            // Cập nhật các trường
+            $banner->tieu_de = $request->input("tieu_de_$id");
+            $banner->noi_dung = $request->input("noi_dung_$id");
+            $banner->link_dich = $request->input("link_dich_$id");
+
+            // Cập nhật hình ảnh nếu có
+            if ($request->hasFile("hinh_anh_$id")) {
+                $file = $request->file("hinh_anh_$id");
+
+                if ($banner->hinh_anh && Storage::disk('public')->exists($banner->hinh_anh)) {
+                    Storage::disk('public')->delete($banner->hinh_anh);
+                }
+
+                $path = $file->store('banners', 'public');
+                $banner->hinh_anh = $path;
+            }
+
+            $banner->save();
+        }
+        toastr()->success('Đã cập nhật banner thành công');
+        return redirect()->back();
+    }
+
 }

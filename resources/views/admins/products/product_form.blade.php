@@ -125,7 +125,7 @@
                             <div class="col-md-6 col-lg-4">
                                 <div class="form-group">
                                     <label for="comment">Mô tả</label>
-                                    <textarea name="mo_ta" class="form-control" id="comment" rows="5">{{ old('mo_ta') }}</textarea>
+                                    <textarea name="mo_ta" class="form-control" id="mo_ta_from_nguyen_lieu" rows="5">{{ old('mo_ta') }}</textarea>
                                     @error('mo_ta')
                                         <div class="custom-error">{{ $message }}</div>
                                     @enderror
@@ -155,7 +155,7 @@
                     <!-- Hành động -->
                     <div class="card-action">
                         <button type="submit" class="btn btn-primary">Thêm</button> 
-                        <button class="btn btn-danger" onclick="window.history.back()">Hủy</button> 
+                        <a href="{{ route('admin.products.list') }}" class="btn btn-danger">Hủy</a> 
                     </div>
                 </div>
             </div>
@@ -235,7 +235,7 @@
                             <div class="col-md-6 col-lg-4">
                                 <div class="form-group">
                                     <label for="comment">Mô tả</label>
-                                    <textarea name="mo_ta" class="form-control" id="mo_ta_from_nguyen_lieu" rows="5"></textarea>
+                                    <textarea name="mo_ta" class="form-control" id="mo_ta_from_nguyen_lieu" rows="5">{{ old('mo_ta') }}</textarea>
                                     @error('mo_ta')
                                         <div class="custom-error">{{ $message }}</div>
                                     @enderror
@@ -277,7 +277,7 @@
                     <!-- Hành động -->
                     <div class="card-action">
                         <button type="submit" class="btn btn-primary">Thêm</button> 
-                        <button class="btn btn-danger" onclick="window.history.back()">Hủy</button> 
+                        <a href="{{ route('admin.products.list') }}" class="btn btn-danger">Hủy</a>
                     </div>
                 </div>
             </div>

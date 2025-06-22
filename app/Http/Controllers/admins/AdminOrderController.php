@@ -14,6 +14,8 @@ use App\Models\ThanhPhanSanPham;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Dompdf\Dompdf;
+use Barryvdh\DomPDF\Facade\Pdf; 
 
 class AdminOrderController extends Controller
 {
@@ -280,5 +282,24 @@ class AdminOrderController extends Controller
         }
 
         return response()->json(['success' => false, 'message' => 'Không thể hoàn tiền cho đơn hàng này.'], 400);
+    }
+
+    public function exportPDF($id)
+    {
+        $order = HoaDon::with([
+            'khachHang',
+            'chiTietHoaDon.sanPham',
+            'cuaHang',
+            'transaction',
+            'giaoHang',
+            'lichSuHuyDonHang'
+        ])->where('ma_hoa_don', $id)->first();
+
+        if (!$order) {
+            abort(404, 'Không tìm thấy hóa đơn');
+        }
+
+        $pdf = Pdf::loadView('exports.invoice', compact('order'))->setPaper('a4');
+        return $pdf->download('hoadon_' . $order->ma_hoa_don . '.pdf');
     }
 }

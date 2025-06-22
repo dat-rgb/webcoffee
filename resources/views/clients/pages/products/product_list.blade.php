@@ -85,7 +85,7 @@
                                 <img src="{{ $pro->hinh_anh ? asset('storage/' . $pro->hinh_anh) : asset('images/no_product_image.png') }}" alt="">
                             </a>
                         </div>
-                        <h3>{{ $pro->ten_san_pham }}</h3>
+                        <h5>{{ \Illuminate\Support\Str::limit($pro['ten_san_pham'], 20) }}</h5>
                         <a href="{{ route('product.detail',$pro->slug) }}" class="cart-btn"><i class="fas fa-shopping-cart"></i> Đặt mua</a>
                     </div>
                 </div>
@@ -170,7 +170,7 @@
                                     <img src="{{ isset($pro['anh_dai_dien']) && $pro['anh_dai_dien'] ? asset('storage/' . $pro['anh_dai_dien']) : asset('images/no_product_image.png') }}" alt="">
                                 </a>
                             </div>
-                            <h3>{{ $pro['ten_san_pham'] }}</h3>
+                            <h5>{{ \Illuminate\Support\Str::limit($pro['ten_san_pham'], 20) }}</h5>
                             <a href="{{ route('product.detail',$pro['slug']) }}" class="cart-btn"><i class="fas fa-shopping-cart"></i> Đặt mua</a>
                         </div>
                     </div>
