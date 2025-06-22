@@ -125,19 +125,39 @@
                                         </div>
                                     </div>
                                     <div class="row">
+                                        <div class="col-sm-12 col-md-5">
+                                            <div class="dataTables_info">
+                                                Hiển thị {{ $products->firstItem() }} đến {{ $products->lastItem() }} của {{ $products->total() }} sản phẩm
+                                            </div>
+                                        </div>
                                         <div class="col-sm-12 col-md-7">
-                                            <div class="dataTables_paginate paging_simple_numbers" id="add-row_paginate">
-                                                <ul class="pagination">
-                                                    {{ $products->appends(request()->query())->links() }}
+                                            <div class="dataTables_paginate paging_simple_numbers">
+                                                <ul class="pagination justify-content-end mb-0">
+                                                    {{-- Previous Page --}}
+                                                    <li class="paginate_button page-item {{ $products->onFirstPage() ? 'disabled' : '' }}">
+                                                        <a href="{{ $products->previousPageUrl() ?? '#' }}" class="page-link">Trước</a>
+                                                    </li>
+
+                                                    {{-- Page Numbers --}}
+                                                    @for ($i = 1; $i <= $products->lastPage(); $i++)
+                                                        <li class="paginate_button page-item {{ $products->currentPage() == $i ? 'active' : '' }}">
+                                                            <a href="{{ $products->url($i) }}" class="page-link">{{ $i }}</a>
+                                                        </li>
+                                                    @endfor
+
+                                                    {{-- Next Page --}}
+                                                    <li class="paginate_button page-item {{ !$products->hasMorePages() ? 'disabled' : '' }}">
+                                                        <a href="{{ $products->nextPageUrl() ?? '#' }}" class="page-link">Kế tiếp</a>
+                                                    </li>
                                                 </ul>
                                             </div>
                                         </div>
                                     </div>
-                                </div> <!-- end dataTables_wrapper -->
-                            </div> <!-- end table-responsive -->
-                        </div> <!-- end card-body -->   
+                                </div> 
+                            </div> 
+                        </div> 
                     @endif
-                </div> <!-- end card -->
+                </div>
             </div>
         </div>
     </div>

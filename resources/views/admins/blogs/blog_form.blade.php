@@ -43,6 +43,7 @@
     <form id="blog-form" method="POST" enctype="multipart/form-data" Actions="{{ route('admin.blog.add') }}">
         @csrf
         <div class="row">
+            <div class="col-md-12">
                 <!-- Thông tin Blog -->
                 <div class="card">
                     <div class="card-body">
@@ -72,7 +73,7 @@
                                     @enderror
                                 </div>
                             </div>
-                             <div class="col-md-6 col-lg-4">
+                                <div class="col-md-6 col-lg-4">
                                 <div class="form-group">
                                     <label for="ma_danh_muc">Danh mục Blog <span style="color: red;">*</span></label>
                                     <select class="form-select" name="ma_danh_muc" id="exampleFormControlSelect1">
@@ -134,11 +135,11 @@
                         </div>
                     </div>
                 </div>
-          
-            <!-- Hành động -->
-            <div class="card-action">
-                <button type="submit" class="btn btn-primary">Thêm</button> <!-- Nút chính -->
-                <button class="btn btn-danger" onclick="window.history.back()">Hủy</button> <!-- Thoát, không gây nhầm lẫn -->
+                <!-- Hành động -->
+                <div class="card-action">
+                    <button type="submit" class="btn btn-primary">Thêm</button> <!-- Nút chính -->
+                    <button class="btn btn-danger" onclick="window.history.back()">Hủy</button> <!-- Thoát, không gây nhầm lẫn -->
+                </div>
             </div>
         </div>
     </form>
@@ -192,8 +193,6 @@
         }
     });
 </script>
-
-
 <script src="{{ asset('admins/js/product-add.js') }}"></script>
 <script src="{{ asset('admins/js/blog-validate-add.js') }}"></script>
 @endpush

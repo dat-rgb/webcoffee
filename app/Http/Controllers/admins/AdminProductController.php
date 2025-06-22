@@ -69,6 +69,9 @@ class AdminProductController extends Controller
             search: $request->search,
             maDanhMuc: $request->ma_danh_muc
         );
+        if ($request->page > $products->lastPage()) {
+            return redirect()->route('admin.products.list', ['page' => $products->lastPage()]);
+        }
 
         $categories = $this->getCategory();
         $sizesMap = [];
@@ -90,6 +93,14 @@ class AdminProductController extends Controller
     public function listProductsHidden(Request $request){
         $search = $request->input('search');
         $products = $this->getProductsByStatus(2, $search);
+        if ($request->page > $products->lastPage()) {
+            return redirect()->route('admin.products.hidden.list', ['page' => $products->lastPage()]);
+        }
+
+        if ($request->page > $products->lastPage()) {
+            return redirect()->route('admin.products.list', ['page' => $products->lastPage()]);
+        }
+
         $categories = $this->getCategory();
         $sizesMap = [];
         foreach ($products as $pro) {
@@ -581,12 +592,14 @@ class AdminProductController extends Controller
         }
 
         $deletedProducts = $deletedProductsQuery->paginate(10);
-
+        if ($request->page > $deletedProducts->lastPage()) {
+            return redirect()->route('admin.products.list.delete', ['page' => $deletedProducts->lastPage()]);
+        }
         $viewData = [
             'title' => 'Quản lý sản phẩm | CDMT Coffee & Tea',
             'subtitle' => 'Danh sách sản phẩm đã xóa',
             'products' => $deletedProducts,
-            'search' => $search, // Để giữ giá trị input search trên view nếu cần
+            'search' => $search, 
         ];
 
         return view('admins.products.product_delete', $viewData);
