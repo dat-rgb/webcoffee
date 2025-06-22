@@ -283,6 +283,7 @@
 	<script src="{{ asset('js/cart.js') }}"></script>
 	<!--  -->
 	<script src="https://cdn.payos.vn/payos-checkout/v1/stable/payos-initialize.js"></script>
+	<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 	@stack('scripts')
 	<x-store-popup />
 	<script>

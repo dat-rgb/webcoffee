@@ -227,5 +227,4 @@ document.querySelectorAll('.btn-confirm-update').forEach(button => {
     });
 });
 </script>
-
 @endpush
