@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('slug',255)->unique();
             $table->string('sub_tieu_de',255)->nullable();
             $table->string('hinh_anh')->nullable();
-            $table->text('noi_dung');
+            $table->longText('noi_dung');
             $table->tinyInteger('trang_thai')->default(0);
             $table->unsignedBigInteger('luot_xem')->default(0);
             $table->string('tac_gia',255);

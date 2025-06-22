@@ -51,6 +51,7 @@
           $isBlogActive = request()->routeIs('admin.blog.*');
           $isNhanVienActive = request()->routeIs('admins.nhanvien.*');
           $isThongTinWebsite = request()->routeIs('admin.thongTinWebSite');
+          $isContact = request()->routeIs('admin.contact.*');
         @endphp
 
       <!-- Sidebar -->
@@ -328,6 +329,23 @@
                     <li>
                       <a href="{{ route('admin.blog.add') }}">
                           <span class="sub-item">Thêm blog</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+                {{-- Liên hệ --}}
+                <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#blog">
+                  <i class="fab fa-facebook-messenger"></i>
+                  <p>Liên hệ</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse {{  $isContact ? 'show' : '' }}" id="blog">
+                  <ul class="nav nav-collapse">
+                    <li>
+                      <a href="{{ route('admin.contact.list') }}">
+                        <span class="sub-item">Danh sách liên hệ</span>
                       </a>
                     </li>
                   </ul>

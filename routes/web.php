@@ -347,7 +347,6 @@ Route::prefix('/admin/store')->middleware(AdminMiddleware::class)->group(functio
 Route::prefix('admin/contact')->middleware(AdminMiddleware::class)->group(function(){
     Route::get('/',[ContactController::class,'showListContact'])->name('admin.contact.list');
     Route::post('/reply', [ContactController::class, 'sendMailContact'])->name('admin.contact.reply');
-
 });
 
 //End - Admin

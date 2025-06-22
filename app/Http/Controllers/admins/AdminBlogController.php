@@ -91,19 +91,18 @@ class AdminBlogController extends Controller
         toastr()->success('Thêm blog mới thành công.');
         return redirect()->route('admin.blog.index');
     }
-
     public function tinymceUpload(Request $request)
     {
         if ($request->hasFile('file')) {
             $file = $request->file('file');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->storeAs('uploads/tinymce', $filename, 'public');
-            $url = asset('storage/uploads/tinymce/' . $filename);
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('uploads/tinymce', $filename, 'public');
+            $url = asset('storage/' . $path);
 
-            return response()->json([
-                'location' => $url
-            ]);
+            return response()->json(['location' => $url]);
         }
+
         return response()->json(['error' => 'No file uploaded.'], 400);
-    }       
+    }
+      
 }

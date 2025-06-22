@@ -151,15 +151,14 @@
         selector: 'textarea#noi_dung',
         plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
         toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
-        images_upload_url: '{{ route('tinymce.upload') }}',
-        images_upload_credentials: true, // Gửi cookie (CSRF token) kèm request
+        height: 500,
+        images_upload_credentials: true,
 
-        // Cấu hình thêm để gửi CSRF token trong headers
         images_upload_handler: function (blobInfo, success, failure) {
-            let xhr = new XMLHttpRequest();
-            xhr.withCredentials = true;
+            const xhr = new XMLHttpRequest();
             xhr.open('POST', '{{ route('tinymce.upload') }}');
             xhr.setRequestHeader('X-CSRF-TOKEN', '{{ csrf_token() }}');
+            xhr.withCredentials = true;
 
             xhr.onload = function () {
                 if (xhr.status !== 200) {
@@ -167,22 +166,34 @@
                     return;
                 }
 
-                let json = JSON.parse(xhr.responseText);
-                if (!json || typeof json.location != 'string') {
+                let json;
+                try {
+                    json = JSON.parse(xhr.responseText);
+                } catch (e) {
                     failure('Invalid JSON: ' + xhr.responseText);
+                    return;
+                }
+
+                if (!json || typeof json.location !== 'string') {
+                    failure('Invalid response format');
                     return;
                 }
 
                 success(json.location);
             };
 
-            let formData = new FormData();
+            xhr.onerror = function () {
+                failure('Image upload failed due to a network error.');
+            };
+
+            const formData = new FormData();
             formData.append('file', blobInfo.blob(), blobInfo.filename());
             xhr.send(formData);
         }
     });
 </script>
 
-    <script src="{{ asset('admins/js/product-add.js') }}"></script>
-    <script src="{{ asset('admins/js/blog-validate-add.js') }}"></script>
+
+<script src="{{ asset('admins/js/product-add.js') }}"></script>
+<script src="{{ asset('admins/js/blog-validate-add.js') }}"></script>
 @endpush
