@@ -56,4 +56,8 @@ class SanPham extends Model
         return $this->hasMany(Review::class, 'ma_san_pham', 'ma_san_pham');
     }
 
+    public function thanhPhans()
+    {
+        return $this->hasMany(ThanhPhanSanPham::class, 'ma_san_pham');
+    }
 }

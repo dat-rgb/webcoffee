@@ -158,12 +158,13 @@
                                                 <tr>
                                                     <th><input type="checkbox" id="checkAll"></th>
                                                     <th>Ảnh</th>
-                                                    <th>Mã SP</th>
-                                                    <th>Tên SP</th>
+                                                    <th>Mã Sản Phẩm</th>
+                                                    <th>Tên Sản Phẩm</th>
+                                                    <th>Loại</th>
                                                     <th>Danh mục</th>
                                                     <th>Giá (vnd)</th>
-                                                    <th>Sizes</th>
-                                                    <th>T.thái</th>
+                                                    <th>Kích cỡ</th>
+                                                    <th>Trạng thái</th>
                                                     <th>Rating</th>
                                                 </tr>
                                             </thead>
@@ -175,11 +176,18 @@
                                                         </td>
                                                         <td>
                                                             <a href="{{ route('admin.product.edit.form',$pro->ma_san_pham) }}" class="" data-bs-toggle="tooltip" title="{{ $pro->ten_san_pham }}">
-                                                                <img src="{{ $pro->hinh_anh ? asset('storage/' . $pro->hinh_anh) : asset('images/no_product_image.png') }}" alt="{{ $pro->ten_san_pham }}" width="80">
+                                                                <img src="{{ $pro->hinh_anh ? asset('storage/' . $pro->hinh_anh) : asset('images/no_product_image.png') }}" alt="{{ $pro->ten_san_pham }}" width="60">
                                                             </a>
                                                         </td>
                                                         <td>{{ $pro->ma_san_pham }}</td>
                                                         <td>{{ $pro->ten_san_pham }}</td>
+                                                        <td>
+                                                        @if ($pro->loai_san_pham === 1)
+                                                            <span class="badge bg-primary">Đóng gói</span>
+                                                        @else
+                                                            <span class="badge bg-warning">Pha chế</span>
+                                                        @endif
+                                                        </td>
                                                         <td>{{ $pro->danhMuc->ten_danh_muc }}</td>
                                                         <td>{{ number_format($pro->gia, 0, ',', '.') }}</td>
                                                         @php
@@ -199,7 +207,7 @@
                                                                                     {{ $size->ten_size }}
                                                                                 </span>
                                                                             @endforeach
-                                                                            <a href="{{ route('admin.products.ingredients.show', $pro->ma_san_pham) }}" data-bs-toggle="tooltip" title="Xem chi tiết thành phần">chi tiết</a>
+                                                                            <a href="{{ route('admin.products.ingredients.show', $pro->ma_san_pham) }}" data-bs-toggle="tooltip" title="Xem chi tiết">chi tiết</a>
                                                                         </div>
                                                                     @else
                                                                         <span class="text-muted">
@@ -208,7 +216,6 @@
                                                                     @endif
                                                                 @endif
                                                             </td>
-
                                                             <td>
                                                                 @if ($pro->trang_thai == 1)
                                                                     <span class="badge badge-success">Hiển thị</span>

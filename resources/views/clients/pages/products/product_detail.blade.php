@@ -130,7 +130,7 @@
 </div>
 <!-- end single product -->
 
-@if(!$productRelate)
+@if($productRelate)
 <!-- more products -->
 <div class="more-products mb-150">
     <div class="container">

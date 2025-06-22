@@ -97,12 +97,8 @@
                                 <input type="number" name="dinh_luongs[{{ $size->ma_size }}][]" class="form-control">
                             </div>
                             <div class="col-md-3">
-                                <label>Đơn vị</label>
-                                <select name="don_vis[{{ $size->ma_size }}][]" class="form-control">
-                                    <option value="g">g</option>
-                                    <option value="ml">ml</option>
-                                    <option value="ly">ly</option>
-                                </select>
+                                <label>Đơn vị tính</label>
+                                <input type="text" name="don_vis[{{ $size->ma_size }}] []" class="form-control">
                             </div>
                             <div class="col-md-1 text-end">
                                 <button type="button" class="btn btn-outline-secondary btn-sm add-ingredient-btn">+</button>

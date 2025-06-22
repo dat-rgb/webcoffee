@@ -61,61 +61,64 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
   
-
 $(document).ready(function () {
-    $('#thanh-phan-form').submit(function (e) {
-        let errorMessage = "";
+  $('#thanh-phan-form').submit(function (e) {
+      let errorMessage = "";
 
-        let productId = $('input[name="ma_san_pham"]').val().trim();
-        if (productId === "") {
-            errorMessage += "Mã sản phẩm không được để trống.<br>";
-        }
+      let productId = $('input[name="ma_san_pham"]').val().trim();
+      if (productId === "") {
+          errorMessage += "Mã sản phẩm không được để trống.<br>";
+      }
 
-        let checkedSizes = $('.toggle-size:checked');
-        if (checkedSizes.length === 0) {
-            errorMessage += "Phải chọn ít nhất 1 size.<br>";
-        }
+      let checkedSizes = $('.toggle-size:checked');
+      if (checkedSizes.length === 0) {
+          errorMessage += "Phải chọn ít nhất 1 size.<br>";
+      }
 
-        checkedSizes.each(function () {
-            let size = $(this).data('size');
-            let group = $(`.ingredient-group[data-size-group="${size}"]`);
-            let ingValues = [];
-            let countValid = 0;
+      checkedSizes.each(function () {
+          let size = $(this).data('size');
+          let group = $(`.ingredient-group[data-size-group="${size}"]`);
+          let ingValues = [];
+          let countValid = 0;
 
-            group.find('.ingredient-block').each(function () {
-                let ing = $(this).find('select[name^="ingredients"]').val();
-                let qty = $(this).find('input[name^="dinh_luongs"]').val();
-                let unit = $(this).find('select[name^="don_vis"]').val();
+          group.find('.ingredient-block').each(function () {
+              let ing = $(this).find('select[name^="ingredients"]').val();
+              let qty = $(this).find('input[name^="dinh_luongs"]').val();
+              let unit = $(this).find('input[name^="don_vis"]').val();
 
-                if (ing && qty && unit) {
-                    ingValues.push(ing);
-                    countValid++;
-                } else {
-                    errorMessage += `• Size ${size}: Vui lòng điền đầy đủ nguyên liệu, định lượng và đơn vị.<br>`;
-                }
-            });
+              if (ing && qty && unit) {
+                  // validate đơn vị không chứa ký tự đặc biệt hoặc số (tuỳ nhu cầu)
+                  if (!/^[a-zA-Z]+$/.test(unit)) {
+                      errorMessage += `• Size ${size}: Đơn vị chỉ nên gồm chữ cái (vd: ml, g, ly).<br>`;
+                  }
 
-            // Check đủ ít nhất 2 nguyên liệu
-            if (countValid < 2) {
-                errorMessage += `• Size ${size}: Phải chọn ít nhất 2 nguyên liệu.<br>`;
-            }
+                  ingValues.push(ing);
+                  countValid++;
+              } else {
+                  errorMessage += `• Size ${size}: Vui lòng điền đầy đủ nguyên liệu, định lượng và đơn vị.<br>`;
+              }
+          });
 
-            // Check nguyên liệu không trùng
-            let uniqueIng = [...new Set(ingValues)];
-            if (uniqueIng.length !== ingValues.length) {
-                errorMessage += `• Size ${size}: Nguyên liệu không được trùng nhau.<br>`;
-            }
-        });
+          if (countValid < 2) {
+              errorMessage += `• Size ${size}: Phải chọn ít nhất 2 nguyên liệu.<br>`;
+          }
 
-        if (errorMessage !== "") {
-            Swal.fire({
-                icon: 'error',
-                title: 'Lỗi nhập liệu',
-                html: errorMessage,
-                confirmButtonText: 'Đã hiểu'
-            });
-            e.preventDefault(); // chặn submit
-        }
-    });
+          let uniqueIng = [...new Set(ingValues)];
+          if (uniqueIng.length !== ingValues.length) {
+              errorMessage += `• Size ${size}: Nguyên liệu không được trùng nhau.<br>`;
+          }
+      });
+
+
+      if (errorMessage !== "") {
+          Swal.fire({
+              icon: 'error',
+              title: 'Lỗi nhập liệu',
+              html: errorMessage,
+              confirmButtonText: 'Đã hiểu'
+          });
+          e.preventDefault(); // chặn submit
+      }
+  });
 });
 
