@@ -228,47 +228,47 @@
         <form action="{{ route('staff.nguyenlieu.exportPhieuNhap') }}" method="POST" target="_blank" id="phieuNhapForm">
             @csrf
             <div class="modal-header">
-                <h5 class="modal-title">Phiếu Yêu Cầu Nhập Nguyên Liệu</h5>
+                <h5 class="modal-title">Chọn nguyên liệu vào phiếu yêu cầu nhập nguyên liệu</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class="table-responsive">
                     <table class="table table-bordered align-middle">
-                    <thead class="table-light text-center">
-                        <tr>
-                            <th>
-                                <input type="checkbox" id="checkAll">
-                            </th>
-                            <th>Mã NL</th>
-                            <th>Nguyên liệu</th>
-                            <th>Giá</th>
-                            <th>SL Dự kiến</th>
-                            <th>Đơn vị tính</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($nguyen_lieu_cua_hang as $index => $nl)
-                        <tr class="nguyenlieu-row">
-                            <td class="text-center">
-                                <input type="checkbox" class="check-row" name="chon_nhap[]" value="{{ $nl->ma_nguyen_lieu }}">
-                            </td>
-                            <td>{{ $nl->ma_nguyen_lieu }}</td>
-                            <td>
-                                {{ $nl->ten_nguyen_lieu }} <br>
-                                <span class="badge bg-primary mt-1">ĐL: {{ $nl->so_luong ?? 0 }} {{ $nl->don_vi ?? '' }}</span>
-                            </td>
-                            <td>{{ number_format($nl->gia, 0, ',', '.') }} đ</td>
-                            <td>
-                                <input type="number" name="so_luong_du_kien[{{ $nl->ma_nguyen_lieu }}]"
-                                class="form-control input-soluong" min="1">
-                            </td>
-                            <td>
-                                <input type="text" name="don_vi_tinh[{{ $nl->ma_nguyen_lieu }}]"
-                                class="form-control input-donvi" placeholder="Nhập ĐVT">
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
+                        <thead class="table-light text-center">
+                            <tr>
+                                <th>
+                                    <input type="checkbox" id="checkAll">
+                                </th>
+                                <th>Mã NL</th>
+                                <th>Nguyên liệu</th>
+                                <th>Giá</th>
+                                <th>SL Dự kiến</th>
+                                <th>Đơn vị tính</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($nguyen_lieu_cua_hang as $index => $nl)
+                            <tr class="nguyenlieu-row">
+                                <td class="text-center">
+                                    <input type="checkbox" class="check-row" name="chon_nhap[]" value="{{ $nl->ma_nguyen_lieu }}">
+                                </td>
+                                <td>{{ $nl->ma_nguyen_lieu }}</td>
+                                <td>
+                                    {{ $nl->ten_nguyen_lieu }} <br>
+                                    <span class="badge bg-primary mt-1">ĐL: {{ $nl->so_luong ?? 0 }} {{ $nl->don_vi ?? '' }}</span>
+                                </td>
+                                <td>{{ number_format($nl->gia, 0, ',', '.') }} đ</td>
+                                <td>
+                                    <input type="number" name="so_luong_du_kien[{{ $nl->ma_nguyen_lieu }}]"
+                                    class="form-control input-soluong" min="1">
+                                </td>
+                                <td>
+                                    <input type="text" name="don_vi_tinh[{{ $nl->ma_nguyen_lieu }}]"
+                                    class="form-control input-donvi" placeholder="Nhập ĐVT">
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -283,48 +283,65 @@
 
 <!-- Modal Phiếu Xuất -->
 <div class="modal fade" id="modalPhieuXuat" tabindex="-1">
-  <div class="modal-dialog modal-xl">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Phiếu Yêu Cầu Xuất Nguyên Liệu</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <table class="table table-bordered">
-          <thead>
-            <tr>
-              <th><input type="checkbox"></th>
-              <th>Mã NL</th>
-              <th>Nguyên liệu</th>
-              <th>Giá</th>
-              <th>Số lượng</th>
-            </tr>
-          </thead>
-          <tbody>
-            @foreach($nguyen_lieu_cua_hang as $index => $nl)
-              <tr>
-                <td><input type="checkbox" name="chon_xuat[]" value="{{ $nl->ma_nguyen_lieu }}"></td>
-                <td>{{ $nl->ma_nguyen_lieu }}</td>
-                <td>
-                    {{ $nl->ten_nguyen_lieu }} -
-                    <span class="badge bg-primary text-white">
-                        ĐỊNH LƯỢNG: {{ $nl->so_luong ?? 0 }} ({{ $nl->don_vi ?? '---' }})
-                    </span>
-                </td>
-                <td>{{ number_format($nl->gia, 0, ',', '.') }}</td>
-                <td><input type="number" name="so_luong_xuat[{{ $nl->ma_nguyen_lieu }}]" class="form-control" min="0"></td>
-              </tr>
-            @endforeach
-          </tbody>
-        </table>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-warning">Xuất PDF</button>
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-      </div>
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <form action="{{ route('staff.nguyenlieu.exportPhieuXuat') }}" method="POST" target="_blank" id="phieuXuatForm">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title">Chọn nguyên liệu vào phiếu yêu cầu xuất nguyên liệu</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <style>
+                            #modalPhieuXuat tr.selected {
+                            background-color: #fce4ec !important;
+                            border-left: 5px solid #dc3545;
+                            }
+                        </style>
+                        <table class="table table-bordered">
+                            <thead class="table-light text-center">
+                                <tr>
+                                    <th><input type="checkbox" id="checkAllXuat"></th>
+                                    <th>Mã NL</th>
+                                    <th>Nguyên liệu</th>
+                                    <th>Giá</th>
+                                    <th>Số lượng</th>
+                                    <th>Đơn vị tính</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($nguyen_lieu_cua_hang as $index => $nl)
+                                    <tr>
+                                        <td><input type="checkbox" class="check-row-xuat" name="chon_xuat[]" value="{{ $nl->ma_nguyen_lieu }}"></td>
+                                        <td>{{ $nl->ma_nguyen_lieu }}</td>
+                                        <td>
+                                            {{ $nl->ten_nguyen_lieu }} -
+                                            <span class="badge bg-primary text-white">
+                                                ĐỊNH LƯỢNG: {{ $nl->so_luong ?? 0 }} ({{ $nl->don_vi ?? '---' }})
+                                            </span>
+                                        </td>
+                                        <td>{{ number_format($nl->gia, 0, ',', '.') }}</td>
+                                        <td><input type="number" name="so_luong_xuat[{{ $nl->ma_nguyen_lieu }}]" class="form-control" min="0"></td>
+                                        <td>
+                                            <input type="text" name="don_vi_tinh[{{ $nl->ma_nguyen_lieu }}]"
+                                            class="form-control input-donvi" placeholder="Nhập ĐVT">
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-warning">Xuất PDF</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </form>
+        </div>
     </div>
-  </div>
 </div>
+
 
 <!-- Modal Phiếu Kiểm kho -->
 <div class="modal fade" id="modalPhieuKiemKho" tabindex="-1">

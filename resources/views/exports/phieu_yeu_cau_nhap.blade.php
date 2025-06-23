@@ -79,7 +79,7 @@
         <tr>
             <th>STT</th>
             <th>Mã NL</th>
-            <th>Tên nguyên liệu + Định lượng</th>
+            <th>Nguyên liệu</th>
             <th>Giá (VNĐ)</th>
             <th>SL Dự kiến</th>
             <th>SL Thực tế</th>

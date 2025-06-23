@@ -93,53 +93,102 @@ class StaffDashboardController extends Controller
         return view('staffs.dashboards.index', $viewData);
     }
     public function exportPhieuNhap(Request $request)
-{
-    $chonNhap = $request->input('chon_nhap', []);
-    $nhanVien = Auth::guard('staff')->user()->nhanvien;
-    $maPhieu = 'PNL-' . now()->format('dmY-His');
+    {
+        $chonNhap = $request->input('chon_nhap', []);
+        $nhanVien = Auth::guard('staff')->user()->nhanvien;
+        $maPhieu = 'PNL-' . now()->format('dmY-His');
 
-    $nguyenLieuNhap = [];
+        $nguyenLieuNhap = [];
 
-    foreach ($chonNhap as $maNL) {
-        $soLuong = $request->input("so_luong_du_kien.$maNL");
-        $donVi = $request->input("don_vi_tinh.$maNL");
+        foreach ($chonNhap as $maNL) {
+            $soLuong = $request->input("so_luong_du_kien.$maNL");
+            $donVi = $request->input("don_vi_tinh.$maNL");
 
-        $nguyenLieu = DB::table('nguyen_lieus')
-            ->where('ma_nguyen_lieu', $maNL)
+            $nguyenLieu = DB::table('nguyen_lieus')
+                ->where('ma_nguyen_lieu', $maNL)
+                ->first();
+
+            if ($nguyenLieu) {
+                $nguyenLieuNhap[] = (object)[
+                    'ma_nguyen_lieu'     => $nguyenLieu->ma_nguyen_lieu,
+                    'ten_nguyen_lieu'    => $nguyenLieu->ten_nguyen_lieu,
+                    'so_luong'           => $nguyenLieu->so_luong,
+                    'don_vi'             => $nguyenLieu->don_vi,
+                    'don_vi_tinh'        => $donVi,
+                    'gia'                => $nguyenLieu->gia,
+                    'so_luong_du_kien'   => $soLuong,
+                ];
+            }
+        }
+
+        $tongTien = collect($nguyenLieuNhap)->sum(function($nl) {
+            return $nl->gia * $nl->so_luong_du_kien;
+        });
+
+        $cuaHang = DB::table('cua_hangs')
+            ->where('ma_cua_hang', $nhanVien->ma_cua_hang)
             ->first();
 
-        if ($nguyenLieu) {
-            $nguyenLieuNhap[] = (object)[
-                'ma_nguyen_lieu'     => $nguyenLieu->ma_nguyen_lieu,
-                'ten_nguyen_lieu'    => $nguyenLieu->ten_nguyen_lieu,
-                'so_luong'           => $nguyenLieu->so_luong,
-                'don_vi'             => $nguyenLieu->don_vi,
-                'don_vi_tinh'        => $donVi,
-                'gia'                => $nguyenLieu->gia,
-                'so_luong_du_kien'   => $soLuong,
-            ];
-        }
+        $nguoiLap = $nhanVien->ho_ten_nhan_vien;
+
+        $pdf = Pdf::loadView('exports.phieu_yeu_cau_nhap', [
+            'nguyenLieuNhap' => $nguyenLieuNhap,
+            'cuaHang'        => $cuaHang,
+            'nguoiLap'       => $nguoiLap,
+            'maPhieu'        => $maPhieu,
+            'tongTien'       => $tongTien,
+        ])->setPaper('a4', 'landscape');
+
+        return $pdf->stream("{$maPhieu}.pdf");
     }
+    public function exportPhieuXuat(Request $request)
+    {
+        $chonXuat = $request->input('chon_xuat', []);
+        $nhanVien = Auth::guard('staff')->user()->nhanvien;
+        $maPhieu = 'PNX-' . now()->format('dmY-His');
 
-    $tongTien = collect($nguyenLieuNhap)->sum(function($nl) {
-        return $nl->gia * $nl->so_luong_du_kien;
-    });
+        $nguyenLieuXuat = [];
 
-    $cuaHang = DB::table('cua_hangs')
-        ->where('ma_cua_hang', $nhanVien->ma_cua_hang)
-        ->first();
+        foreach ($chonXuat as $maNL) {
+            $soLuong = $request->input("so_luong_xuat.$maNL");
+            $donVi = $request->input("don_vi_tinh.$maNL");
 
-    $nguoiLap = $nhanVien->ho_ten_nhan_vien;
+            $nguyenLieu = DB::table('nguyen_lieus')
+                ->where('ma_nguyen_lieu', $maNL)
+                ->first();
 
-    $pdf = Pdf::loadView('exports.phieu_yeu_cau_nhap', [
-        'nguyenLieuNhap' => $nguyenLieuNhap,
-        'cuaHang'        => $cuaHang,
-        'nguoiLap'       => $nguoiLap,
-        'maPhieu'        => $maPhieu,
-        'tongTien'       => $tongTien,
-    ])->setPaper('a4', 'landscape');
+            if ($nguyenLieu) {
+                $nguyenLieuXuat[] = (object)[
+                    'ma_nguyen_lieu'     => $nguyenLieu->ma_nguyen_lieu,
+                    'ten_nguyen_lieu'    => $nguyenLieu->ten_nguyen_lieu,
+                    'so_luong'           => $nguyenLieu->so_luong,
+                    'don_vi'             => $nguyenLieu->don_vi,
+                    'don_vi_tinh'        => $donVi,
+                    'gia'                => $nguyenLieu->gia,
+                    'so_luong_xuat'      => $soLuong,
+                ];
+            }
+        }
 
-    return $pdf->stream("{$maPhieu}.pdf");
-}
+        $tongTien = collect($nguyenLieuXuat)->sum(function ($nl) {
+            return $nl->gia * $nl->so_luong_xuat;
+        });
+
+        $cuaHang = DB::table('cua_hangs')
+            ->where('ma_cua_hang', $nhanVien->ma_cua_hang)
+            ->first();
+
+        $nguoiLap = $nhanVien->ho_ten_nhan_vien;
+
+        $pdf = Pdf::loadView('exports.phieu_yeu_cau_xuat', [
+            'nguyenLieuXuat' => $nguyenLieuXuat,
+            'cuaHang'        => $cuaHang,
+            'nguoiLap'       => $nguoiLap,
+            'maPhieu'        => $maPhieu,
+            'tongTien'       => $tongTien,
+        ])->setPaper('a4', 'landscape');
+
+        return $pdf->stream("{$maPhieu}.pdf");
+    }
 
 }

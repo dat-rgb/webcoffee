@@ -376,6 +376,7 @@ Route::prefix('staff/orders')->middleware(NhanVienMiddleware::class)->group(func
 Route::prefix('staff/dashboard')->middleware(NhanVienMiddleware::class)->group(function() {
     Route::get('/', [StaffDashboardController::class, 'index'])->name('staff.dashboard');
     Route::post('/phieu-nhap/export', [StaffDashboardController::class, 'exportPhieuNhap'])->name('staff.nguyenlieu.exportPhieuNhap');
+    Route::post('/phieu-xuat/export', [StaffDashboardController::class, 'exportPhieuXuat'])->name('staff.nguyenlieu.exportPhieuXuat');
 
 });
 
