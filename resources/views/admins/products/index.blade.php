@@ -243,34 +243,7 @@
                                                                     @endif
                                                                 @endfor
                                                             </div>
-                                                        </td>
-                                                        <td>
-                                                            <div class="form-button-action">
-                                                                @if($pro->trang_thai == 1)
-                                                                    <a href="{{ route('admin.product.edit.form', $pro->ma_san_pham) }}" class="btn btn-icon btn-round btn-info" data-bs-toggle="tooltip" title="Chỉnh sửa">
-                                                                        <i class="fa fa-edit"></i>
-                                                                    </a>
-                                                                    <form action="{{ route('admin.product.hidde-or-acctive', $pro->ma_san_pham) }}" method="POST" class="hidden-or-acctive">
-                                                                        @csrf
-                                                                        <button type="button" class="btn btn-icon btn-round btn-black hidden-btn" data-bs-toggle="tooltip" title="Ẩn">
-                                                                            <i class="text-white fas fa-toggle-off"></i>
-                                                                        </button>
-                                                                    </form>
-
-                                                                @elseif($pro->trang_thai == 2)
-
-                                                                    <form action="{{ route('admin.product.hidde-or-acctive', $pro->ma_san_pham) }}" method="POST" class="acctive-form">
-                                                                        @csrf
-                                                                        <button type="button" class="btn btn-icon btn-round btn-warning acctive-btn" data-bs-toggle="tooltip" title="Hiển thị">
-                                                                            <i class="text-white fas fa-toggle-on"></i>
-                                                                        </button>
-                                                                    </form>
-                                                                    <button type="button" class="btn btn-icon btn-round btn-danger" data-bs-toggle="tooltip" title="Xóa">
-                                                                        <i class="fa fa-trash"></i>
-                                                                    </button>
-                                                                @endif
-                                                            </div>
-                                                        </td>
+                                                        </td>     
                                                     </tr>
                                                 @endforeach
                                             </tbody>
