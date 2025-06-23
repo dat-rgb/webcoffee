@@ -30,7 +30,7 @@ class NguyenLieuSeeder extends Seeder
                 'slug' => Str::slug('Sữa Đặc Ngôi Sao Phương Nam Nhãn xanh lá 380g'),
                 'ma_nha_cung_cap' => 2,
                 'so_luong' => 380,
-                'gia'=> 458006,
+                'gia'=> 20088, 
                 'loai_nguyen_lieu' => 0,
                 'don_vi' => 'g/hộp',
                 'is_ban_duoc' => 0,
@@ -42,7 +42,7 @@ class NguyenLieuSeeder extends Seeder
                 'slug' => Str::slug('Sữa tươi tiệt trùng 100% không đường 1L'),
                 'ma_nha_cung_cap' => 2,
                 'so_luong' => 1000,
-                'gia'=> 408240,
+                'gia'=> 37638,
                 'loai_nguyen_lieu' => 0,
                 'don_vi' => 'ml/hộp',
                 'is_ban_duoc' => 0,
@@ -54,7 +54,7 @@ class NguyenLieuSeeder extends Seeder
                 'slug' => Str::slug('Sữa tươi tiệt trùng có đường 1L'),
                 'ma_nha_cung_cap' => 2,
                 'so_luong' => 1000,
-                'gia'=> 408240,
+                'gia'=> 37638,
                 'loai_nguyen_lieu' => 0,
                 'don_vi' => 'ml/hộp',
                 'is_ban_duoc' => 0,
@@ -66,7 +66,7 @@ class NguyenLieuSeeder extends Seeder
                 'slug' => Str::slug('Sữa tươi tiệt trùng ít đường 1L'),
                 'ma_nha_cung_cap' => 2,
                 'so_luong' => 1000,
-                'gia'=> 408262,
+                'gia'=> 37638,
                 'loai_nguyen_lieu' => 0,
                 'don_vi' => 'ml/hộp',
                 'is_ban_duoc' => 0,
@@ -155,7 +155,7 @@ class NguyenLieuSeeder extends Seeder
                 'don_vi' => 'ml/chai',
                 'is_ban_duoc' => 0,
             ],
-            //13
+            //13 SIRO MAULIN XOÀI
             [
                 'ma_nguyen_lieu' => 'NL00000013',
                 'ten_nguyen_lieu' => 'SIRO MAULIN XOÀI',
@@ -239,7 +239,7 @@ class NguyenLieuSeeder extends Seeder
                 'don_vi' => 'gói/túi',
                 'is_ban_duoc' => 1,
             ],
-            //20
+            //20 Cà Phê Hòa Tan 3 trong 1 (20 gói)
             [
                 'ma_nguyen_lieu' => 'NL00000020',
                 'ten_nguyen_lieu' => 'Cà Phê Hòa Tan 3 trong 1 (20 gói)',
@@ -251,13 +251,13 @@ class NguyenLieuSeeder extends Seeder
                 'don_vi' => 'gói/hộp',
                 'is_ban_duoc' => 1,
             ],
-            //21
+            //21 Trà lài hộp giấy 150g
             [
                 'ma_nguyen_lieu' => 'NL00000021',
                 'ten_nguyen_lieu' => 'Trà lài hộp giấy 150g',
                 'slug' => Str::slug('Trà lài hộp giấy 150g'),
                 'ma_nha_cung_cap' => 5,
-                'so_luong' => 20,
+                'so_luong' => 150,
                 'gia'=> 75000,
                 'loai_nguyen_lieu' => 0,
                 'don_vi' => 'g/hộp',
