@@ -65,7 +65,7 @@
                     </div>
                     <div class="table-responsive">
                         <table class="table text-center align-middle table-striped table-hover">
-                            <thead class="table-light">
+                            <thead>
                                 <tr class="text-center align-middle">
                                     <th style="width: 40px;">
                                         <input type="checkbox" id="checkAll" class="form-check-input">

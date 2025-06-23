@@ -25,8 +25,8 @@
                                 <thead class="table-danger">
                                     <tr>
                                         <th>Mã nguyên liệu</th>
-                                        <th>Tên nguyên liệu</th>
-                                        <th>Định lượng</th>
+                                        <th>Nguyên liệu</th>
+                                        {{-- <th>Định lượng</th> --}}
                                         <th>Số lượng tồn</th>
                                         <th>Chọn lô cần hủy</th>
                                         <th>Số lượng hủy</th>
@@ -38,8 +38,12 @@
                                     @foreach($materials as $material)
                                     <tr>
                                         <td>{{ $material->nguyenLieu->ma_nguyen_lieu }}</td>
-                                        <td>{{ $material->nguyenLieu->ten_nguyen_lieu }}</td>
-                                        <td>{{ $material->nguyenLieu->so_luong .' '. $material->nguyenLieu->don_vi }}</td>
+                                        <td>
+                                            {{ $material->nguyenLieu->ten_nguyen_lieu }}
+                                            ({{ rtrim(rtrim(number_format($material->nguyenLieu->so_luong, 2), '0'), '.') }} {{ $material->nguyenLieu->don_vi }})
+                                        </td>
+
+                                        {{-- <td>{{ $material->nguyenLieu->so_luong .' '. $material->nguyenLieu->don_vi }}</td> --}}
                                         <td>{{ $material->so_luong_ton .' '. $material->don_vi }}</td>
                                         <td>
                                             <select name="batch[{{ $material->ma_cua_hang }}][{{ $material->ma_nguyen_lieu }}]"
@@ -122,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     text: 'Bạn sẽ được chuyển về trang danh sách.',
                     confirmButtonText: 'OK'
                 }).then(() => {
-                    window.location.href = "{{ route('admins.shopmaterial.index') }}";
+                    window.location.href = "{{ route('admins.shopmaterial.index', ['ma_cua_hang' => $ma_cua_hang]) }}";
                 });
             }
         });
