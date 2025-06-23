@@ -418,67 +418,67 @@ class AdminProductController extends Controller
         return redirect()->route('admin.products.list');
     } 
     public function bulkAction(Request $request)
-{
-    $action = $request->input('action');
-    $productIds = $request->input('selected_products', []);
+    {
+        $action = $request->input('action');
+        $productIds = $request->input('selected_products', []);
 
-    if (empty($productIds)) {
-        return response()->json(['status' => 'error', 'message' => 'Vui lòng chọn ít nhất một sản phẩm']);
-    }
-
-    // Xử lý toggle nếu chỉ chọn 1 sản phẩm
-    if (count($productIds) === 1 && $action === 'toggle') {
-        $product = SanPham::where('ma_san_pham', $productIds[0])->first();
-
-        if (!$product) {
-            return response()->json(['status' => 'error', 'message' => 'Sản phẩm không tồn tại']);
+        if (empty($productIds)) {
+            return response()->json(['status' => 'error', 'message' => 'Vui lòng chọn ít nhất một sản phẩm']);
         }
 
-        if ($product->trang_thai == 3) {
-            return response()->json(['status' => 'error', 'message' => 'Không thể ẩn sản phẩm đã lưu trữ']);
+        // Xử lý toggle nếu chỉ chọn 1 sản phẩm
+        if (count($productIds) === 1 && $action === 'toggle') {
+            $product = SanPham::where('ma_san_pham', $productIds[0])->first();
+
+            if (!$product) {
+                return response()->json(['status' => 'error', 'message' => 'Sản phẩm không tồn tại']);
+            }
+
+            if ($product->trang_thai == 3) {
+                return response()->json(['status' => 'error', 'message' => 'Không thể ẩn sản phẩm đã lưu trữ']);
+            }
+
+            $product->update([
+                'trang_thai' => $product->trang_thai == 1 ? 2 : 1
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => $product->trang_thai == 1 ? 'Sản phẩm đã được hiển thị' : 'Sản phẩm đã được ẩn'
+            ]);
         }
 
-        $product->update([
-            'trang_thai' => $product->trang_thai == 1 ? 2 : 1
-        ]);
+        // Các hành động khác (hide, show, delete)
+        $products = SanPham::whereIn('ma_san_pham', $productIds)->get();
 
-        return response()->json([
-            'status' => 'success',
-            'message' => $product->trang_thai == 1 ? 'Sản phẩm đã được hiển thị' : 'Sản phẩm đã được ẩn'
-        ]);
-    }
+        foreach ($products as $product) {
+            switch ($action) {
+                case 'hide':
+                    $product->update(['trang_thai' => 2]);
+                    break;
 
-    // Các hành động khác (hide, show, delete)
-    $products = SanPham::whereIn('ma_san_pham', $productIds)->get();
+                case 'show':
+                    $product->update(['trang_thai' => 1]);
+                    break;
 
-    foreach ($products as $product) {
-        switch ($action) {
-            case 'hide':
-                $product->update(['trang_thai' => 2]);
-                break;
+                case 'delete':
+                    if ($product->chiTietHoaDon()->exists()) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => "Không thể xóa sản phẩm '{$product->ten_san_pham}' vì đang có trong hóa đơn."
+                        ]);
+                    }
 
-            case 'show':
-                $product->update(['trang_thai' => 1]);
-                break;
+                    $product->delete(); // Xoá thực
+                    break;
 
-            case 'delete':
-                if ($product->chiTietHoaDon()->exists()) {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => "Không thể xóa sản phẩm '{$product->ten_san_pham}' vì đang có trong hóa đơn."
-                    ]);
-                }
-
-                $product->delete(); // Xoá thực
-                break;
-
-            default:
-                return response()->json(['status' => 'error', 'message' => 'Hành động không hợp lệ']);
+                default:
+                    return response()->json(['status' => 'error', 'message' => 'Hành động không hợp lệ']);
+            }
         }
-    }
 
-    return response()->json(['status' => 'success', 'message' => 'Đã thực hiện thao tác thành công']);
-}
+        return response()->json(['status' => 'success', 'message' => 'Đã thực hiện thao tác thành công']);
+    }
 
 
     //show form cập nhật

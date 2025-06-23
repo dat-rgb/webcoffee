@@ -375,6 +375,8 @@ Route::prefix('staff/orders')->middleware(NhanVienMiddleware::class)->group(func
 //Route Staff Dashboard
 Route::prefix('staff/dashboard')->middleware(NhanVienMiddleware::class)->group(function() {
     Route::get('/', [StaffDashboardController::class, 'index'])->name('staff.dashboard');
+    Route::post('/phieu-nhap/export', [StaffDashboardController::class, 'exportPhieuNhap'])->name('staff.nguyenlieu.exportPhieuNhap');
+
 });
 
 //Route Staff Shop material
@@ -390,6 +392,8 @@ Route::prefix('staff/shop-material')->middleware(NhanVienMiddleware::class)->nam
     Route::post('/export',[StaffShopmaterialController::class,'export'])->name('export');
     Route::post('/destroy', [StaffShopmaterialController::class, 'destroy'])->name('destroy');
     Route::get('/destroy-page', [StaffShopmaterialController::class, 'showDestroyPage'])->name('showDestroyPage');
+
+    ////
 });
 
 //Route Staff NhanVien
@@ -411,6 +415,8 @@ Route::prefix('staff/nhanviens')->middleware(NhanVienMiddleware::class)->name('s
     Route::patch('/restore-bulk', [StaffController::class, 'bulkRestore'])->name('restore.bulk');
     Route::patch('/archive/bulk', [StaffController::class, 'archiveBulk'])->name('archive.bulk');
 });
+
+
 //End - Staff
 
 

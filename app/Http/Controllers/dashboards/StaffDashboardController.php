@@ -5,6 +5,8 @@ namespace App\Http\Controllers\dashboards;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class StaffDashboardController extends Controller
 {
@@ -13,6 +15,27 @@ class StaffDashboardController extends Controller
     public function __construct()
     {
         $this->dashboardService = new DashboardServiceController();
+    }
+
+    public function getNguyenLieuCuaHang($ma_cua_hang)
+    {
+        return DB::table('cua_hang_nguyen_lieus as chnl')
+            ->join('nguyen_lieus as nl', 'chnl.ma_nguyen_lieu', '=', 'nl.ma_nguyen_lieu')
+            ->where('chnl.ma_cua_hang', $ma_cua_hang)
+            ->where('chnl.trang_thai', 1) // Lấy nguyên liệu đang hoạt động
+            ->select(
+                'chnl.ma_nguyen_lieu',
+                'nl.ten_nguyen_lieu',
+                'nl.so_luong',
+                'nl.don_vi',
+                'nl.gia',
+                'chnl.so_luong_ton',
+                'chnl.don_vi as don_vi_tinh',
+                'chnl.so_luong_ton_min',
+                'chnl.so_luong_ton_max',
+                'chnl.trang_thai'
+            )
+            ->get();
     }
 
     public function index(Request $request)
@@ -24,6 +47,8 @@ class StaffDashboardController extends Controller
             return redirect()->back();
         }
         $ma_cua_hang = $nhanVien->ma_cua_hang;
+        $nguyen_lieu_cua_hang = $this->getNguyenLieuCuaHang($ma_cua_hang);
+
 
         $hoaDonDaNhan = $this->dashboardService->countDonHangTheoTrangThai($ma_cua_hang,4);
         $hoaDonDaHuy = $this->dashboardService->countDonHangTheoTrangThai($ma_cua_hang,5);
@@ -62,8 +87,59 @@ class StaffDashboardController extends Controller
             'labelsChart' => $labelsChart,
             'cuaHangs' => $this->dashboardService->getCuaHangs(), 
             'selectedCuaHang' => $ma_cua_hang,
+            'nguyen_lieu_cua_hang' => $nguyen_lieu_cua_hang,
         ];
 
         return view('staffs.dashboards.index', $viewData);
     }
+    public function exportPhieuNhap(Request $request)
+{
+    $chonNhap = $request->input('chon_nhap', []);
+    $nhanVien = Auth::guard('staff')->user()->nhanvien;
+    $maPhieu = 'PNL-' . now()->format('dmY-His');
+
+    $nguyenLieuNhap = [];
+
+    foreach ($chonNhap as $maNL) {
+        $soLuong = $request->input("so_luong_du_kien.$maNL");
+        $donVi = $request->input("don_vi_tinh.$maNL");
+
+        $nguyenLieu = DB::table('nguyen_lieus')
+            ->where('ma_nguyen_lieu', $maNL)
+            ->first();
+
+        if ($nguyenLieu) {
+            $nguyenLieuNhap[] = (object)[
+                'ma_nguyen_lieu'     => $nguyenLieu->ma_nguyen_lieu,
+                'ten_nguyen_lieu'    => $nguyenLieu->ten_nguyen_lieu,
+                'so_luong'           => $nguyenLieu->so_luong,
+                'don_vi'             => $nguyenLieu->don_vi,
+                'don_vi_tinh'        => $donVi,
+                'gia'                => $nguyenLieu->gia,
+                'so_luong_du_kien'   => $soLuong,
+            ];
+        }
+    }
+
+    $tongTien = collect($nguyenLieuNhap)->sum(function($nl) {
+        return $nl->gia * $nl->so_luong_du_kien;
+    });
+
+    $cuaHang = DB::table('cua_hangs')
+        ->where('ma_cua_hang', $nhanVien->ma_cua_hang)
+        ->first();
+
+    $nguoiLap = $nhanVien->ho_ten_nhan_vien;
+
+    $pdf = Pdf::loadView('exports.phieu_yeu_cau_nhap', [
+        'nguyenLieuNhap' => $nguyenLieuNhap,
+        'cuaHang'        => $cuaHang,
+        'nguoiLap'       => $nguoiLap,
+        'maPhieu'        => $maPhieu,
+        'tongTien'       => $tongTien,
+    ])->setPaper('a4', 'landscape');
+
+    return $pdf->stream("{$maPhieu}.pdf");
+}
+
 }
