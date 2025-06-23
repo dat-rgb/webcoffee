@@ -120,8 +120,8 @@ class AdminNhanvienController extends Controller
             // Tạo tài khoản
             $taiKhoan = TaiKhoan::create([
                 'email' => $request->email,
-                'password' => bcrypt('123456'), // có thể dùng Str::random() nếu muốn
-                'vai_tro' => 'nhanvien',
+                'mat_khau' => bcrypt('Password@123'), // có thể dùng Str::random() nếu muốn
+                //'vai_tro' => 'nhanvien',
                 'loai_tai_khoan'=>'2',//loai tai khoan khi tao là nhan vien
                 'trang_thai' => 1,// trang thái tài khoản là  1 là đag active , 0 là chờ kích hoạt
             ]);
