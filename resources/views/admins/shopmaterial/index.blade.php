@@ -159,11 +159,19 @@
                                             </td>
                                             <td>{{ optional($material->nguyenLieu)->ma_nguyen_lieu ?? 'N/A' }}</td>
                                             <td>{{ optional($material->nguyenLieu)->ten_nguyen_lieu ?? 'N/A' }}</td>
-                                            {{-- <td>{{ $material->so_luong_ton }}</td>
-                                            <td>{{ $material->so_luong_ton_min }}</td>
-                                            <td class="text-center align-middle">{{ $material->don_vi }}</td> --}}
-                                            <td class="text-center align-middle">{{ $material->so_luong_ton . ' ' . $material->don_vi }}</td>
-                                            <td class="text-center align-middle">{{ $material->so_luong_ton_min . ' ' . $material->don_vi }}</td>
+
+                                            {{-- <td class="text-center align-middle">{{ $material->so_luong_ton . ' ' . $material->don_vi }}</td>
+                                            <td class="text-center align-middle">{{ $material->so_luong_ton_min . ' ' . $material->don_vi }}</td> --}}
+                                            @php
+                                                $dinhLuong = $material->nguyenLieu->so_luong ?: 1;
+
+                                            @endphp
+                                            <td class="text-center align-middle">
+                                                {{ rtrim(rtrim(number_format($material->so_luong_ton / $dinhLuong, 2, '.', ''), '0'), '.') . ' ' . $material->don_vi }}
+                                            </td>
+                                            <td class="text-center align-middle">
+                                                {{ rtrim(rtrim(number_format($material->so_luong_ton_min / $dinhLuong, 2, '.', ''), '0'), '.') . ' ' . $material->don_vi }}
+                                            </td>
 
                                             <td class="text-center align-middle">
                                                 @php $trangThai = optional($material->cuaHang)->trang_thai; @endphp

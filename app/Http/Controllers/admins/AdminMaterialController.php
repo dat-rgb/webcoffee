@@ -34,12 +34,24 @@ class AdminMaterialController extends Controller
             });
         }
 
-        $page = $query->paginate(10)->appends($request->query());
+        //$page = $query->paginate(10)->appends($request->query());
+        $perPage = 10;
+        $currentPage = $request->input('page', 1);
+        $materials = $query->paginate($perPage)->appends($request->query());
+        $lastPage = $materials->lastPage();
+
+        if ($currentPage > $lastPage && $lastPage > 0) {
+            // Redirect về trang cuối nếu trang yêu cầu lớn hơn trang cuối
+            return redirect()->route('admins.material.index', array_merge(
+                $request->except('page'),
+                ['page' => $lastPage]
+            ));
+        }
 
         return view('admins.material.index', [
             'title' => 'Danh sách nguyên liệu',
             'subtitle' => 'Danh sách nguyên liệu',
-            'materials' => $page,
+            'materials' => $materials,
         ]);
     }
 
@@ -64,8 +76,7 @@ class AdminMaterialController extends Controller
         $newCode = 'NL' . str_pad($newNumber, 8, '0', STR_PAD_LEFT);
 
         // Lấy danh sách nhà cung cấp
-        $suppliers = NhaCungCap::all();
-
+        $suppliers = NhaCungCap::where('trang_thai', 1)->get();
         return view('admins.material.create', compact('title', 'subtitle', 'suppliers', 'newCode'));
     }
     public function store(Request $request)
@@ -116,9 +127,9 @@ class AdminMaterialController extends Controller
 
         try {
         // Nếu là loại nguyên liệu (loai_nguyen_lieu = 0) thì nhân số lượng với 1000
-        if ($validated['loai_nguyen_lieu'] == 0) {
-            $validated['so_luong'] *= 1000;
-        }
+        //if ($validated['loai_nguyen_lieu'] == 0) {$validated['so_luong'] *= 1000;  }
+
+
 
         NguyenLieu::create($validated);
         toastr()->success('Thêm nguyên liệu thành công!');
@@ -210,9 +221,9 @@ class AdminMaterialController extends Controller
     {
         $material = NguyenLieu::with(['cuaHangNguyenLieus', 'products'])->findOrFail($id);
 
-        $productInUse = $material->products->first(function ($product) {
+        $productInUse = $material->products->filter(function ($product) {
             return $product->trang_thai == 1;
-        });
+        })->first();
 
         if ($productInUse) {
             toastr()->error('Không thể xóa. Nguyên liệu đang được dùng trong sản phẩm đang bán: ' . $productInUse->ten_san_pham);

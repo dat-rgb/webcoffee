@@ -61,6 +61,18 @@
                                 </button>
                             </div>
                         </div>
+                        {{-- cddropddoowwn chọn cửa hàng --}}
+                        <div class="col-md-3">
+                            <select name="ma_cua_hang" class="form-select" onchange="this.form.submit()">
+                                <option value="">-- Tất cả cửa hàng --</option>
+                                @foreach ($dsCuaHang as $cuahang)
+                                    <option value="{{ $cuahang->ma_cua_hang }}" {{ request('ma_cua_hang') == $cuahang->ma_cua_hang ? 'selected' : '' }}>
+                                        {{ $cuahang->ten_cua_hang }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
                         <div class="col-md-2">
                             <select name="loai_phieu" id="selectLoaiPhieu" class="form-select">
                                 <option value="">-- Các loại phiếu --</option>

@@ -36,7 +36,19 @@ class AdminShopmaterialController extends Controller
             });
         }
 
-        $materials = $query->paginate(10);
+        //$materials = $query->paginate(10);
+        $perPage = 10;
+        $page = $request->input('page', 1);
+        $materials = $query->paginate($perPage);
+        $lastPage = $materials->lastPage();
+
+        // Nếu người dùng nhập page > lastPage => redirect về lastPage
+        if ($page > $lastPage && $lastPage > 0) {
+            return redirect()->route('admins.shopmaterial.index', array_merge(
+                $request->except('page'),
+                ['page' => $lastPage]
+            ));
+        }
         $stores = CuaHang::all();
         return view('admins.shopmaterial.index', [
             'materials' => $materials,
@@ -65,7 +77,7 @@ class AdminShopmaterialController extends Controller
         // Lấy danh sách nguyên liệu CHƯA có trong cửa hàng và còn hoạt động
         $materials = NguyenLieu::where('trang_thai', 1)
             ->whereNotIn('ma_nguyen_lieu', $nguyenLieuDaCo)
-            ->get();
+             ->get(['ma_nguyen_lieu', 'ten_nguyen_lieu', 'don_vi', 'so_luong']); // Thêm so_luong
 
         $tenCuaHang = CuaHang::where('ma_cua_hang', $maCuaHang)->value('ten_cua_hang');
         $viewData = [
@@ -79,46 +91,45 @@ class AdminShopmaterialController extends Controller
         return view('admins.shopmaterial.create', $viewData);
     }
     public function store(Request $request)
-    {
-        $request->validate([
-            'ma_cua_hang' => 'required|exists:cua_hangs,ma_cua_hang',
-            'ma_nguyen_lieu' => 'required|array|min:1',
-            'ma_nguyen_lieu.*' => 'required|exists:nguyen_lieus,ma_nguyen_lieu',
-            'so_luong_ton_min' => 'required|array',
-        ], [
-            'ma_nguyen_lieu.required' => 'Vui lòng chọn ít nhất một nguyên liệu.',
-            'ma_nguyen_lieu.*.exists' => 'Một trong các nguyên liệu không tồn tại.',
-            'ma_cua_hang.exists' => 'Cửa hàng không hợp lệ.',
-            'so_luong_ton_min.required' => 'Vui lòng nhập số lượng tồn tối thiểu.',
-        ]);
+{
+    $request->validate([
+        'ma_cua_hang' => 'required|exists:cua_hangs,ma_cua_hang',
+        'ma_nguyen_lieu' => 'required|array|min:1',
+        'ma_nguyen_lieu.*' => 'required|exists:nguyen_lieus,ma_nguyen_lieu',
+        'so_luong_ton_min' => 'required|array',
+        'don_vi' => 'required|array',
+    ], [
+        'ma_nguyen_lieu.required' => 'Vui lòng chọn ít nhất một nguyên liệu.',
+        'ma_nguyen_lieu.*.exists' => 'Một trong các nguyên liệu không tồn tại.',
+        'so_luong_ton_min.required' => 'Vui lòng nhập số lượng tồn tối thiểu.',
+        'don_vi.required' => 'Vui lòng nhập đơn vị cho mỗi nguyên liệu.',
+    ]);
 
-        foreach ($request->ma_nguyen_lieu as $maNL) {
-            $daTonTai = CuaHangNguyenLieu::where([
-                ['ma_cua_hang', $request->ma_cua_hang],
-                ['ma_nguyen_lieu', $maNL]
-            ])->exists();
+    foreach ($request->ma_nguyen_lieu as $maNL) {
+        $daTonTai = CuaHangNguyenLieu::where([
+            ['ma_cua_hang', $request->ma_cua_hang],
+            ['ma_nguyen_lieu', $maNL]
+        ])->exists();
 
-            if (!$daTonTai) {
-                $nguyenLieu = NguyenLieu::where('ma_nguyen_lieu', $maNL)->first();
+        if (!$daTonTai) {
+            $nguyenLieu = NguyenLieu::where('ma_nguyen_lieu', $maNL)->first();
+            $inputMin = $request->so_luong_ton_min[$maNL] ?? 0;
+            $dinhLuong = $nguyenLieu->so_luong ?? 1;
 
-                // Lấy tồn tối thiểu người nhập (theo từng mã nguyên liệu)
-                $inputSoLuongMin = $request->so_luong_ton_min[$maNL] ?? 0;
-                $dinhLuong = $nguyenLieu->so_luong ?? 1; // nếu cần nhân theo định lượng
-                $soLuongTonMin = (float)$inputSoLuongMin * (float)$dinhLuong;
-
-                CuaHangNguyenLieu::create([
-                    'ma_cua_hang' => $request->ma_cua_hang,
-                    'ma_nguyen_lieu' => $maNL,
-                    'so_luong_ton' => 0,
-                    'so_luong_ton_min' => $soLuongTonMin,
-                    'don_vi' => $nguyenLieu->don_vi,
-                ]);
-            }
+            CuaHangNguyenLieu::create([
+                'ma_cua_hang' => $request->ma_cua_hang,
+                'ma_nguyen_lieu' => $maNL,
+                'so_luong_ton' => 0,
+                'so_luong_ton_min' => (float)$inputMin * (float)$dinhLuong,
+                'don_vi' => $request->don_vi[$maNL] ?? $nguyenLieu->don_vi,
+            ]);
         }
-
-        toastr()->success('Đã thêm nguyên liệu vào kho.');
-        return redirect()->route('admins.shopmaterial.index', ['ma_cua_hang' => $request->ma_cua_hang]);
     }
+
+    toastr()->success('Đã thêm nguyên liệu vào kho.');
+    return redirect()->route('admins.shopmaterial.index', ['ma_cua_hang' => $request->ma_cua_hang]);
+}
+
     public function edit($id)
     {
         $material = NguyenLieu::findOrFail($id);
@@ -724,6 +735,10 @@ class AdminShopmaterialController extends Controller
                 }
             });
         }
+        $dsCuaHang = CuaHang::all();
+        if ($request->filled('ma_cua_hang')) {
+            $query->where('ma_cua_hang', $request->ma_cua_hang);
+        }
 
         if ($request->filled('loai_phieu')) {
             $query->where('loai_phieu', $request->loai_phieu);
@@ -764,6 +779,7 @@ class AdminShopmaterialController extends Controller
             'subtitle' => 'Danh sách Phiếu Nhập - Xuất - Hủy',
             'danhSachPhieu' => $danhSachLo,
             'search'=>$search,
+            'dsCuaHang' => $dsCuaHang,
         ]);
     }
     public function layChiTietPhieu($ngay_tao, $loai_phieu, $ma_nv)

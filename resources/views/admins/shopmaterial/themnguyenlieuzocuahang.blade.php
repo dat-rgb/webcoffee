@@ -58,12 +58,13 @@
                     <table class="table display table-striped table-hover" id="nguyen-lieu-table">
                         <thead>
                             <tr>
-                                <th>Nguyên liệu</th>
+                                <th>Mã NL</th>
+                                <th>Tên nguyên liệu</th>
+                                <th>Đơn vị</th>
                                 <th>Số lượng tồn tối thiểu</th>
-                                <th>Đơn vị tính</th>
+                                <th>Đơn vị tổng</th>
                             </tr>
                         </thead>
-
                         <tbody id="nguyen-lieu-da-chon-body">
                             <!-- JavaScript sẽ render dữ liệu -->
                         </tbody>
@@ -108,12 +109,9 @@
                         @foreach($materials as $index => $material)
                             <tr class="nguyen-lieu-row" data-index="{{ $index }}">
                                 <td>
-                                    <input type="checkbox" class="chon-nguyen-lieu"
-                                        data-id="{{ $material->ma_nguyen_lieu }}"
+                                    <input type="checkbox" class="chon-nguyen-lieu" data-id="{{ $material->ma_nguyen_lieu }}"
                                         data-ten="{{ $material->ten_nguyen_lieu }}"
-                                        data-donvi="{{ $material->don_vi }}"
-                                        data-soluong="{{ $material->so_luong }}">
-
+                                        data-donvi="{{ $material->don_vi }}">
                                 </td>
                                 <td>{{ $material->ma_nguyen_lieu }}</td>
                                 <td>{{ $material->ten_nguyen_lieu }}</td>
@@ -135,37 +133,31 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.getElementById('btn-them-nguyen-lieu').addEventListener('click', function () {
-    const checked = document.querySelectorAll('.chon-nguyen-lieu:checked');
-    const tbody = document.getElementById('nguyen-lieu-da-chon-body');
-    tbody.innerHTML = '';
+        const checked = document.querySelectorAll('.chon-nguyen-lieu:checked');
+        const tbody = document.getElementById('nguyen-lieu-da-chon-body');
+        tbody.innerHTML = '';
 
-    checked.forEach(item => {
-        const id = item.dataset.id;
-        const ten = item.dataset.ten;
-        const donvi = item.dataset.donvi;
-        const soluong = item.dataset.soluong;
+        checked.forEach(item => {
+            const id = item.dataset.id;
+            const ten = item.dataset.ten;
+            const donvi = item.dataset.donvi;
 
-        const hienThi = `${ten} - ${soluong}${donvi}`;
+            tbody.innerHTML += `
+                <tr>
+                    <td><input type="hidden" name="ma_nguyen_lieu[]" value="${id}">${id}</td>
+                    <td>${ten}</td>
+                    <td>${donvi}</td>
+                    <td>
+                        <input type="number" name="so_luong_ton_min[${id}]" class="form-control" min="0" required>
+                    </td>
+                    <td>
+                        <input type="text" name="don_vi[${id}]" class="form-control"  required>
+                    </td>
 
-        tbody.innerHTML += `
-            <tr>
-                <td>
-                    <input type="hidden" name="ma_nguyen_lieu[]" value="${id}">
-                    ${hienThi}
-                </td>
-                <td>
-                    <input type="number" name="so_luong_ton_min[${id}]" class="form-control" min="0" required>
-                </td>
-                <td>
-                    <input type="text" name="don_vi[${id}]" class="form-control" required>
-                </td>
-            </tr>
-        `;
+                </tr>
+            `;
+        });
     });
-});
-
-
-
 
     document.getElementById('btn-luu-nguyen-lieu').addEventListener('click', function () {
         Swal.fire({
@@ -232,3 +224,84 @@
 </script>
 
 @endpush
+
+
+
+
+
+
+
+
+public function create(Request $request)
+    {
+        $title = 'Thêm nguyên liệu';
+        $subtitle = 'Thêm nguyên liệu vào kho';
+        if (!$request->has('ma_cua_hang')) {
+            toastr()->error('Vui lòng chọn cửa hàng!');
+            return redirect()->route('admins.shopmaterial.index');
+        }
+
+        $maCuaHang = $request->ma_cua_hang;
+
+        // Lấy danh sách mã nguyên liệu đã có trong kho cửa hàng này
+        $nguyenLieuDaCo = CuaHangNguyenLieu::where('ma_cua_hang', $maCuaHang)
+            ->pluck('ma_nguyen_lieu')
+            ->toArray();
+
+        // Lấy danh sách nguyên liệu CHƯA có trong cửa hàng và còn hoạt động
+        $materials = NguyenLieu::where('trang_thai', 1)
+            ->whereNotIn('ma_nguyen_lieu', $nguyenLieuDaCo)
+            ->get();
+
+        $tenCuaHang = CuaHang::where('ma_cua_hang', $maCuaHang)->value('ten_cua_hang');
+        $viewData = [
+            'title' => $title,
+            'subtitle' => $subtitle,
+            'materials' => $materials,
+            'ma_cua_hang' => $maCuaHang,
+            'ten_cua_hang' => $tenCuaHang,
+        ];
+
+        return view('admins.shopmaterial.create', $viewData);
+    }
+    public function store(Request $request)
+    {
+        $request->validate([
+            'ma_cua_hang' => 'required|exists:cua_hangs,ma_cua_hang',
+            'ma_nguyen_lieu' => 'required|array|min:1',
+            'ma_nguyen_lieu.*' => 'required|exists:nguyen_lieus,ma_nguyen_lieu',
+            'so_luong_ton_min' => 'required|array',
+        ], [
+            'ma_nguyen_lieu.required' => 'Vui lòng chọn ít nhất một nguyên liệu.',
+            'ma_nguyen_lieu.*.exists' => 'Một trong các nguyên liệu không tồn tại.',
+            'ma_cua_hang.exists' => 'Cửa hàng không hợp lệ.',
+            'so_luong_ton_min.required' => 'Vui lòng nhập số lượng tồn tối thiểu.',
+        ]);
+
+        foreach ($request->ma_nguyen_lieu as $maNL) {
+            $daTonTai = CuaHangNguyenLieu::where([
+                ['ma_cua_hang', $request->ma_cua_hang],
+                ['ma_nguyen_lieu', $maNL]
+            ])->exists();
+
+            if (!$daTonTai) {
+                $nguyenLieu = NguyenLieu::where('ma_nguyen_lieu', $maNL)->first();
+
+                // Lấy tồn tối thiểu người nhập (theo từng mã nguyên liệu)
+                $inputSoLuongMin = $request->so_luong_ton_min[$maNL] ?? 0;
+                $dinhLuong = $nguyenLieu->so_luong ?? 1; // nếu cần nhân theo định lượng
+                $soLuongTonMin = (float)$inputSoLuongMin * (float)$dinhLuong;
+
+                CuaHangNguyenLieu::create([
+                    'ma_cua_hang' => $request->ma_cua_hang,
+                    'ma_nguyen_lieu' => $maNL,
+                    'so_luong_ton' => 0,
+                    'so_luong_ton_min' => $soLuongTonMin,
+                    'don_vi' => $nguyenLieu->don_vi,
+                ]);
+            }
+        }
+
+        toastr()->success('Đã thêm nguyên liệu vào kho.');
+        return redirect()->route('admins.shopmaterial.index', ['ma_cua_hang' => $request->ma_cua_hang]);
+    }

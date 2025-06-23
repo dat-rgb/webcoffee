@@ -133,90 +133,24 @@
         </div>
     </div>
 </div>
-
 @endsection
 
 @push('scripts')
-<script src="{{ asset('admins/js/alert.js') }}"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('admins/js/alert.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-
-        // Toggle trạng thái
-        window.confirmToggle = function(id, action) {
-            Swal.fire({
-                title: 'Xác nhận thay đổi trạng thái',
-                text: `Bạn có chắc chắn muốn ${action} hoạt động nhà cung cấp này không?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Đồng ý',
-                cancelButtonText: 'Hủy'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire({
-                        title: 'Đang xử lý...',
-                        text: 'Vui lòng chờ',
-                        allowOutsideClick: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
-
-                    setTimeout(() => {
-                        document.getElementById('toggle-status-' + id).submit();
-                    }, 600);
-                }
-            });
-        };
-
-        // Chỉnh sửa
-        document.querySelectorAll('.btn-edit').forEach(function (button) {
-            button.addEventListener('click', function (e) {
-                e.preventDefault();
-                const url = this.getAttribute('data-url');
+            // Toggle trạng thái
+            window.confirmToggle = function(id, action) {
                 Swal.fire({
-                    title: 'Xác nhận chỉnh sửa?',
-                    text: "Bạn có chắc muốn chỉnh sửa nhà cung cấp này không?",
-                    icon: 'question',
+                    title: 'Xác nhận thay đổi trạng thái',
+                    text: `Bạn có chắc chắn muốn ${action} hoạt động nhà cung cấp này không?`,
+                    icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',
                     cancelButtonColor: '#d33',
-                    confirmButtonText: 'Có, chỉnh sửa',
-                    cancelButtonText: 'Hủy'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        Swal.fire({
-                            title: 'Đang chuyển trang...',
-                            text: 'Vui lòng chờ',
-                            allowOutsideClick: false,
-                            didOpen: () => {
-                                Swal.showLoading();
-                            }
-                        });
-
-                        setTimeout(() => {
-                            window.location.href = url;
-                        }, 600);
-                    }
-                });
-            });
-        });
-
-        // Tạm xóa
-        document.querySelectorAll('.btn-archive').forEach(function (button) {
-            button.addEventListener('click', function () {
-                const id = this.getAttribute('data-id');
-                Swal.fire({
-                    title: 'Xác nhận tạm xóa?',
-                    text: "Bạn có chắc muốn tạm xóa nhà cung cấp này không?",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#dc3545',
-                    cancelButtonColor: '#6c757d',
-                    confirmButtonText: 'Có, xóa',
+                    confirmButtonText: 'Đồng ý',
                     cancelButtonText: 'Hủy'
                 }).then((result) => {
                     if (result.isConfirmed) {
@@ -230,14 +164,78 @@
                         });
 
                         setTimeout(() => {
-                            document.getElementById('archive-form-' + id).submit();
+                            document.getElementById('toggle-status-' + id).submit();
                         }, 600);
                     }
                 });
+            };
+
+            // Chỉnh sửa
+            document.querySelectorAll('.btn-edit').forEach(function (button) {
+                button.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const url = this.getAttribute('data-url');
+                    Swal.fire({
+                        title: 'Xác nhận chỉnh sửa?',
+                        text: "Bạn có chắc muốn chỉnh sửa nhà cung cấp này không?",
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Có, chỉnh sửa',
+                        cancelButtonText: 'Hủy'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            Swal.fire({
+                                title: 'Đang chuyển trang...',
+                                text: 'Vui lòng chờ',
+                                allowOutsideClick: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
+
+                            setTimeout(() => {
+                                window.location.href = url;
+                            }, 600);
+                        }
+                    });
+                });
+            });
+
+            // Tạm xóa
+            document.querySelectorAll('.btn-archive').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    const id = this.getAttribute('data-id');
+                    Swal.fire({
+                        title: 'Xác nhận tạm xóa?',
+                        text: "Bạn có chắc muốn tạm xóa nhà cung cấp này không?",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#dc3545',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Có, xóa',
+                        cancelButtonText: 'Hủy'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            Swal.fire({
+                                title: 'Đang xử lý...',
+                                text: 'Vui lòng chờ',
+                                allowOutsideClick: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
+
+                            setTimeout(() => {
+                                document.getElementById('archive-form-' + id).submit();
+                            }, 600);
+                        }
+                    });
+                });
             });
         });
-    });
-</script>
+    </script>
 @endpush
 
 

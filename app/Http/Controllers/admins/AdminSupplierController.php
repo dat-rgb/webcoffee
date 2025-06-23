@@ -23,7 +23,22 @@ class AdminSupplierController extends Controller
             $query->where('ten_nha_cung_cap', 'like', '%' . $request->search . '%');
         }
 
-        $suppliers = $query->paginate(10)->withQueryString();
+        //$suppliers = $query->paginate(10)->withQueryString();
+        $perPage = 10;
+        $currentPage = $request->input('page', 1);
+
+        // Lấy phân trang ban đầu
+        $suppliers = $query->paginate($perPage)->withQueryString();
+        $lastPage = $suppliers->lastPage();
+
+        // Nếu truy cập vượt quá trang cuối, redirect về trang cuối
+        if ($currentPage > $lastPage && $lastPage > 0) {
+            return redirect()->route('admins.supplier.index', array_merge(
+                $request->except('page'),
+                ['page' => $lastPage]
+            ));
+        }
+
 
         return view('admins.supplier.index', [
             'title' => 'Danh Sách Nhà Cung Cấp',
@@ -285,9 +300,4 @@ class AdminSupplierController extends Controller
         toastr()->success('Xóa nhà cung cấp đã chọn thành công!');
         return back();
     }
-
-
-
-
-
 }

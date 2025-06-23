@@ -61,8 +61,6 @@
                                         <th class="px-2 py-2">NSX</th>
                                         <th class="px-2 py-2">HSD</th>
                                         <th class="px-2 py-2" style="width: 200px;">Ghi chú</th>
-                                        <th class="px-2 py-2">Số lượng tồn</th>
-
                                         <th class="px-2 py-2">Hành động</th>
                                     </tr>
                                 </thead>
@@ -97,8 +95,6 @@
                                         <td class="px-2 py-2" style="width: 200px;">
                                             <input type="text" name="note[{{ $material->ma_cua_hang }}][{{ $material->ma_nguyen_lieu }}]" class="form-control form-control-sm" placeholder="nhập...">
                                         </td>
-                                        <td class="px-2 py-2">{{ $material->so_luong_ton .' '. $material->don_vi }}</td>
-
                                         <td class="px-2 py-2">
                                             <button type="button" class="btn btn-sm btn-outline-danger remove-row">Xóa</button>
                                         </td>
@@ -143,7 +139,7 @@
                         text: 'Bạn sẽ được chuyển về trang danh sách.',
                         confirmButtonText: 'OK'
                     }).then(() => {
-                        window.location.href = "{{ route('admins.shopmaterial.index') }}";
+                        window.location.href = "{{ route('admins.shopmaterial.index', ['ma_cua_hang' => $firstMaterial->ma_cua_hang]) }}";
                     });
                 }
             });

@@ -234,11 +234,6 @@
                       </a>
                     </li>
                     <li>
-                      <a href="{{ route('admins.supplier.create') }}">
-                        <span class="sub-item">Thêm nhà cung cấp</span>
-                      </a>
-                    </li>
-                    <li>
                         <a href="{{ route('admins.supplier.archived') }}">
                             <span class="sub-item">Danh sách nhà cung cấp bị ẩn</span>
                         </a>
