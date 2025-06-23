@@ -197,8 +197,6 @@ Route::prefix('admin/products')->middleware(AdminMiddleware::class)->group(funct
     Route::get('/add-ingredients/{slug}',[AdminProductController::class,'showProductAddIngredients'])->name('admin.products.ingredients.form');
     Route::post('/ingredients/add',[AdminProductController::class,'productAddIngredients'])->name('admin.products.ingredients.add');
     Route::post('/ingredient/update',[AdminProductController::class,'productUpdateIngredients'])->name('admin.products.ingredients.update');
-    Route::delete('/{slug}/sort-delete',[AdminProductController::class,'sortDelete'])->name('admin.product.sort-delete');
-    Route::get('/delete',[AdminProductController::class,'listProductSortDelete'])->name('admin.products.list.delete');
 });
 
 //Route Categories Admin
@@ -326,6 +324,10 @@ Route::prefix('admin/blog')->middleware(AdminMiddleware::class)->group(function(
     Route::get('/add-blog',[AdminBlogController::class,'showFormBlog'])->name('admin.blog.form');
     Route::post('/add-blog',[AdminBlogController::class,'add'])->name('admin.blog.add');
     Route::post('/tinymce/upload', [AdminBlogController::class, 'tinymceUpload'])->name('tinymce.upload');
+    Route::get('/edit-blog/{id}',[AdminBlogController::class,'showFormEdit'])->name('admin.blog.edit.show');
+    Route::post('/edit-blog/{id}',[AdminBlogController::class,'updateBlog'])->name('admin.blog.update');
+    Route::post('/bulk-action', [AdminBlogController::class, 'bulkAction'])->name('admin.blogs.bulkAction');
+
 });
 
 
@@ -374,6 +376,9 @@ Route::prefix('staff/orders')->middleware(NhanVienMiddleware::class)->group(func
 //Route Staff Dashboard
 Route::prefix('staff/dashboard')->middleware(NhanVienMiddleware::class)->group(function() {
     Route::get('/', [StaffDashboardController::class, 'index'])->name('staff.dashboard');
+    Route::post('/phieu-nhap/export', [StaffDashboardController::class, 'exportPhieuNhap'])->name('staff.nguyenlieu.exportPhieuNhap');
+    Route::post('/phieu-xuat/export', [StaffDashboardController::class, 'exportPhieuXuat'])->name('staff.nguyenlieu.exportPhieuXuat');
+
 });
 
 //Route Staff Shop material
@@ -389,6 +394,8 @@ Route::prefix('staff/shop-material')->middleware(NhanVienMiddleware::class)->nam
     Route::post('/export',[StaffShopmaterialController::class,'export'])->name('export');
     Route::post('/destroy', [StaffShopmaterialController::class, 'destroy'])->name('destroy');
     Route::get('/destroy-page', [StaffShopmaterialController::class, 'showDestroyPage'])->name('showDestroyPage');
+
+    ////
 });
 
 //Route Staff NhanVien
@@ -410,6 +417,8 @@ Route::prefix('staff/nhanviens')->middleware(NhanVienMiddleware::class)->name('s
     Route::patch('/restore-bulk', [StaffController::class, 'bulkRestore'])->name('restore.bulk');
     Route::patch('/archive/bulk', [StaffController::class, 'archiveBulk'])->name('archive.bulk');
 });
+
+
 //End - Staff
 
 

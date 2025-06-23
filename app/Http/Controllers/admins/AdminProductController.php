@@ -69,6 +69,9 @@ class AdminProductController extends Controller
             search: $request->search,
             maDanhMuc: $request->ma_danh_muc
         );
+        if ($request->page > $products->lastPage()) {
+            return redirect()->route('admin.products.list', ['page' => $products->lastPage()]);
+        }
 
         $categories = $this->getCategory();
         $sizesMap = [];
@@ -90,6 +93,14 @@ class AdminProductController extends Controller
     public function listProductsHidden(Request $request){
         $search = $request->input('search');
         $products = $this->getProductsByStatus(2, $search);
+        if ($request->page > $products->lastPage()) {
+            return redirect()->route('admin.products.hidden.list', ['page' => $products->lastPage()]);
+        }
+
+        if ($request->page > $products->lastPage()) {
+            return redirect()->route('admin.products.list', ['page' => $products->lastPage()]);
+        }
+
         $categories = $this->getCategory();
         $sizesMap = [];
         foreach ($products as $pro) {
@@ -108,10 +119,9 @@ class AdminProductController extends Controller
         return view('admins.products.index', $viewData);
     }
     //show form 
-    public function showProductForm(){
-
+    public function showProductForm() {
         $categorys = $this->getCategory();
-        $ingredients = NguyenLieu::where('is_ban_duoc',1)->where('trang_thai',1)->get();
+
         $lastItem = SanPham::withTrashed()->orderByDesc('ma_san_pham')->first();
 
         if ($lastItem) {
@@ -122,12 +132,19 @@ class AdminProductController extends Controller
         }
 
         $newCode = 'SP' . str_pad($newNumber, 8, '0', STR_PAD_LEFT);
+        $usedIngredientIds = ThanhPhanSanPham::pluck('ma_nguyen_lieu')->toArray();
+
+        // Lấy nguyên liệu có thể bán, chưa nằm trong bảng thành phần sản phẩm
+        $ingredients = NguyenLieu::where('is_ban_duoc', 1)
+            ->where('trang_thai', 1)
+            ->whereNotIn('ma_nguyen_lieu', $usedIngredientIds)
+            ->get();
 
         $viewData = [
             'title' => 'Thêm sản phẩm | CMDT Coffee & Tea',
             'subtitle' => 'Thêm sản phẩm',
             'categorys' => $categorys,
-            'ingredients' =>$ingredients,
+            'ingredients' => $ingredients,
             'newCode' => $newCode
         ];
 
@@ -399,32 +416,7 @@ class AdminProductController extends Controller
         }
 
         return redirect()->route('admin.products.list');
-    }
-    //Ẩn/hiện 
-    public function productHiddenOrAcctive($proId) {
-        $product = SanPham::where('ma_san_pham',$proId)->first();
-
-        if (!$product) {
-            toastr()->error('Sản phẩm không tồn tại');
-            return redirect()->back();
-        }
-
-        if ($product->trang_thai == 3) {
-            toastr()->error('Không thể ẩn sản phẩm đã lưu trữ');
-            return redirect()->back();
-        }
-
-        if ($product->trang_thai == 1) {
-            $product->update(['trang_thai' => 2]);
-            toastr()->success('Sản phẩm đã được ẩn');
-        } else {
-            $product->update(['trang_thai' => 1]);
-            toastr()->success('Sản phẩm đã được hiển thị');
-        }
-
-        return redirect()->back();
-    }
-    //thao tác nhanh
+    } 
     public function bulkAction(Request $request)
     {
         $action = $request->input('action');
@@ -434,31 +426,61 @@ class AdminProductController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Vui lòng chọn ít nhất một sản phẩm']);
         }
 
-        if ($action === 'restore') {
-            $products = SanPham::onlyTrashed()->whereIn('ma_san_pham', $productIds)->get();
-            foreach ($products as $product) {
-                $product->restore();
+        // Xử lý toggle nếu chỉ chọn 1 sản phẩm
+        if (count($productIds) === 1 && $action === 'toggle') {
+            $product = SanPham::where('ma_san_pham', $productIds[0])->first();
+
+            if (!$product) {
+                return response()->json(['status' => 'error', 'message' => 'Sản phẩm không tồn tại']);
             }
-        } elseif ($action === 'force-delete') {
-            $products = SanPham::onlyTrashed()->whereIn('ma_san_pham', $productIds)->get();
-            foreach ($products as $product) {
-                $product->forceDelete();
+
+            if ($product->trang_thai == 3) {
+                return response()->json(['status' => 'error', 'message' => 'Không thể ẩn sản phẩm đã lưu trữ']);
             }
-        } else {
-            $products = SanPham::whereIn('ma_san_pham', $productIds)->get();
-            foreach ($products as $product) {
-                if ($action === 'hide') {
+
+            $product->update([
+                'trang_thai' => $product->trang_thai == 1 ? 2 : 1
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => $product->trang_thai == 1 ? 'Sản phẩm đã được hiển thị' : 'Sản phẩm đã được ẩn'
+            ]);
+        }
+
+        // Các hành động khác (hide, show, delete)
+        $products = SanPham::whereIn('ma_san_pham', $productIds)->get();
+
+        foreach ($products as $product) {
+            switch ($action) {
+                case 'hide':
                     $product->update(['trang_thai' => 2]);
-                } elseif ($action === 'show') {
+                    break;
+
+                case 'show':
                     $product->update(['trang_thai' => 1]);
-                } elseif ($action === 'delete') {
-                    $product->delete(); // Xoá mềm
-                }
+                    break;
+
+                case 'delete':
+                    if ($product->chiTietHoaDon()->exists()) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => "Không thể xóa sản phẩm '{$product->ten_san_pham}' vì đang có trong hóa đơn."
+                        ]);
+                    }
+
+                    $product->delete(); // Xoá thực
+                    break;
+
+                default:
+                    return response()->json(['status' => 'error', 'message' => 'Hành động không hợp lệ']);
             }
         }
 
         return response()->json(['status' => 'success', 'message' => 'Đã thực hiện thao tác thành công']);
     }
+
+
     //show form cập nhật
     public function showProductEdit($proId) {
         $product = SanPham::with('thanhPhans')->where('ma_san_pham', $proId)->first();
@@ -581,14 +603,18 @@ class AdminProductController extends Controller
         }
 
         $deletedProducts = $deletedProductsQuery->paginate(10);
-
+        if ($request->page > $deletedProducts->lastPage()) {
+            return redirect()->route('admin.products.list.delete', ['page' => $deletedProducts->lastPage()]);
+        }
         $viewData = [
             'title' => 'Quản lý sản phẩm | CDMT Coffee & Tea',
             'subtitle' => 'Danh sách sản phẩm đã xóa',
             'products' => $deletedProducts,
-            'search' => $search, // Để giữ giá trị input search trên view nếu cần
+            'search' => $search, 
         ];
 
         return view('admins.products.product_delete', $viewData);
     }
+
+    
 }

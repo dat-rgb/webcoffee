@@ -157,11 +157,6 @@
                         <span class="sub-item">Thêm sản phẩm</span>
                       </a>
                     </li>
-                    <li>
-                      <a href="{{ route('admin.products.list.delete') }}">
-                        <span class="sub-item">Sản phẩm đã xóa</span>
-                      </a>
-                    </li>
                   </ul>
                 </div>
               </li>

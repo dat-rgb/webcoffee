@@ -124,7 +124,7 @@
                             $status = request()->routeIs('admin.products.hidden.list') ? 'ẩn' : 'hiển thị';
                         @endphp
 
-                        <h5 class="text-muted">
+                        <h5 class="text-muted mb-3">
                             @if($search || $category)
                                 Không tìm thấy sản phẩm
                                 @if($search)
@@ -142,8 +142,14 @@
                             @endif
                         </h5>
 
+                        @if($search || $category)
+                            <a href="{{ route('admin.products.list') }}" class="btn btn-outline-secondary mb-3">
+                                <i class="fa fa-undo"></i> Bỏ lọc và tìm kiếm
+                            </a>
+                        @endif
+
                         <p>Hãy thêm sản phẩm mới để bắt đầu quản lý kho hàng.</p>
-                        <a href="{{ route('admin.products.form') }}" class="mt-3 btn btn-primary">
+                        <a href="{{ route('admin.products.form') }}" class="btn btn-primary mt-2">
                             <i class="fa fa-plus"></i> Thêm sản phẩm mới
                         </a>
                     </div>
@@ -159,7 +165,7 @@
                                                     <th><input type="checkbox" id="checkAll"></th>
                                                     <th>Ảnh</th>
                                                     <th>Mã Sản Phẩm</th>
-                                                    <th>Tên Sản Phẩm</th>
+                                                    <th>Tên sản phẩm</th>
                                                     <th>Loại</th>
                                                     <th>Danh mục</th>
                                                     <th>Giá (vnd)</th>
@@ -194,97 +200,90 @@
                                                             $sizes = $sizesMap[$pro->ma_san_pham] ?? collect(); 
                                                         @endphp
                                                         <td style="min-width: 150px; max-width: 200px; width: 100px;">
-                                                                @if ($pro->loai_san_pham === 1)
-                                                                    <span class="badge bg-primary">Đóng gói</span>
+                                                            @if ($pro->loai_san_pham === 1)
+                                                                <span class="badge bg-primary">Đóng gói</span>
+                                                            @else
+                                                                @if ($sizes->count())
+                                                                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                                                        @foreach ($sizes as $size)
+                                                                            <span style="background: #e0f7fa; color: #00796b;
+                                                                                        padding: 4px 8px; border-radius: 6px;
+                                                                                        font-size: 11px; font-weight: 500;
+                                                                                        white-space: nowrap;">
+                                                                                {{ $size->ten_size }}
+                                                                            </span>
+                                                                        @endforeach
+                                                                        <a href="{{ route('admin.products.ingredients.show', $pro->ma_san_pham) }}" data-bs-toggle="tooltip" title="Xem chi tiết">chi tiết</a>
+                                                                    </div>
                                                                 @else
-                                                                    @if ($sizes->count())
-                                                                        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-                                                                            @foreach ($sizes as $size)
-                                                                                <span style="background: #e0f7fa; color: #00796b;
-                                                                                            padding: 4px 8px; border-radius: 6px;
-                                                                                            font-size: 11px; font-weight: 500;
-                                                                                            white-space: nowrap;">
-                                                                                    {{ $size->ten_size }}
-                                                                                </span>
-                                                                            @endforeach
-                                                                            <a href="{{ route('admin.products.ingredients.show', $pro->ma_san_pham) }}" data-bs-toggle="tooltip" title="Xem chi tiết">chi tiết</a>
-                                                                        </div>
+                                                                    <span class="text-muted">
+                                                                        <a href="{{ route('admin.products.ingredients.form', $pro->slug) }}" data-bs-toggle="tooltip" title="Thêm thành phần sản phẩm">Thêm size.</a>
+                                                                    </span>
+                                                                @endif
+                                                            @endif
+                                                        </td>
+                                                        <td>
+                                                            @if ($pro->trang_thai == 1)
+                                                                <span class="badge badge-success">Hiển thị</span>
+                                                            @elseif ($pro->trang_thai == 2)
+                                                                <span class="badge badge-danger">Ẩn</span>
+                                                            @else
+                                                                <span class="badge badge-secondary">Không xác định</span>
+                                                            @endif
+                                                        </td>
+                                                        <td>
+                                                            <div style="display: inline-flex; gap: 2px;">
+                                                                @for ($i = 1; $i <= 5; $i++)
+                                                                    @if ($i <= $pro->rating)
+                                                                        <i class="fas fa-star" style="color: gold;"></i>
+                                                                    @elseif ($i - 0.5 == $pro->rating)
+                                                                        <i class="fas fa-star-half-alt" style="color: gold;"></i>
                                                                     @else
-                                                                        <span class="text-muted">
-                                                                            <a href="{{ route('admin.products.ingredients.form', $pro->slug) }}" data-bs-toggle="tooltip" title="Thêm thành phần sản phẩm">Thêm size.</a>
-                                                                        </span>
+                                                                        <i class="far fa-star" style="color: gold;"></i>
                                                                     @endif
-                                                                @endif
-                                                            </td>
-                                                            <td>
-                                                                @if ($pro->trang_thai == 1)
-                                                                    <span class="badge badge-success">Hiển thị</span>
-                                                                @elseif ($pro->trang_thai == 2)
-                                                                    <span class="badge badge-danger">Ẩn</span>
-                                                                @else
-                                                                    <span class="badge badge-secondary">Không xác định</span>
-                                                                @endif
-                                                            </td>
-                                                            <td>
-                                                                <div style="display: inline-flex; gap: 2px;">
-                                                                    @for ($i = 1; $i <= 5; $i++)
-                                                                        @if ($i <= $pro->rating)
-                                                                            <i class="fas fa-star" style="color: gold;"></i>
-                                                                        @elseif ($i - 0.5 == $pro->rating)
-                                                                            <i class="fas fa-star-half-alt" style="color: gold;"></i>
-                                                                        @else
-                                                                            <i class="far fa-star" style="color: gold;"></i>
-                                                                        @endif
-                                                                    @endfor
-                                                                </div>
-                                                            </td>
-                                                            <td>
-                                                                <div class="form-button-action">
-                                                                    @if($pro->trang_thai == 1)
-                                                                        <a href="{{ route('admin.product.edit.form', $pro->ma_san_pham) }}" class="btn btn-icon btn-round btn-info" data-bs-toggle="tooltip" title="Chỉnh sửa">
-                                                                            <i class="fa fa-edit"></i>
-                                                                        </a>
-                                                                        <form action="{{ route('admin.product.hidde-or-acctive', $pro->ma_san_pham) }}" method="POST" class="hidden-or-acctive">
-                                                                            @csrf
-                                                                            <button type="button" class="btn btn-icon btn-round btn-black hidden-btn" data-bs-toggle="tooltip" title="Ẩn">
-                                                                                <i class="text-white fas fa-toggle-off"></i>
-                                                                            </button>
-                                                                        </form>
-
-                                                                    @elseif($pro->trang_thai == 2)
-
-                                                                        <form action="{{ route('admin.product.hidde-or-acctive', $pro->ma_san_pham) }}" method="POST" class="acctive-form">
-                                                                            @csrf
-                                                                            <button type="button" class="btn btn-icon btn-round btn-warning acctive-btn" data-bs-toggle="tooltip" title="Hiển thị">
-                                                                                <i class="text-white fas fa-toggle-on"></i>
-                                                                            </button>
-                                                                        </form>
-                                                                        <button type="button" class="btn btn-icon btn-round btn-danger" data-bs-toggle="tooltip" title="Xóa">
-                                                                            <i class="fa fa-trash"></i>
-                                                                        </button>
-                                                                    @endif
-                                                                </div>
-                                                            </td>
-                                                        </tr>
+                                                                @endfor
+                                                            </div>
+                                                        </td>     
+                                                    </tr>
                                                 @endforeach
                                             </tbody>
                                         </table>
                                     </div>
                                 </div>
                                 <div class="row">
+                                    <div class="col-sm-12 col-md-5">
+                                        <div class="dataTables_info">
+                                            Hiển thị {{ $products->firstItem() }} đến {{ $products->lastItem() }} của {{ $products->total() }} sản phẩm
+                                        </div>
+                                    </div>
                                     <div class="col-sm-12 col-md-7">
-                                        <div class="dataTables_paginate paging_simple_numbers" id="add-row_paginate">
-                                            <ul class="pagination">
-                                                {{ $products->appends(request()->query())->links() }}
+                                        <div class="dataTables_paginate paging_simple_numbers">
+                                            <ul class="pagination justify-content-end mb-0">
+                                                {{-- Previous Page --}}
+                                                <li class="paginate_button page-item {{ $products->onFirstPage() ? 'disabled' : '' }}">
+                                                    <a href="{{ $products->previousPageUrl() ?? '#' }}" class="page-link">Trước</a>
+                                                </li>
+
+                                                {{-- Page Numbers --}}
+                                                @for ($i = 1; $i <= $products->lastPage(); $i++)
+                                                    <li class="paginate_button page-item {{ $products->currentPage() == $i ? 'active' : '' }}">
+                                                        <a href="{{ $products->url($i) }}" class="page-link">{{ $i }}</a>
+                                                    </li>
+                                                @endfor
+
+                                                {{-- Next Page --}}
+                                                <li class="paginate_button page-item {{ !$products->hasMorePages() ? 'disabled' : '' }}">
+                                                    <a href="{{ $products->nextPageUrl() ?? '#' }}" class="page-link">Kế tiếp</a>
+                                                </li>
                                             </ul>
                                         </div>
                                     </div>
                                 </div>
-                            </div> <!-- end dataTables_wrapper -->
-                        </div> <!-- end table-responsive -->
-                    </div> <!-- end card-body -->
+                            </div> 
+                        </div> 
+                    </div>
                 @endif
-            </div> <!-- end card -->
+            </div> 
         </div>
     </div>
 </div>

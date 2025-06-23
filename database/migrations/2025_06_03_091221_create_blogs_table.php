@@ -21,6 +21,7 @@ return new class extends Migration
             $table->longText('noi_dung');
             $table->tinyInteger('trang_thai')->default(0);
             $table->unsignedBigInteger('luot_xem')->default(0);
+            $table->unsignedBigInteger('luot_thich')->default(0);
             $table->string('tac_gia',255);
             $table->dateTime('ngay_dang');
             $table->tinyInteger('hot')->default(0); // 1: hot, 0: không hot (nổi bật)

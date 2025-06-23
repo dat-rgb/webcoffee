@@ -79,18 +79,36 @@ class AdminProductShopController extends Controller
     public function deleteProductShop(Request $request)
     {
         $productIds = $request->input('product_ids');
+        $maCuaHang = $request->input('ma_cua_hang');
 
         if (!$productIds || !is_array($productIds)) {
             toastr()->error('Không có sản phẩm nào được chọn.');
             return redirect()->back();
         }
 
-        \DB::table('san_pham_cua_hangs') // hoặc model liên quan
-            ->where('ma_cua_hang', request('ma_cua_hang'))
-            ->whereIn('ma_san_pham', $productIds)
+        // JOIN để lấy các sản phẩm đã nằm trong hóa đơn của cửa hàng
+        $usedProductIds = \DB::table('chi_tiet_hoa_dons as ct')
+            ->join('hoa_dons as hd', 'ct.ma_hoa_don', '=', 'hd.ma_hoa_don')
+            ->whereIn('ct.ma_san_pham', $productIds)
+            ->where('hd.ma_cua_hang', $maCuaHang)
+            ->pluck('ct.ma_san_pham')
+            ->toArray();
+
+        // Lọc các sản phẩm có thể xóa
+        $deletableProductIds = array_diff($productIds, $usedProductIds);
+
+        if (empty($deletableProductIds)) {
+            toastr()->warning('Tất cả sản phẩm đã có trong hóa đơn, không thể xóa.');
+            return redirect()->back();
+        }
+
+        // Xoá khỏi bảng trung gian san_pham_cua_hangs hoặc bảng phù hợp
+        \DB::table('san_pham_cua_hangs')
+            ->where('ma_cua_hang', $maCuaHang)
+            ->whereIn('ma_san_pham', $deletableProductIds)
             ->delete();
 
-        toastr()->success('Đã xóa sản phẩm khỏi cửa hàng.');
+        toastr()->success('Đã xóa các sản phẩm chưa có trong hóa đơn.');
         return redirect()->back();
     }
 }
