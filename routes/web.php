@@ -327,6 +327,8 @@ Route::prefix('admin/blog')->middleware(AdminMiddleware::class)->group(function(
     Route::post('/tinymce/upload', [AdminBlogController::class, 'tinymceUpload'])->name('tinymce.upload');
     Route::get('/edit-blog/{id}',[AdminBlogController::class,'showFormEdit'])->name('admin.blog.edit.show');
     Route::post('/edit-blog/{id}',[AdminBlogController::class,'updateBlog'])->name('admin.blog.update');
+    Route::post('/bulk-action', [AdminBlogController::class, 'bulkAction'])->name('admin.blogs.bulkAction');
+
 });
 
 

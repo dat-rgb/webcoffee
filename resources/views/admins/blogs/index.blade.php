@@ -29,7 +29,7 @@
                 <li class="nav-item">
                     <a href="{{ route('admin.blog.index') }}">Blog</a>
                 </li>
-                @if(request()->routeIs('admin.products.hidden.list'))
+                @if(request()->input('trang_thai') == 0)
                     <li class="separator">
                         <i class="icon-arrow-right"></i>
                     </li>
@@ -61,6 +61,8 @@
                                         </button>
                                     </div>
                                 </div>
+
+                                {{-- Lọc danh mục --}}
                                 <div class="col-6 col-lg-2">
                                     <select class="form-select" name="ma_danh_muc" id="categoryFilter">
                                         <option value="">Tất cả danh mục</option>
@@ -71,6 +73,7 @@
                                         @endforeach
                                     </select>
                                 </div>
+
                                 {{-- Thao tác nhanh --}}
                                 <div class="col-6 col-lg-2">
                                     <div class="dropdown w-100">
@@ -78,33 +81,37 @@
                                             Thao tác
                                         </button>
                                         <ul class="dropdown-menu">
-                                            @if(request()->routeIs('admin.products.hidden.list'))
-                                                <li><button type="button" class="dropdown-item" id="show-products">Hiển thị các Blog đã chọn</button></li>
+                                            @if(request()->input('trang_thai') == 0)
+                                                <li><button type="button" class="dropdown-item" id="show-blogs">Hiển thị các Blog đã chọn</button></li>
                                             @else
-                                                <li><button type="button" class="dropdown-item" id="hide-products">Ẩn các Blog đã chọn</button></li>
+                                                <li><button type="button" class="dropdown-item" id="hide-blogs">Ẩn các Blog đã chọn</button></li>
                                             @endif
-                                            <li><button type="button" class="dropdown-item text-danger" id="delete-products">Xóa các Blog đã chọn</button></li>
+                                            <li><button type="button" class="dropdown-item text-danger" id="delete-blogs">Xóa các Blog đã chọn</button></li>
                                         </ul>
                                     </div>
                                 </div>
-                                {{-- Bộ lọc --}}
+
+                                {{-- Bộ lọc trạng thái --}}
                                 <div class="col-6 col-lg-2">
-                                    @if(request()->routeIs('admin.products.hidden.list'))
-                                        <a href="" class="btn btn-outline-danger w-100">
-                                            <i class="bi bi-eye-fill me-1"></i> Blog hiển thị
-                                        </a>
-                                    @else
-                                        <a href="" class="btn btn-outline-secondary w-100">
-                                            <i class="bi bi-eye-slash-fill me-1"></i> Blog ẩn
-                                        </a>
-                                    @endif
+                                    @php
+                                        $newTrangThai = request()->input('trang_thai') == 0 ? 1 : 0;
+                                    @endphp
+                                    <a href="{{ route('admin.blog.index', array_merge(request()->except('page'), ['trang_thai' => $newTrangThai])) }}"
+                                        class="btn btn-outline-{{ $newTrangThai == 0 ? 'secondary' : 'danger' }} w-100">
+                                        <i class="bi bi-eye{{ $newTrangThai == 0 ? '-slash' : '' }}-fill me-1"></i>
+                                        {{ $newTrangThai == 0 ? 'Blog ẩn' : 'Blog hiển thị' }}
+                                    </a>
                                 </div>
+
                                 {{-- Thêm mới --}}
                                 <div class="col-6 col-lg-2">
                                     <a href="{{ route('admin.blog.add') }}" class="btn btn-primary w-100">
                                         <i class="fa fa-plus"></i> Thêm mới
                                     </a>
                                 </div>
+
+                                {{-- Giữ trạng thái khi submit --}}
+                                <input type="hidden" name="trang_thai" value="{{ request('trang_thai', 1) }}">
                             </div>
                         </form>
                     </div>
@@ -113,14 +120,14 @@
                             <i class="mb-3 fa fa-box-open fa-3x text-muted"></i>
                             <h5 class="text-muted">Không tìm thấy Blog nào phù hợp</h5>
 
-                            @if(request()->has('search') || request()->has('ma_danh_muc'))
-                                <p>Không có Blog nào khớp với bộ lọc hoặc từ khóa bạn đã nhập.</p>
+                            @if(request()->has('search') || request()->has('ma_danh_muc') || request()->has('trang_thai'))
+                                <p>Không có Blog nào khớp với bộ lọc, trạng thái hoặc từ khóa bạn đã nhập.</p>
                                 <a href="{{ route('admin.blog.index') }}" class="mt-3 btn btn-outline-secondary">
                                     <i class="fa fa-undo"></i> Bỏ lọc và tìm kiếm
                                 </a>
                             @else
                                 <p>Hãy thêm Blog mới để bắt đầu quản lý.</p>
-                                <a href="{{ route('admin.blog.form') }}" class="mt-3 btn btn-primary">
+                                <a href="{{ route('admin.blog.add') }}" class="mt-3 btn btn-primary">
                                     <i class="fa fa-plus"></i> Thêm Blog mới
                                 </a>
                             @endif
@@ -147,9 +154,9 @@
                                                     </thead>
                                                     <tbody>
                                                         @foreach ($blogs as $blog)
-                                                            <tr class="product-row">
+                                                            <tr class="blog-row">
                                                                 <td class="text-center">
-                                                                    <input type="checkbox" class="product-checkbox" value="{{ $blog->ma_blog }}">
+                                                                    <input type="checkbox" class="blog-checkbox" value="{{ $blog->ma_blog }}">
                                                                 </td>
                                                                 <td>
                                                                     <a href="{{ route('admin.blog.edit.show',$blog->ma_blog) }}" class="" data-bs-toggle="tooltip" title="Xem chi tiết">
@@ -229,15 +236,115 @@
 @endsection
 @push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const select = document.getElementById('categoryFilter');
-        if (select) {
-            select.addEventListener('change', function () {
-                this.form.submit(); 
+document.addEventListener('DOMContentLoaded', function () {
+    const select = document.getElementById('categoryFilter');
+    if (select) {
+        select.addEventListener('change', function () {
+            this.form.submit(); 
+        });
+    }
+});
+
+document.getElementById('checkAll')?.addEventListener('click', function () {
+    document.querySelectorAll('.blog-checkbox').forEach(cb => cb.checked = this.checked);
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const checkAll = document.getElementById('checkAll');
+    const checkboxes = document.querySelectorAll('.blog-checkbox');
+    const hideButton = document.getElementById('hide-blogs');
+    const showButton = document.getElementById('show-blogs');
+    const deleteButton = document.getElementById('delete-blogs');
+
+    if (checkAll) {
+        checkAll.addEventListener('change', () => {
+            checkboxes.forEach(cb => cb.checked = checkAll.checked);
+        });
+
+        checkboxes.forEach(cb => {
+            cb.addEventListener('change', () => {
+                checkAll.checked = Array.from(checkboxes).every(cb => cb.checked);
             });
-        }
+        });
+    }
+
+    function handleBulkButton(button, action, confirmMessage = null) {
+        if (!button) return;
+        button.addEventListener('click', () => {
+            const selectedIds = getSelectedBlogIds();
+            if (selectedIds.length === 0) return showWarning('Vui lòng chọn ít nhất 1 blog.');
+
+            if (confirmMessage) {
+                Swal.fire({
+                    title: confirmMessage.title,
+                    text: confirmMessage.text,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: confirmMessage.confirmText,
+                    cancelButtonText: 'Hủy'
+                }).then(result => {
+                    if (result.isConfirmed) performBulkAction(selectedIds, action);
+                });
+            } else {
+                performBulkAction(selectedIds, action);
+            }
+        });
+    }
+
+    handleBulkButton(hideButton, 'hide');
+    handleBulkButton(showButton, 'show');
+    handleBulkButton(deleteButton, 'delete', {
+        title: 'Bạn có chắc muốn xoá?',
+        text: 'Thao tác này không thể hoàn tác!',
+        confirmText: 'Xoá'
     });
+
+    function getSelectedBlogIds() {
+        return Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+    }
+
+    function showWarning(message) {
+        Swal.fire({ icon: 'warning', title: 'Cảnh báo', text: message });
+    }
+
+    function performBulkAction(selectedIds, action) {
+        Swal.fire({
+            title: 'Đang xử lý...',
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading()
+        });
+
+        setTimeout(() => {
+            $.ajax({
+                url: '/admin/blog/bulk-action',
+                method: 'POST',
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    selected_blogs: selectedIds,
+                    action: action
+                },
+                success: function (response) {
+                    Swal.fire({
+                        icon: response.status === 'success' ? 'success' : 'error',
+                        title: response.status === 'success' ? 'Thành công' : 'Lỗi',
+                        text: response.message || 'Đã thực hiện thao tác.'
+                    }).then(() => {
+                        if (response.status === 'success') location.reload();
+                    });
+                },
+                error: function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi hệ thống',
+                        text: 'Không thể thực hiện thao tác. Vui lòng thử lại sau.'
+                    });
+                }
+            });
+        }, 800);
+    }
+});
+
 </script>
 <script src="{{ asset('admins/js/alert.js') }}"></script>
-<script src="{{ asset('admins/js/admin-product.js') }}"></script>
 @endpush

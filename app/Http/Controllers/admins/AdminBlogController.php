@@ -12,8 +12,13 @@ class AdminBlogController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Blog::with('danhMuc')->where('trang_thai', 1);
+        $query = Blog::with('danhMuc');
 
+        // Lọc theo trạng thái (ẩn / hiển thị / mặc định là 1)
+        $trangThai = $request->input('trang_thai', 1); 
+        $query->where('trang_thai', $trangThai);
+
+        // Lọc theo từ khóa
         if ($request->filled('search')) {
             $keyword = $request->input('search');
             $query->where(function ($q) use ($keyword) {
@@ -22,18 +27,21 @@ class AdminBlogController extends Controller
                 ->orWhere('tac_gia', 'like', "%$keyword%");
             });
         }
+
+        // Lọc theo danh mục
         if ($request->filled('ma_danh_muc')) {
             $query->where('ma_danh_muc_blog', $request->input('ma_danh_muc'));
         }
 
         $blogs = $query->orderByDesc('ma_blog')
-                    ->paginate(10)  
+                    ->paginate(10)
                     ->withQueryString();
-        
+
         $danhMucBlogs = DanhMucBlog::where('trang_thai', 1)->get();
 
+        // Redirect nếu page vượt quá lastPage
         if ($request->page > $blogs->lastPage()) {
-            return redirect()->route('admin.blog.index', ['page' => $blogs->lastPage()]);
+            return redirect()->route('admin.blog.index', array_merge($request->except('page'), ['page' => $blogs->lastPage()]));
         }
 
         return view('admins.blogs.index', [
@@ -41,6 +49,7 @@ class AdminBlogController extends Controller
             'subtitle' => 'Danh sách Blogs',
             'danhMucBlogs' => $danhMucBlogs,
             'blogs' => $blogs,
+            'trang_thai' => $trangThai, // Truyền về view để biết đang ở trạng thái nào
         ]);
     }
 
@@ -185,5 +194,61 @@ class AdminBlogController extends Controller
 
         toastr()->success('Cập nhật blog thành công!');
         return redirect()->route('admin.blog.index');
+    }
+    public function bulkAction(Request $request)
+    {
+        $action = $request->input('action');
+        $ids = $request->input('selected_blogs', []);
+
+        if (empty($ids)) {
+            return response()->json(['status' => 'error', 'message' => 'Không có blog nào được chọn.']);
+        }
+
+        switch ($action) {
+            case 'hide':
+                Blog::whereIn('ma_blog', $ids)->update(['trang_thai' => 0]);
+                return response()->json(['status' => 'success', 'message' => 'Đã ẩn blog.']);
+
+            case 'show':
+                Blog::whereIn('ma_blog', $ids)->update(['trang_thai' => 1]);
+                return response()->json(['status' => 'success', 'message' => 'Đã hiển thị blog.']);
+
+            case 'delete':
+                // Lấy blog cần xóa
+                $blogsToDelete = Blog::whereIn('ma_blog', $ids)->get();
+
+                // Nhóm theo mã danh mục
+                $grouped = $blogsToDelete->groupBy('ma_danh_muc_blog');
+
+                foreach ($grouped as $maDanhMuc => $blogsInGroup) {
+                    // Lấy số lượng blog hiển thị còn lại (không nằm trong danh sách xóa)
+                    $visibleCount = Blog::where('ma_danh_muc_blog', $maDanhMuc)
+                        ->where('trang_thai', 1)
+                        ->whereNotIn('ma_blog', $blogsInGroup->pluck('ma_blog'))
+                        ->count();
+
+                    if ($maDanhMuc == 1 && $visibleCount < 1) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Danh mục "Giới thiệu" phải có ít nhất 1 blog hiển thị.'
+                        ]);
+                    }
+
+                    if ($maDanhMuc == 2 && $visibleCount < 3) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Danh mục "Chính sách" phải có ít nhất 3 blog hiển thị.'
+                        ]);
+                    }
+                }
+
+                // Xóa nếu pass qua hết kiểm tra
+                Blog::whereIn('ma_blog', $ids)->delete();
+
+                return response()->json(['status' => 'success', 'message' => 'Đã xóa blog.']);
+
+            default:
+                return response()->json(['status' => 'error', 'message' => 'Hành động không hợp lệ.']);
+        }
     }
 }

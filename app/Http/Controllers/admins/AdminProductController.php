@@ -119,10 +119,9 @@ class AdminProductController extends Controller
         return view('admins.products.index', $viewData);
     }
     //show form 
-    public function showProductForm(){
-
+    public function showProductForm() {
         $categorys = $this->getCategory();
-        $ingredients = NguyenLieu::where('is_ban_duoc',1)->where('trang_thai',1)->get();
+
         $lastItem = SanPham::withTrashed()->orderByDesc('ma_san_pham')->first();
 
         if ($lastItem) {
@@ -133,12 +132,19 @@ class AdminProductController extends Controller
         }
 
         $newCode = 'SP' . str_pad($newNumber, 8, '0', STR_PAD_LEFT);
+        $usedIngredientIds = ThanhPhanSanPham::pluck('ma_nguyen_lieu')->toArray();
+
+        // Lấy nguyên liệu có thể bán, chưa nằm trong bảng thành phần sản phẩm
+        $ingredients = NguyenLieu::where('is_ban_duoc', 1)
+            ->where('trang_thai', 1)
+            ->whereNotIn('ma_nguyen_lieu', $usedIngredientIds)
+            ->get();
 
         $viewData = [
             'title' => 'Thêm sản phẩm | CMDT Coffee & Tea',
             'subtitle' => 'Thêm sản phẩm',
             'categorys' => $categorys,
-            'ingredients' =>$ingredients,
+            'ingredients' => $ingredients,
             'newCode' => $newCode
         ];
 
