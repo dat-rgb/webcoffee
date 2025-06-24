@@ -324,14 +324,14 @@
                   </ul>
                 </div>
               </li>
-                {{-- Liên hệ --}}
-                <li class="nav-item">
-                <a data-bs-toggle="collapse" href="#blog">
+              {{-- Liên hệ --}}
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#contact">
                   <i class="fab fa-facebook-messenger"></i>
                   <p>Liên hệ</p>
                   <span class="caret"></span>
                 </a>
-                <div class="collapse {{  $isContact ? 'show' : '' }}" id="blog">
+                <div class="collapse {{  $isContact ? 'show' : '' }}" id="contact">
                   <ul class="nav nav-collapse">
                     <li>
                       <a href="{{ route('admin.contact.list') }}">

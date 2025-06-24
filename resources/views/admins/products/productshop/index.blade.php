@@ -36,7 +36,7 @@
         </ul>
     </div>
 
-   <div class="row">
+    <div class="row">
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
@@ -120,34 +120,69 @@
                                 <input type="hidden" name="ma_cua_hang" value="{{ request('ma_cua_hang') }}">
                                 <div id="productIdsContainer"></div>
                                 <div class="table-responsive">
-                                    <table class="table table-striped table-hover align-middle text-center">
-                                        <thead>
-                                            <tr>
-                                                <th><input type="checkbox" id="listCheckAll"></th>
-                                                <th>Ảnh</th>
-                                                <th>Mã SP</th>
-                                                <th>Tên SP</th>
-                                                <th>Danh mục</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="order-tbody">
-                                            @foreach ( $productShop as $pro )
-                                                <tr class="product-row">
-                                                    <td>
-                                                        <input type="checkbox" class="product-checkbox" value="{{ $pro->sanPham->ma_san_pham }}">
-                                                    </td>
-                                                    <td>
-                                                        <a href="{{ route('admin.product.edit.form',$pro->sanPham->ma_san_pham) }}" data-bs-toggle="tooltip" title="{{ $pro->sanPham->ten_san_pham }}">
-                                                            <img src="{{ $pro->sanPham->hinh_anh ? asset('storage/' . $pro->sanPham->hinh_anh) : asset('images/no_product_image.png') }}" alt="{{ $pro->sanPham->ten_san_pham }}" width="80">
-                                                        </a>
-                                                    </td>
-                                                    <td>{{ $pro->sanPham->ma_san_pham }}</td>
-                                                    <td>{{ $pro->sanPham->ten_san_pham }}</td>
-                                                    <td>{{ $pro->sanPham->danhMuc->ten_danh_muc }}</td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
+                                    <div id="add-row_wrapper" class="dataTables_wrapper container-fluid dt-bootstrap4">
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                            <table class="table table-striped table-hover align-middle text-center">
+                                                <thead>
+                                                    <tr>
+                                                        <th><input type="checkbox" id="listCheckAll"></th>
+                                                        <th>Ảnh</th>
+                                                        <th>Mã SP</th>
+                                                        <th>Tên SP</th>
+                                                        <th>Danh mục</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="order-tbody">
+                                                    @foreach ( $productShop as $pro )
+                                                        <tr class="product-row">
+                                                            <td>
+                                                                <input type="checkbox" class="product-checkbox" value="{{ $pro->sanPham->ma_san_pham }}">
+                                                            </td>
+                                                            <td>
+                                                                <a href="{{ route('admin.product.edit.form',$pro->sanPham->ma_san_pham) }}" data-bs-toggle="tooltip" title="{{ $pro->sanPham->ten_san_pham }}">
+                                                                    <img src="{{ $pro->sanPham->hinh_anh ? asset('storage/' . $pro->sanPham->hinh_anh) : asset('images/no_product_image.png') }}" alt="{{ $pro->sanPham->ten_san_pham }}" width="80">
+                                                                </a>
+                                                            </td>
+                                                            <td>{{ $pro->sanPham->ma_san_pham }}</td>
+                                                            <td>{{ $pro->sanPham->ten_san_pham }}</td>
+                                                            <td>{{ $pro->sanPham->danhMuc->ten_danh_muc }}</td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12 col-md-5">
+                                            <div class="dataTables_info">
+                                                Hiển thị {{ $productShop->firstItem() }} đến {{ $productShop->lastItem() }} của {{ $productShop->total() }} sản phẩm
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12 col-md-7">
+                                            <div class="dataTables_paginate paging_simple_numbers">
+                                                <ul class="pagination justify-content-end mb-0">
+                                                    {{-- Previous Page --}}
+                                                    <li class="paginate_button page-item {{ $productShop->onFirstPage() ? 'disabled' : '' }}">
+                                                        <a href="{{ $productShop->appends(request()->query())->previousPageUrl() ?? '#' }}" class="page-link">Trước</a>
+                                                    </li>
+
+                                                    {{-- Page Numbers --}}
+                                                    @for ($i = 1; $i <= $productShop->lastPage(); $i++)
+                                                        <li class="paginate_button page-item {{ $productShop->currentPage() == $i ? 'active' : '' }}">
+                                                            <a href="{{ $productShop->url($i) }}" class="page-link">{{ $i }}</a>
+                                                        </li>
+                                                    @endfor
+
+                                                    {{-- Next Page --}}
+                                                    <li class="paginate_button page-item {{ !$productShop->hasMorePages() ? 'disabled' : '' }}">
+                                                        <a href="{{ $productShop->appends(request()->query())->nextPageUrl() ?? '#' }}" class="page-link">Kế tiếp</a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </form>
                         </div>

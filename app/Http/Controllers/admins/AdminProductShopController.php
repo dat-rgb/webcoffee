@@ -41,7 +41,10 @@ class AdminProductShopController extends Controller
             });
         }
 
-        $productShop = $query->get();
+        $productShop = $query->paginate(15);
+        if ($request->page > $productShop->lastPage()) {
+            return redirect()->route('admin.product-shop.index', ['page' => $productShop->lastPage()]);
+        }
         $productsNoShop = $storeId ? $this->getProductsNoShop($storeId) : collect([]);
 
         $viewData = [
