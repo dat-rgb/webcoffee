@@ -378,6 +378,7 @@ Route::prefix('staff/dashboard')->middleware(NhanVienMiddleware::class)->group(f
     Route::get('/', [StaffDashboardController::class, 'index'])->name('staff.dashboard');
     Route::post('/phieu-nhap/export', [StaffDashboardController::class, 'exportPhieuNhap'])->name('staff.nguyenlieu.exportPhieuNhap');
     Route::post('/phieu-xuat/export', [StaffDashboardController::class, 'exportPhieuXuat'])->name('staff.nguyenlieu.exportPhieuXuat');
+    Route::post('/phieu-kiem-kho/export', [StaffDashboardController::class, 'exportPhieuKiemKho'])->name('staff.nguyenlieu.exportPhieuKiemKho');
 
 });
 
