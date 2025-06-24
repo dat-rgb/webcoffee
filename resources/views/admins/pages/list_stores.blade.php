@@ -145,7 +145,6 @@
                                                     <th style="min-width: 250px;">Email</th>
                                                     <th style="min-width: 450px;">Địa chỉ</th>
                                                     <th>Số điện thoại</th>
-                                                  
                                                 </tr>
                                             </thead>
                                             <tbody id="order-tbody">
@@ -154,11 +153,35 @@
                                                         <td>
                                                             <input type="checkbox" class="store-checkbox" value="{{ $store->ma_cua_hang }}">
                                                         </td>
-                                                        <td>
-                                                            <a href="" class="" data-bs-toggle="tooltip" title="{{ $store->ten_cua_hang }}">
-                                                            {{ $store->ma_cua_hang }}
-                                                            </a>
+                                                        <td class="display-1 text-nowrap">
+                                                            <div class="d-flex align-items-center gap-2">
+                                                                <button class="btn btn-icon btn-round btn-warning btn-edit"
+                                                                    data-id="{{ $store->id }}"
+                                                                    data-ma="{{ $store->ma_cua_hang }}"
+                                                                    data-ten="{{ $store->ten_cua_hang }}"
+                                                                    data-phone="{{ $store->so_dien_thoai }}"
+                                                                    data-email="{{ $store->email }}"
+                                                                    data-gio-mo="{{ $store->gio_mo_cua }}"
+                                                                    data-gio-dong="{{ $store->gio_dong_cua }}"
+                                                                    data-trang-thai="{{ $store->trang_thai }}"
+                                                                    data-so-nha="{{ $store->so_nha }}"
+                                                                    data-ten-duong="{{ $store->ten_duong }}"
+                                                                    data-ma-tinh="{{ $store->ma_tinh }}"
+                                                                    data-ma-quan="{{ $store->ma_quan }}"
+                                                                    data-ma-xa="{{ $store->ma_xa }}"
+                                                                    data-ten-tinh="{{ $store->provinceName }}"
+                                                                    data-ten-quan="{{ $store->districtName }}"
+                                                                    data-ten-xa="{{ $store->wardName }}"
+                                                                >
+                                                                    <i class="fa fa-edit"></i>
+                                                                </button>
+
+                                                                <a href="#" data-bs-toggle="tooltip" title="{{ $store->ten_cua_hang }}">
+                                                                    {{ $store->ma_cua_hang }}
+                                                                </a>
+                                                            </div>
                                                         </td>
+
                                                         <td>
                                                             @if ($store->trang_thai === 1)
                                                                 <span class="badge badge-success">Hoạt động</span>
@@ -194,8 +217,10 @@
     </div>
     <!-- Modal Thêm cửa hàng mới -->
     <div class="modal fade" id="addStoreModal" tabindex="-1" aria-labelledby="addStoreModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
+            <form method="POST" id="addStoreForm" action="{{ route('admin.store.add') }}">
+                @csrf
                 <div class="modal-header">
                     <h5 class="modal-title fw-bold" id="addStoreModalLabel">
                         <i class="fa fa-plus me-2"></i> Thêm cửa hàng mới
@@ -203,91 +228,157 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
                 </div>
 
-                <form id="addStoreForm" method="POST" action="{{ route('admin.store.add') }}">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Mã cửa hàng</label>
+                            <input type="text" name="ma_cua_hang" class="form-control" value="{{ $newStoreCode }}" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Tên cửa hàng</label>
+                            <input type="text" name="ten_cua_hang" class="form-control" placeholder="VD: Cửa hàng Q1" value="{{ old('ten_cua_hang') }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Số điện thoại</label>
+                            <input type="tel" name="so_dien_thoai" class="form-control" value="{{ old('so_dien_thoai') }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control" value="{{ old('email') }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Giờ hoạt động</label>
+                            <div class="d-flex gap-2">
+                                <input type="time" name="gio_mo_cua" class="form-control" value="{{ old('gio_mo_cua') }}">
+                                <span class="align-self-center">đến</span>
+                                <input type="time" name="gio_dong_cua" class="form-control" value="{{ old('gio_dong_cua') }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Trạng thái</label>
+                            <select class="form-select" name="trang_thai">
+                                <option value="" disabled selected>-- Chọn trạng thái --</option>
+                                <option value="1">Hoạt động</option>
+                                <option value="0">Không hoạt động</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Số nhà</label>
+                            <input type="text" name="so_nha" class="form-control" value="{{ old('so_nha') }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Tên đường</label>
+                            <input type="text" name="ten_duong" class="form-control" value="{{ old('ten_duong') }}">
+                        </div>
+                            <div class="col-md-4">
+                            <label class="form-label">Tỉnh / Thành phố</label>
+                            <select id="provinceSelect" name="province" class="form-select"></select>
+                        <input type="hidden" id="provinceName" name="provinceName">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Quận / Huyện</label>
+                            <select id="districtSelect" name="district" class="form-select" disabled></select>
+                            <input type="hidden" id="districtName" name="districtName">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Phường / Xã</label>
+                            <select id="wardSelect" name="ward" class="form-select" disabled></select>
+                            <input type="hidden" id="wardName" name="wardName">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fa fa-times me-1"></i> Đóng
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fa fa-check me-1"></i> Lưu cửa hàng
+                    </button>
+                </div>
+            </form>
+            </div>
+        </div>
+    </div>
+    <!-- Modal Sửa cửa hàng -->
+    <div class="modal fade" id="editStoreModal" tabindex="-1" aria-labelledby="editStoreModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <form method="POST" id="editStoreForm">
                     @csrf
+                    <input type="hidden" name="id" id="editStoreId">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold" id="editStoreModalLabel">
+                            <i class="fa fa-edit me-2"></i> Cập nhật cửa hàng
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                    </div>
+
                     <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-6 col-lg-6">
-                                <div class="form-group">
-                                    <label for="ma_cua_hang">Mã cửa hàng</label>
-                                    <input type="text" name="ma_cua_hang" class="form-control" value="{{ $newStoreCode }}" readonly>
-                                    @error('ma_cua_hang') <div class="custom-error">{{ $message }}</div> @enderror
-                                </div>
-                                <div class="form-group">
-                                    <label for="ten_cua_hang">Tên cửa hàng</label>
-                                    <input type="text" name="ten_cua_hang" class="form-control" placeholder="Nhập tên cửa hàng" value="{{ old('ten_cua_hang') }}" >
-                                    @error('ten_cua_hang') <div class="custom-error">{{ $message }}</div> @enderror
-                                </div>
-                                <div class="form-group">
-                                    <label for="so_dien_thoai">Số điện thoại</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="fa fa-phone"></i></span>
-                                        <input type="number" name="so_dien_thoai" class="form-control" value="{{ old('so_dien_thoai') }}">
-                                    </div>
-                                    @error('so_dien_thoai') <div class="custom-error">{{ $message }}</div> @enderror
-                                </div>
-                                <div class="form-group">
-                                    <label for="email">Email</label>
-                                    <input type="email" name="email" class="form-control" placeholder="Nhập email" value="{{ old('email') }}" >
-                                    @error('email') <div class="custom-error">{{ $message }}</div> @enderror
-                                </div>
-                                <div class="form-group">
-                                    <label for="exampleFormControlSelect1">Trạng thái</label>
-                                    <select class="form-select" name="trang_thai" id="exampleFormControlSelect1">
-                                        <option value="" selected disabled>-- Chọn trạng thái --</option>
-                                        <option value="1">Hoạt động</option>
-                                        <option value="0">Không hoạt động</option>
-                                    </select>
-                                    @error('trang_thai')
-                                        <div class="custom-error">{{ $message }}</div>
-                                    @enderror
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Mã cửa hàng</label>
+                                <input type="text" name="ma_cua_hang" id="editMaCuaHang" class="form-control" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Tên cửa hàng</label>
+                                <input type="text" name="ten_cua_hang" id="editTenCuaHang" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Số điện thoại</label>
+                                <input type="tel" name="so_dien_thoai" id="editSoDienThoai" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email</label>
+                                <input type="email" name="email" id="editEmail" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Giờ hoạt động</label>
+                                <div class="d-flex gap-2">
+                                    <input type="time" name="gio_mo_cua" id="editGioMoCua" class="form-control">
+                                    <span class="align-self-center">đến</span>
+                                    <input type="time" name="gio_dong_cua" id="editGioDongCua" class="form-control">
                                 </div>
                             </div>
-                            <div class="col-md-6 col-lg-6">
-                                <div class="form-group">
-                                    <label for="gio_mo_cua">Giờ hoạt động</label>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span class="mx-2">Từ </span>
-                                        <input type="time" name="gio_mo_cua" class="form-control w-auto" value="{{ old('gio_mo_cua') }}">
-                                        <span class="mx-2"> đến</span>
-                                        <input type="time" name="gio_dong_cua" class="form-control w-auto" value="{{ old('gio_dong_cua') }}">
-                                    </div>
-                                    @error('gio_mo_cua')
-                                        <div class="custom-error text-danger">{{ $message }}</div>
-                                    @enderror
-                                    @error('gio_dong_cua')
-                                        <div class="custom-error text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div class="form-group">
-                                    <label for="dia_chi">Số nhà, tên đường</label>
-                                    <input type="text" name="dia_chi" class="form-control" placeholder="Nhập địa chỉ" value="{{ old('dia_chi') }}" >
-                                    @error('dia_chi') <div class="custom-error">{{ $message }}</div> @enderror
-                                </div>
-                                <div class="form-group">
-                                    <label for="province">Tỉnh / Thành phố</label>
-                                    <select id="provinceSelect" name="province" class="form-select" ></select>
-                                    <input type="hidden" id="provinceName" name="provinceName">
-                                </div>
-                                <div class="form-group">
-                                    <label for="district">Quận / Huyện</label>
-                                    <select id="districtSelect" name="district" class="form-select" disabled ></select>
-                                    <input type="hidden" id="districtName" name="districtName">
-                                </div>
-                                <div class="form-group">
-                                    <label for="ward">Phường / Xã</label>
-                                    <select id="wardSelect" name="ward" class="form-select" disabled ></select>
-                                    <input type="hidden" id="wardName" name="wardName">
-                                </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Trạng thái</label>
+                                <select class="form-select" name="trang_thai" id="editTrangThai">
+                                    <option value="1">Hoạt động</option>
+                                    <option value="0">Không hoạt động</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Số nhà</label>
+                                <input type="text" name="so_nha" id="editSoNha" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Tên đường</label>
+                                <input type="text" name="ten_duong" id="editTenDuong" class="form-control">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Tỉnh / Thành phố</label>
+                                <select id="editProvinceSelect" name="province" class="form-select"></select>
+                                <input type="hidden" id="editProvinceName" name="provinceName">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Quận / Huyện</label>
+                                <select id="editDistrictSelect" name="district" class="form-select" disabled></select>
+                                <input type="hidden" id="editDistrictName" name="districtName">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Phường / Xã</label>
+                                <select id="editWardSelect" name="ward" class="form-select" disabled></select>
+                                <input type="hidden" id="editWardName" name="wardName">
                             </div>
                         </div>
                     </div>
+
                     <div class="modal-footer bg-light">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                             <i class="fa fa-times me-1"></i> Đóng
                         </button>
-                        <button type="submit" class="btn btn-success">
-                            <i class="fa fa-check me-1"></i> Lưu cửa hàng
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa fa-save me-1"></i> Cập nhật
                         </button>
                     </div>
                 </form>
