@@ -536,7 +536,7 @@ class ThanhPhanSanPhamSeeder extends Seeder
                 'ma_san_pham' => 'SP00000015',  
                 'ma_nguyen_lieu' => 'NL00000019',  
                 'ma_size' => null,
-                'dinh_luong' => 1,
+                'dinh_luong' => 50,
                 'don_vi' => null
             ],
             //16
@@ -544,7 +544,7 @@ class ThanhPhanSanPhamSeeder extends Seeder
                 'ma_san_pham' => 'SP00000016',  
                 'ma_nguyen_lieu' => 'NL00000020',  
                 'ma_size' => null,
-                'dinh_luong' => 1,
+                'dinh_luong' => 20,
                 'don_vi' => null
             ],
             //17
@@ -552,7 +552,7 @@ class ThanhPhanSanPhamSeeder extends Seeder
                 'ma_san_pham' => 'SP00000017',  
                 'ma_nguyen_lieu' => 'NL00000009',  
                 'ma_size' => null,
-                'dinh_luong' => 1,
+                'dinh_luong' => 500,
                 'don_vi' => null
             ],
             //18
@@ -560,7 +560,7 @@ class ThanhPhanSanPhamSeeder extends Seeder
                 'ma_san_pham' => 'SP00000018',  
                 'ma_nguyen_lieu' => 'NL00000021',  
                 'ma_size' => null,
-                'dinh_luong' => 1,
+                'dinh_luong' => 150,
                 'don_vi' => null
             ],
             //19
