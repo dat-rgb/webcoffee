@@ -342,6 +342,7 @@ Route::prefix('admin/product-shop')->middleware(AdminMiddleware::class)->group(f
 Route::prefix('/admin/store')->middleware(AdminMiddleware::class)->group(function(){
     Route::get('/',[AdminStoreController::class,'index'])->name('admin.store.index');
     Route::post('/add',[AdminStoreController::class,'addStore'])->name('admin.store.add');
+    Route::post('/update/{id}', [AdminStoreController::class, 'updateStore'])->name('admin.store.update');
     Route::post('/toggle', [AdminStoreController::class, 'toggle'])->name('admin.store.toggle');
 });
 

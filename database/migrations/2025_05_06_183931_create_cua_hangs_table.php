@@ -16,6 +16,8 @@ return new class extends Migration
             $table->char('ma_cua_hang',10)->unique(); 
             $table->string('ten_cua_hang', 255);
             $table->string('slug',255)->unique();
+            $table->string('so_nha',  100)->nullable();
+            $table->string('ten_duong', 100)->nullable();
             $table->string('dia_chi', 255)->nullable();
             $table->time('gio_mo_cua');
             $table->time('gio_dong_cua');
