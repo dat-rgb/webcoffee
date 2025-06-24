@@ -82,10 +82,11 @@
                     </td>
 
                     <td class="product-total">
-                        <span class="total-money" id="money-{{ $item['product_id'] }}-{{ $item['size_id'] }}">
+                        <span class="total-money" id="money-{{ $item['product_id'] }}-{{ $item['size_id'] ?? 'null' }}">
                             {{ number_format($item['money'], 0, ',', '.') }} đ
                         </span>
                     </td>
+
                 </tr>
             @endforeach
         </tbody>

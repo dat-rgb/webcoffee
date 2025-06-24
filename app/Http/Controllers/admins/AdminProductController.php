@@ -122,7 +122,7 @@ class AdminProductController extends Controller
     public function showProductForm() {
         $categorys = $this->getCategory();
 
-        $lastItem = SanPham::withTrashed()->orderByDesc('ma_san_pham')->first();
+        $lastItem = SanPham::orderByDesc('ma_san_pham')->first(); // 
 
         if ($lastItem) {
             $lastNumber = intval(substr($lastItem->ma_san_pham, 2));
@@ -132,13 +132,21 @@ class AdminProductController extends Controller
         }
 
         $newCode = 'SP' . str_pad($newNumber, 8, '0', STR_PAD_LEFT);
-        $usedIngredientIds = ThanhPhanSanPham::pluck('ma_nguyen_lieu')->toArray();
 
-        // Lấy nguyên liệu có thể bán, chưa nằm trong bảng thành phần sản phẩm
-        $ingredients = NguyenLieu::where('is_ban_duoc', 1)
+        $usedIngredientIds = DB::table('thanh_phan_san_phams')
+            ->join('san_phams', 'thanh_phan_san_phams.ma_san_pham', '=', 'san_phams.ma_san_pham')
+            ->where('san_phams.loai_san_pham', 1)
+            ->pluck('thanh_phan_san_phams.ma_nguyen_lieu')
+            ->unique()
+            ->toArray();
+
+        $ingredients = DB::table('nguyen_lieus')
+            ->where('is_ban_duoc', 1)
             ->where('trang_thai', 1)
             ->whereNotIn('ma_nguyen_lieu', $usedIngredientIds)
             ->get();
+
+        $ingredients = NguyenLieu::hydrate($ingredients->toArray());
 
         $viewData = [
             'title' => 'Thêm sản phẩm | CMDT Coffee & Tea',
@@ -150,6 +158,7 @@ class AdminProductController extends Controller
 
         return view('admins.products.product_form', $viewData);
     }
+
     //Thêm sản phẩm mới
     public function productAdd(Request $request)
     {
@@ -190,7 +199,7 @@ class AdminProductController extends Controller
         
         $slug = Str::slug($request->ten_san_pham);
 
-        if (SanPham::withTrashed()->where('slug', $slug)->exists()) {
+        if (SanPham::where('slug', $slug)->exists()) {
             toastr()->error('Tên sản phẩm đã trùng, vui lòng chọn tên khác');
             return redirect()->back()->withInput();
         }
@@ -432,10 +441,6 @@ class AdminProductController extends Controller
 
             if (!$product) {
                 return response()->json(['status' => 'error', 'message' => 'Sản phẩm không tồn tại']);
-            }
-
-            if ($product->trang_thai == 3) {
-                return response()->json(['status' => 'error', 'message' => 'Không thể ẩn sản phẩm đã lưu trữ']);
             }
 
             $product->update([
