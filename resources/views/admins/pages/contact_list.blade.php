@@ -27,14 +27,14 @@
                     <i class="icon-arrow-right"></i>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('admin.contact.list') }}">contact</a>
+                    <a href="{{ route('admin.contact.list') }}">Liên hệ</a>
                 </li>
                 @if(request()->routeIs('admin.products.hidden.list'))
                     <li class="separator">
                         <i class="icon-arrow-right"></i>
                     </li>
                     <li class="nav-item">
-                        <a href="">contact đã ẩn</a>
+                        <a href="">Liên hệ đã ẩn</a>
                     </li>
                 @endif
             </ul>

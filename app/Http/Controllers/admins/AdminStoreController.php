@@ -68,17 +68,22 @@ class AdminStoreController extends Controller
     }    
     public function index(Request $request)
     {
-        $stores = CuaHang::all();
+        $stores = CuaHang::paginate(15); 
+        if ($stores->currentPage() > $stores->lastPage()) {
+            return redirect()->route('admin.store.index', ['page' => $stores->lastPage()]);
+        }
+
         $newStoreCode = $this->generateMaCuaHang(); 
 
         $viewData = [
             'title' => 'Danh sách cửa hàng | CDMT Coffee & Tea',
             'subtitle' => 'Danh sách cửa hàng',
-            'stores' => $stores,
+            'stores' => $stores, 
             'newStoreCode' => $newStoreCode,
         ];
         return view('admins.pages.list_stores', $viewData);
     }
+
     public function addStore(Request $request)
     {
         $validated = $request->validate([
