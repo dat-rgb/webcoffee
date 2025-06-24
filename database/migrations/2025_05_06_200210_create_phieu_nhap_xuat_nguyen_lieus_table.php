@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-       Schema::create('phieu_nhap_xuat_nguyen_lieus', function (Blueprint $table) {
+        Schema::create('phieu_nhap_xuat_nguyen_lieus', function (Blueprint $table) {
             $table->id('ma_phieu'); // Khóa chính tự tăng
             $table->char('ma_cua_hang', 10);
             $table->char('ma_nguyen_lieu', 10);
@@ -22,12 +22,12 @@ return new class extends Migration
             $table->integer('loai_phieu'); // 0: nhập, 1: xuất
             $table->dateTime('ngay_san_xuat')->nullable();
             $table->dateTime('han_su_dung')->nullable();
-            $table->float('so_luong');
-            $table->float('dinh_luong');
-            $table->float(column: 'so_luong_ton_truoc'); // đây là lưu lại số lượng tồn của nguyên liệu đó trước nhập vào
-            $table->string('don_vi', 50);
-            $table->float('gia_tien')->default(0)->nullable();
-            $table->float('tong_tien')->default(0)->nullable();
+            $table->float('so_luong'); // Số lượng nhập,xuất,..
+            $table->float('dinh_luong'); //Tổng định lượng nhập = [Số lượng nhập,xuất] * [nguyen_lieus.so_luong]
+            $table->float(column: 'so_luong_ton_truoc'); // Tồn tại cửa hàng nguyên liệu trước khi nhập [cua_hang_nguyen_lieus.so_luong_ton]
+            $table->string('don_vi', 50); //Đơn vị tính theo số lượng nhập,xuất,..
+            $table->float('gia_tien')->default(0)->nullable();// giá từ [nguyen_lieus.gia]
+            $table->float('tong_tien')->default(0)->nullable(); //Tổng tiền = [Số lượng nhập,xuất] * [nguyen_lieus.gia]
             $table->dateTime('ngay_tao_phieu');
             $table->text('ghi_chu')->nullable();
             $table->timestamps();

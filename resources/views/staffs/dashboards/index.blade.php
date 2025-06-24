@@ -280,7 +280,6 @@
         </div>
     </div>
 </div>
-
 <!-- Modal Phiếu Xuất -->
 <div class="modal fade" id="modalPhieuXuat" tabindex="-1">
     <div class="modal-dialog modal-xl">
@@ -341,47 +340,83 @@
         </div>
     </div>
 </div>
-
-
-<!-- Modal Phiếu Kiểm kho -->
+<!-- Modal Phiếu Kiểm Kho -->
 <div class="modal fade" id="modalPhieuKiemKho" tabindex="-1">
   <div class="modal-dialog modal-xl">
+    <style>
+      tr.nguyenlieu-row.selected {
+        background-color: #cff4fc !important;
+        border-left: 5px solid #0dcaf0;
+      }
+    </style>
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Phiếu Kiểm Kho Cuối Tuần</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <table class="table table-bordered">
-          <thead>
-            <tr>
-              <th><input type="checkbox"></th>
-              <th>Mã NL</th>
-              <th>Nguyên liệu</th>
-              <th>Lô hàng</th>
-              <th>SL tồn</th>
-              <th>HSD</th>
-            </tr>
-          </thead>
-          <tbody>
-            @foreach($nguyen_lieu_cua_hang as $index => $nl)
-              <tr>
-                <td><input type="checkbox" name="chon_kiemkho[]" value="{{ $nl->ma_nguyen_lieu }}"></td>
-                <td>{{ $nl->ma_nguyen_lieu }}</td>
-                <td>{{ $nl->ten_nguyen_lieu }} - ĐỊNH LƯỢNG: {{ $nl->so_luong ?? 0 }} ({{ $nl->don_vi ?? '---' }})</td>
-                <td>{{ $nl->don_vi_tinh }}</td>
-                <td>{{ $nl->lo_hang ?? '-' }}</td>
-                <td>{{ $nl->so_luong_ton }}</td>
-                <td>{{ $nl->han_su_dung ?? '-' }}</td>
-              </tr>
-            @endforeach
-          </tbody>
-        </table>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-info">Xuất PDF</button>
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-      </div>
+      <form action="{{ route('staff.nguyenlieu.exportPhieuKiemKho') }}" method="POST" target="_blank" id="phieuKiemKhoForm">
+        @csrf
+        <div class="modal-header">
+          <h5 class="modal-title">Kiểm kho nguyên liệu tại cửa hàng</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="table-responsive">
+          <table class="table table-bordered align-middle">
+                <thead class="table-light text-center">
+                    <tr>
+                        <th><input type="checkbox" id="checkAllKiemKho"></th>
+                        <th>Mã NL</th>
+                        <th>Nguyên liệu</th>
+                        <th>Lô hàng</th>
+                        <th>SL Tồn Tổng</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($nguyen_lieu_kiem_kho as $index => $nl)
+                        @php
+                            $tongTon = 0;
+                            if (!empty($nl->lo_hang)) {
+                                foreach ($nl->lo_hang as $lo) {
+                                    $tongTon += $lo['ton_lo'] ?? 0;
+                                }
+                            }
+                        @endphp
+                        <tr class="nguyenlieu-row">
+                            <td class="text-center">
+                                <input type="checkbox" class="check-row-kiemkho" name="chon_kiemkho[]" value="{{ $nl->ma_nguyen_lieu }}">
+                            </td>
+                            <td>{{ $nl->ma_nguyen_lieu }}</td>
+                            <td>
+                                {{ $nl->ten_nguyen_lieu }} <br>
+                                <span class="badge bg-info mt-1">ĐL: {{ $nl->so_luong_goc ?? 0 }} {{ $nl->don_vi }}</span>
+                            </td>
+                            <td class="text-start">
+                                @if(isset($nl->lo_hang) && count($nl->lo_hang) > 0)
+                                    @foreach($nl->lo_hang as $lo)
+                                        @if($lo['ton_lo'] > 0)
+                                        <div class="mb-1">
+                                            <span class="badge bg-primary border text-white">
+                                                {{ $lo['so_lo'] ?? '-' }} -
+                                                {{ number_format($lo['ton_lo'] ?? 0, 0, ',', '.') }}
+                                                {{ $nl->don_vi_tinh ?? '' }} -HSD
+                                                {{ \Carbon\Carbon::parse($lo['han_su_dung'])->format('d/m/Y') }}
+                                            </span>
+                                        </div>
+                                        @endif
+                                    @endforeach
+                                @else
+                                    <span class="text-muted">Không có lô</span>
+                                @endif
+                            </td>
+                            <td>{{ number_format($tongTon, 0, ',', '.') }} {{ $nl->don_vi_tinh ?? '' }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-info">Xuất PDF</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>

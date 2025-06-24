@@ -133,3 +133,50 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
+document.addEventListener('DOMContentLoaded', function () {
+    const checkAllKiemKho = document.getElementById('checkAllKiemKho');
+    const checkboxesKiemKho = document.querySelectorAll('.check-row-kiemkho');
+    const formKiemKho = document.getElementById('phieuKiemKhoForm');
+
+    function updateRowHighlightKiemKho() {
+        checkboxesKiemKho.forEach(cb => {
+            const row = cb.closest('tr');
+            row.classList.toggle('selected', cb.checked);
+        });
+    }
+
+    if (checkAllKiemKho) {
+        checkAllKiemKho.addEventListener('change', function () {
+            checkboxesKiemKho.forEach(cb => {
+                cb.checked = this.checked;
+            });
+            updateRowHighlightKiemKho();
+        });
+    }
+
+    checkboxesKiemKho.forEach(cb => {
+        cb.addEventListener('change', function () {
+            const row = this.closest('tr');
+            row.classList.toggle('selected', this.checked);
+            checkAllKiemKho.checked = [...checkboxesKiemKho].every(box => box.checked);
+        });
+    });
+
+    updateRowHighlightKiemKho();
+
+    // Validate trước khi submit (chỉ cần chọn ít nhất 1 dòng)
+    if (formKiemKho) {
+        formKiemKho.addEventListener('submit', function (e) {
+            const checkedRows = document.querySelectorAll('.check-row-kiemkho:checked');
+            if (checkedRows.length === 0) {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Chưa chọn nguyên liệu',
+                    text: 'Vui lòng chọn ít nhất 1 nguyên liệu để kiểm kho!',
+                    confirmButtonText: 'OK hiểu rồi'
+                });
+            }
+        });
+    }
+});
