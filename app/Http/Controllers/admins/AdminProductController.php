@@ -93,12 +93,9 @@ class AdminProductController extends Controller
     public function listProductsHidden(Request $request){
         $search = $request->input('search');
         $products = $this->getProductsByStatus(2, $search);
+        
         if ($request->page > $products->lastPage()) {
             return redirect()->route('admin.products.hidden.list', ['page' => $products->lastPage()]);
-        }
-
-        if ($request->page > $products->lastPage()) {
-            return redirect()->route('admin.products.list', ['page' => $products->lastPage()]);
         }
 
         $categories = $this->getCategory();
@@ -158,7 +155,6 @@ class AdminProductController extends Controller
 
         return view('admins.products.product_form', $viewData);
     }
-
     //Thêm sản phẩm mới
     public function productAdd(Request $request)
     {

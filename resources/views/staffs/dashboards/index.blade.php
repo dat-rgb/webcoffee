@@ -320,7 +320,7 @@
                                                 ĐỊNH LƯỢNG: {{ $nl->so_luong ?? 0 }} ({{ $nl->don_vi ?? '---' }})
                                             </span>
                                         </td>
-                                        <td>{{ number_format($nl->gia, 0, ',', '.') }}</td>
+                                        <td>{{ number_format($nl->gia, 0, ',', '.') }} đ</td>
                                         <td><input type="number" name="so_luong_xuat[{{ $nl->ma_nguyen_lieu }}]" class="form-control" min="0"></td>
                                         <td>
                                             <input type="text" name="don_vi_tinh[{{ $nl->ma_nguyen_lieu }}]"

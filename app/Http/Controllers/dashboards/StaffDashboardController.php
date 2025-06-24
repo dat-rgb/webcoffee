@@ -61,13 +61,24 @@ class StaffDashboardController extends Controller
                 ->orderBy('pnxl.han_su_dung', 'asc')
                 ->get();
 
-            // Tính tổng định lượng đã dùng qua hóa đơn (theo sản phẩm bán ra)
-            $dinhLuongDaDung = DB::table('chi_tiet_hoa_dons as cthd')
+           // Định lượng dùng từ hóa đơn bán hàng
+            $dinhLuongDaDungHD = DB::table('chi_tiet_hoa_dons as cthd')
                 ->join('hoa_dons as hd', 'cthd.ma_hoa_don', '=', 'hd.ma_hoa_don')
                 ->join('thanh_phan_san_phams as tp', 'cthd.ma_san_pham', '=', 'tp.ma_san_pham')
                 ->where('hd.ma_cua_hang', $ma_cua_hang)
                 ->where('tp.ma_nguyen_lieu', $nl->ma_nguyen_lieu)
                 ->sum(DB::raw('tp.dinh_luong * cthd.so_luong'));
+
+            // Định lượng đã xuất qua phiếu xuất (loai_phieu = 1)
+            $dinhLuongXuatKho = DB::table('phieu_nhap_xuat_nguyen_lieus')
+                ->where('ma_cua_hang', $ma_cua_hang)
+                ->where('ma_nguyen_lieu', $nl->ma_nguyen_lieu)
+                ->where('loai_phieu', 1)
+                ->sum('dinh_luong');
+
+            // Tổng định lượng đã dùng
+            $dinhLuongDaDung = $dinhLuongDaDungHD + $dinhLuongXuatKho;
+
 
             // Quy định lượng đã dùng ra từng lô (FIFO)
             $loWithTon = [];
