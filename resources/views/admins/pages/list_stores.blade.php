@@ -181,7 +181,6 @@
                                                                 </a>
                                                             </div>
                                                         </td>
-
                                                         <td>
                                                             @if ($store->trang_thai === 1)
                                                                 <span class="badge badge-success">Hoạt động</span>
@@ -207,6 +206,35 @@
                                             <input type="hidden" name="action" id="store-action-type" value=""> 
                                             <input type="hidden" name="store_ids[]" id="store-ids-holder"> 
                                         </form>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-12 col-md-5">
+                                        <div class="dataTables_info">
+                                            Hiển thị {{ $stores->firstItem() }} đến {{ $stores->lastItem() }} của {{ $stores->total() }} cửa hàng
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-7">
+                                        <div class="dataTables_paginate paging_simple_numbers">
+                                            <ul class="pagination justify-content-end mb-0">
+                                                {{-- Previous Page --}}
+                                                <li class="paginate_button page-item {{ $stores->onFirstPage() ? 'disabled' : '' }}">
+                                                    <a href="{{ $stores->previousPageUrl() ?? '#' }}" class="page-link">Trước</a>
+                                                </li>
+
+                                                {{-- Page Numbers --}}
+                                                @for ($i = 1; $i <= $stores->lastPage(); $i++)
+                                                    <li class="paginate_button page-item {{ $stores->currentPage() == $i ? 'active' : '' }}">
+                                                        <a href="{{ $stores->url($i) }}" class="page-link">{{ $i }}</a>
+                                                    </li>
+                                                @endfor
+
+                                                {{-- Next Page --}}
+                                                <li class="paginate_button page-item {{ !$stores->hasMorePages() ? 'disabled' : '' }}">
+                                                    <a href="{{ $stores->nextPageUrl() ?? '#' }}" class="page-link">Kế tiếp</a>
+                                                </li>
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -390,81 +418,80 @@
 @push('scripts')
 <script src="{{ asset('admins/js/admin-store.js') }}"></script>
 <script>
-    // Check all
-    document.getElementById('listCheckAll').addEventListener('change', function () {
-        const checkboxes = document.querySelectorAll('.store-checkbox');
-        checkboxes.forEach(cb => cb.checked = this.checked);
-    });
+// Check all
+document.getElementById('listCheckAll').addEventListener('change', function () {
+    const checkboxes = document.querySelectorAll('.store-checkbox');
+    checkboxes.forEach(cb => cb.checked = this.checked);
+});
 
-    document.getElementById('delete-store').addEventListener('click', function () {
-        const checkedBoxes = document.querySelectorAll('.store-checkbox:checked');
+document.getElementById('delete-store').addEventListener('click', function () {
+    const checkedBoxes = document.querySelectorAll('.store-checkbox:checked');
 
-        console.log('Route:', "{{ route('admin.store.toggle') }}");
-        console.log('Token:', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+    console.log('Route:', "{{ route('admin.store.toggle') }}");
+    console.log('Token:', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
 
-        if (checkedBoxes.length === 0) {
-            Swal.fire('Thông báo', 'Vui lòng chọn ít nhất một cửa hàng.', 'warning');
-            return;
-        }
+    if (checkedBoxes.length === 0) {
+        Swal.fire('Thông báo', 'Vui lòng chọn ít nhất một cửa hàng.', 'warning');
+        return;
+    }
 
-        Swal.fire({
-            title: 'Xác nhận',
-            text: 'Bạn có chắc chắn muốn chuyển trạng thái các cửa hàng này không?',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: 'Có, thực hiện',
-            cancelButtonText: 'Hủy'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                let storeIds = [];
-                checkedBoxes.forEach(box => {
-                    storeIds.push(box.value);
-                });
+    Swal.fire({
+        title: 'Xác nhận',
+        text: 'Bạn có chắc chắn muốn chuyển trạng thái các cửa hàng này không?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Có, thực hiện',
+        cancelButtonText: 'Hủy'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            let storeIds = [];
+            checkedBoxes.forEach(box => {
+                storeIds.push(box.value);
+            });
 
-                console.log('Stores:', storeIds);
+            console.log('Stores:', storeIds);
 
-                // Hiển thị đang xử lý khoảng 5s
-                Swal.fire({
-                    title: 'Đang xử lý...',
-                    text: 'Vui lòng chờ trong giây lát.',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                    didOpen: () => {
-                        Swal.showLoading();
+            // Hiển thị đang xử lý khoảng 5s
+            Swal.fire({
+                title: 'Đang xử lý...',
+                text: 'Vui lòng chờ trong giây lát.',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            setTimeout(() => {
+                fetch("{{ route('admin.store.toggle') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        store_ids: storeIds
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire('Thành công', data.message, 'success')
+                            .then(() => window.location.reload());
+                    } else {
+                        Swal.fire('Lỗi', data.message || 'Đã xảy ra lỗi.', 'error');
                     }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Lỗi', 'Không thể gửi yêu cầu.', 'error');
                 });
-
-                setTimeout(() => {
-                    fetch("{{ route('admin.store.toggle') }}", {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
-                        body: JSON.stringify({
-                            store_ids: storeIds
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            Swal.fire('Thành công', data.message, 'success')
-                                .then(() => window.location.reload());
-                        } else {
-                            Swal.fire('Lỗi', data.message || 'Đã xảy ra lỗi.', 'error');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        Swal.fire('Lỗi', 'Không thể gửi yêu cầu.', 'error');
-                    });
-                }, 500); // delay xử lý fetch khoảng 0.5s (cho hợp lý)
-            }
-        });
+            }, 500); // delay xử lý fetch khoảng 0.5s (cho hợp lý)
+        }
     });
+});
 
 </script>
-
 @endpush
 
 
