@@ -91,45 +91,44 @@ class AdminShopmaterialController extends Controller
         return view('admins.shopmaterial.create', $viewData);
     }
     public function store(Request $request)
-{
-    $request->validate([
-        'ma_cua_hang' => 'required|exists:cua_hangs,ma_cua_hang',
-        'ma_nguyen_lieu' => 'required|array|min:1',
-        'ma_nguyen_lieu.*' => 'required|exists:nguyen_lieus,ma_nguyen_lieu',
-        'so_luong_ton_min' => 'required|array',
-        'don_vi' => 'required|array',
-    ], [
-        'ma_nguyen_lieu.required' => 'Vui lòng chọn ít nhất một nguyên liệu.',
-        'ma_nguyen_lieu.*.exists' => 'Một trong các nguyên liệu không tồn tại.',
-        'so_luong_ton_min.required' => 'Vui lòng nhập số lượng tồn tối thiểu.',
-        'don_vi.required' => 'Vui lòng nhập đơn vị cho mỗi nguyên liệu.',
-    ]);
+    {
+        $request->validate([
+            'ma_cua_hang' => 'required|exists:cua_hangs,ma_cua_hang',
+            'ma_nguyen_lieu' => 'required|array|min:1',
+            'ma_nguyen_lieu.*' => 'required|exists:nguyen_lieus,ma_nguyen_lieu',
+            'so_luong_ton_min' => 'required|array',
+            'don_vi' => 'required|array',
+        ], [
+            'ma_nguyen_lieu.required' => 'Vui lòng chọn ít nhất một nguyên liệu.',
+            'ma_nguyen_lieu.*.exists' => 'Một trong các nguyên liệu không tồn tại.',
+            'so_luong_ton_min.required' => 'Vui lòng nhập số lượng tồn tối thiểu.',
+            'don_vi.required' => 'Vui lòng nhập đơn vị cho mỗi nguyên liệu.',
+        ]);
 
-    foreach ($request->ma_nguyen_lieu as $maNL) {
-        $daTonTai = CuaHangNguyenLieu::where([
-            ['ma_cua_hang', $request->ma_cua_hang],
-            ['ma_nguyen_lieu', $maNL]
-        ])->exists();
+        foreach ($request->ma_nguyen_lieu as $maNL) {
+            $daTonTai = CuaHangNguyenLieu::where([
+                ['ma_cua_hang', $request->ma_cua_hang],
+                ['ma_nguyen_lieu', $maNL]
+            ])->exists();
 
-        if (!$daTonTai) {
-            $nguyenLieu = NguyenLieu::where('ma_nguyen_lieu', $maNL)->first();
-            $inputMin = $request->so_luong_ton_min[$maNL] ?? 0;
-            $dinhLuong = $nguyenLieu->so_luong ?? 1;
+            if (!$daTonTai) {
+                $nguyenLieu = NguyenLieu::where('ma_nguyen_lieu', $maNL)->first();
+                $inputMin = $request->so_luong_ton_min[$maNL] ?? 0;
+                $dinhLuong = $nguyenLieu->so_luong ?? 1;
 
-            CuaHangNguyenLieu::create([
-                'ma_cua_hang' => $request->ma_cua_hang,
-                'ma_nguyen_lieu' => $maNL,
-                'so_luong_ton' => 0,
-                'so_luong_ton_min' => (float)$inputMin * (float)$dinhLuong,
-                'don_vi' => $request->don_vi[$maNL] ?? $nguyenLieu->don_vi,
-            ]);
+                CuaHangNguyenLieu::create([
+                    'ma_cua_hang' => $request->ma_cua_hang,
+                    'ma_nguyen_lieu' => $maNL,
+                    'so_luong_ton' => 0,
+                    'so_luong_ton_min' => (float)$inputMin * (float)$dinhLuong,
+                    'don_vi' => $request->don_vi[$maNL] ?? $nguyenLieu->don_vi,
+                ]);
+            }
         }
+
+        toastr()->success('Đã thêm nguyên liệu vào kho.');
+        return redirect()->route('admins.shopmaterial.index', ['ma_cua_hang' => $request->ma_cua_hang]);
     }
-
-    toastr()->success('Đã thêm nguyên liệu vào kho.');
-    return redirect()->route('admins.shopmaterial.index', ['ma_cua_hang' => $request->ma_cua_hang]);
-}
-
     public function edit($id)
     {
         $material = NguyenLieu::findOrFail($id);
@@ -397,6 +396,10 @@ class AdminShopmaterialController extends Controller
                             ->orderBy('han_su_dung', 'asc')       // ưu tiên hạn sử dụng gần nhất trước
                             ->orderBy('ngay_tao_phieu', 'asc')    // ưu tiên phiếu nhập cũ hơn
                             ->get();
+
+
+
+
 
                         $tongTon = 0;
                         foreach ($phieuNhapList as $lo) {

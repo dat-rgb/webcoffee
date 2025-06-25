@@ -29,7 +29,7 @@ class AdminCategoryController extends Controller
             });
         }
 
-        $categories = $query->paginate(7);
+        $categories = $query->paginate(10);
         if ($categories->isEmpty() && $request->has('search') && $request->search != '') {
             toastr()->warning('Không tìm thấy danh mục với từ khóa "' . $request->search . '".');
         }
@@ -183,15 +183,27 @@ class AdminCategoryController extends Controller
         return redirect()->route('admins.category.index');
     }
     public function archive($id)
-    {
-        $category = DanhMucSanPham::findOrFail($id);
-        $category->archiveWithChildren();
-        $category->trang_thai = 3; // Chuyển vào lưu trữ
-        $category->save();
-        DanhMucSanPham::where('danh_muc_cha_id', $category->ma_danh_muc)->update(['trang_thai' => 3]);
-        toastr()->success('Đã chuyển danh mục vào thùng rác.');
-        return redirect()->route('admins.category.index');
+{
+    $category = DanhMucSanPham::findOrFail($id);
+
+    // Lấy toàn bộ con/cháu
+    $descendants = $category->getAllDescendants();
+    $all = collect([$category])->merge($descendants);
+
+    foreach ($all as $dm) {
+        if ($dm->sanPhams()->exists()) {
+            toastr()->error("Không thể lưu trữ danh mục '{$dm->ten_danh_muc}' vì đang chứa sản phẩm.");
+            return redirect()->route('admins.category.index');
+        }
     }
+
+    // Nếu không có sản phẩm liên quan
+    $category->archiveWithChildren();
+    toastr()->success('Đã chuyển danh mục vào thùng rác.');
+    return redirect()->route('admins.category.index');
+}
+
+
     public function archiveIndex()
     {
         // Lấy danh sách các danh mục có trạng thái 'Lưu trữ' (trang_thai = 3)
@@ -228,24 +240,46 @@ class AdminCategoryController extends Controller
         return redirect()->route('admins.category.index');
     }
     public function bulkArchive(Request $request)
-    {
-        $ids = $request->input('selected_ids', []);
+{
+    $ids = $request->input('selected_ids', []);
+    if (empty($ids)) {
+        toastr()->warning('Bạn cần chọn ít nhất 1 danh mục để thực hiện chức năng.');
+        return back();
+    }
 
-        if (empty($ids)) {
-            toastr()->warning('Bạn cần chọn ít nhất 1 danh mục để thực hiện chức năng.');
-            return back();
-        }
+    $errors = [];
 
-        foreach ($ids as $id) {
-            $category = DanhMucSanPham::find($id);
-            if ($category) {
-                $category->archiveWithChildren();
+    foreach ($ids as $id) {
+        $category = DanhMucSanPham::find($id);
+        if (!$category) continue;
+
+        $descendants = $category->getAllDescendants();
+        $all = collect([$category])->merge($descendants);
+
+        $hasSanPham = false;
+
+        foreach ($all as $dm) {
+            if ($dm->sanPhams()->exists()) {
+                $errors[] = "Không thể tạm xóa danh mục '{$dm->ten_danh_muc}' vì đang chứa sản phẩm.";
+                $hasSanPham = true;
+                break;
             }
         }
 
-        toastr()->success('Đã ẩn các danh mục và danh mục con đã chọn.');
-        return back();
+        if (!$hasSanPham) {
+            $category->archiveWithChildren();
+        }
     }
+
+    if (!empty($errors)) {
+        toastr()->error(implode('<br>', $errors));
+    } else {
+        toastr()->success('Đã tạm xóa các danh mục được chọn.');
+    }
+
+    return back();
+}
+
     public function bulkRestore(Request $request)
     {
         $ids = $request->input('selected_ids', []);
@@ -298,5 +332,78 @@ class AdminCategoryController extends Controller
         toastr()->success('Đã xóa các danh mục đã chọn.');
         return back();
     }
+
+
+
+   public function bulkToggleStatus(Request $request)
+{
+    $ids = $request->input('selected_ids', []);
+    if (empty($ids)) {
+        toastr()->warning('Vui lòng chọn ít nhất một danh mục.');
+        return back();
+    }
+
+    $errors = [];
+
+    foreach ($ids as $id) {
+        $category = DanhMucSanPham::find($id);
+        if (!$category) continue;
+
+        $currentStatus = $category->trang_thai;
+        $newStatus = ($currentStatus == 1) ? 2 : 1;
+
+        // Nếu bật lại (1), kiểm tra cha có đang hoạt động không
+        if ($newStatus == 1 && $category->danh_muc_cha_id) {
+            $parent = DanhMucSanPham::find($category->danh_muc_cha_id);
+            if ($parent && $parent->trang_thai != 1) {
+                $errors[] = "Không thể bật danh mục '{$category->ten_danh_muc}' vì danh mục cha đang không hoạt động.";
+                continue;
+            }
+        }
+
+        if ($newStatus == 2) {
+            // Nếu là tắt → tắt cả cây con/cháu
+            $descendants = $this->getAllDescendants($category->ma_danh_muc);
+            $allIds = collect([$category->ma_danh_muc])->merge($descendants)->unique();
+
+            DanhMucSanPham::whereIn('ma_danh_muc', $allIds)->update(['trang_thai' => $newStatus]);
+            foreach ($allIds as $catId) {
+                $dm = DanhMucSanPham::find($catId);
+                if ($dm) {
+                    $dm->sanPhams()->update(['trang_thai' => $newStatus]);
+                }
+            }
+        } else {
+            // Nếu là bật → chỉ bật chính danh mục đó
+            $category->update(['trang_thai' => 1]);
+            $category->sanPhams()->update(['trang_thai' => 1]);
+        }
+    }
+
+    if (count($errors)) {
+        toastr()->error(implode('<br>', $errors));
+    } else {
+        toastr()->success('Đã chuyển đổi trạng thái các danh mục đã chọn.');
+    }
+
+    return back();
+}
+
+
+// Hàm đệ quy để lấy tất cả ID con/cháu của danh mục
+private function getAllDescendants($parentId)
+{
+    $children = DanhMucSanPham::where('danh_muc_cha_id', $parentId)->get();
+    $ids = collect();
+
+    foreach ($children as $child) {
+        $ids->push($child->ma_danh_muc);
+        $ids = $ids->merge($this->getAllDescendants($child->ma_danh_muc)); // gọi đệ quy tiếp
+    }
+
+    return $ids;
+}
+
+
 
 }

@@ -214,6 +214,8 @@ Route::prefix('admin/categories')->middleware(AdminMiddleware::class)->name('adm
     Route::post('/bulk-archive', [AdminCategoryController::class, 'bulkArchive'])->name('bulk-archive');
     Route::post('/bulk-restore', [AdminCategoryController::class, 'bulkRestore'])->name('bulk-restore');
     Route::post('/bulk-delete', [AdminCategoryController::class, 'bulkDelete'])->name('bulk-delete');
+    Route::post('/bulk-toggle-status', [AdminCategoryController::class, 'bulkToggleStatus'])->name('bulk-toggle-status');
+
 });
 //Route Material Admin
 Route::prefix('admin/materials')->middleware(AdminMiddleware::class)->name('admins.material.')->group(function () {
