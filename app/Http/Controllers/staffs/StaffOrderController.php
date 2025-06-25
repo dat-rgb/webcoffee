@@ -10,6 +10,7 @@ use App\Models\HoaDon;
 use App\Models\KhuyenMai;
 use App\Models\LichSuHuyDonHang;
 use App\Models\NhanVien;
+use App\Models\SanPham;
 use App\Models\Sizes;
 use App\Models\ThanhPhanSanPham;
 use Illuminate\Http\Request;
@@ -149,64 +150,86 @@ class StaffOrderController extends Controller
             'updated_at' => now(),
         ]);
     }
+
     private function handleCancelStatus(Request $request, HoaDon $order, $nhanVien, int $status)
     {
         $data = $request->validate([
             'cancel_reason' => 'required|string',
         ]);
 
-        // Chỉ xử lý khi status gửi vào là yêu cầu hủy
         if ($status === 5) {
             $oldStatus = $order->trang_thai;
 
-            // Cập nhật trạng thái và nhân viên hủy
             $order->update([
                 'trang_thai' => 5,
                 'ma_nhan_vien' => $nhanVien->ma_nhan_vien,
             ]);
 
+            // ✅ Luôn hoàn kho nếu có sản phẩm đóng gói
+            $this->restorePackedProductOnly($order);
+
+            // ✅ Chỉ hoàn voucher + nguyên liệu pha chế nếu đơn chưa được xử lý
             if ($oldStatus < 2) {
-                $this->restoreIngredientsAndVoucher($order);
-                if ($oldStatus < 2) {
-                    $this->restoreIngredientsAndVoucher($order);
+                $this->restoreVoucherAndBrewedProductOnly($order);
 
-                    if (
-                        $order->phuong_thuc_thanh_toan === 'NAPAS247' &&
-                        $order->trang_thai_thanh_toan === 1 &&
-                        $order->transaction &&
-                        $order->transaction->trang_thai === 'SUCCESS'
-                    ) {
-                        $order->update([
-                            'trang_thai_thanh_toan' => 2, // Đang hoàn tiền
-                        ]);
+                // ✅ Điều kiện hoàn tiền với đơn thanh toán NAPAS247
+                if (
+                    $order->phuong_thuc_thanh_toan === 'NAPAS247' &&
+                    $order->trang_thai_thanh_toan === 1 &&
+                    $order->transaction &&
+                    $order->transaction->trang_thai === 'SUCCESS'
+                ) {
+                    $order->update([
+                        'trang_thai_thanh_toan' => 2,
+                    ]);
 
-                        $order->transaction->update([
-                            'trang_thai' => 'REFUNDING',
-                        ]);
-                    }
+                    $order->transaction->update([
+                        'trang_thai' => 'REFUNDING',
+                    ]);
                 }
             }
 
-            // Lưu lịch sử hủy đơn
-            $lichSu = new LichSuHuyDonHang();
-            $lichSu->ma_hoa_don = $order->ma_hoa_don;
-            $lichSu->ly_do_huy = $data['cancel_reason'];
-            $lichSu->thoi_gian_huy = now();
-            $lichSu->nguoi_huy = 'NV - ' . $nhanVien->ho_ten_nhan_vien;
-            $lichSu->save();
+            // ✅ Lưu lịch sử hủy
+            LichSuHuyDonHang::create([
+                'ma_hoa_don' => $order->ma_hoa_don,
+                'ly_do_huy' => $data['cancel_reason'],
+                'thoi_gian_huy' => now(),
+                'nguoi_huy' => 'NV - ' . $nhanVien->ho_ten_nhan_vien,
+            ]);
 
-            // Nếu đơn có giao hàng thì cập nhật trạng thái giao hàng
+            // ✅ Cập nhật giao hàng nếu có
             $giaoHang = GiaoHang::where('ma_hoa_don', $order->ma_hoa_don)->first();
             if ($giaoHang) {
                 $giaoHang->update([
-                    'trang_thai' => 2, // Giao hàng không thành công
+                    'trang_thai' => 2,
                 ]);
             }
         }
     }
-    public function restoreIngredientsAndVoucher($hoaDon)
+
+    public function restorePackedProductOnly($hoaDon)
     {
-        // Nếu có voucher thì cộng lại số lượng
+        $chiTietHoaDons = ChiTietHoaDon::where('ma_hoa_don', $hoaDon->ma_hoa_don)->get();
+
+        foreach ($chiTietHoaDons as $chiTiet) {
+            $maSanPham = $chiTiet->ma_san_pham;
+            $sanPham = SanPham::where('ma_san_pham', $maSanPham)->first();
+            if (!$sanPham || $sanPham->loai_san_pham != 1) continue;
+
+            $tp = ThanhPhanSanPham::where('ma_san_pham', $maSanPham)->first();
+            if (!$tp) continue;
+
+            $soLuongHoanTra = $tp->dinh_luong * $chiTiet->so_luong;
+
+            DB::table('cua_hang_nguyen_lieus')
+                ->where('ma_cua_hang', $hoaDon->ma_cua_hang)
+                ->where('ma_nguyen_lieu', $tp->ma_nguyen_lieu)
+                ->increment('so_luong_ton', $soLuongHoanTra);
+        }
+    }
+    
+    public function restoreVoucherAndBrewedProductOnly($hoaDon)
+    {
         if ($hoaDon->ma_voucher) {
             $voucher = KhuyenMai::where('ma_voucher', $hoaDon->ma_voucher)->first();
             if ($voucher) {
@@ -214,14 +237,15 @@ class StaffOrderController extends Controller
             }
         }
 
-        // Lấy chi tiết hóa đơn
         $chiTietHoaDons = ChiTietHoaDon::where('ma_hoa_don', $hoaDon->ma_hoa_don)->get();
 
         foreach ($chiTietHoaDons as $chiTiet) {
             $maSanPham = $chiTiet->ma_san_pham;
-            $maSize = Sizes::where('ten_size', $chiTiet->ten_size)->value('ma_size');
+            $sanPham = SanPham::where('ma_san_pham', $maSanPham)->first();
+            if (!$sanPham || $sanPham->loai_san_pham != 0) continue;
 
-            if (!$maSize) continue; // nếu size không tồn tại thì skip
+            $maSize = Sizes::where('ten_size', $chiTiet->ten_size)->value('ma_size');
+            if (!$maSize) continue;
 
             $thanhPhanNLs = ThanhPhanSanPham::where('ma_san_pham', $maSanPham)
                 ->where('ma_size', $maSize)
@@ -236,7 +260,8 @@ class StaffOrderController extends Controller
                     ->increment('so_luong_ton', $soLuongHoanTra);
             }
         }
-    }  
+    }
+
     public function tinhDiemThanhVien($order)
     {
         if (!$order->ma_khach_hang) {

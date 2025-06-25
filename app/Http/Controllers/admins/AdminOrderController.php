@@ -207,6 +207,7 @@ class AdminOrderController extends Controller
                 ->increment('so_luong_ton', $soLuongHoanTra);
         }
     }
+    
     public function restoreVoucherAndBrewedProductOnly($hoaDon)
     {
         if ($hoaDon->ma_voucher) {

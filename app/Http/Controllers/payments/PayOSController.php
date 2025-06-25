@@ -185,6 +185,37 @@ class PayOSController extends Controller
                     'virtual_account_name' => $data['virtualAccountName'] ?? null,
                     'virtual_account_number' => $data['virtualAccountNumber'] ?? null,
                 ]);
+
+                
+            $cartItems = $hoaDon->chiTietHoaDon->map(function ($item) {
+                return [
+                    'product_name'     => $item->ten_san_pham ?? 'N/A',
+                    'size_name'        => $item->ten_size ?? '',
+                    'product_quantity' => $item->so_luong,
+                    'product_price'    => $item->don_gia,
+                    'size_price'       => $item->gia_size ?? 0,
+                ];
+            })->toArray();
+            
+            $statusPayment = 'Đã thanh toán';
+            $status = 'Chờ xác nhận';
+            app(PaymentController::class)->sendEmail(
+                $hoaDon->ma_hoa_don,
+                $hoaDon->ten_khach_hang,
+                $hoaDon->email,
+                $hoaDon->so_dien_thoai,
+                $hoaDon->phuong_thuc_nhan_hang,
+                $hoaDon->phuong_thuc_thanh_toan,
+                $status, 
+                $statusPayment, 
+                $hoaDon->dia_chi,
+                $cartItems,
+                $hoaDon->tam_tinh,
+                $hoaDon->giam_gia,
+                $hoaDon->tien_ship,
+                $hoaDon->tong_tien,
+                $hoaDon->token_bao_mat,
+            );
             }
 
             return response()->json(['success' => true]);
@@ -234,11 +265,9 @@ class PayOSController extends Controller
                 ];
             })->toArray();
             
-            $sendEmail = new PaymentController();
             $statusPayment = 'Đã thanh toán';
             $status = 'Chờ xác nhận';
-
-            $sendEmail->sendEmail(
+            app(PaymentController::class)->sendEmail(
                 $hoaDon->ma_hoa_don,
                 $hoaDon->ten_khach_hang,
                 $hoaDon->email,
