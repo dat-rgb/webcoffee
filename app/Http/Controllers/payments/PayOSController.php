@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\ChiTietHoaDon;
 use App\Models\HoaDon;
 use App\Models\KhuyenMai;
+use App\Models\NguyenLieu;
+use App\Models\SanPham;
 use App\Models\Sizes;
 use App\Models\ThanhPhanSanPham;
 use App\Models\Transactions;
@@ -284,32 +286,53 @@ class PayOSController extends Controller
             Transactions::where('ma_hoa_don', $maHoaDon)->update([
                 'trang_thai' => 'CANCELLED',
             ]);
-            // Lấy chi tiết hóa đơn
+            
             $chiTietHoaDons = ChiTietHoaDon::where('ma_hoa_don', $maHoaDon)->get();
 
             foreach ($chiTietHoaDons as $chiTiet) {
                 $maSanPham = $chiTiet->ma_san_pham;
 
-                $maSize = Sizes::where('ten_size', $chiTiet->ten_size)->value('ma_size');
-                if (!$maSize) {
-                    // Size không tồn tại, bỏ qua
-                    continue;
-                }
+                // Lấy loại sản phẩm
+                $sanPham = SanPham::where('ma_san_pham', $maSanPham)->first();
+                if (!$sanPham) continue;
 
-                $thanhPhanNLs = ThanhPhanSanPham::where('ma_san_pham', $maSanPham)
-                    ->where('ma_size', $maSize)
-                    ->get();
+                if ($sanPham->loai_san_pham == 0) {
+                    // Sản phẩm pha chế (có size, có định lượng)
+                    $maSize = Sizes::where('ten_size', $chiTiet->ten_size)->value('ma_size');
+                    if (!$maSize) continue;
 
-                foreach ($thanhPhanNLs as $tp) {
-                    $soLuongHoanTra = $tp->dinh_luong * $chiTiet->so_luong;
+                    $thanhPhanNLs = ThanhPhanSanPham::where('ma_san_pham', $maSanPham)
+                        ->where('ma_size', $maSize)
+                        ->get();
 
-                    // Cập nhật tồn kho bằng query builder vì composite key
+                    foreach ($thanhPhanNLs as $tp) {
+                        $soLuongHoanTra = $tp->dinh_luong * $chiTiet->so_luong;
+
+                        DB::table('cua_hang_nguyen_lieus')
+                            ->where('ma_cua_hang', $hoaDon->ma_cua_hang)
+                            ->where('ma_nguyen_lieu', $tp->ma_nguyen_lieu)
+                            ->increment('so_luong_ton', $soLuongHoanTra);
+                    }
+
+                } elseif ($sanPham->loai_san_pham == 1) {
+                    // Sản phẩm đóng gói (1 nguyên liệu, không size)
+
+                    $tp = ThanhPhanSanPham::where('ma_san_pham', $maSanPham)->first();
+                    if (!$tp) continue;
+
+                    // Lấy định lượng từ bảng nguyen_lieus (sản phẩm đóng gói lấy full số lượng nguyên liệu)
+                    $nguyenLieu = NguyenLieu::where('ma_nguyen_lieu', $tp->ma_nguyen_lieu)->first();
+                    if (!$nguyenLieu) continue;
+
+                    $soLuongHoanTra = $nguyenLieu->so_luong * $chiTiet->so_luong;
+
                     DB::table('cua_hang_nguyen_lieus')
                         ->where('ma_cua_hang', $hoaDon->ma_cua_hang)
                         ->where('ma_nguyen_lieu', $tp->ma_nguyen_lieu)
                         ->increment('so_luong_ton', $soLuongHoanTra);
                 }
             }
+
             if ($hoaDon->ma_voucher) {
                 $voucher = KhuyenMai::where('ma_voucher', $hoaDon->ma_voucher)->first();
                 if ($voucher) {

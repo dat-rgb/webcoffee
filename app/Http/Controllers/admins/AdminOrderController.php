@@ -9,6 +9,8 @@ use App\Models\GiaoHang;
 use App\Models\HoaDon;
 use App\Models\KhuyenMai;
 use App\Models\LichSuHuyDonHang;
+use App\Models\NguyenLieu;
+use App\Models\SanPham;
 use App\Models\Sizes;
 use App\Models\ThanhPhanSanPham;
 use Illuminate\Http\Request;
@@ -84,11 +86,13 @@ class AdminOrderController extends Controller
 
         return view('admins.orders._order_tbody', compact('orders'));
     }
+
     public function detail($id)
     {
         $order = HoaDon::with(['khachHang', 'chiTietHoaDon'])->where('ma_hoa_don',$id)->first();
         return view('admins.orders._order_detail', compact('order'));
     }
+
     public function updateStatusOrder(Request $request)
     {
         try {
@@ -130,6 +134,7 @@ class AdminOrderController extends Controller
             ], 500);
         }
     }
+
     private function handleCancelStatusAdmin(Request $request, HoaDon $order, int $status)
     {
         $data = $request->validate([
@@ -144,25 +149,25 @@ class AdminOrderController extends Controller
                 'trang_thai' => 5,
             ]);
 
+            // Luôn hoàn kho nếu có sản phẩm đóng gói
+            $this->restorePackedProductOnly($order);
+
+            // Chỉ hoàn voucher + nguyên liệu pha chế nếu đơn chưa đến bước xử lý
             if ($oldStatus < 2) {
-                $this->restoreIngredientsAndVoucher($order);
-                if ($oldStatus < 2) {
-                    $this->restoreIngredientsAndVoucher($order);
+                $this->restoreVoucherAndBrewedProductOnly($order);
+                if (
+                    $order->phuong_thuc_thanh_toan === 'NAPAS247' &&
+                    $order->trang_thai_thanh_toan === 1 &&
+                    $order->transaction &&
+                    $order->transaction->trang_thai === 'SUCCESS'
+                ) {
+                    $order->update([
+                        'trang_thai_thanh_toan' => 2,
+                    ]);
 
-                    if (
-                        $order->phuong_thuc_thanh_toan === 'NAPAS247' &&
-                        $order->trang_thai_thanh_toan === 1 &&
-                        $order->transaction &&
-                        $order->transaction->trang_thai === 'SUCCESS'
-                    ) {
-                        $order->update([
-                            'trang_thai_thanh_toan' => 2, 
-                        ]);
-
-                        $order->transaction->update([
-                            'trang_thai' => 'REFUNDING',
-                        ]);
-                    }
+                    $order->transaction->update([
+                        'trang_thai' => 'REFUNDING',
+                    ]);
                 }
             }
 
@@ -181,7 +186,28 @@ class AdminOrderController extends Controller
             }
         }
     }
-    public function restoreIngredientsAndVoucher($hoaDon)
+
+    public function restorePackedProductOnly($hoaDon)
+    {
+        $chiTietHoaDons = ChiTietHoaDon::where('ma_hoa_don', $hoaDon->ma_hoa_don)->get();
+
+        foreach ($chiTietHoaDons as $chiTiet) {
+            $maSanPham = $chiTiet->ma_san_pham;
+            $sanPham = SanPham::where('ma_san_pham', $maSanPham)->first();
+            if (!$sanPham || $sanPham->loai_san_pham != 1) continue;
+
+            $tp = ThanhPhanSanPham::where('ma_san_pham', $maSanPham)->first();
+            if (!$tp) continue;
+
+            $soLuongHoanTra = $tp->dinh_luong * $chiTiet->so_luong;
+
+            DB::table('cua_hang_nguyen_lieus')
+                ->where('ma_cua_hang', $hoaDon->ma_cua_hang)
+                ->where('ma_nguyen_lieu', $tp->ma_nguyen_lieu)
+                ->increment('so_luong_ton', $soLuongHoanTra);
+        }
+    }
+    public function restoreVoucherAndBrewedProductOnly($hoaDon)
     {
         if ($hoaDon->ma_voucher) {
             $voucher = KhuyenMai::where('ma_voucher', $hoaDon->ma_voucher)->first();
@@ -190,14 +216,15 @@ class AdminOrderController extends Controller
             }
         }
 
-        // Lấy chi tiết hóa đơn
         $chiTietHoaDons = ChiTietHoaDon::where('ma_hoa_don', $hoaDon->ma_hoa_don)->get();
 
         foreach ($chiTietHoaDons as $chiTiet) {
             $maSanPham = $chiTiet->ma_san_pham;
-            $maSize = Sizes::where('ten_size', $chiTiet->ten_size)->value('ma_size');
+            $sanPham = SanPham::where('ma_san_pham', $maSanPham)->first();
+            if (!$sanPham || $sanPham->loai_san_pham != 0) continue;
 
-            if (!$maSize) continue; // nếu size không tồn tại thì skip
+            $maSize = Sizes::where('ten_size', $chiTiet->ten_size)->value('ma_size');
+            if (!$maSize) continue;
 
             $thanhPhanNLs = ThanhPhanSanPham::where('ma_san_pham', $maSanPham)
                 ->where('ma_size', $maSize)
@@ -212,7 +239,8 @@ class AdminOrderController extends Controller
                     ->increment('so_luong_ton', $soLuongHoanTra);
             }
         }
-    } 
+    }
+
     private function handleStatus3(Request $request, HoaDon $order)
     {
         $data = $request->validate([
@@ -231,6 +259,7 @@ class AdminOrderController extends Controller
             'updated_at' => now(),
         ]);
     }
+
     public function tinhDiemThanhVien($order)
     {
         if (!$order->ma_khach_hang) {
@@ -257,6 +286,7 @@ class AdminOrderController extends Controller
             $khach->save();
         }
     }
+
     public function manualRefund(Request $request, $maHoaDon)
     {
         $hoaDon = HoaDon::with('transaction')->where('ma_hoa_don', $maHoaDon)->first();
