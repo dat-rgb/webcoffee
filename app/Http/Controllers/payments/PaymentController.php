@@ -188,7 +188,8 @@ class PaymentController extends Controller
                     );
 
                 session()->forget('cart'); 
-                    
+                event(new \App\Events\OrderCreated($hoaDon));
+                
                 return redirect()->route('theoDoiDonHang', [
                     'orderCode' => $maHoaDon,
                     'token' => $orderData['token_bao_mat'],
@@ -220,6 +221,7 @@ class PaymentController extends Controller
                 'cart_items' => $cart,
             ];
             $payOS = app(\App\Http\Controllers\payments\PayOSController::class);
+
             return $payOS->createPaymentLinkFromOrderData($orderData);
         }
         toastr()->error('Phương thức thanh toán không hợp lệ.');

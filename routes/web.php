@@ -41,6 +41,7 @@ use App\Http\Middleware\KhachHangMiddleware;
 use App\Http\Middleware\NhanVienMiddleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Events\OrderCreated;
 
 //Start - user
 //Route Home
@@ -423,4 +424,8 @@ Route::prefix('staff/nhanviens')->middleware(NhanVienMiddleware::class)->name('s
 
 //End - Staff
 
-
+Route::get('/test-realtime', function () {
+    $fakeOrder = ['id' => 999, 'ten_khach_hang' => 'Test Pusher'];
+    event(new OrderCreated($fakeOrder));
+    return view('test-realtime');
+});
