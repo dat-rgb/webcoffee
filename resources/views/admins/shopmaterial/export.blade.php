@@ -87,8 +87,8 @@
                                                                 Lô: <strong>{{ $lo['so_lo'] }}</strong> -
                                                                 Còn lại:
                                                                 <strong>
-                                                                    {{ rtrim(rtrim(number_format($lo['con_lai'] / max(1, $material->nguyenLieu->so_luong), 2), '0'), '.') }}
-                                                                    {{ $material->don_vi }}
+                                                                {{ rtrim(rtrim(number_format($lo['con_lai'] / max(1, $material->nguyenLieu->so_luong), 2), '0'), '.') }}
+                                                                {{ $lo['don_vi'] ?? $material->don_vi }}
                                                                 </strong>-
 
 

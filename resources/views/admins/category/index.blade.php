@@ -75,6 +75,14 @@
                                     </li>
                                     @else
                                     <li>
+                                    <button
+                                        type="button"
+                                        class="dropdown-item btn-bulk-toggle"
+                                        data-action="{{ route('admins.category.bulk-toggle-status') }}"
+                                    >Chuyển đổi trạng thái</button>
+                                    </li>
+
+                                    <li>
                                         <button
                                         type="button"
                                         class="dropdown-item btn-bulk-archive"
@@ -262,6 +270,35 @@ $(function(){
     });
   });
 });
+$('.btn-bulk-toggle').on('click', function (e) {
+  e.preventDefault();
+  const btn = $(this);
+  const actionUrl = btn.data('action');
+  const total = $('input[name="selected_ids[]"]:checked').length;
+
+  if (!total) {
+    return Swal.fire('Chưa chọn mục nào', 'Vui lòng chọn ít nhất một danh mục.', 'info');
+  }
+
+  Swal.fire({
+    title: 'Chuyển đổi trạng thái?',
+    text: 'Các danh mục và danh mục con/cháu sẽ được cập nhật trạng thái.',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Xác nhận',
+    cancelButtonText: 'Hủy',
+    customClass: {
+      confirmButton: `btn btn-info me-2`,
+      cancelButton: 'btn btn-secondary'
+    },
+    buttonsStyling: false
+  }).then(res => {
+    if (res.isConfirmed) {
+      $('#bulk-action-form').attr('action', actionUrl).submit();
+    }
+  });
+});
+
 </script>
 @endpush
 
