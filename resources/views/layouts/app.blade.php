@@ -88,13 +88,11 @@
 										<span>{{ \Illuminate\Support\Str::limit(session('selected_store_name'), 15) ?? 'Cửa hàng' }}</span>
 									</a>
 								</li>
-								{{-- Tách user icon ra khỏi header-icons --}}
 								@if(Auth::check())
 									<li>
 										<a href="{{ route('customer.index') }}">
 											<i class="fas fa-user"></i>
 											{{ \Illuminate\Support\Str::limit(Auth::user()->khachHang->ho_ten_khach_hang ?? 'Khách hàng', 10) ?? 'Cửa hàng' }}
-											 <!-- {{ Auth::user()->khachHang->ho_ten_khach_hang ?? 'Khách hàng' }} -->
 										</a>
 										<ul class="sub-menu">
 											<li><a href="{{ route('customer.index') }}"><i class="fas fa-user-circle"></i> Hồ sơ</a></li>

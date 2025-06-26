@@ -19,8 +19,8 @@
                         <i class="fas fa-history"></i> Lịch sử mua hàng
                     </a>
                 </li>
-                <li class="sidebar-item">
-                    <a href="">
+                <li class="sidebar-item {{ request()->routeIs('customer.sanPhamDaXem') ? 'active' : '' }}">
+                    <a href="{{ route('customer.sanPhamDaXem') }}">
                         <i class="fas fa-eye"></i> Sản phẩm đã xem
                     </a>
                 </li>

@@ -175,5 +175,17 @@ class CustomerController extends Controller
 
         return view('clients.customers.san_pham_da_mua', $viewData);
     }
+    
+    public function getProductToViewHistory()
+    {
+        $productToHistory = session()->get('viewed_products', []);
 
+        $viewData = [
+            'title' => 'Sản phẩm đã xem',
+            'subtitle' => 'Sản phẩm đã xem',
+            'productToHistory' => $productToHistory
+        ];
+
+        return view('clients.customers.product_history', $viewData);
+    }
 }

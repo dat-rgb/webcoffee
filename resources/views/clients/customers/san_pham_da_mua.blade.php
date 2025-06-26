@@ -114,7 +114,7 @@
                                             <img src="{{ $sp->hinh_anh ? asset('storage/' . $sp->hinh_anh) : asset('images/no_product_image.png') }}" alt="">
                                         </a>
                                     </div>
-                                    <p>{{ \Illuminate\Support\Str::limit($sp['ten_san_pham'], 20) }}</p>
+                                    <p>{{ \Illuminate\Support\Str::limit($sp['ten_san_pham'], 15) }}</p>
                                     <a href="{{ route('product.detail', $sp->slug) }}" class="cart-btn">
                                         <i class="fas fa-shopping-cart"></i> Mua lại
                                     </a>
@@ -124,7 +124,6 @@
                     </div>
                 @endif
             </div>
-
         </div>
     </div>
 </div>
