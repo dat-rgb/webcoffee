@@ -102,20 +102,23 @@
 
             <!-- Nội dung chính -->
             <div class="col-lg-8">
-                @if($sanPhamDaMua->isEmpty())
+                @if ($sanPhamDaMua->isEmpty())
                     <p class="text-center text-muted">Bạn chưa mua sản phẩm nào. <a href="{{ route('product') }}">Khám phá ngay</a></p>
                 @else
-                    <div class="row product-lists">
+                    <div class="row"  id="product-list">
                         @foreach ($sanPhamDaMua as $sp)
-                            <div class="col-lg-4 col-md-6 col-sm-6 text-center mb-4">
+                        <div class="col-md-4 col-6 text-center mb-4">
                                 <div class="single-product-item">
                                     <div class="product-image position-relative">
                                         <a href="{{ route('product.detail', $sp->slug) }}">
-                                            <img src="{{ $sp->hinh_anh ? asset('storage/' . $sp->hinh_anh) : asset('images/no_product_image.png') }}" alt="">
+                                            <img src="{{ $sp->hinh_anh 
+                                                ? asset('storage/' . $sp->hinh_anh) 
+                                                : asset('images/no_product_image.png') }}" 
+                                                alt="">
                                         </a>
                                     </div>
-                                    <p>{{ \Illuminate\Support\Str::limit($sp['ten_san_pham'], 15) }}</p>
-                                    <a href="{{ route('product.detail', $sp->slug) }}" class="cart-btn">
+                                    <h5 class="mt-2">{{ \Illuminate\Support\Str::limit($sp['ten_san_pham'], 15) }}</h5>
+                                    <a href="{{ route('product.detail', $sp->slug) }}" class="cart-btn mt-1">
                                         <i class="fas fa-shopping-cart"></i> Mua lại
                                     </a>
                                 </div>

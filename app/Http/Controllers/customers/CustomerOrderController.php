@@ -13,6 +13,7 @@ use App\Models\LichSuHuyDonHang;
 use App\Models\SanPham;
 use App\Models\Sizes;
 use App\Models\ThanhPhanSanPham;
+use App\Models\Transactions;
 use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -62,6 +63,14 @@ class CustomerOrderController extends Controller
         if ($order->trang_thai >= 2) {
             toastr()->error('Không thể hủy đơn hàng đã được xử lý');
             return redirect()->back();
+        }
+
+        if($order->phuong_thuc_thanh_toan !== 'COD'){
+            $order->update(['trang_thai_thanh_toan' => 2]);
+            $transaction = Transactions::where('ma_hoa_don', $order->ma_hoa_don)->first();
+            if ($transaction && $transaction->trang_thai === 'SUCCESS') {
+                $transaction->update(['trang_thai' => 'REFUNDING']);
+            }
         }
 
         $order->update(['trang_thai' => 5]);

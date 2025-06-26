@@ -68,29 +68,33 @@
         </div>
         <div class="row"  id="product-list">
             @foreach ( $products as  $pro)
-                <div class="col-lg-3 col-md-4 col-sm-6 text-center {{ $pro->danhMuc->ma_danh_muc ?? '' }}">
-                    <div class="single-product-item">
-                        <div class="product-image">
-                            <div class="icon-wrapper">
-                                @if ($pro->hot && $pro->is_new)
-                                    <img src="{{ asset('images/product_hot.png') }}" alt="" class="hot-icon">
-                                    <img src="{{ asset('images/product_new.png') }}" alt="" class="hot-icon second">
-                                @elseif($pro->hot)
-                                    <img src="{{ asset('images/product_hot.png') }}" alt="" class="hot-icon">
-                                @elseif($pro->is_new)
-                                    <img src="{{ asset('images/product_new.png') }}" alt="" class="hot-icon">
-                                @endif
-                            </div>
-                            <a href="{{ route('product.detail',$pro->slug) }}">
-                                <img src="{{ $pro->hinh_anh ? asset('storage/' . $pro->hinh_anh) : asset('images/no_product_image.png') }}" alt="">
-                            </a>
+            <div class="col-lg-3 col-md-4 col-6 text-center {{ $pro->danhMuc->ma_danh_muc ?? '' }}">
+                <div class="single-product-item">
+                    <div class="product-image ">
+                        <div class="icon-wrapper">
+                            @if ($pro->hot && $pro->is_new)
+                                <img src="{{ asset('images/product_hot.png') }}" alt="" class="hot-icon">
+                                <img src="{{ asset('images/product_new.png') }}" alt="" class="hot-icon second">
+                            @elseif($pro->hot)
+                                <img src="{{ asset('images/product_hot.png') }}" alt="" class="hot-icon">
+                            @elseif($pro->is_new)
+                                <img src="{{ asset('images/product_new.png') }}" alt="" class="hot-icon">
+                            @endif
                         </div>
-                        <h5>{{ \Illuminate\Support\Str::limit($pro['ten_san_pham'], 20) }}</h5>
-                        <a href="{{ route('product.detail',$pro->slug) }}" class="cart-btn"><i class="fas fa-shopping-cart"></i> Đặt mua</a>
+                        <a href="{{ route('product.detail', $pro->slug) }}">
+                            <img class="" src="{{ $pro->hinh_anh ? asset('storage/' . $pro->hinh_anh) : asset('images/no_product_image.png') }}" alt="">
+                        </a>
                     </div>
+                    <h5 class="mt-2">{{ \Illuminate\Support\Str::limit($pro['ten_san_pham'], 20) }}</h5>
+                    <a href="{{ route('product.detail', $pro->slug) }}" class="cart-btn mt-1">
+                        <i class="fas fa-shopping-cart"></i> Đặt mua
+                    </a>
                 </div>
+            </div>
+
             @endforeach
         </div>
+        
         <div class="row">
             <div class="container">
                 <div class="row">
@@ -117,7 +121,7 @@
 </div>
 <!-- end products -->
 <!-- product history -->
-@if (!empty($productToHistory)) 
+<!-- @if (!empty($productToHistory)) 
     <div class="more-products mb-150">
         <div class="container">
             <div class="row">
@@ -139,7 +143,7 @@
             </div>
             <div class="row">
                 @foreach ($productToHistory as $pro)
-                    <div class="col-lg-3 col-md-4 col-sm-6 text-center">
+                    <div class="col-lg-3 col-md-4 col-6 text-center">
                         <div class="single-product-item">
                             <div class="product-image">
                                 <div class="icon-wrapper">
@@ -178,7 +182,7 @@
             </div>
         </div>
     </div>
-@endif
+@endif -->
 <!-- end product history -->
 @endif
 <!-- logo carousel -->

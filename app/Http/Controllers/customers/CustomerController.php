@@ -175,7 +175,7 @@ class CustomerController extends Controller
 
         return view('clients.customers.san_pham_da_mua', $viewData);
     }
-    
+
     public function getProductToViewHistory()
     {
         $productToHistory = session()->get('viewed_products', []);
@@ -187,5 +187,9 @@ class CustomerController extends Controller
         ];
 
         return view('clients.customers.product_history', $viewData);
+    }
+
+    public function getVoucherMember(){
+        
     }
 }

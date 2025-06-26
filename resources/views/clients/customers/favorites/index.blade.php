@@ -112,41 +112,46 @@
                 </div>
             </div>
             @include('clients.customers.sub_layout_customer')
-            <div class="col-lg-7 col-md-4">
-                @if($favorites->isEmpty())
+            <div class="col-lg-8 col-md-12">
+                @if ($favorites->isEmpty())
                     <div>
-                        <p class="text-center text-muted">Chưa có sản phẩm trong danh sách yêu thích của bạn. <a href="{{ route('product') }}">Khám phá ngay</a></p>
+                        <p class="text-center text-muted">Chưa có sản phẩm trong danh sách yêu thích của bạn. 
+                            <a href="{{ route('product') }}">Khám phá ngay</a>
+                        </p>
                     </div>
                 @else
-                    <div class="row">
+                    <div class="row"  id="product-list">
                         @foreach ($favorites as $pro)
-                        <div class="col-lg-4 col-md-6 col-sm-6 text-center mb-4">  <!-- mỗi sản phẩm chiếm 1/3 hàng -->
-                            <div class="single-product-item">
-                                <div class="product-image position-relative">
-                                    <!-- Nút Xóa -->
-                                    <form method="POST" action="{{ route('favorite.toggle', $pro->ma_san_pham) }}"
-                                        class="remove-favorite-form"
-                                        data-name="{{ $pro->sanPham->ten_san_pham }}"
-                                        style="position:absolute; top:5px; left:5px; z-index: 3;">
-                                        @csrf
-                                        <button type="submit"
-                                                class="btn btn-sm btn-danger btn-remove-favorite"
-                                                data-id="{{ $pro->ma_san_pham }}"
-                                                style="padding: 2px 6px; font-size: 12px; border-radius: 50%;"
-                                                title="Xóa khỏi yêu thích">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                    </form>
-                                    <a href="{{ route('product.detail',$pro->sanPham->slug) }}">
-                                        <img src="{{ $pro->sanPham->hinh_anh ? asset('storage/' . $pro->sanPham->hinh_anh) : asset('images/no_product_image.png') }}" alt="">
+                            <div class="col-md-4 col-6 text-center mb-4">
+                                <div class="single-product-item">
+                                    <div class="product-image position-relative">
+                                        <!-- Nút xóa -->
+                                        <form method="POST" action="{{ route('favorite.toggle', $pro->ma_san_pham) }}"
+                                            class="remove-favorite-form"
+                                            data-name="{{ $pro->sanPham->ten_san_pham }}"
+                                            style="position:absolute; top:5px; left:5px; z-index: 3;">
+                                            @csrf
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-danger btn-remove-favorite"
+                                                    data-id="{{ $pro->ma_san_pham }}"
+                                                    style="padding: 2px 6px; font-size: 12px; border-radius: 50%;"
+                                                    title="Xóa khỏi yêu thích">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </form>
+                                        <a href="{{ route('product.detail', $pro->sanPham->slug) }}">
+                                            <img src="{{ $pro->sanPham->hinh_anh 
+                                                ? asset('storage/' . $pro->sanPham->hinh_anh) 
+                                                : asset('images/no_product_image.png') }}" 
+                                                alt="">
+                                        </a>
+                                    </div>
+                                    <h5 class="mt-2">{{ \Illuminate\Support\Str::limit($pro->sanPham->ten_san_pham, 15) }}</h5>
+                                    <a href="{{ route('product.detail', $pro->sanPham->slug) }}" class="cart-btn mt-1">
+                                        <i class="fas fa-shopping-cart"></i> Đặt mua
                                     </a>
                                 </div>
-                                <p>{{ \Illuminate\Support\Str::limit($pro->sanPham->ten_san_pham, 20) }}</p>
-                                <a href="{{ route('product.detail',$pro->sanPham->slug) }}" class="cart-btn">
-                                    <i class="fas fa-shopping-cart"></i> Đặt mua
-                                </a>
-                            </div>  
-                        </div>
+                            </div>
                         @endforeach
                     </div>
                 @endif

@@ -2,11 +2,10 @@
 <div class="col-lg-4 mb-4">
     <div class="collapse d-lg-block" id="accountMenu">
         <div class="p-3 border rounded shadow-sm">
-            <h5 class="mb-3 text-uppercase font-weight-bold">Tài khoản của bạn</h5>
             <ul class="sidebar-menu list-unstyled mb-0">
                 <li class="sidebar-item {{ request()->routeIs('customer.index') ? 'active' : '' }}">
                     <a href="{{ route('customer.index') }}">
-                        <i class="fas fa-user"></i> Hồ sơ
+                        <i class="fas fa-user"></i> Thông tin tài khoản
                     </a>
                 </li>
                 <li class="sidebar-item {{ request()->routeIs('favorite.show') ? 'active' : '' }}">

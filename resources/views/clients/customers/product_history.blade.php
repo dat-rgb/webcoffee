@@ -1,6 +1,87 @@
 @extends('layouts.app')
 @section('title', $title)   
+@push('styles')
+<style>
+.product-image {
+    position: relative;
+    margin-bottom: 15px;
+    overflow: hidden;
+    border-radius: 6px;
+}
 
+.product-lists {
+    margin-left: -15px;  
+    margin-right: -15px;
+}
+
+.product-lists > div[class*="col-"] {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.single-product-item {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 15px;
+    background: #fff;
+    transition: box-shadow 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    text-align: center; 
+}
+
+.single-product-item:hover {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+.single-product-item p {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #333;
+    margin-bottom: 15px;
+}
+.cart-btn {
+  display: inline-block;
+  padding: 4px 8px;      
+  background-color: #ff6600;
+  color: #fff;
+  border-radius: 4px;
+  font-weight: 500;       
+  font-size: 0.85rem;     
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.cart-btn i {
+  margin-right: 4px;
+  font-size: 0.85rem;      
+}
+
+.cart-btn:hover {
+  background-color: #e65c00;
+}
+.toast-success {
+    background-color: #38a169 !important; 
+    color: #fff !important;
+}
+
+.toast-error {
+    background-color: #e53e3e !important; 
+    color: #fff !important;
+}
+
+.toast-warning {
+    background-color: #dd6b20 !important;
+    color: #fff !important;
+}
+
+.toast-info {
+    background-color: #3182ce !important;
+    color: #fff !important;
+}
+</style>
+@endpush
 @section('content')
 
 <!-- breadcrumb -->
@@ -50,9 +131,9 @@
                         </form>
                     </div>
 
-                    <div class="row product-lists">
+                    <div class="row"  id="product-list">
                         @foreach ($productToHistory as $sp)
-                            <div class="col-lg-4 col-md-6 col-sm-6 text-center mb-4">
+                            <div class="col-md-4 col-6 text-center mb-4">
                                 <div class="single-product-item">
                                     <div class="product-image position-relative">
                                         <form method="POST" action="{{ route('history.removeProduct', $sp['ma_san_pham']) }}"
@@ -69,11 +150,14 @@
                                             </button>
                                         </form>
                                         <a href="{{ route('product.detail', $sp['slug']) }}">
-                                            <img src="{{ isset($sp['anh_dai_dien']) && $sp['anh_dai_dien'] ? asset('storage/' . $sp['anh_dai_dien']) : asset('images/no_product_image.png') }}" alt="">
+                                            <img src="{{ isset($sp['anh_dai_dien']) && $sp['anh_dai_dien'] 
+                                                ? asset('storage/' . $sp['anh_dai_dien']) 
+                                                : asset('images/no_product_image.png') }}" 
+                                                alt="" />
                                         </a>
                                     </div>
-                                    <p>{{ \Illuminate\Support\Str::limit($sp['ten_san_pham'], 15) }}</p>
-                                    <a href="{{ route('product.detail', $sp['slug']) }}" class="cart-btn">
+                                    <h5 class="mt-2">{{ \Illuminate\Support\Str::limit($sp['ten_san_pham'], 15) }}</h5>
+                                    <a href="{{ route('product.detail', $sp['slug']) }}" class="cart-btn mt-1">
                                         <i class="fas fa-shopping-cart"></i> Đặt mua
                                     </a>
                                 </div>
