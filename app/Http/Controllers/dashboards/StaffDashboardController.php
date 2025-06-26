@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 
 class StaffDashboardController extends Controller
 {
@@ -36,74 +37,102 @@ class StaffDashboardController extends Controller
             )
             ->get();
     }
-    public function getNguyenLieuKiemKho($ma_cua_hang)
-    {
-        $nglKho = DB::table('cua_hang_nguyen_lieus as chnl')
-            ->where('ma_cua_hang', $ma_cua_hang)
-            ->where('chnl.so_luong_ton', '>', 0)
-            ->join('nguyen_lieus as nl', 'chnl.ma_nguyen_lieu', '=', 'nl.ma_nguyen_lieu')
-            ->select(
-                'chnl.ma_nguyen_lieu',
-                'nl.ten_nguyen_lieu',
-                'nl.so_luong as so_luong_goc',
-                'nl.don_vi',
-                'chnl.so_luong_ton',
-                'chnl.don_vi as don_vi_tinh'
-            )
+
+public function getNguyenLieuKiemKho($ma_cua_hang)
+{
+    $nglKho = DB::table('cua_hang_nguyen_lieus as chnl')
+        ->where('ma_cua_hang', $ma_cua_hang)
+        ->where('chnl.so_luong_ton', '>', 0)
+        ->join('nguyen_lieus as nl', 'chnl.ma_nguyen_lieu', '=', 'nl.ma_nguyen_lieu')
+        ->select(
+            'chnl.ma_nguyen_lieu',
+            'nl.ten_nguyen_lieu',
+            'nl.so_luong as so_luong_goc',
+            'nl.don_vi',
+            'chnl.so_luong_ton',
+            'chnl.don_vi as don_vi_tinh'
+        )
+        ->get();
+
+    foreach ($nglKho as $nl) {
+        // 1. Danh sách lô nhập
+        $loList = DB::table('phieu_nhap_xuat_nguyen_lieus as pnxl')
+            ->where('pnxl.ma_cua_hang', $ma_cua_hang)
+            ->where('pnxl.ma_nguyen_lieu', $nl->ma_nguyen_lieu)
+            ->where('pnxl.loai_phieu', 0)
+            ->orderBy('pnxl.han_su_dung', 'asc')
             ->get();
 
-        foreach ($nglKho as $nl) {
-            // Lấy danh sách lô nhập theo thứ tự thời gian
-            $loList = DB::table('phieu_nhap_xuat_nguyen_lieus as pnxl')
-                ->where('pnxl.ma_cua_hang', $ma_cua_hang)
-                ->where('pnxl.ma_nguyen_lieu', $nl->ma_nguyen_lieu)
-                ->where('pnxl.loai_phieu', 0)
-                ->orderBy('pnxl.han_su_dung', 'asc')
-                ->get();
+        // 2. Danh sách giao dịch tiêu dùng
+        $transactionsHD = DB::table('chi_tiet_hoa_dons as cthd')
+            ->join('hoa_dons as hd', 'cthd.ma_hoa_don', '=', 'hd.ma_hoa_don')
+            ->join('thanh_phan_san_phams as tp', 'cthd.ma_san_pham', '=', 'tp.ma_san_pham')
+            ->where('hd.ma_cua_hang', $ma_cua_hang)
+            ->where('tp.ma_nguyen_lieu', $nl->ma_nguyen_lieu)
+            ->select('hd.ngay_lap_hoa_don as ngay_phat_sinh', DB::raw('tp.dinh_luong * cthd.so_luong as dinh_luong'))
+            ->get();
 
-           // Định lượng dùng từ hóa đơn bán hàng
-            $dinhLuongDaDungHD = DB::table('chi_tiet_hoa_dons as cthd')
-                ->join('hoa_dons as hd', 'cthd.ma_hoa_don', '=', 'hd.ma_hoa_don')
-                ->join('thanh_phan_san_phams as tp', 'cthd.ma_san_pham', '=', 'tp.ma_san_pham')
-                ->where('hd.ma_cua_hang', $ma_cua_hang)
-                ->where('tp.ma_nguyen_lieu', $nl->ma_nguyen_lieu)
-                ->sum(DB::raw('tp.dinh_luong * cthd.so_luong'));
+        $transactionsPX = DB::table('phieu_nhap_xuat_nguyen_lieus')
+            ->where('ma_cua_hang', $ma_cua_hang)
+            ->where('ma_nguyen_lieu', $nl->ma_nguyen_lieu)
+            ->where('loai_phieu', 1)
+            ->selectRaw('ngay_tao_phieu as ngay_phat_sinh, dinh_luong')
+            ->get();
 
-            // Định lượng đã xuất qua phiếu xuất (loai_phieu = 1)
-            $dinhLuongXuatKho = DB::table('phieu_nhap_xuat_nguyen_lieus')
-                ->where('ma_cua_hang', $ma_cua_hang)
-                ->where('ma_nguyen_lieu', $nl->ma_nguyen_lieu)
-                ->where('loai_phieu', 1)
-                ->sum('dinh_luong');
-
-            // Tổng định lượng đã dùng
-            $dinhLuongDaDung = $dinhLuongDaDungHD + $dinhLuongXuatKho;
+      $transactionsHuy = DB::table('phieu_nhap_xuat_nguyen_lieus')
+            ->where('ma_cua_hang', $ma_cua_hang)
+            ->where('ma_nguyen_lieu', $nl->ma_nguyen_lieu)
+            ->where('loai_phieu', 2)
+            ->where('dinh_luong', '>', 0) // ❗ tránh lỗi lấy dòng không có định lượng
+            ->select('ngay_tao_phieu as ngay_phat_sinh', 'dinh_luong')
+            ->get();
 
 
-            // Quy định lượng đã dùng ra từng lô (FIFO)
-            $loWithTon = [];
-            foreach ($loList as $lo) {
-                $left = $lo->dinh_luong;
-                if ($dinhLuongDaDung > 0) {
-                    $used = min($left, $dinhLuongDaDung);
-                    $left -= $used;
-                    $dinhLuongDaDung -= $used;
+        // Gộp và sắp xếp tất cả các giao dịch phát sinh
+       $transactions = $transactionsHD
+        ->merge($transactionsPX)
+        ->merge($transactionsHuy)
+        ->sortBy('ngay_phat_sinh')
+        ->values();
+
+//dd($transactions); // kiểm tra thử đã có định lượng hủy chưa
+
+
+        // 3. Áp dụng FIFO theo từng giao dịch
+        $loWithTon = [];
+        foreach ($loList as $lo) {
+            $left = $lo->dinh_luong;
+
+            foreach ($transactions as $tx) {
+                // Bỏ qua giao dịch xảy ra trước khi lô này được nhập
+                if (Carbon::parse($tx->ngay_phat_sinh)->lt(Carbon::parse($lo->ngay_tao_phieu))) {
+                    continue;
                 }
 
-                $soLuongConLai = round($left / max($nl->so_luong_goc, 1), 2);
+                if ($tx->dinh_luong <= 0) continue;
 
-                $loWithTon[] = [
-                    'so_lo' => $lo->so_lo,
-                    'han_su_dung' => $lo->han_su_dung,
-                    'ton_lo' => $soLuongConLai,
-                ];
+                $used = min($left, $tx->dinh_luong);
+                $left -= $used;
+                $tx->dinh_luong -= $used;
+
+                if ($left <= 0) break;
             }
 
-            $nl->lo_hang = $loWithTon;
+            $soLuongConLai = round($left / max($nl->so_luong_goc, 1), 2);
+
+            $loWithTon[] = [
+                'so_lo' => $lo->so_lo,
+                'han_su_dung' => $lo->han_su_dung,
+                'ton_lo' => $soLuongConLai,
+            ];
         }
 
-        return $nglKho;
+        $nl->lo_hang = $loWithTon;
     }
+
+    return $nglKho;
+}
+
     public function index(Request $request)
     {
 
@@ -122,11 +151,11 @@ class StaffDashboardController extends Controller
         $tangTruongNgay = $this->dashboardService->tinhTyLeTangTruongDonHang('day', now(), $ma_cua_hang);
         $tongHoaDon = $this->dashboardService->countDonHangTheoNgay($ma_cua_hang,null,null, null);
         $doanhThuNgay = $this->dashboardService->sumDoanhThuTheoThoiGian($ma_cua_hang, 'day');
-        $tongDoanhThu = $this->dashboardService->sumDoanhThuTheoThoiGian($ma_cua_hang, 'all');           
+        $tongDoanhThu = $this->dashboardService->sumDoanhThuTheoThoiGian($ma_cua_hang, 'all');
         $countNhanVien = $this->dashboardService->countNhanVien($ma_cua_hang);
-        $topSPBanChay = $this->dashboardService->topSanPhamBanChay($ma_cua_hang);   
+        $topSPBanChay = $this->dashboardService->topSanPhamBanChay($ma_cua_hang);
         $doanhTungThangTrongNam = $this->dashboardService->doanhThuTungThangTrongNam($ma_cua_hang);
-        
+
         $labelsChart = [];
         $dataChart = [];
 
@@ -151,7 +180,7 @@ class StaffDashboardController extends Controller
             'doanhTungThangTrongNam' => $doanhTungThangTrongNam,
             'dataChart' => $dataChart,
             'labelsChart' => $labelsChart,
-            'cuaHangs' => $this->dashboardService->getCuaHangs(), 
+            'cuaHangs' => $this->dashboardService->getCuaHangs(),
             'selectedCuaHang' => $ma_cua_hang,
             'nguyen_lieu_cua_hang' => $nguyen_lieu_cua_hang,
             'nguyen_lieu_kiem_kho' => $nguyen_lieu_kiem_kho,
