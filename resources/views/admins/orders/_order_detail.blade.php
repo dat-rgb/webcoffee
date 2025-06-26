@@ -150,19 +150,25 @@
                     <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
                         <strong>Trạng thái thanh toán</strong>
                         @php
-                            $statusColors = [
-                                'PENDING' => '#ff9800', 
+                           $statusColors = [
+                                'PENDING'   => '#ff9800',
                                 'CANCELLED' => '#9e9e9e',
-                                'SUCCESS' => '#2e7d32', 
-                                'FAILED' => '#f44336',                            
-                                'default' => '#9e9e9e',
+                                'SUCCESS'   => '#2e7d32',
+                                'FAILED'    => '#f44336',
+                                'REFUNDING' => '#2196f3',  
+                                'REFUNDED'  => '#4caf50', 
+                                'default'   => '#9e9e9e',
                             ];
+
                             $statusTexts = [
-                                'PENDING' => 'Đang xử lý', 
+                                'PENDING'   => 'Đang xử lý',
                                 'CANCELLED' => 'Đã hủy giao dịch',
-                                'SUCCESS' => 'Đã thanh toán',
-                                'FAILED' => 'Thanh toán thất bại',
+                                'SUCCESS'   => 'Đã thanh toán',
+                                'FAILED'    => 'Thanh toán thất bại',
+                                'REFUNDING' => 'Đang hoàn tiền',
+                                'REFUNDED'  => 'Đã hoàn tiền',
                             ];
+
                             $st = $order->transaction->trang_thai;
                             $color = $statusColors[$st] ?? $statusColors['default'];
                             $text = $statusTexts[$st] ?? 'Không xác định';

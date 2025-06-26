@@ -12,7 +12,8 @@
         "laravel/tinker": "^2.9",
         "nguyenary/vietnam-address-api": "^1.1",
         "payos/payos": "^1.0",
-        "php-flasher/flasher-toastr-laravel": "^2.1"
+        "php-flasher/flasher-toastr-laravel": "^2.1",
+        "pusher/pusher-php-server": "^7.2"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

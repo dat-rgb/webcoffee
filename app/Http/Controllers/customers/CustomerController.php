@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\customers;
 
 use App\Http\Controllers\Controller;
+use App\Models\ChiTietHoaDon;
 use App\Models\KhachHang;
 use App\Models\TaiKhoan;
 use Illuminate\Http\Request;
@@ -10,6 +11,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Carbon\Carbon;
+use App\Models\SanPham;
+use Illuminate\Support\Facades\DB;
 use NguyenAry\VietnamAddressAPI\Address;
 
 class CustomerController extends Controller
@@ -147,5 +150,46 @@ class CustomerController extends Controller
 
         toastr()->success('Đã cập nhật thông tin thành công.');
         return redirect()->back();
+    }
+
+    public function sanPhamDaMua()
+    {
+        $user = Auth::user();
+        $taiKhoan = TaiKhoan::with('khachHang')->where('ma_tai_khoan', $user->ma_tai_khoan)->first();
+        $maKhachHang = $taiKhoan->khachHang->ma_khach_hang;
+
+        $sanPhamDaMua = SanPham::whereIn('ma_san_pham', function ($query) use ($maKhachHang) {
+            $query->select('ma_san_pham')
+                ->from('hoa_dons')
+                ->join('chi_tiet_hoa_dons', 'hoa_dons.ma_hoa_don', '=', 'chi_tiet_hoa_dons.ma_hoa_don')
+                ->where('hoa_dons.ma_khach_hang', $maKhachHang)
+                ->where('hoa_dons.trang_thai', '<', 5);
+        })->get();
+
+        $viewData = [
+            'title' => 'Sản phẩm đã mua',
+            'subtitle' => 'Sản phẩm đã mua',
+            'taiKhoan' => $taiKhoan,
+            'sanPhamDaMua' => $sanPhamDaMua
+        ];
+
+        return view('clients.customers.san_pham_da_mua', $viewData);
+    }
+
+    public function getProductToViewHistory()
+    {
+        $productToHistory = session()->get('viewed_products', []);
+
+        $viewData = [
+            'title' => 'Sản phẩm đã xem',
+            'subtitle' => 'Sản phẩm đã xem',
+            'productToHistory' => $productToHistory
+        ];
+
+        return view('clients.customers.product_history', $viewData);
+    }
+
+    public function getVoucherMember(){
+        
     }
 }

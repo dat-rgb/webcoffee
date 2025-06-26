@@ -6,7 +6,28 @@
 .star.selected {
     color: gold;
 }
+
+.border-left-highlight {
+    border-left: 4px solid #F28123 !important;
+    border-radius: 8px;
+}
+
+.badge-status {
+    border-radius: 12px;
+    padding: 4px 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.badge-status.status-0 { background: #ffc107; color: #fff; }
+.badge-status.status-1 { background: #17a2b8; color: #fff; }
+.badge-status.status-2 { background: #6f42c1; color: #fff; }
+.badge-status.status-3 { background: #007bff; color: #fff; }
+.badge-status.status-4 { background: #28a745; color: #fff; }
+.badge-status.status-5 { background: #dc3545; color: #fff; }
+
 </style>
+
 @endpush
 @section('content')
 <!-- breadcrumb -->
@@ -24,9 +45,22 @@
 </div>
 
 <!-- orders section -->
-<div class="contact-from-section mt-150 mb-150">
+<div class="contact-from-section mt-5 mb-5">
     <div class="container">
         <div class="row">
+            <div class="col-12 d-lg-none px-3 mb-2">
+                <div class="toggle-menu-wrapper text-right">
+                    <button class="btn btn-sm"
+                            type="button"
+                            data-toggle="collapse"
+                            data-target="#accountMenu"
+                            aria-expanded="false"
+                            aria-controls="accountMenu">
+                        <i class="fas fa-bars mr-1"></i> Menu
+                    </button>
+                </div>
+            </div>
+
             @include('clients.customers.sub_layout_customer')
             <div class="col-lg-8">
                 @if($orders->isEmpty())
@@ -34,47 +68,45 @@
                         <p>Bạn chưa có đơn hàng nào. <a href="{{ route('product') }}">Mua sắm ngay</a></p>
                     </div>
                 @else
+                <div class="mb-4">
+                    <input type="text" id="orderSearch" class="form-control rounded-pill shadow-sm" placeholder="Tìm kiếm theo mã đơn, số điện thoại, địa chỉ, tên sản phẩm...">
+                </div>
+
                 <div class="row">
                     @foreach ($orders as $order)
-                        <div class="col-md-12 mb-4">
-                            <div class="card shadow-sm border rounded-2">
+                        <div class="col-md-12 mb-4 order-item"
+                            data-mahoa="{{ $order->ma_hoa_don }}"
+                            data-sdt="{{ $order->giaoHang->so_dien_thoai ?? '' }}"
+                            data-diachi="{{ $order->dia_chi }}"
+                            data-sanpham="{{ implode(', ', $order->chiTietHoaDon->pluck('ten_san_pham')->toArray()) }}">
+
+                            <div class="card shadow-sm border rounded-2 border-left-highlight mb-4">
                                 <div class="card-body d-flex justify-content-between flex-wrap align-items-center">
-                                    {{-- Thông tin đơn hàng --}}
+                                    {{-- Phần trái --}}
                                     <div class="flex-grow-1">
-                                        <h5 class="mb-1 fw-semibold">
-                                            <a href="#" data-toggle="modal" data-target="#orderModal-{{ $order->id }}" class="text-decoration-none text-primary">
+                                        <h5 class="mb-1 fw-semibold text-dark">
+                                            <a href="#" data-toggle="modal" data-target="#orderModal-{{ $order->id }}" class="text-decoration-none" style="color: #07212e;">
                                                 Mã đơn: {{ $order->ma_hoa_don }}
                                             </a>
                                         </h5>
-                                        <div class="small text-muted">
-                                            Ngày đặt: {{ \Carbon\Carbon::parse($order->ngay_lap_hoa_don)->format('d/m/Y H:i:s') }}
-                                        </div>
+                                        <div class="small text-muted">Ngày đặt: {{ \Carbon\Carbon::parse($order->ngay_lap_hoa_don)->format('d/m/Y H:i:s') }}</div>
 
                                         <div class="mt-2">
                                             <strong>Tổng tiền:</strong>
-                                            <span class="text-danger fw-bold fs-5">
+                                            <span class="fw-bold fs-5" style="color: #F28123;">
                                                 {{ number_format($order->tong_tien, 0, ',', '.') }}đ
                                             </span>
                                         </div>
 
-                                        {{-- Trạng thái đơn --}}
+                                        {{-- Trạng thái --}}
                                         <div class="mt-2">
-                                            <span class="badge badge-pill {{
-                                                [
-                                                    0 => 'badge-warning text-white', 
-                                                    1 => 'badge-primary text-white', 
-                                                    2 => 'badge-info text-white',
-                                                    3 => 'badge-info text-white', 
-                                                    4 => 'badge-success text-white', 
-                                                    5 => 'badge-danger text-white'
-                                                ][$order->trang_thai] ?? 'badge-secondary'
-                                            }}">
+                                            <span class="badge badge-status status-{{ $order->trang_thai }}">
                                                 {{
                                                     [
                                                         0 => 'Chờ xác nhận',
                                                         1 => 'Đã xác nhận',
-                                                        2 => 'Đơn hàng đã hoàn tất',
-                                                        3 => $order->phuong_thuc_nhan_hang === 'pickup' ? 'Chờ nhận hàng' : 'Đang giao hàng',
+                                                        2 => 'Đã hoàn tất',
+                                                        3 => $order->phuong_thuc_nhan_hang === 'pickup' ? 'Chờ nhận hàng' : 'Đang giao',
                                                         4 => 'Đã nhận',
                                                         5 => 'Đã hủy'
                                                     ][$order->trang_thai] ?? 'Không rõ'
@@ -123,7 +155,6 @@
                                             @endif
                                         @elseif ($order->trang_thai == 4)
                                             @php
-                                                // Kiểm tra có sản phẩm nào chưa được đánh giá trong đơn này không
                                                 $hasPendingReview = false;
                                                 foreach ($order->chiTietHoaDon as $item) {
                                                     $exists = \App\Models\Review::where('ma_san_pham', $item->ma_san_pham)
@@ -164,81 +195,100 @@
                                 </div>
                             </div>
                         </div>
-                        {{-- Modal chi tiết --}}
+
                         <div class="modal fade" id="orderModal-{{ $order->id }}" tabindex="-1" role="dialog" aria-labelledby="orderLabel-{{ $order->id }}" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered" role="document">    
-                                <div class="modal-content rounded-lg">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="orderLabel-{{ $order->id }}">Chi tiết đơn hàng #{{ $order->ma_hoa_don }}</h5>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Đóng">
-                                        <span aria-hidden="true">&times;</span>
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content rounded-lg border-0">
+                                    <div class="modal-header text-white" style="background-color: #F28123;">
+                                        <h5 class="modal-title" id="orderLabel-{{ $order->id }}">
+                                            <i class="fas fa-receipt mr-2"></i>Chi tiết đơn hàng #{{ $order->ma_hoa_don }}
+                                        </h5>
+                                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Đóng">
+                                            <span aria-hidden="true">&times;</span>
                                         </button>
                                     </div>
-                                    <div class="modal-body">
-                                        <div class="mt-3">
-                                            <small class="d-block">Cửa hàng: <strong>{{ $order->ma_cua_hang }}</strong></small>
-                                            <small class="d-block">Ngày đặt:<strong>{{ \Carbon\Carbon::parse($order->ngay_lap_hoa_don)->format('d/m/Y H:i:s') }}</strong></small>
-                                            <small class="d-block">Giao hàng: <strong>{{ $order->dia_chi }}</strong></small>
-                                            <small class="d-block">Phương thức thanh toán: <strong>{{ $order->phuong_thuc_thanh_toan === 'COD' ? 'Thanh toán khi nhận hàng' : 'Chuyển khoản' }}</strong></small>
-                                            <small class="d-block">Trạng thái thanh toán: 
-                                                <span class="badge {{
-                                                [ 1 =>'badge-success', 0 =>'badge-danger'][$order->trang_thai_thanh_toan ?? ''] ?? 'badge-secondary'
-                                                }}">
-                                                {{
-                                                    [ 1 =>'Đã thanh toán', 0 =>'Chưa thanh toán'][$order->trang_thai_thanh_toan ?? ''] ?? 'Chưa thanh toán'
-                                                }}
+
+                                    <div class="modal-body bg-light">
+                                        {{-- Thông tin chung --}}
+                                        <div class="mb-3">
+                                            <div><strong>Cửa hàng:</strong> {{ $order->ma_cua_hang }}</div>
+                                            <div><strong>Ngày đặt:</strong> {{ \Carbon\Carbon::parse($order->ngay_lap_hoa_don)->format('d/m/Y H:i:s') }}</div>
+                                            <div>
+                                                <strong>
+                                                    {{ $order->phuong_thuc_nhan_hang === 'pickup' ? 'Nhận tại quầy:' : 'Giao hàng:' }}
+                                                </strong>
+                                                {{ $order->dia_chi }}
+                                            </div>
+
+                                            <div><strong>Phương thức thanh toán:</strong> {{ $order->phuong_thuc_thanh_toan === 'COD' ? 'Thanh toán khi nhận hàng' : 'Chuyển khoản' }}</div>
+
+                                            <div class="mt-2">
+                                                @php
+                                                    $paymentStatuses = [
+                                                        0 => ['label' => 'Chưa thanh toán', 'class' => 'bg-danger text-white'],
+                                                        1 => ['label' => 'Đã thanh toán', 'class' => 'bg-success text-white'],
+                                                        2 => ['label' => 'Đang xử lý hoàn tiền', 'class' => 'bg-warning text-white'],
+                                                        3 => ['label' => 'Đã hoàn tiền', 'class' => 'bg-info text-white']
+                                                    ];
+                                                    $status = $paymentStatuses[$order->trang_thai_thanh_toan ?? 0] ?? ['label' => 'Không rõ', 'class' => 'bg-secondary text-white'];
+                                                @endphp
+
+                                                <span class="badge px-3 py-1 {{ $status['class'] }}">
+                                                    {{ $status['label'] }}
                                                 </span>
-                                            </small>
-                                            <small class="d-block">Trạng thái đơn hàng: 
-                                                <span class="badge {{
-                                                    [
-                                                        0 => 'badge-warning text-white',     
-                                                        1 => 'badge-primary text-white',                
-                                                        2 => 'badge-info text-white',       
-                                                        3 => 'badge-info text-white',                 
-                                                        4 => 'badge-success text-white',             
-                                                        5 => 'badge-danger text-white'                 
-                                                    ][$order->trang_thai] ?? 'badge-secondary text-white'
-                                                }}">
-                                                {{
-                                                    [
-                                                        0 => 'Chờ xác nhận',
-                                                        1 => 'Đã xác nhận',
-                                                        2 => 'Đơn hàng đã hoàn tất',
-                                                        3 => $order->phuong_thuc_nhan_hang === 'pickup' ? 'Chờ nhận hàng' : 'Đang giao hàng',
-                                                        4 => 'Đã nhận hàng',
-                                                        5 => 'Đã hủy'
-                                                    ][$order->trang_thai] ?? 'Không rõ'
-                                                }}
+
+                                                <span class="badge px-3 py-1 badge-status status-{{ $order->trang_thai }}">
+                                                    {{
+                                                        [
+                                                            0 => 'Chờ xác nhận',
+                                                            1 => 'Đã xác nhận',
+                                                            2 => 'Hoàn tất',
+                                                            3 => $order->phuong_thuc_nhan_hang === 'pickup' ? 'Chờ nhận hàng' : 'Đang giao',
+                                                            4 => 'Đã nhận hàng',
+                                                            5 => 'Đã hủy'
+                                                        ][$order->trang_thai] ?? 'Không rõ'
+                                                    }}
                                                 </span>
-                                            </small>
+                                            </div>
                                         </div>
+
                                         <hr>
+
+                                        {{-- Sản phẩm --}}
                                         @forelse ($order->chiTietHoaDon as $item)
                                             <div class="d-flex align-items-start mb-3">
                                                 <img src="{{ asset('storage/' . $item->sanPham->hinh_anh) }}" alt="{{ $item->ten_san_pham }}" class="rounded mr-3" width="60" height="60">
                                                 <div>
-                                                    <div><strong>{{ $item->ten_san_pham }}</strong> <small class="text-muted">({{ $item->ten_size }})</small></div>
+                                                    <div><strong>{{ $item->ten_san_pham }}</strong>
+                                                    <small class="text-muted">
+                                                        @if (!empty($item->ten_size))
+                                                            - {{ $item->ten_size }}
+                                                        @endif
+                                                    </small>
+                                                </div>
                                                     <div class="text-muted small">{{ $item->so_luong }} x {{ number_format($item->don_gia + $item->gia_size, 0, ',', '.') }}đ</div>
                                                 </div>
                                             </div>
                                         @empty
                                             <p class="text-muted">Không có sản phẩm nào</p>
                                         @endforelse
+
                                         <hr>
-                                        <div class="d-flex justify-content-between">
+
+                                        {{-- Tổng kết --}}
+                                        <div class="d-flex justify-content-between mb-1">
                                             <span>Tạm tính:</span>
                                             <strong>{{ number_format($order->tam_tinh ?? 0, 0, ',', '.') }}đ</strong>
                                         </div>
-                                        <div class="d-flex justify-content-between">
+                                        <div class="d-flex justify-content-between mb-1">
                                             <span>Phí ship:</span>
                                             <strong>{{ number_format($order->tien_ship ?? 0, 0, ',', '.') }}đ</strong>
                                         </div>
-                                        <div class="d-flex justify-content-between">
+                                        <div class="d-flex justify-content-between mb-1">
                                             <span>Giảm giá:</span>
                                             <strong>{{ number_format($order->giam_gia ?? 0, 0, ',', '.') }}đ</strong>
                                         </div>
-                                        <div class="d-flex justify-content-between text-danger">
+                                        <div class="d-flex justify-content-between text-danger mt-2">
                                             <span>Tổng cộng:</span>
                                             <strong>{{ number_format($order->tong_tien, 0, ',', '.') }}đ</strong>
                                         </div>
@@ -246,7 +296,7 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- Modal đánh giá sản phẩm -->
+
                         <div class="modal fade" id="reviewModal-{{ $order->ma_hoa_don }}" tabindex="-1" role="dialog" aria-labelledby="reviewModalLabel-{{ $order->ma_hoa_don }}" aria-hidden="true">
                             <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
                                 <div class="modal-content rounded shadow">
@@ -311,6 +361,27 @@
 @endsection
 @push('scripts')
 <script>
+
+document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("orderSearch");
+    const orderItems = document.querySelectorAll(".order-item");
+
+    searchInput.addEventListener("input", function () {
+        const keyword = this.value.toLowerCase().trim();
+
+        orderItems.forEach(item => {
+            const ma = item.getAttribute('data-mahoa').toLowerCase();
+            const sdt = item.getAttribute('data-sdt').toLowerCase();
+            const diachi = item.getAttribute('data-diachi').toLowerCase();
+            const sanpham = item.getAttribute('data-sanpham').toLowerCase();
+
+            const match = [ma, sdt, diachi, sanpham].some(field => field.includes(keyword));
+
+            item.style.display = match ? 'block' : 'none';
+        });
+    });
+});
+
 function showCancelPrompt() {
     Swal.fire({
         title: 'Bạn muốn hủy đơn?',

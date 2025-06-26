@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\ChiTietHoaDon;
 use App\Models\HoaDon;
 use App\Models\KhuyenMai;
+use App\Models\NguyenLieu;
+use App\Models\SanPham;
 use App\Models\Sizes;
 use App\Models\ThanhPhanSanPham;
 use App\Models\Transactions;
@@ -183,6 +185,37 @@ class PayOSController extends Controller
                     'virtual_account_name' => $data['virtualAccountName'] ?? null,
                     'virtual_account_number' => $data['virtualAccountNumber'] ?? null,
                 ]);
+
+                
+            $cartItems = $hoaDon->chiTietHoaDon->map(function ($item) {
+                return [
+                    'product_name'     => $item->ten_san_pham ?? 'N/A',
+                    'size_name'        => $item->ten_size ?? '',
+                    'product_quantity' => $item->so_luong,
+                    'product_price'    => $item->don_gia,
+                    'size_price'       => $item->gia_size ?? 0,
+                ];
+            })->toArray();
+            
+            $statusPayment = 'Đã thanh toán';
+            $status = 'Chờ xác nhận';
+            app(PaymentController::class)->sendEmail(
+                $hoaDon->ma_hoa_don,
+                $hoaDon->ten_khach_hang,
+                $hoaDon->email,
+                $hoaDon->so_dien_thoai,
+                $hoaDon->phuong_thuc_nhan_hang,
+                $hoaDon->phuong_thuc_thanh_toan,
+                $status, 
+                $statusPayment, 
+                $hoaDon->dia_chi,
+                $cartItems,
+                $hoaDon->tam_tinh,
+                $hoaDon->giam_gia,
+                $hoaDon->tien_ship,
+                $hoaDon->tong_tien,
+                $hoaDon->token_bao_mat,
+            );
             }
 
             return response()->json(['success' => true]);
@@ -232,11 +265,9 @@ class PayOSController extends Controller
                 ];
             })->toArray();
             
-            $sendEmail = new PaymentController();
             $statusPayment = 'Đã thanh toán';
             $status = 'Chờ xác nhận';
-
-            $sendEmail->sendEmail(
+            app(PaymentController::class)->sendEmail(
                 $hoaDon->ma_hoa_don,
                 $hoaDon->ten_khach_hang,
                 $hoaDon->email,
@@ -284,32 +315,53 @@ class PayOSController extends Controller
             Transactions::where('ma_hoa_don', $maHoaDon)->update([
                 'trang_thai' => 'CANCELLED',
             ]);
-            // Lấy chi tiết hóa đơn
+            
             $chiTietHoaDons = ChiTietHoaDon::where('ma_hoa_don', $maHoaDon)->get();
 
             foreach ($chiTietHoaDons as $chiTiet) {
                 $maSanPham = $chiTiet->ma_san_pham;
 
-                $maSize = Sizes::where('ten_size', $chiTiet->ten_size)->value('ma_size');
-                if (!$maSize) {
-                    // Size không tồn tại, bỏ qua
-                    continue;
-                }
+                // Lấy loại sản phẩm
+                $sanPham = SanPham::where('ma_san_pham', $maSanPham)->first();
+                if (!$sanPham) continue;
 
-                $thanhPhanNLs = ThanhPhanSanPham::where('ma_san_pham', $maSanPham)
-                    ->where('ma_size', $maSize)
-                    ->get();
+                if ($sanPham->loai_san_pham == 0) {
+                    // Sản phẩm pha chế (có size, có định lượng)
+                    $maSize = Sizes::where('ten_size', $chiTiet->ten_size)->value('ma_size');
+                    if (!$maSize) continue;
 
-                foreach ($thanhPhanNLs as $tp) {
-                    $soLuongHoanTra = $tp->dinh_luong * $chiTiet->so_luong;
+                    $thanhPhanNLs = ThanhPhanSanPham::where('ma_san_pham', $maSanPham)
+                        ->where('ma_size', $maSize)
+                        ->get();
 
-                    // Cập nhật tồn kho bằng query builder vì composite key
+                    foreach ($thanhPhanNLs as $tp) {
+                        $soLuongHoanTra = $tp->dinh_luong * $chiTiet->so_luong;
+
+                        DB::table('cua_hang_nguyen_lieus')
+                            ->where('ma_cua_hang', $hoaDon->ma_cua_hang)
+                            ->where('ma_nguyen_lieu', $tp->ma_nguyen_lieu)
+                            ->increment('so_luong_ton', $soLuongHoanTra);
+                    }
+
+                } elseif ($sanPham->loai_san_pham == 1) {
+                    // Sản phẩm đóng gói (1 nguyên liệu, không size)
+
+                    $tp = ThanhPhanSanPham::where('ma_san_pham', $maSanPham)->first();
+                    if (!$tp) continue;
+
+                    // Lấy định lượng từ bảng nguyen_lieus (sản phẩm đóng gói lấy full số lượng nguyên liệu)
+                    $nguyenLieu = NguyenLieu::where('ma_nguyen_lieu', $tp->ma_nguyen_lieu)->first();
+                    if (!$nguyenLieu) continue;
+
+                    $soLuongHoanTra = $nguyenLieu->so_luong * $chiTiet->so_luong;
+
                     DB::table('cua_hang_nguyen_lieus')
                         ->where('ma_cua_hang', $hoaDon->ma_cua_hang)
                         ->where('ma_nguyen_lieu', $tp->ma_nguyen_lieu)
                         ->increment('so_luong_ton', $soLuongHoanTra);
                 }
             }
+
             if ($hoaDon->ma_voucher) {
                 $voucher = KhuyenMai::where('ma_voucher', $hoaDon->ma_voucher)->first();
                 if ($voucher) {

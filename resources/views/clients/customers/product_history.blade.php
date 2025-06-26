@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', $title)
+@section('title', $title)   
 @push('styles')
 <style>
 .product-image {
@@ -83,22 +83,26 @@
 </style>
 @endpush
 @section('content')
+
+<!-- breadcrumb -->
 <div class="breadcrumb-section breadcrumb-bg">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 offset-lg-2 text-center">
                 <div class="breadcrumb-text">
-                    <p>CDMT Coffee & Tea</p>
-                    <h1>{{ $subtitle }}</h1>
+                    <p>Coffee & Tea</p>
+                    <h1>Sản phẩm đã xem</h1>
                 </div>
-            </div>  
+            </div>
         </div>
     </div>
 </div>
-<!-- products -->
+<!-- end breadcrumb -->
+
+<!-- customer info section -->
 <div class="contact-from-section mt-5 mb-5">
     <div class="container">
-        <div class="row">
+        <div class="row">   
             <div class="col-12 d-lg-none px-3 mb-2">
                 <div class="toggle-menu-wrapper text-right">
                     <button class="btn btn-sm"
@@ -111,95 +115,64 @@
                     </button>
                 </div>
             </div>
+
             @include('clients.customers.sub_layout_customer')
-            <div class="col-lg-8 col-md-12">
-                @if ($favorites->isEmpty())
-                    <div>
-                        <p class="text-center text-muted">Chưa có sản phẩm trong danh sách yêu thích của bạn. 
-                            <a href="{{ route('product') }}">Khám phá ngay</a>
-                        </p>
+                  
+            <!-- Nội dung chính -->
+            <div class="col-lg-8">
+                @if (!empty($productToHistory))
+                    <div class="section-title text-center">
+                        <form method="POST" action="{{ route('history.clearAll') }}" style="display: inline;">
+                            @csrf
+                            <button type="submit"
+                                    style="background: none; border: none; padding: 0; font: inherit; cursor: pointer; color: red; text-decoration: underline;">
+                                Xóa lịch sử
+                            </button>
+                        </form>
                     </div>
-                @else
+
                     <div class="row"  id="product-list">
-                        @foreach ($favorites as $pro)
+                        @foreach ($productToHistory as $sp)
                             <div class="col-md-4 col-6 text-center mb-4">
                                 <div class="single-product-item">
                                     <div class="product-image position-relative">
-                                        <!-- Nút xóa -->
-                                        <form method="POST" action="{{ route('favorite.toggle', $pro->ma_san_pham) }}"
-                                            class="remove-favorite-form"
-                                            data-name="{{ $pro->sanPham->ten_san_pham }}"
+                                        <form method="POST" action="{{ route('history.removeProduct', $sp['ma_san_pham']) }}"
+                                            class="remove-history-product-form"
+                                            data-name="{{ $sp['ten_san_pham'] }}"
                                             style="position:absolute; top:5px; left:5px; z-index: 3;">
                                             @csrf
+                                            @method('DELETE')
                                             <button type="submit"
                                                     class="btn btn-sm btn-danger btn-remove-favorite"
-                                                    data-id="{{ $pro->ma_san_pham }}"
                                                     style="padding: 2px 6px; font-size: 12px; border-radius: 50%;"
-                                                    title="Xóa khỏi yêu thích">
+                                                    title="Xóa khỏi lịch sử đã xem">
                                                 <i class="fas fa-times"></i>
                                             </button>
                                         </form>
-                                        <a href="{{ route('product.detail', $pro->sanPham->slug) }}">
-                                            <img src="{{ $pro->sanPham->hinh_anh 
-                                                ? asset('storage/' . $pro->sanPham->hinh_anh) 
+                                        <a href="{{ route('product.detail', $sp['slug']) }}">
+                                            <img src="{{ isset($sp['anh_dai_dien']) && $sp['anh_dai_dien'] 
+                                                ? asset('storage/' . $sp['anh_dai_dien']) 
                                                 : asset('images/no_product_image.png') }}" 
-                                                alt="">
+                                                alt="" />
                                         </a>
                                     </div>
-                                    <h5 class="mt-2">{{ \Illuminate\Support\Str::limit($pro->sanPham->ten_san_pham, 15) }}</h5>
-                                    <a href="{{ route('product.detail', $pro->sanPham->slug) }}" class="cart-btn mt-1">
+                                    <h5 class="mt-2">{{ \Illuminate\Support\Str::limit($sp['ten_san_pham'], 15) }}</h5>
+                                    <a href="{{ route('product.detail', $sp['slug']) }}" class="cart-btn mt-1">
                                         <i class="fas fa-shopping-cart"></i> Đặt mua
                                     </a>
                                 </div>
                             </div>
                         @endforeach
                     </div>
+                @else
+                    <p class="text-center text-muted">Bạn chưa xem sản phẩm nào. <a href="{{ route('product') }}">Khám phá ngay</a></p>
                 @endif
             </div>
         </div>
     </div>
 </div>
-<!-- end products -->
+<!-- end customer info section -->
 @endsection
-
 @push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const removeForms = document.querySelectorAll('.remove-favorite-form');
-    removeForms.forEach(form => {
-        form.addEventListener('submit', function (e) {
-            e.preventDefault();
 
-            const formData = new FormData(form);
-            const url = form.getAttribute('action');
-            const productName = form.getAttribute('data-product-name');
-
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': formData.get('_token'),
-                },
-                body: formData
-            })
-            .then(response => {
-                if (response.ok) {
-                    localStorage.setItem('favorite_deleted', productName);
-                    location.reload();
-                } else {
-                    throw new Error('Lỗi khi xoá');
-                }
-            })
-            .catch(() => {
-                toastr.error('Đã xảy ra lỗi khi xoá sản phẩm');
-            });
-        });
-    });
-
-    const deletedProduct = localStorage.getItem('favorite_deleted');
-    if (deletedProduct) {
-        toastr.success(`Đã xoá khỏi danh sách yêu thích`);
-        localStorage.removeItem('favorite_deleted');
-    }
-});
-</script>
 @endpush

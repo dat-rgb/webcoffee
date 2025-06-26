@@ -85,20 +85,30 @@
 								<li>
 									<a href="#" id="store-btn" onclick="openStoreModal()">
 										<i class="fas fa-store-alt"></i>
-										<span>{{ \Illuminate\Support\Str::limit(session('selected_store_name'), 20) ?? 'Cửa hàng' }}</span>
+										<span>{{ \Illuminate\Support\Str::limit(session('selected_store_name'), 15) ?? 'Cửa hàng' }}</span>
 									</a>
 								</li>
-								{{-- Tách user icon ra khỏi header-icons --}}
 								@if(Auth::check())
 									<li>
 										<a href="{{ route('customer.index') }}">
-											<i class="fas fa-user"></i> {{ Auth::user()->khachHang->ho_ten_khach_hang ?? 'Khách hàng' }}
+											<i class="fas fa-user"></i>
+											{{ \Illuminate\Support\Str::limit(Auth::user()->khachHang->ho_ten_khach_hang ?? 'Khách hàng', 10) ?? 'Cửa hàng' }}
 										</a>
 										<ul class="sub-menu">
 											<li><a href="{{ route('customer.index') }}"><i class="fas fa-user-circle"></i> Hồ sơ</a></li>
 											<li><a href="{{ route('favorite.show') }}"><i class="fas fa-heart"></i> Yêu thích</a></li>
 											<li><a href="{{ route('customer.order.history') }}"><i class="fas fa-receipt"></i> Lịch sử mua hàng</a></li>
-											<li><a href="#"><i class="fas fa-eye"></i> Sản phẩm đã xem</a></li>
+											<li><a href="{{ route('customer.sanPhamDaXem') }}"><i class="fas fa-eye"></i> Sản phẩm đã xem</a></li>
+											<li>
+												<a href="{{ route('customer.sanPhamDaMua') }}">
+													<i class="fas fa-box-open"></i> Sản phẩm đã mua
+												</a>
+											</li>
+											<li>
+												<a href="#">
+													<i class="fas fa-gift"></i> Ưu đãi thành viên
+												</a>
+											</li>
 											<li><a href="{{ route('forgotPassword.show') }}"><i class="fas fa-unlock-alt me-2"></i> Lấy lại mật khẩu</a></li>
 											<li>
 												<a href="#" id="logout-btn">
@@ -131,6 +141,10 @@
 							</ul>
 						</nav>
 						<a class="mobile-show search-bar-icon" href="#"><i class="fas fa-search"></i></a>
+						<a href="{{ route('cart') }}" class="mobile-show cart-bar-icon">
+							<i class="fas fa-shopping-cart"></i>
+							<span class="cart-count">{{ session('cart') ? count(session('cart')) : 0 }}</span>
+						</a>
 						<div class="mobile-menu"></div>
 						<!-- menu end -->
 					</div>
@@ -162,7 +176,6 @@
 		</div>
 	</div>
 	<!-- end search area -->
-	 
 	@yield('content')
 	<a href="#" id="back-to-top" class="cart-btn" style="position: fixed; bottom: 30px; right: 30px; display: none; z-index: 999; ">
 		<i class="fas fa-arrow-up"></i> 
@@ -282,6 +295,7 @@
 	<script src="{{ asset('js/store-popup.js') }}"></script>
 	<script src="{{ asset('js/cart.js') }}"></script>
 	<!--  -->
+	<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 	<script src="https://cdn.payos.vn/payos-checkout/v1/stable/payos-initialize.js"></script>
 	<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 	@stack('scripts')
@@ -443,6 +457,6 @@
 			$('#store-modal').modal('hide');
 		}
 	</script>
-	<script lang="javascript">var __vnp = {code : 25338,key:'', secret : 'd3920272b894f48f2d92802d63fd3db2'};(function() {var ga = document.createElement('script');ga.type = 'text/javascript';ga.async=true; ga.defer=true;ga.src = '//core.vchat.vn/code/tracking.js?v=35925'; var s = document.getElementsByTagName('script');s[0].parentNode.insertBefore(ga, s[0]);})();</script>
+	<!-- <script lang="javascript">var __vnp = {code : 25338,key:'', secret : 'd3920272b894f48f2d92802d63fd3db2'};(function() {var ga = document.createElement('script');ga.type = 'text/javascript';ga.async=true; ga.defer=true;ga.src = '//core.vchat.vn/code/tracking.js?v=35925'; var s = document.getElementsByTagName('script');s[0].parentNode.insertBefore(ga, s[0]);})();</script> -->
 </body>
 </html>

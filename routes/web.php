@@ -41,6 +41,7 @@ use App\Http\Middleware\KhachHangMiddleware;
 use App\Http\Middleware\NhanVienMiddleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Events\OrderCreated;
 
 //Start - user
 //Route Home
@@ -156,7 +157,8 @@ Route::prefix('customer')->middleware(KhachHangMiddleware::class)->group(functio
     Route::get('/yeu-thich/danh-sach', [CustomerController::class, 'showFavorite'])->name('favorite.list');
     Route::post('/review', [CustomerReviewController::class, 'store']);
     Route::get('/api/review-by-order/{ma_hoa_don}', [CustomerReviewController::class, 'getByOrder']);
-
+    Route::get('/san-pham-da-mua',[CustomerController::class,'sanPhamDaMua'])->name('customer.sanPhamDaMua');
+    Route::get('/san-pham-da-xem',[CustomerController::class,'getProductToViewHistory'])->name('customer.sanPhamDaXem');
 });
 
 Route::post('/favorite/toggle/{id}', [CustomerFavoriteController::class, 'favoriteProduct'])->name('favorite.toggle');
@@ -425,4 +427,8 @@ Route::prefix('staff/nhanviens')->middleware(NhanVienMiddleware::class)->name('s
 
 //End - Staff
 
-
+Route::get('/test-realtime', function () {
+    $fakeOrder = ['id' => 999, 'ten_khach_hang' => 'Test Pusher'];
+    event(new OrderCreated($fakeOrder));
+    return view('test-realtime');
+});

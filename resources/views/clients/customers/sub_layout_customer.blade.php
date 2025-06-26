@@ -1,24 +1,11 @@
-<!-- Toggle menu button (mobile) -->
-<div class="text-right d-block d-lg-none toggle-menu-wrapper">
-    <button class="btn btn-sm btn-outline-dark"
-            type="button"
-            data-toggle="collapse"
-            data-target="#accountMenu"
-            aria-expanded="false"
-            aria-controls="accountMenu">
-        <i class="fas fa-bars mr-1"></i> Menu
-    </button>
-</div>
-
 <!-- Sidebar menu -->
 <div class="col-lg-4 mb-4">
     <div class="collapse d-lg-block" id="accountMenu">
         <div class="p-3 border rounded shadow-sm">
-            <h5 class="mb-3 text-uppercase font-weight-bold">Tài khoản của bạn</h5>
             <ul class="sidebar-menu list-unstyled mb-0">
                 <li class="sidebar-item {{ request()->routeIs('customer.index') ? 'active' : '' }}">
                     <a href="{{ route('customer.index') }}">
-                        <i class="fas fa-user"></i> Hồ sơ
+                        <i class="fas fa-user"></i> Thông tin tài khoản
                     </a>
                 </li>
                 <li class="sidebar-item {{ request()->routeIs('favorite.show') ? 'active' : '' }}">
@@ -31,13 +18,23 @@
                         <i class="fas fa-history"></i> Lịch sử mua hàng
                     </a>
                 </li>
-                <li class="sidebar-item">
-                    <a href="#">
+                <li class="sidebar-item {{ request()->routeIs('customer.sanPhamDaXem') ? 'active' : '' }}">
+                    <a href="{{ route('customer.sanPhamDaXem') }}">
                         <i class="fas fa-eye"></i> Sản phẩm đã xem
+                    </a>
+                </li>
+                <li class="sidebar-item {{ request()->routeIs('customer.sanPhamDaMua') ? 'active' : '' }}">
+                    <a href="{{ route('customer.sanPhamDaMua') }}">
+                        <i class="fas fa-box-open"></i> Sản phẩm đã mua
                     </a>
                 </li>
                 <li class="sidebar-item">
                     <a href="#">
+                        <i class="fas fa-gift"></i> Ưu đãi thành viên
+                    </a>
+                </li>
+                <li class="sidebar-item {{ request()->routeIs('forgotPassword.show') ? 'active' : '' }}">
+                    <a href="{{ route('forgotPassword.show') }}">
                         <i class="fas fa-key"></i> Đổi mật khẩu
                     </a>
                 </li>
@@ -47,12 +44,41 @@
 </div>
 
 <style>
-/* Toggle button margin */
 .toggle-menu-wrapper {
-    margin: 0.5rem 0;
+    margin: 0.25rem 0; 
+    text-align: right;
 }
 
-/* Sidebar menu base */
+.toggle-menu-wrapper button {
+    background-color: #F28123;
+    color: #fff;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 30px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.toggle-menu-wrapper button:hover {
+    background-color: #e6761f;
+}
+
+
+/* Sidebar container */
+.p-3.border.rounded.shadow-sm {
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 12px;
+}
+
+.p-3 h5 {
+    color: #07212e;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* Sidebar menu layout */
 .sidebar-menu {
     display: flex;
     flex-wrap: wrap;
@@ -61,7 +87,6 @@
     margin-bottom: 0;
 }
 
-/* Kiểu danh sách ngang (dạng tab) */
 @media (min-width: 992px) {
     .sidebar-menu {
         flex-direction: column;
@@ -69,7 +94,7 @@
     }
 }
 
-/* Sidebar item */
+/* Sidebar items */
 .sidebar-item {
     list-style: none;
     flex: 1 1 auto;
@@ -83,17 +108,19 @@
     }
 }
 
+/* Sidebar item link */
 .sidebar-item a {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     justify-content: center;
-    padding: 8px 16px;
-    background-color: transparent; /* Không nền */
-    border-radius: 0.5rem;
-    color: #495057;
+    padding: 10px 16px;
+    background-color: transparent;
+    border-radius: 12px;
+    color: #07212e;
     font-weight: 500;
     text-decoration: none;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition: 0.25s;
+    position: relative;
 }
 
 @media (min-width: 992px) {
@@ -110,26 +137,28 @@
     color: #6c757d;
 }
 
-/* Hover */
+/* Hover effect */
 .sidebar-item a:hover {
-    background-color: #e9ecef;
-    color: #212529;
+    background-color: #fef1e8;
+    color: #F28123;
 }
 
-/* Active */
+/* Active item */
 .sidebar-item.active a {
-    background-color: #007bff;
+    background-color: #F28123;
     color: #fff;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
 }
 
 .sidebar-item.active a i {
     color: #fff;
 }
 
-/* Responsive - collapse behavior */
+/* Collapse (mobile) */
 @media (max-width: 991.98px) {
     #accountMenu.collapse:not(.show) {
         display: none;
     }
 }
 </style>
+
