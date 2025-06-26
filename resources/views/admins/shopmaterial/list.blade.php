@@ -107,7 +107,7 @@
                                         <td>{{ $phieu->ma_cua_hang }}</td>
                                         <td>{{ $phieu->ma_nhan_vien ?? 'ADMIN' }}</td>
                                         <td style="white-space: nowrap; text-align: center;">
-                                            {{ number_format($phieu->tong_tien, 0, ',', '.') }} đ
+                                            {{ number_format($phieu->tong_tien, 0, ',', '.') }} vnđ
                                         </td>
 
                                         <td>
@@ -163,7 +163,7 @@
                                         <th>Tên nguyên liệu</th>
                                         <th>Số lượng</th>
                                         <th>Lô</th>
-                                        <th>Giá</th>
+                                        <th>Giá nhập</th>
                                         <th>Tổng tiền</th>
                                         <th>Ghi chú</th>
                                     </tr>
@@ -221,8 +221,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             <td>${item.ten_nguyen_lieu}</td>
                             <td>${item.so_luong}</td>
                             <td>${soLoText}</td>
-                            <td>${item.gia_tien.toLocaleString('vi-VN')} đ</td>
-                            <td>${item.tong_tien.toLocaleString('vi-VN')} đ</td>
+                            <td>${Number(item.gia_tien).toLocaleString('vi-VN', { maximumFractionDigits: 0 })} vnđ</td>
+                            <td>${Number(item.tong_tien).toLocaleString('vi-VN', { maximumFractionDigits: 0 })} vnđ</td>
                             <td>${item.ghi_chu ?? ''}</td>
                         `;
                         tbody.appendChild(tr);

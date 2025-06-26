@@ -58,6 +58,7 @@
                                             Số lượng <br>
                                             <small>(kg, lít, gói, túi, thùng)</small>
                                         </th>
+                                        <th class="px-2 py-2">Giá nhập (VNĐ) </th>
                                         <th class="px-2 py-2">NSX</th>
                                         <th class="px-2 py-2">HSD</th>
                                         <th class="px-2 py-2" style="width: 200px;">Ghi chú</th>
@@ -79,6 +80,16 @@
                                                 min="0.01"
 
                                             >
+                                        </td>
+                                        <td class="px-2 py-2">
+                                            <input
+                                                type="number"
+                                                name="gia_nhap[{{ $material->ma_cua_hang }}][{{ $material->ma_nguyen_lieu }}]"
+                                                class="form-control form-control-sm w-100"
+                                                step="any"
+                                                min="0"
+                                                style="min-width: 120px;"
+                                                value="{{ old('gia_nhap.' . $material->ma_cua_hang . '.' . $material->ma_nguyen_lieu, (int) $material->gia_nhap) }}">
                                         </td>
                                         <td>
                                             <input type="date"

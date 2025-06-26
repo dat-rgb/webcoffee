@@ -24,6 +24,7 @@ class PhieuNhapXuatNguyenLieu extends Model
         'so_luong_ton_truoc',
         'don_vi',
         'gia_tien',
+        'gia_nhap',
         'tong_tien',
         'ngay_tao_phieu',
         'ghi_chu',
@@ -53,7 +54,6 @@ class PhieuNhapXuatNguyenLieu extends Model
         return $this->hasOne(CuaHangNguyenLieu::class, 'ma_cua_hang', 'ma_cua_hang')
             ->whereColumn('ma_nguyen_lieu', 'phieu_nhap_xuat_nguyen_lieus.ma_nguyen_lieu');
     }
-
      public static function generateSoLo(): string
     {
         $prefix = 'LO';
@@ -65,4 +65,5 @@ class PhieuNhapXuatNguyenLieu extends Model
 
         return $solo;
     }
+
 }

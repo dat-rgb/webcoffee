@@ -23,6 +23,7 @@ class CuaHangNguyenLieu extends Model
         'don_vi',
         'so_lo',
         'trang_thai',
+        'gia_nhap',
     ];
 
     /**
