@@ -157,7 +157,7 @@ Route::prefix('customer')->middleware(KhachHangMiddleware::class)->group(functio
     Route::get('/yeu-thich/danh-sach', [CustomerController::class, 'showFavorite'])->name('favorite.list');
     Route::post('/review', [CustomerReviewController::class, 'store']);
     Route::get('/api/review-by-order/{ma_hoa_don}', [CustomerReviewController::class, 'getByOrder']);
-
+    Route::get('/san-pham-da-mua',[CustomerController::class,'sanPhamDaMua'])->name('customer.sanPhamDaMua');
 });
 
 Route::post('/favorite/toggle/{id}', [CustomerFavoriteController::class, 'favoriteProduct'])->name('favorite.toggle');

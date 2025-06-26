@@ -22,6 +22,18 @@
 <div class="contact-from-section mt-5 mb-5">
     <div class="container">
         <div class="row">   
+            <div class="col-12 d-lg-none px-3 mb-2">
+                <div class="toggle-menu-wrapper text-right">
+                    <button class="btn btn-sm"
+                            type="button"
+                            data-toggle="collapse"
+                            data-target="#accountMenu"
+                            aria-expanded="false"
+                            aria-controls="accountMenu">
+                        <i class="fas fa-bars mr-1"></i> Menu
+                    </button>
+                </div>
+            </div>
             @include('clients.customers.sub_layout_customer')
             <div class="col-lg-8">
                 <!-- product history -->

@@ -8,27 +8,6 @@
     overflow: hidden;
     border-radius: 6px;
 }
-.icon-wrapper {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    display: flex;
-    gap: 4px;
-    z-index: 2;
-}
-.hot-icon {
-    width: 35px; 
-    height: 35px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 1px solid #fff;
-    background-color: #fff;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    transition: transform 0.2s ease-in-out;
-}
-.hot-icon:hover {
-    transform: scale(1.1);
-}
 
 .product-lists {
     margin-left: -15px;  
@@ -117,9 +96,21 @@
     </div>
 </div>
 <!-- products -->
-<div class="product-section mt-150 mb-150">
+<div class="contact-from-section mt-5 mb-5">
     <div class="container">
         <div class="row">
+            <div class="col-12 d-lg-none px-3 mb-2">
+                <div class="toggle-menu-wrapper text-right">
+                    <button class="btn btn-sm"
+                            type="button"
+                            data-toggle="collapse"
+                            data-target="#accountMenu"
+                            aria-expanded="false"
+                            aria-controls="accountMenu">
+                        <i class="fas fa-bars mr-1"></i> Menu
+                    </button>
+                </div>
+            </div>
             @include('clients.customers.sub_layout_customer')
             <div class="col-lg-7 col-md-4">
                 @if($favorites->isEmpty())
@@ -132,16 +123,6 @@
                         <div class="col-lg-4 col-md-6 col-sm-6 text-center mb-4">  <!-- mỗi sản phẩm chiếm 1/3 hàng -->
                             <div class="single-product-item">
                                 <div class="product-image position-relative">
-                                    <div class="icon-wrapper">
-                                        @if ($pro->sanPham->hot && $pro->sanPham->is_new)
-                                            <img src="{{ asset('images/product_hot.png') }}" alt="" class="hot-icon">
-                                            <img src="{{ asset('images/product_new.png') }}" alt="" class="hot-icon second">
-                                        @elseif($pro->sanPham->hot)
-                                            <img src="{{ asset('images/product_hot.png') }}" alt="" class="hot-icon">
-                                        @elseif($pro->sanPham->is_new)
-                                            <img src="{{ asset('images/product_new.png') }}" alt="" class="hot-icon">
-                                        @endif
-                                    </div>
                                     <!-- Nút Xóa -->
                                     <form method="POST" action="{{ route('favorite.toggle', $pro->ma_san_pham) }}"
                                         class="remove-favorite-form"
@@ -160,7 +141,7 @@
                                         <img src="{{ $pro->sanPham->hinh_anh ? asset('storage/' . $pro->sanPham->hinh_anh) : asset('images/no_product_image.png') }}" alt="">
                                     </a>
                                 </div>
-                                <p>{{ $pro->sanPham->ten_san_pham }}</p>
+                                <p>{{ \Illuminate\Support\Str::limit($pro->sanPham->ten_san_pham, 20) }}</p>
                                 <a href="{{ route('product.detail',$pro->sanPham->slug) }}" class="cart-btn">
                                     <i class="fas fa-shopping-cart"></i> Đặt mua
                                 </a>

@@ -4,12 +4,18 @@ namespace App\Http\Controllers\customers;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\staffs\StaffOrderController;
+use App\Models\ChiTietHoaDon;
 use App\Models\GiaoHang;
 use App\Models\HoaDon;
 use App\Models\KhachHang;
+use App\Models\KhuyenMai;
 use App\Models\LichSuHuyDonHang;
+use App\Models\SanPham;
+use App\Models\Sizes;
+use App\Models\ThanhPhanSanPham;
 use Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use function Flasher\Toastr\Prime\toastr;
 
 class CustomerOrderController extends Controller
@@ -53,29 +59,79 @@ class CustomerOrderController extends Controller
             'cancel_reason' => 'required|string',
         ]);
 
-        if ($order->trang_thai < 2) {
-            $updated = $order->update(['trang_thai' => 5]);
-
-            if (!$updated) {
-                toastr()->error('Không thể huỷ đơn hàng');
-                return redirect()->back();
-            }
-
-            (new StaffOrderController)->restoreIngredientsAndVoucher($order);
-
-            $lichSu = new LichSuHuyDonHang();
-            $lichSu->ma_hoa_don = $order->ma_hoa_don;
-            $lichSu->ly_do_huy = $data['cancel_reason'];
-            $lichSu->thoi_gian_huy = now();
-            $lichSu->nguoi_huy = 'KH - ' .$order->ten_khach_hang;
-            
-            $lichSu->save();
-
-            toastr()->success('Đã huỷ đơn hàng thành công');
+        if ($order->trang_thai >= 2) {
+            toastr()->error('Không thể hủy đơn hàng đã được xử lý');
             return redirect()->back();
         }
 
-        toastr()->error('Không thể hủy đơn hàng đã hoàn tất');
+        $order->update(['trang_thai' => 5]);
+
+        $this->restorePackedProductOnly($order);
+        $this->restoreVoucherAndBrewedProductOnly($order);
+
+        LichSuHuyDonHang::create([
+            'ma_hoa_don' => $order->ma_hoa_don,
+            'ly_do_huy' => $data['cancel_reason'],
+            'thoi_gian_huy' => now(),
+            'nguoi_huy' => 'KH - ' . $order->ten_khach_hang,
+        ]);
+
+        toastr()->success('Đã huỷ đơn hàng thành công');
         return redirect()->back();
+    }
+
+    public function restorePackedProductOnly($hoaDon)
+    {
+        $chiTietHoaDons = ChiTietHoaDon::where('ma_hoa_don', $hoaDon->ma_hoa_don)->get();
+
+        foreach ($chiTietHoaDons as $chiTiet) {
+            $maSanPham = $chiTiet->ma_san_pham;
+            $sanPham = SanPham::where('ma_san_pham', $maSanPham)->first();
+            if (!$sanPham || $sanPham->loai_san_pham != 1) continue;
+
+            $tp = ThanhPhanSanPham::where('ma_san_pham', $maSanPham)->first();
+            if (!$tp) continue;
+
+            $soLuongHoanTra = $tp->dinh_luong * $chiTiet->so_luong;
+
+            DB::table('cua_hang_nguyen_lieus')
+                ->where('ma_cua_hang', $hoaDon->ma_cua_hang)
+                ->where('ma_nguyen_lieu', $tp->ma_nguyen_lieu)
+                ->increment('so_luong_ton', $soLuongHoanTra);
+        }
+    }
+    
+    public function restoreVoucherAndBrewedProductOnly($hoaDon)
+    {
+        if ($hoaDon->ma_voucher) {
+            $voucher = KhuyenMai::where('ma_voucher', $hoaDon->ma_voucher)->first();
+            if ($voucher) {
+                $voucher->increment('so_luong', 1);
+            }
+        }
+
+        $chiTietHoaDons = ChiTietHoaDon::where('ma_hoa_don', $hoaDon->ma_hoa_don)->get();
+
+        foreach ($chiTietHoaDons as $chiTiet) {
+            $maSanPham = $chiTiet->ma_san_pham;
+            $sanPham = SanPham::where('ma_san_pham', $maSanPham)->first();
+            if (!$sanPham || $sanPham->loai_san_pham != 0) continue;
+
+            $maSize = Sizes::where('ten_size', $chiTiet->ten_size)->value('ma_size');
+            if (!$maSize) continue;
+
+            $thanhPhanNLs = ThanhPhanSanPham::where('ma_san_pham', $maSanPham)
+                ->where('ma_size', $maSize)
+                ->get();
+
+            foreach ($thanhPhanNLs as $tp) {
+                $soLuongHoanTra = $tp->dinh_luong * $chiTiet->so_luong;
+
+                DB::table('cua_hang_nguyen_lieus')
+                    ->where('ma_cua_hang', $hoaDon->ma_cua_hang)
+                    ->where('ma_nguyen_lieu', $tp->ma_nguyen_lieu)
+                    ->increment('so_luong_ton', $soLuongHoanTra);
+            }
+        }
     }
 }

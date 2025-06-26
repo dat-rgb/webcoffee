@@ -85,14 +85,16 @@
 								<li>
 									<a href="#" id="store-btn" onclick="openStoreModal()">
 										<i class="fas fa-store-alt"></i>
-										<span>{{ \Illuminate\Support\Str::limit(session('selected_store_name'), 20) ?? 'Cửa hàng' }}</span>
+										<span>{{ \Illuminate\Support\Str::limit(session('selected_store_name'), 15) ?? 'Cửa hàng' }}</span>
 									</a>
 								</li>
 								{{-- Tách user icon ra khỏi header-icons --}}
 								@if(Auth::check())
 									<li>
 										<a href="{{ route('customer.index') }}">
-											<i class="fas fa-user"></i> {{ Auth::user()->khachHang->ho_ten_khach_hang ?? 'Khách hàng' }}
+											<i class="fas fa-user"></i>
+											{{ \Illuminate\Support\Str::limit(Auth::user()->khachHang->ho_ten_khach_hang ?? 'Khách hàng', 10) ?? 'Cửa hàng' }}
+											 <!-- {{ Auth::user()->khachHang->ho_ten_khach_hang ?? 'Khách hàng' }} -->
 										</a>
 										<ul class="sub-menu">
 											<li><a href="{{ route('customer.index') }}"><i class="fas fa-user-circle"></i> Hồ sơ</a></li>
@@ -131,6 +133,10 @@
 							</ul>
 						</nav>
 						<a class="mobile-show search-bar-icon" href="#"><i class="fas fa-search"></i></a>
+						<a href="{{ route('cart') }}" class="mobile-show cart-bar-icon">
+							<i class="fas fa-shopping-cart"></i>
+							<span class="cart-count">{{ session('cart') ? count(session('cart')) : 0 }}</span>
+						</a>
 						<div class="mobile-menu"></div>
 						<!-- menu end -->
 					</div>
@@ -281,6 +287,7 @@
 	<script src="{{ asset('js/store-popup.js') }}"></script>
 	<script src="{{ asset('js/cart.js') }}"></script>
 	<!--  -->
+	<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 	<script src="https://cdn.payos.vn/payos-checkout/v1/stable/payos-initialize.js"></script>
 	<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 	@stack('scripts')

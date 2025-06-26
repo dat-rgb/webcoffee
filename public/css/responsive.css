@@ -199,7 +199,13 @@
 	    z-index: 999;
 	    color: #fff;
 	}
-
+	a.mobile-show.cart-bar-icon {
+	    position: absolute;
+	    right: 90px;
+	    top: 22px;
+	    z-index: 999;
+	    color: #fff;
+	}
 }
 
 /* Mobile Layout: 320px. */
@@ -553,6 +559,13 @@
 	a.mobile-show.search-bar-icon {
 	    position: absolute;
 	    right: 60px;
+	    top: 22px;
+	    z-index: 999;
+	    color: #fff;
+	}
+	a.mobile-show.cart-bar-icon {
+	    position: absolute;
+	    right: 90px;
 	    top: 22px;
 	    z-index: 999;
 	    color: #fff;
