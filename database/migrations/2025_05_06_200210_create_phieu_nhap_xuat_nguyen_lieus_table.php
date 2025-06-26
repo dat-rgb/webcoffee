@@ -27,6 +27,7 @@ return new class extends Migration
             $table->float(column: 'so_luong_ton_truoc'); // Tồn tại cửa hàng nguyên liệu trước khi nhập [cua_hang_nguyen_lieus.so_luong_ton]
             $table->string('don_vi', 50); //Đơn vị tính theo số lượng nhập,xuất,..
             $table->float('gia_tien')->default(0)->nullable();// giá từ [nguyen_lieus.gia]
+            $table->float('gia_nhap')->default(0)->nullable();//giá nhập từ phiếu nhập khi import[phieunhapnguyenLieu.gia_nhap]
             $table->float('tong_tien')->default(0)->nullable(); //Tổng tiền = [Số lượng nhập,xuất] * [nguyen_lieus.gia]
             $table->dateTime('ngay_tao_phieu');
             $table->text('ghi_chu')->nullable();
@@ -42,7 +43,7 @@ return new class extends Migration
     //kiểm tra lại số lượng đã dùng của lô = tồn kho - tồn trước
     //if số lượng đã dùng nhỏ hơn số lượng nhập thì đag dùng thì chx dùng  //hủy, xuát
     //if số lượng đã dùng bằng số lượng nhập thì đã dùng hết
-    //if số lượng đã dùng lớn hơn số lượng nhập thì đã dùng qua lô khác 
+    //if số lượng đã dùng lớn hơn số lượng nhập thì đã dùng qua lô khác
 
     /**
      * Reverse the migrations.

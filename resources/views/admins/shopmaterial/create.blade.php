@@ -61,6 +61,7 @@
                                 <th>Nguyên liệu</th>
                                 <th>Số lượng tồn tối thiểu</th>
                                 <th>Đơn vị tính</th>
+                                <th>Giá tiền nhập(VNđ)</th> <!-- Mới -->
                             </tr>
                         </thead>
 
@@ -112,8 +113,8 @@
                                         data-id="{{ $material->ma_nguyen_lieu }}"
                                         data-ten="{{ $material->ten_nguyen_lieu }}"
                                         data-donvi="{{ $material->don_vi }}"
-                                        data-soluong="{{ $material->so_luong }}">
-
+                                        data-soluong="{{ $material->so_luong }}"
+                                        data-gia="{{ $material->gia ?? 0 }}">
                                 </td>
                                 <td>{{ $material->ma_nguyen_lieu }}</td>
                                 <td>{{ $material->ten_nguyen_lieu }}</td>
@@ -144,6 +145,7 @@
         const ten = item.dataset.ten;
         const donvi = item.dataset.donvi;
         const soluong = item.dataset.soluong;
+        const gia = item.dataset.gia || 0;
 
         const hienThi = `${ten} - ${soluong}${donvi}`;
 
@@ -158,6 +160,9 @@
                 </td>
                 <td>
                     <input type="text" name="don_vi[${id}]" class="form-control" required>
+                </td>
+                <td>
+                    <input type="number" name="gia_nhap[${id}]" class="form-control" step="0.01" min="0" value="${gia}">
                 </td>
             </tr>
         `;

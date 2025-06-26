@@ -77,7 +77,7 @@ class AdminShopmaterialController extends Controller
         // Lấy danh sách nguyên liệu CHƯA có trong cửa hàng và còn hoạt động
         $materials = NguyenLieu::where('trang_thai', 1)
             ->whereNotIn('ma_nguyen_lieu', $nguyenLieuDaCo)
-             ->get(['ma_nguyen_lieu', 'ten_nguyen_lieu', 'don_vi', 'so_luong']); // Thêm so_luong
+             ->get(['ma_nguyen_lieu', 'ten_nguyen_lieu', 'don_vi', 'so_luong','gia']);
 
         $tenCuaHang = CuaHang::where('ma_cua_hang', $maCuaHang)->value('ten_cua_hang');
         $viewData = [
@@ -98,33 +98,38 @@ class AdminShopmaterialController extends Controller
             'ma_nguyen_lieu.*' => 'required|exists:nguyen_lieus,ma_nguyen_lieu',
             'so_luong_ton_min' => 'required|array',
             'don_vi' => 'required|array',
+            'gia_nhap' =>'required|array',
         ], [
             'ma_nguyen_lieu.required' => 'Vui lòng chọn ít nhất một nguyên liệu.',
             'ma_nguyen_lieu.*.exists' => 'Một trong các nguyên liệu không tồn tại.',
             'so_luong_ton_min.required' => 'Vui lòng nhập số lượng tồn tối thiểu.',
             'don_vi.required' => 'Vui lòng nhập đơn vị cho mỗi nguyên liệu.',
+            'gia_nhap.required' => 'Vui lòng nhập giá nhập cho nguyên liệu.',
         ]);
 
         foreach ($request->ma_nguyen_lieu as $maNL) {
-            $daTonTai = CuaHangNguyenLieu::where([
-                ['ma_cua_hang', $request->ma_cua_hang],
-                ['ma_nguyen_lieu', $maNL]
-            ])->exists();
+        $daTonTai = CuaHangNguyenLieu::where([
+            ['ma_cua_hang', $request->ma_cua_hang],
+            ['ma_nguyen_lieu', $maNL]
+        ])->exists();
 
-            if (!$daTonTai) {
-                $nguyenLieu = NguyenLieu::where('ma_nguyen_lieu', $maNL)->first();
-                $inputMin = $request->so_luong_ton_min[$maNL] ?? 0;
-                $dinhLuong = $nguyenLieu->so_luong ?? 1;
+        if (!$daTonTai) {
+            $nguyenLieu = NguyenLieu::where('ma_nguyen_lieu', $maNL)->first();
+            $inputMin = $request->so_luong_ton_min[$maNL] ?? 0;
+            $dinhLuong = $nguyenLieu->so_luong ?? 1;
+            $giaNhap = $request->gia_nhap[$maNL] ?? 0;
 
-                CuaHangNguyenLieu::create([
-                    'ma_cua_hang' => $request->ma_cua_hang,
-                    'ma_nguyen_lieu' => $maNL,
-                    'so_luong_ton' => 0,
-                    'so_luong_ton_min' => (float)$inputMin * (float)$dinhLuong,
-                    'don_vi' => $request->don_vi[$maNL] ?? $nguyenLieu->don_vi,
-                ]);
-            }
+            CuaHangNguyenLieu::create([
+                'ma_cua_hang' => $request->ma_cua_hang,
+                'ma_nguyen_lieu' => $maNL,
+                'so_luong_ton' => 0,
+                'so_luong_ton_min' => (float)$inputMin * (float)$dinhLuong,
+                'don_vi' => $request->don_vi[$maNL] ?? $nguyenLieu->don_vi,
+                'gia_nhap' => $giaNhap, // ✅ Lưu giá nhập vào kho cửa hàng
+            ]);
         }
+    }
+
 
         toastr()->success('Đã thêm nguyên liệu vào kho.');
         return redirect()->route('admins.shopmaterial.index', ['ma_cua_hang' => $request->ma_cua_hang]);
@@ -160,7 +165,6 @@ class AdminShopmaterialController extends Controller
         $today = Carbon::now()->format('d/m/Y');
         $materialKeys = $request->input('materials', []);
         $materials = collect();
-
         foreach ($materialKeys as $key) {
             [$maCuaHang, $maNguyenLieu] = explode('|', $key) + [null, null];
 
@@ -172,9 +176,14 @@ class AdminShopmaterialController extends Controller
                 ->first();
 
             if ($material) {
+                // Nếu chưa có giá nhập thì lấy giá_tiền (từ bảng nguyên liệu) làm mặc định
+                if (is_null($material->gia_nhap)) {
+                    $material->gia_nhap = $material->nguyenLieu->gia ?? 0;
+                }
                 $materials->push($material);
             }
         }
+
         if ($materials->isEmpty()) {
             toastr()->error('Không còn nguyên liệu để thêm vào!');
             return redirect()->route('admins.shopmaterial.index');
@@ -255,6 +264,19 @@ class AdminShopmaterialController extends Controller
                             throw new \Exception("Nguyên liệu $maNguyenLieu không tồn tại trong cửa hàng $maCuaHang.");
                         }
 
+                        //kiểm tra gia nhap
+                        $giaNhapMoi = $request->input("gia_nhap.$maCuaHang.$maNguyenLieu");
+                        if (is_numeric($giaNhapMoi) && $giaNhapMoi > 0) {
+                            CuaHangNguyenLieu::where('ma_cua_hang', $maCuaHang)
+                                ->where('ma_nguyen_lieu', $maNguyenLieu)
+                                ->update(['gia_nhap' => $giaNhapMoi]);
+
+                            // Đồng bộ với đối tượng hiện tại nếu dùng lại sau đó
+                            $material->gia_nhap = $giaNhapMoi;
+                        }
+
+
+
                         $dinhluong = $soLuongNhap * $material->nguyenLieu->so_luong;
                         $updateKey = $maCuaHang . '_' . $maNguyenLieu;
                         if (!isset($updateData[$updateKey])) {
@@ -279,7 +301,11 @@ class AdminShopmaterialController extends Controller
                             'so_luong_ton_truoc' => $material->so_luong_ton ,
                             'don_vi'         => $material->don_vi,
                             'gia_tien'       => $material->nguyenLieu->gia ?? 0,
-                            'tong_tien'      => ($material->nguyenLieu->gia ?? 0) * $soLuongNhap,
+                            //'tong_tien'      => ($material->nguyenLieu->gia ?? 0) * $soLuongNhap,
+                            //'gia_tien'       => $material->gia_nhap ?? 0,
+                            //'tong_tien'      => ($material->gia_nhap ?? 0) * $soLuongNhap,
+                            'gia_nhap'  => $material->gia_nhap ?? ($material->nguyenLieu->gia ?? 0), // fallback nếu chưa lưu
+                            'tong_tien' => ($material->gia_nhap ?? ($material->nguyenLieu->gia ?? 0)) * $soLuongNhap,
                             'ngay_tao_phieu' => now(),
                             'ghi_chu'        => $noteData[$maCuaHang][$maNguyenLieu] ?? null,
                         ]);
@@ -462,6 +488,9 @@ class AdminShopmaterialController extends Controller
 
                             $xuatTuLo = min($dinhLuongConLai, $tonLoCache[$loKey]);
 
+                            $giaNhap = $lo->gia_nhap ?? $material->gia_nhap ?? $material->nguyenLieu->gia ?? 0;
+                            $giaNguyenLieu = $material->nguyenLieu->gia ?? 0;
+
                             PhieuNhapXuatNguyenLieu::create([
                                 'ma_cua_hang'         => $maCuaHang,
                                 'ma_nguyen_lieu'      => $maNguyenLieu,
@@ -473,10 +502,11 @@ class AdminShopmaterialController extends Controller
                                 'dinh_luong'          => $xuatTuLo,
                                 'so_luong_ton_truoc'  => $material->so_luong_ton,
                                 'don_vi'              => $material->don_vi,
-                                'gia_tien'            => $material->nguyenLieu->gia ?? 0,
-                                'tong_tien'           => ($material->nguyenLieu->gia ?? 0) * ($xuatTuLo / $material->nguyenLieu->so_luong),
+                                'gia_tien'            => $giaNguyenLieu, // lấy từ bảng nguyen_lieu
+                                'gia_nhap'            => $giaNhap,       // lấy từ lô nhập
+                                'tong_tien'           => $giaNhap * ($xuatTuLo / $material->nguyenLieu->so_luong),
                                 'ngay_tao_phieu'      => now(),
-                                'ghi_chu' => ($noteData[$maCuaHang][$maNguyenLieu] ?? '') . ' | Xuất theo FIFO từ lô ' . $lo->so_lo,
+                                'ghi_chu'             => ($noteData[$maCuaHang][$maNguyenLieu] ?? '') . ' | Xuất theo FIFO từ lô ' . $lo->so_lo,
                             ]);
 
                             $tongXuatThucTe += $xuatTuLo;
@@ -675,8 +705,11 @@ class AdminShopmaterialController extends Controller
                             'dinh_luong'         => $dinhLuongHuy,
                             'so_luong_ton_truoc' => $materialStock->so_luong_ton,
                             'don_vi'             => $materialStock->don_vi,
-                            'gia_tien'           => optional($materialStock->nguyenLieu)->gia ?? 0,
-                            'tong_tien'          => (optional($materialStock->nguyenLieu)->gia ?? 0) * $quantity,
+                            //'gia_tien'           => optional($materialStock->nguyenLieu)->gia ?? 0,
+                            //'tong_tien'          => (optional($materialStock->nguyenLieu)->gia ?? 0) * $quantity,
+                            'gia_tien'          =>$batchRecord->gia_tien ?? 0,
+                            'gia_nhap'           => $batchRecord->gia_nhap ?? 0,
+                            'tong_tien'          => ($batchRecord->gia_nhap ?? 0) * $quantity,
                             'ngay_tao_phieu'     => $now,
                             'ghi_chu'            => $note ?? 'Hủy từ lô ' . $soLo,
                         ]);
@@ -812,25 +845,22 @@ class AdminShopmaterialController extends Controller
                 'ngay_tao_phieu' => $first->ngay_tao_phieu,
                 'ma_nhan_vien' => $first->ma_nhan_vien,
             ],
-            'chi_tiet' => $chiTiet->map(function ($item) use ($first) {
-        $gia_tien = $item->gia_tien ?? 0;
-        $tong_tien=$item->tong_tien ?? 0;
-        $so_luong = $item->so_luong ?? 0;
-        return [
-            'ma_nguyen_lieu' => $item->nguyenLieu->ma_nguyen_lieu ?? 'N/A',
-            'ten_nguyen_lieu' => $item->nguyenLieu->ten_nguyen_lieu ?? 'N/A',
-            'so_luong' => $so_luong,
-            'so_lo' => $item->so_lo,
-            'gia_tien' => $gia_tien,
-            'tong_tien'=> $tong_tien,
-            //'tong_gia' => $gia_tien * $so_luong,
-            'ghi_chu' => $item->ghi_chu ?? '',
-        ];
-    }),
 
+            'chi_tiet' => $chiTiet->map(function ($item) {
+                return [
+                    'ma_nguyen_lieu' => $item->nguyenLieu->ma_nguyen_lieu ?? 'N/A',
+                    'ten_nguyen_lieu' => $item->nguyenLieu->ten_nguyen_lieu ?? 'N/A',
+                    'so_luong' => $item->so_luong ?? 0,
+                    'so_lo' => $item->so_lo ?? 'N/A',
+                    'gia_tien' => $item->gia_nhap ?? 0,  // giá từ bảng nguyên liệu nếu có
+                    'tong_tien' => $item->tong_tien ?? 0,
+                    'ghi_chu' => $item->ghi_chu ?? '',
+                ];
+            }),
         ];
 
         return response()->json($data);
     }
+
 }
 
