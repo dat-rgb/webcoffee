@@ -4,10 +4,12 @@
 @section('subtitle', $subtitle)
 @push('styles')
     <style>
-        .fas, .far {
-            color: #f39c12;  /* Màu vàng cho sao */
-            font-size: 18px;  /* Kích thước sao */
-        }
+         th {
+        white-space: nowrap;
+        font-size: 14px;
+        padding: 8px 10px;
+        text-align: center;
+    }
     </style>
 @endpush
 
@@ -90,6 +92,7 @@
                                         </a>
                                     @endif
                                 </div>
+                                
                                 {{-- Thêm mới --}}
                                 <div class="col-6 col-lg-2">
                                     <a href="{{ route('admin.vouchers.form') }}" class="btn btn-primary w-100">
@@ -114,7 +117,7 @@
                                                 </a>
                                             </div>
                                         @else
-                                            <table id="add-row" class="display table table-striped table-hover dataTable" role="grid" aria-describedby="add-row_info">
+                                        <table class="table table-striped table-hover align-middle text-left">
                                                 <thead>
                                                     <tr>
                                                         <th><input type="checkbox" id="checkAll"></th>
@@ -122,7 +125,6 @@
                                                         <th>Mã Voucher</th>
                                                         <th>Tên Voucher</th>
                                                         <th>Số lượng</th>
-                                                        <th>Bắt đầu</th>
                                                         <th>Kết thúc</th>
                                                         <th>Điều kiện</th>
                                                         <th>Giá trị giảm</th>
@@ -138,13 +140,12 @@
                                                             </td> 
                                                             <td>
                                                                 <a href="{{ route('admin.vouchers.edit',$vou->ma_voucher) }}" class="" data-bs-toggle="tooltip" title="{{ $vou->ten_voucher }}">
-                                                                    <img src="{{ asset('storage/' . ($vou->hinh_anh ?? 'vouchers/voucher-default.png')) }}" alt="{{ $vou->ten_voucher }}" style="width: 60px;">
+                                                                    <img src="{{ asset('storage/' . ($vou->hinh_anh ?? 'vouchers/voucher-default.png')) }}" alt="{{ $vou->ten_voucher }}" style="width: 40px;">
                                                                 </a>
                                                             </td>
                                                             <td>{{ $vou->ma_voucher }}</td>
                                                             <td>{{ $vou->ten_voucher }}</td>
                                                             <td>{{ $vou->so_luong }}</td>
-                                                            <td>{{ \Carbon\Carbon::parse($vou->ngay_bat_dau)->format('d/m/Y H:i') }}</td>
                                                             <td>{{ \Carbon\Carbon::parse($vou->ngay_ket_thuc)->format('d/m/Y H:i') }}</td>
                                                             <td>Hóa đơn từ {{ number_format($vou->dieu_kien_ap_dung, 0, ',', '.') }} </td>
                                                             <td>

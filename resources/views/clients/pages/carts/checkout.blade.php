@@ -197,41 +197,43 @@
                                                         $reason = 'Không thể áp dụng, đơn hàng chưa đủ điều kiện';
                                                     }
                                                 @endphp
-
-                                                <div class="custom-control custom-radio mb-2 p-2 border rounded d-flex align-items-center {{ $isDisabled ? 'bg-light text-muted' : 'bg-white' }}">
-                                                    <input type="radio"
-                                                        class="custom-control-input voucher-radio"
-                                                        name="voucher"
-                                                        id="voucher{{ $voucher->ma_voucher }}"
-                                                        value="{{ $voucher->ma_voucher }}"
-                                                        data-gia-tri-giam="{{ $voucher->gia_tri_giam }}"
-                                                        data-giam-gia-max="{{ $voucher->giam_gia_max }}"
-                                                        data-dieu-kien="{{ $voucher->dieu_kien_ap_dung }}"
-                                                        {{ $isDisabled ? 'disabled' : '' }}>
-                                                    <label class="custom-control-label d-flex align-items-center w-100" for="voucher{{ $voucher->ma_voucher }}">
-                                                        <span class="radio-custom mr-3"></span>
-                                                        <img src="{{ asset('storage/' . ($voucher->hinh_anh ?? 'vouchers/voucher-default.png')) }}"
-                                                            alt="{{ $voucher->ten_voucher }}"
-                                                            style="width: 60px; height: 60px; object-fit: cover; {{ $isDisabled ? 'opacity: 0.5;' : '' }}">
-                                                        <div class="d-flex flex-column">
-                                                            <span class="font-weight-bold {{ $isDisabled ? 'text-muted' : 'text-dark' }}">{{ $voucher->ten_voucher }}</span>
-                                                            <small>
-                                                                Giảm 
-                                                                @if($voucher->gia_tri_giam < 100)
-                                                                    {{ $voucher->gia_tri_giam }}%
-                                                                @else
-                                                                    {{ number_format($voucher->gia_tri_giam, 0, ',', '.') }}đ
+                                                @if($voucher->doi_tuong_ap_dung === 'hoa_don')
+                                                    <div class="custom-control custom-radio mb-2 p-2 border rounded d-flex align-items-center {{ $isDisabled ? 'bg-light text-muted' : 'bg-white' }}">
+                                                        <input type="radio"
+                                                            class="custom-control-input voucher-radio"
+                                                            name="voucher"
+                                                            id="voucher{{ $voucher->ma_voucher }}"
+                                                            value="{{ $voucher->ma_voucher }}"
+                                                            data-gia-tri-giam="{{ $voucher->gia_tri_giam }}"
+                                                            data-giam-gia-max="{{ $voucher->giam_gia_max }}"
+                                                            data-dieu-kien="{{ $voucher->dieu_kien_ap_dung }}"
+                                                            {{ $isDisabled ? 'disabled' : '' }}>
+                                                    
+                                                        <label class="custom-control-label d-flex align-items-center w-100" for="voucher{{ $voucher->ma_voucher }}">
+                                                            <span class="radio-custom mr-3"></span>
+                                                            <img src="{{ asset('storage/' . ($voucher->hinh_anh ?? 'vouchers/voucher-default.png')) }}"
+                                                                alt="{{ $voucher->ten_voucher }}"
+                                                                style="width: 60px; height: 60px; object-fit: cover; {{ $isDisabled ? 'opacity: 0.5;' : '' }}">
+                                                            <div class="d-flex flex-column">
+                                                                <span class="font-weight-bold {{ $isDisabled ? 'text-muted' : 'text-dark' }}">{{ $voucher->ten_voucher }}</span>
+                                                                <small>
+                                                                    Giảm 
+                                                                    @if($voucher->gia_tri_giam < 100)
+                                                                        {{ $voucher->gia_tri_giam }}%
+                                                                    @else
+                                                                        {{ number_format($voucher->gia_tri_giam, 0, ',', '.') }}đ
+                                                                    @endif
+                                                                    (Tối đa {{ number_format($voucher->giam_gia_max, 0, ',', '.') }}đ) | 
+                                                                    ĐH từ {{ number_format($voucher->dieu_kien_ap_dung, 0, ',', '.') }}đ | 
+                                                                    HSD: {{ \Carbon\Carbon::parse($voucher->ngay_ket_thuc)->format('d/m/Y') }}
+                                                                </small>
+                                                                @if($isDisabled && $reason)
+                                                                    <small class="text-danger mt-1">{{ $reason }}</small>
                                                                 @endif
-                                                                (Tối đa {{ number_format($voucher->giam_gia_max, 0, ',', '.') }}đ) | 
-                                                                ĐH từ {{ number_format($voucher->dieu_kien_ap_dung, 0, ',', '.') }}đ | 
-                                                                HSD: {{ \Carbon\Carbon::parse($voucher->ngay_ket_thuc)->format('d/m/Y') }}
-                                                            </small>
-                                                            @if($isDisabled && $reason)
-                                                                <small class="text-danger mt-1">{{ $reason }}</small>
-                                                            @endif
-                                                        </div>
-                                                    </label>
-                                                </div>
+                                                            </div>
+                                                        </label>
+                                                    </div>
+                                                @endif
                                             @endforeach
                                         </div>
                                     </div>

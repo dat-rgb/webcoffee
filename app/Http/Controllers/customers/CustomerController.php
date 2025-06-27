@@ -4,7 +4,9 @@ namespace App\Http\Controllers\customers;
 
 use App\Http\Controllers\Controller;
 use App\Models\ChiTietHoaDon;
+use App\Models\HoaDon;
 use App\Models\KhachHang;
+use App\Models\KhuyenMai;
 use App\Models\TaiKhoan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -189,7 +191,39 @@ class CustomerController extends Controller
         return view('clients.customers.product_history', $viewData);
     }
 
-    public function getVoucherMember(){
-        
+    public function getVoucherMember()
+    {
+        $taiKhoan = Auth::user();
+        $khachHang = $taiKhoan->khachHang;
+
+        // Nếu chưa có thông tin khách hàng thì chặn lại
+        if (!$khachHang) {
+            toastr()->error('Không tìm thấy thông tin khách hàng.');
+            return redirect()->back();
+        }
+
+        // Lấy danh sách mã voucher user đã dùng
+        $voucherDaDung = HoaDon::where('ma_khach_hang', $khachHang->ma_khach_hang)
+            ->whereNotNull('ma_voucher')
+            ->pluck('ma_voucher')
+            ->toArray();
+
+        // Lọc các voucher dành cho thành viên, điểm đủ điều kiện, chưa dùng
+        $voucherMember = KhuyenMai::where('trang_thai', 1)
+            ->where('doi_tuong_ap_dung', 'thanh_vien')
+            ->where(function ($q) use ($khachHang) {
+                $q->whereNull('diem_toi_thieu')
+                ->orWhere('diem_toi_thieu', '<=', $khachHang->diem_thanh_vien);
+            })
+            ->whereNotIn('ma_voucher', $voucherDaDung)
+            ->get();
+
+        $viewData = [
+            'title' => 'Ưu đãi thành viên',
+            'subtitle' => 'Ưu đãi thăng hạng',
+            'voucherMember' => $voucherMember,
+        ];
+
+        return view('clients.customers.uu_dai_thanh_vien', $viewData);
     }
 }

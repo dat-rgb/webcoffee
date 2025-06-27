@@ -24,5 +24,7 @@ class KhuyenMai extends Model
         'gia_tri_giam',
         'giam_gia_max',
         'trang_thai',
+        'doi_tuong_ap_dung',
+        'diem_toi_thieu',
     ];
 }

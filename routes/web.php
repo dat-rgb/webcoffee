@@ -159,6 +159,7 @@ Route::prefix('customer')->middleware(KhachHangMiddleware::class)->group(functio
     Route::get('/api/review-by-order/{ma_hoa_don}', [CustomerReviewController::class, 'getByOrder']);
     Route::get('/san-pham-da-mua',[CustomerController::class,'sanPhamDaMua'])->name('customer.sanPhamDaMua');
     Route::get('/san-pham-da-xem',[CustomerController::class,'getProductToViewHistory'])->name('customer.sanPhamDaXem');
+    Route::get('/uu-dai-thanh-vien',[CustomerController::class,'getVoucherMember'])->name('customer.uuDaiThanhVien');
 });
 
 Route::post('/favorite/toggle/{id}', [CustomerFavoriteController::class, 'favoriteProduct'])->name('favorite.toggle');

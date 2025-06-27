@@ -117,6 +117,17 @@
                                     @enderror
                                     </div>
                                 </div>
+                                <div class="form-group">
+                                    <label for="exampleFormControlSelect1">Đối tượng áp dụng</label>
+                                    <select class="form-select" name="doi_tuong_ap_dung" id="exampleFormControlSelect1">
+                                        <option value="hoa_don">Hóa đơn</option>
+                                        <option value="thanh_vien">Thành viên</option>
+                                        <option value="san_pham">Sản phẩm</option>
+                                    </select>
+                                    @error('doi_tuong_ap_dung')
+                                        <div class="custom-error">{{ $message }}</div>
+                                    @enderror
+                                </div>  
                             </div>
                             <div class="col-md-6 col-lg-4">
                                 <div class="form-group">
@@ -150,6 +161,20 @@
                                     @enderror
                                     </div>
                                 </div>
+                                <div class="form-group">
+                                    <label class="form-label">Điểm tối thiểu</label>
+                                    <div class="input-group mb-3">
+                                        <select class="form-select" name="diem_toi_thieu" id="diemToiThieuSelect">
+                                            <option value="0">Tất cả thành viên</option>
+                                            <option value="300">Từ Bạc (≥ 300 điểm)</option>
+                                            <option value="600">Từ Vàng (≥ 600 điểm)</option>
+                                            <option value="900">Từ Kim Cương (≥ 900 điểm)</option>
+                                        </select>
+                                        @error('diem_toi_thieu')
+                                            <div class="custom-error">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
                             </div>   
                         </div>
                     </div>
@@ -157,8 +182,8 @@
             </div>
             <!-- Hành động -->
             <div class="card-action">
-                <button type="submit" class="btn btn-primary">Thêm</button> <!-- Nút chính -->
-                <button class="btn btn-danger">Hủy</button> <!-- Thoát, không gây nhầm lẫn -->
+                <button type="submit" class="btn btn-primary">Thêm</button> 
+                <a href="{{ route('admin.vouchers.list') }}" class="btn btn-danger">Hủy</a>
             </div>
         </div>
     </form>
