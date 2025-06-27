@@ -103,9 +103,9 @@
             </div>
         </div>
         <!-- product list -->
-        <div class="row" id="product-list">
-            @foreach ($products as $pro)
-                <div class="col-lg-3 col-md-4 col-sm-6 text-center {{ $pro->danhMuc->ma_danh_muc ?? '' }}">
+        <div class="row"  id="product-list">
+            @foreach ( $products as  $pro)
+                <div class="col-lg-3 col-md-4 col-6 text-center {{ $pro->danhMuc->ma_danh_muc ?? '' }}">
                     <div class="single-product-item">
                         <div class="product-image">
                             <div class="icon-wrapper">

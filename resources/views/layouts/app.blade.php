@@ -105,7 +105,7 @@
 												</a>
 											</li>
 											<li>
-												<a href="#">
+												<a href="{{ route('customer.uuDaiThanhVien') }}">
 													<i class="fas fa-gift"></i> Ưu đãi thành viên
 												</a>
 											</li>

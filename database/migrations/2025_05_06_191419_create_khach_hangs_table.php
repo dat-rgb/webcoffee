@@ -20,7 +20,7 @@ return new class extends Migration
             $table->integer('gioi_tinh')->nullable();
             $table->char('so_dien_thoai', 10)->nullable();
             $table->integer('diem_thanh_vien')->nullable()->default(0);
-            $table->enum('hang_thanh_vien', ['Vàng', 'Bạc', 'Đồng'])->nullable()->default('Đồng');
+            $table->enum('hang_thanh_vien', ['Vàng', 'Bạc', 'Đồng','Kim Cương'])->nullable()->default('Đồng');
             $table->timestamps();
 
             $table->foreign('ma_tai_khoan')->references('ma_tai_khoan')->on('tai_khoans')->onDelete('cascade');

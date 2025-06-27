@@ -80,6 +80,7 @@ class AdminVoucherController extends Controller
         return view('admins.vouchers.voucher_form', $viewData);
     }
     public function addVoucher(Request $request){
+
         $request->validate([
             'ma_voucher' => 'required|string|max:50|min:2|unique:khuyen_mais,ma_voucher|regex:/^[a-zA-Z0-9_-]+$/',
             'ten_voucher' => 'required|string|max:255|min:2',
@@ -90,6 +91,8 @@ class AdminVoucherController extends Controller
             'dieu_kien_ap_dung' => 'required|numeric|min:0|max:100000000',
             'ngay_bat_dau' => 'required|date',
             'ngay_ket_thuc' => 'required|date|after_or_equal:ngay_bat_dau',
+            'doi_tuong_ap_dung' => 'required|in:hoa_don,san_pham,thanh_vien',
+            'diem_toi_thieu' => 'nullable|integer|min:0|max:100000',
         ], [
             'ma_voucher.required' => 'Mã voucher là bắt buộc.',
             'ma_voucher.min' =>  'Mã voucher ít nhất 2 ký tự.',
@@ -130,6 +133,12 @@ class AdminVoucherController extends Controller
             'ngay_ket_thuc.required' => 'Ngày kết thúc là bắt buộc.',
             'ngay_ket_thuc.date' => 'Ngày kết thúc phải là định dạng ngày.',
             'ngay_ket_thuc.after_or_equal' => 'Ngày kết thúc phải sau hoặc bằng ngày bắt đầu.',
+            'doi_tuong_ap_dung.required' => 'Vui lòng chọn đối tượng áp dụng.',
+            'doi_tuong_ap_dung.in' => 'Giá trị đối tượng áp dụng không hợp lệ.',
+
+            'diem_toi_thieu.integer' => 'Điểm tối thiểu phải là số nguyên.',
+            'diem_toi_thieu.min' => 'Điểm tối thiểu không được âm.',
+            'diem_toi_thieu.max' => 'Điểm tối thiểu không được vượt quá 100,000.',
         ]);
 
         $imagePath = null;
@@ -153,7 +162,9 @@ class AdminVoucherController extends Controller
             'dieu_kien_ap_dung' => $request->dieu_kien_ap_dung,
             'ngay_bat_dau' =>  $request->ngay_bat_dau,
             'ngay_ket_thuc' =>  $request->ngay_ket_thuc,
-            'trang_thai' => $request->trang_thai
+            'trang_thai' => $request->trang_thai,
+            'doi_tuong_ap_dung' => $request->doi_tuong_ap_dung,
+            'diem_toi_thieu' => $request->diem_toi_thieu
         ]);
 
         toastr()->success('Đã thêm voucher thành công.');
@@ -202,6 +213,9 @@ class AdminVoucherController extends Controller
             'dieu_kien_ap_dung' => 'required|numeric|min:0|max:100000000',
             'ngay_bat_dau' => 'required|date',
             'ngay_ket_thuc' => 'required|date|after_or_equal:ngay_bat_dau',
+            'doi_tuong_ap_dung' => 'required|in:hoa_don,san_pham,thanh_vien',
+            'diem_toi_thieu' => 'nullable|numeric|min:0|max:1000000',
+
         ], 
         [
             'ten_voucher.required' => 'Tên voucher là bắt buộc.',
@@ -237,9 +251,14 @@ class AdminVoucherController extends Controller
             'ngay_ket_thuc.required' => 'Ngày kết thúc là bắt buộc.',
             'ngay_ket_thuc.date' => 'Ngày kết thúc phải là định dạng ngày.',
             'ngay_ket_thuc.after_or_equal' => 'Ngày kết thúc phải sau hoặc bằng ngày bắt đầu.',
+
+            'doi_tuong_ap_dung.required' => 'Bạn chưa chọn đối tượng áp dụng.',
+            'doi_tuong_ap_dung.in' => 'Đối tượng áp dụng không hợp lệ.',
+            'diem_toi_thieu.numeric' => 'Điểm tối thiểu phải là số.',
+            'diem_toi_thieu.min' => 'Điểm tối thiểu không được âm.',
+            'diem_toi_thieu.max' => 'Điểm tối đa vượt quá giới hạn.',
         ]);
 
-        // Tìm voucher theo ma_voucher
         $voucher = KhuyenMai::where('ma_voucher',$id)->first();
 
         if (!$voucher) {
@@ -254,6 +273,9 @@ class AdminVoucherController extends Controller
         $voucher->dieu_kien_ap_dung = $request->dieu_kien_ap_dung;
         $voucher->ngay_bat_dau = $request->ngay_bat_dau;
         $voucher->ngay_ket_thuc = $request->ngay_ket_thuc;
+        $voucher->doi_tuong_ap_dung = $request->doi_tuong_ap_dung;
+        $voucher->diem_toi_thieu = $request->diem_toi_thieu;
+
 
         if ($request->hasFile('hinh_anh')) {
             // Xóa ảnh cũ nếu có

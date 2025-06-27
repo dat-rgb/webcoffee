@@ -97,7 +97,6 @@
                                         <div class="custom-error">{{ $message }}</div>
                                     @enderror
                                 </div>
-
                             </div>
                             <div class="col-md-6 col-lg-4">
                                 <div class="form-group">
@@ -132,6 +131,17 @@
                                     @enderror
                                     </div>
                                 </div>
+                                <div class="form-group">
+                                    <label for="exampleFormControlSelect1">Đối tượng áp dụng</label>
+                                    <select class="form-select" name="doi_tuong_ap_dung" id="exampleFormControlSelect1">
+                                        <option value="hoa_don" {{ old('doi_tuong_ap_dung', $voucher->doi_tuong_ap_dung) == 'hoa_don' ? 'selected' : '' }}>Hóa đơn</option>
+                                        <option value="thanh_vien" {{ old('doi_tuong_ap_dung', $voucher->doi_tuong_ap_dung) == 'thanh_vien' ? 'selected' : '' }}>Thành viên</option>
+                                        <option value="san_pham" {{ old('doi_tuong_ap_dung', $voucher->doi_tuong_ap_dung) == 'san_pham' ? 'selected' : '' }}>Sản phẩm</option>
+                                    </select>
+                                    @error('doi_tuong_ap_dung')
+                                        <div class="custom-error">{{ $message }}</div>
+                                    @enderror
+                                </div>  
                             </div>
                             <div class="col-md-6 col-lg-4">
                                 <div class="form-group">
@@ -163,6 +173,20 @@
                                         @error('ngay_ket_thuc')
                                         <div class="custom-error">{{ $message }}</div>
                                     @enderror
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Điểm tối thiểu</label>
+                                    <div class="input-group mb-3">
+                                        <select class="form-select" name="diem_toi_thieu" id="diemToiThieuSelect">
+                                            <option value="0" {{ old('diem_toi_thieu', $voucher->diem_toi_thieu) == 0 ? 'selected' : '' }}>Tất cả thành viên</option>
+                                            <option value="300" {{ old('diem_toi_thieu', $voucher->diem_toi_thieu) == 300 ? 'selected' : '' }}>Từ Bạc (≥ 300 điểm)</option>
+                                            <option value="600" {{ old('diem_toi_thieu', $voucher->diem_toi_thieu) == 600 ? 'selected' : '' }}>Từ Vàng (≥ 600 điểm)</option>
+                                            <option value="900" {{ old('diem_toi_thieu', $voucher->diem_toi_thieu) == 900 ? 'selected' : '' }}>Từ Kim Cương (≥ 900 điểm)</option>
+                                        </select>
+                                        @error('diem_toi_thieu')
+                                            <div class="custom-error">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                 </div>
                             </div>   
