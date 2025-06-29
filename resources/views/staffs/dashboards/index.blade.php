@@ -28,6 +28,7 @@
             </a>
         </div>
     </div>
+
     <div class="row">
         <!-- Thống kê nhân viên -->
         <div class="col-sm-6 col-md-3">
@@ -107,25 +108,44 @@
             </div>
         </div>
     </div>
+    
     <!--  -->
     <div class="row">
         <div class="col-md-8">
             <div class="card card-round">
                 <div class="card-header">
                     <div class="card-head-row">
-                        <div class="card-title">Doanh thu năm {{ \Carbon\Carbon::now()->year }}</div>
-                        <div class="card-tools d-flex align-items-center justify-content-end gap-2">
-                            <!-- Dropdown chọn khoảng thời gian -->
-                            <select id="doanhThuOption" class="form-select form-select-sm w-auto">
-                                <option value="month" selected>Theo tháng</option>
-                                <option value="quarter">Theo quý</option>
-                                <option value="year">Theo năm</option>
-                            </select>
+                        <div class="card-head-row">
+                            <div class="card-title">Doanh thu</div>
+                            <div class="card-tools d-flex align-items-center justify-content-end gap-2">
+                                <div class="d-flex align-items-center gap-1">
+                                    <input type="date"
+                                        id="startDate"
+                                        class="form-control form-control-sm"
+                                        value="{{ request('start') }}"
+                                        placeholder="Từ ngày">
 
-                            <a href="#" class="btn btn-label-success btn-round btn-sm">
-                                <span class="btn-label"><i class="fa fa-file-export"></i></span>
-                                Xuất
-                            </a>
+                                    <span class="mx-1">–</span>
+
+                                    <input type="date"
+                                        id="endDate"
+                                        class="form-control form-control-sm"
+                                        value="{{ request('end') }}"
+                                        placeholder="Đến ngày">
+                                </div>
+
+                                <!-- Dropdown chọn khoảng thời gian -->
+                                <select id="doanhThuOption" class="form-select form-select-sm w-auto">
+                                    <option value="month" selected>Theo tháng</option>
+                                    <option value="quarter">Theo quý</option>
+                                    <option value="year">Theo năm</option>
+                                </select>
+
+                                <a href="#" class="btn btn-label-success btn-round btn-sm">
+                                    <span class="btn-label"><i class="fa fa-file-export"></i></span>
+                                    Xuất
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -162,6 +182,41 @@
             </div>
         </div>
     </div>
+    <!-- Lợi nhuận -->
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">Lợi nhuận</div>
+                    <div class="card-tools d-flex align-items-center justify-content-end gap-2">
+                        <!-- Dropdown chọn khoảng thời gian -->
+                        <select id="loiNhuanOption" class="form-select form-select-sm w-auto">
+                            <option value="">--Chọn thời gian--</option>
+                            <option value="month" selected>Theo tháng</option>
+                            <option value="quarter">Theo quý</option>
+                            <option value="year">Theo năm</option>
+                        </select>
+
+                        <a href="#" class="btn btn-label-success btn-round btn-sm">
+                            <span class="btn-label"><i class="fa fa-file-export"></i></span>
+                            Xuất
+                        </a>
+                    </div>
+                </div>  
+            <div class="card-body">
+                <div class="chart-container"><div class="chartjs-size-monitor" style="position: absolute; inset: 0px; overflow: hidden; pointer-events: none; visibility: hidden; z-index: -1;"><div class="chartjs-size-monitor-expand" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:1000000px;height:1000000px;left:0;top:0"></div></div><div class="chartjs-size-monitor-shrink" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:200%;height:200%;left:0; top:0"></div></div></div>
+                    <canvas id="myChartLoiNhuan" width="1116" height="375" style="display: block; height: 300px; width: 893px;" class="chartjs-render-monitor"></canvas>
+                </div>
+                <div id="myChartLoiNhuan">
+                    <ul class="html-legend">
+                        <li><span style="background-color:#f3545d"></span>Tổng chi</li>
+                        <li><span style="background-color:#fdaf4b"></span>Tổng thu</li>
+                        <li><span style="background-color:#177dff"></span>Lợi nhuận</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--  -->
     <div class="row">
          <!-- Hóa đơn -->
         <div class="col-md-6">
@@ -189,15 +244,14 @@
             <div class="card">
                  <div class="card-header">
                     <div class="card-head-row">
-                        <div class="card-title">Sản phẩm bán chạy {{ \Carbon\Carbon::now()->year }}</div>
+                        <div class="card-title">Sản phẩm bán chạy</div>
                         <div class="card-tools d-flex align-items-center justify-content-end gap-2">
                             <!-- Dropdown chọn khoảng thời gian -->
-                            <select id="doanhThuOption" class="form-select form-select-sm w-auto">
+                            <select id="topSanPhamOption" class="form-select form-select-sm w-auto">
                                 <option value="month" selected>Theo tháng</option>
                                 <option value="quarter">Theo quý</option>
                                 <option value="year">Theo năm</option>
                             </select>
-
                             <a href="#" class="btn btn-label-success btn-round btn-sm">
                                 <span class="btn-label"><i class="fa fa-file-export"></i></span>
                                 Xuất
@@ -215,6 +269,7 @@
         </div>
     </div>
 </div>
+
 <!-- Modal Phiếu Nhập -->
 <div class="modal fade" id="modalPhieuNhap" tabindex="-1">
     <div class="modal-dialog modal-xl">
@@ -425,6 +480,7 @@
 
 @push('scripts')
 <script src="{{ asset('admins/js/plugin/chart.js/chart.min.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{{ asset('admins/js/validate-popup-phieu.js') }}"></script>
 
 <script>
@@ -476,114 +532,200 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     
     // Doanh thu theo tháng
-    // Chuyển PHP array sang JSON JS
-    const dataDoanhThu = @json(array_values($doanhTungThangTrongNam)).map(Number);
+    let chartDoanhThu;
 
-    const barChartDoanhTungThangTheoNam = new Chart(document.getElementById('barChartDoanhTungThangTheoNam'), {
-        type: 'bar',
-        data: {
-            labels: [
-                "Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", 
-                "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", 
-                "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"
-            ],
-            datasets: [{
-                label: "Doanh thu (đơn vị: VNĐ)",
-                backgroundColor: "rgb(23, 125, 255)",
-                borderColor: "rgb(23, 125, 255)",
-                data: dataDoanhThu,
-            }],
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: function(value) {
-                            return value.toLocaleString('vi-VN') + " đ";
-                        }
-                    }
-                }
-            },
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            let value = context.parsed.y;
-                            return value.toLocaleString('vi-VN') + " đ";
-                        }
-                    }
-                }
-            }
-        }
-    });
+    function loadDoanhThu(mode = 'month') {
+        const url = new URL('{{ url('/admin/dashboard/doanh-thu-json') }}');
+        url.searchParams.set('mode', mode);
+        url.searchParams.set('start', document.getElementById('startDate')?.value || '');
+        url.searchParams.set('end', document.getElementById('endDate')?.value || '');
+        url.searchParams.set('ma_cua_hang', '{{ $selectedCuaHang ?? '' }}');
 
-    //Top sản phẩm
-    var topSanPhamData = @json($topSPBanChay);
-    let labels = topSanPhamData.map(sp => sp.ten_san_pham);
-    let data = topSanPhamData.map(sp => parseInt(sp.tong_ban));
-    var ctx = document.getElementById('horizontalBarChartTopSanPham').getContext('2d');
-    var horizontalBarChartTopSanPham = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels, 
-            datasets: [{
-                label: "Số lượng bán",
-                backgroundColor: '#fdaf4b',
-                borderWidth: 1,
-                data: data, 
-                legendColor: '#fdaf4b'
-            }]
-        },
-        options: {
-            indexAxis: 'y',
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: {
-                    beginAtZero: true
-                },
-                y: {
-                    ticks: {
-                        font: {
-                            weight: '500'
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                const labels = data.labels;
+                const values = data.values;
+
+                if (chartDoanhThu) chartDoanhThu.destroy();
+
+                chartDoanhThu = new Chart(document.getElementById('barChartDoanhTungThangTheoNam'), {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: "Doanh thu (đơn vị: VNĐ)",
+                            backgroundColor: "rgb(23, 125, 255)",
+                            data: values,
+                            barPercentage: 0.5,
+                            categoryPercentage: 0.5
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: value => value.toLocaleString('vi-VN') + " đ"
+                                }
+                            }
                         },
-                        padding: 10
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: context => context.parsed.y.toLocaleString('vi-VN') + " đ"
+                                }
+                            }
+                        }
                     }
+                });
+            });
+    }
+
+    ['startDate', 'endDate', 'doanhThuOption'].forEach(id =>
+        document.getElementById(id)?.addEventListener('change', () => {
+            loadDoanhThu(document.getElementById('doanhThuOption').value);
+        })
+    );
+
+    // Load lần đầu
+    loadDoanhThu();
+
+     // Top sản phẩm bán chạy
+     let chartTopSanPham;
+
+    function loadTopSanPham(mode = 'month') {
+        const url = new URL('{{ url("/admin/dashboard/top-san-pham") }}');
+        url.searchParams.set('mode', mode);
+        url.searchParams.set('ma_cua_hang', '{{ $selectedCuaHang ?? "" }}');
+
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                const labels = data.map(sp => sp.ten_san_pham.length > 30 ? sp.ten_san_pham.slice(0, 27) + '...' : sp.ten_san_pham);
+                const values = data.map(sp => parseInt(sp.tong_ban));
+                const canvas = document.getElementById('horizontalBarChartTopSanPham');
+                canvas.style.height = (data.length * 40) + 'px';
+
+                if (chartTopSanPham) {
+                    chartTopSanPham.destroy();
+                    chartTopSanPham = null;
                 }
-            },
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    bodySpacing: 4,
-                    xPadding: 10,
-                    yPadding: 10,
-                    caretPadding: 10
-                }
-            },
-            layout: {
-                padding: { left: 5, right: 5, top: 15, bottom: 15 }
-            },
-            legendCallback: function(chart) {
-                var text = [];
-                text.push('<ul class="' + chart.id + '-legend html-legend">');
-                for (var i = 0; i < chart.data.datasets.length; i++) {
-                    text.push('<li><span style="background-color:' + chart.data.datasets[i].backgroundColor + '"></span>');
-                    if (chart.data.datasets[i].label) {
-                        text.push(chart.data.datasets[i].label);
+
+                const ctx = canvas.getContext('2d');
+
+                chartTopSanPham = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels,
+                        datasets: [{
+                            label: "Số lượng bán",
+                            backgroundColor: '#fdaf4b',
+                            borderWidth: 1,
+                            data: values
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y', 
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: { beginAtZero: true },
+                            y: {
+                                ticks: {
+                                    font: { weight: '500' },
+                                    padding: 10
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: context => `${context.parsed.x} lượt bán`
+                                }
+                            }
+                        },
+                        layout: {
+                            padding: { left: 5, right: 5, top: 15, bottom: 15 }
+                        }
                     }
-                    text.push('</li>');
-                }
-                text.push('</ul>');
-                return text.join('');
-            }
+                });
+            });
+    }
+    loadTopSanPham();
+    document.getElementById('topSanPhamOption')?.addEventListener('change', function () {
+        loadTopSanPham(this.value);
+    });
+
+    ///////Lợi nhuận
+    let chartLoiNhuan;
+
+    function loadLoiNhuan(mode = 'month') {
+        const url = new URL('{{ url('/admin/dashboard/loi-nhuan-json') }}');
+
+        url.searchParams.set('mode', mode);
+        url.searchParams.set('start', document.getElementById('startDate')?.value || '');
+        url.searchParams.set('end', document.getElementById('endDate')?.value || '');
+        url.searchParams.set('ma_cua_hang', '{{ $selectedCuaHang ?? '' }}');
+
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                //console.log("DATA LỢI NHUẬN:", data);
+                const labels = data.labels;
+                const chi = data.tongChi.map(Number);
+                const thu = data.tongThu.map(Number);
+                const loiNhuan = data.loiNhuan.map(Number);
+
+                if (chartLoiNhuan) chartLoiNhuan.destroy(); // clear cũ
+
+                chartLoiNhuan = new Chart(document.getElementById("myChartLoiNhuan"), {
+                    type: 'bar',
+                    data: {
+                        labels,
+                        datasets: [
+                            { label: "Tổng chi", backgroundColor: "#f3545d", data: chi },
+                            { label: "Tổng thu", backgroundColor: "#fdaf4b", data: thu },
+                            { label: "Lợi nhuận", backgroundColor: "#177dff", data: loiNhuan }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: value => value.toLocaleString('vi-VN') + " đ"
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: context => context.dataset.label + ": " + context.parsed.y.toLocaleString('vi-VN') + " đ"
+                                }
+                            }
+                        }
+                    }
+                });
+            });
+    }
+
+    document.getElementById('loiNhuanOption').addEventListener('change', function () {
+        if (this.value) {
+            loadLoiNhuan(this.value);
         }
     });
-});
+
+    loadLoiNhuan();
+
+    });    
+
 </script>
 @endpush
 

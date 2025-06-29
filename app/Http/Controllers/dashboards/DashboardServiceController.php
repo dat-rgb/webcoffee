@@ -230,7 +230,6 @@ class DashboardServiceController extends Controller
         return response()->json($data);
     }
 
-
     public function tinhTyLeTangTruongDoanhThu($period = 'day', $ngay = null, $ma_cua_hang = null)
     {
         $ngay = $ngay instanceof Carbon ? $ngay : Carbon::parse($ngay ?? now());
@@ -367,7 +366,6 @@ class DashboardServiceController extends Controller
         return response()->json($data);
     }
 
-
     public function tinhLoiNhuan($ma_cua_hang = null,$start = null,$end   = null,$mode  = 'month'){
         // ==== 1. Query doanh thu (hóa đơn đã giao & đã thanh toán) ====
         $hd = HoaDon::query()
@@ -418,6 +416,7 @@ class DashboardServiceController extends Controller
             'loiNhuan' => $loi,
         ];
     }
+    
     public function getLoiNhuan(Request $request)
     {
         $mode = $request->query('mode', 'month');

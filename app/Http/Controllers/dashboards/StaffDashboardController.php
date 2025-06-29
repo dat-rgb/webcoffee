@@ -17,6 +17,69 @@ class StaffDashboardController extends Controller
     {
         $this->dashboardService = new DashboardServiceController();
     }
+
+    public function index(Request $request)
+    {
+        $nhanVien = Auth::guard('staff')->user()->nhanvien;
+
+        if (!$nhanVien) {
+            toastr()->error('Không tìm thấy thông tin nhân viên.');
+            return redirect()->back();
+        }
+
+        $ma_cua_hang = $nhanVien->ma_cua_hang;
+        $startDate   = $request->query('start');
+        $endDate     = $request->query('end');
+        $mode        = $request->query('mode', 'month');
+
+        $subtitle = 'Thống kê cửa hàng ' . $ma_cua_hang;
+
+        // 1. Doanh thu
+        $revenueData = $this->dashboardService->doanhThuTheoKhoang(
+            $startDate,
+            $endDate,
+            $mode,
+            $ma_cua_hang
+        );
+        $labelsChart = $revenueData['labels'];
+        $dataChart   = $revenueData['values'];
+
+        // 2. Lợi nhuận
+        $profitData = $this->dashboardService->tinhLoiNhuan(
+            $ma_cua_hang,
+            $startDate,
+            $endDate,
+            $mode
+        );
+
+        // 3. Tổng hợp dashboard
+        $viewData = [
+            'title' => 'Quản lý cửa hàng ' . $ma_cua_hang . ' | CDMT Coffee & Tea',
+            'subtitle' => $subtitle,
+            'hoaDonDaNhan' => $this->dashboardService->countDonHangTheoTrangThai($ma_cua_hang, 4),
+            'hoaDonDaHuy' => $this->dashboardService->countDonHangTheoTrangThai($ma_cua_hang, 5),
+            'hoaDonNgay' => $this->dashboardService->countDonHangTheoNgay($ma_cua_hang, null, null, now()->toDateString()),
+            'tangTruongNgay' => $this->dashboardService->tinhTyLeTangTruongDonHang('day', now(), $ma_cua_hang),
+            'tongHoaDon' => $this->dashboardService->countDonHangTheoNgay($ma_cua_hang),
+            'doanhThuNgay' => $this->dashboardService->sumDoanhThuTheoThoiGian($ma_cua_hang, 'day'),
+            'tongDoanhThu' => $this->dashboardService->sumDoanhThuTheoThoiGian($ma_cua_hang, 'all'),
+            'countNhanVien' => $this->dashboardService->countNhanVien($ma_cua_hang),
+            'topSPBanChay' => $this->dashboardService->topSanPhamBanChay($ma_cua_hang),
+            'labelsChart' => $labelsChart,
+            'dataChart' => $dataChart,
+            'cuaHangs' => $this->dashboardService->getCuaHangs(),
+            'selectedCuaHang' => $ma_cua_hang,
+            'labelsProfit' => $profitData['labels'],
+            'tongChi' => $profitData['tongChi'],
+            'tongThu' => $profitData['tongThu'],
+            'loiNhuan' => $profitData['loiNhuan'],
+            'nguyen_lieu_cua_hang' => $this->getNguyenLieuCuaHang($ma_cua_hang),
+            'nguyen_lieu_kiem_kho' => $this->getNguyenLieuKiemKho($ma_cua_hang),
+        ];
+
+        return view('staffs.dashboards.index', $viewData);
+    }
+
     public function getNguyenLieuCuaHang($ma_cua_hang)
     {
         return DB::table('cua_hang_nguyen_lieus as chnl')
@@ -38,156 +101,101 @@ class StaffDashboardController extends Controller
             ->get();
     }
 
-public function getNguyenLieuKiemKho($ma_cua_hang)
-{
-    $nglKho = DB::table('cua_hang_nguyen_lieus as chnl')
-        ->where('ma_cua_hang', $ma_cua_hang)
-        ->where('chnl.so_luong_ton', '>', 0)
-        ->join('nguyen_lieus as nl', 'chnl.ma_nguyen_lieu', '=', 'nl.ma_nguyen_lieu')
-        ->select(
-            'chnl.ma_nguyen_lieu',
-            'nl.ten_nguyen_lieu',
-            'nl.so_luong as so_luong_goc',
-            'nl.don_vi',
-            'chnl.so_luong_ton',
-            'chnl.don_vi as don_vi_tinh'
-        )
-        ->get();
-
-    foreach ($nglKho as $nl) {
-        // 1. Danh sách lô nhập
-        $loList = DB::table('phieu_nhap_xuat_nguyen_lieus as pnxl')
-            ->where('pnxl.ma_cua_hang', $ma_cua_hang)
-            ->where('pnxl.ma_nguyen_lieu', $nl->ma_nguyen_lieu)
-            ->where('pnxl.loai_phieu', 0)
-            ->orderBy('pnxl.han_su_dung', 'asc')
-            ->get();
-
-        // 2. Danh sách giao dịch tiêu dùng
-        $transactionsHD = DB::table('chi_tiet_hoa_dons as cthd')
-            ->join('hoa_dons as hd', 'cthd.ma_hoa_don', '=', 'hd.ma_hoa_don')
-            ->join('thanh_phan_san_phams as tp', 'cthd.ma_san_pham', '=', 'tp.ma_san_pham')
-            ->where('hd.ma_cua_hang', $ma_cua_hang)
-            ->where('tp.ma_nguyen_lieu', $nl->ma_nguyen_lieu)
-            ->select('hd.ngay_lap_hoa_don as ngay_phat_sinh', DB::raw('tp.dinh_luong * cthd.so_luong as dinh_luong'))
-            ->get();
-
-        $transactionsPX = DB::table('phieu_nhap_xuat_nguyen_lieus')
+    public function getNguyenLieuKiemKho($ma_cua_hang)
+    {
+        $nglKho = DB::table('cua_hang_nguyen_lieus as chnl')
             ->where('ma_cua_hang', $ma_cua_hang)
-            ->where('ma_nguyen_lieu', $nl->ma_nguyen_lieu)
-            ->where('loai_phieu', 1)
-            ->selectRaw('ngay_tao_phieu as ngay_phat_sinh, dinh_luong')
+            ->where('chnl.so_luong_ton', '>', 0)
+            ->join('nguyen_lieus as nl', 'chnl.ma_nguyen_lieu', '=', 'nl.ma_nguyen_lieu')
+            ->select(
+                'chnl.ma_nguyen_lieu',
+                'nl.ten_nguyen_lieu',
+                'nl.so_luong as so_luong_goc',
+                'nl.don_vi',
+                'chnl.so_luong_ton',
+                'chnl.don_vi as don_vi_tinh'
+            )
             ->get();
 
-      $transactionsHuy = DB::table('phieu_nhap_xuat_nguyen_lieus')
-            ->where('ma_cua_hang', $ma_cua_hang)
-            ->where('ma_nguyen_lieu', $nl->ma_nguyen_lieu)
-            ->where('loai_phieu', 2)
-            ->where('dinh_luong', '>', 0) // ❗ tránh lỗi lấy dòng không có định lượng
-            ->select('ngay_tao_phieu as ngay_phat_sinh', 'dinh_luong')
-            ->get();
+        foreach ($nglKho as $nl) {
+            // 1. Danh sách lô nhập
+            $loList = DB::table('phieu_nhap_xuat_nguyen_lieus as pnxl')
+                ->where('pnxl.ma_cua_hang', $ma_cua_hang)
+                ->where('pnxl.ma_nguyen_lieu', $nl->ma_nguyen_lieu)
+                ->where('pnxl.loai_phieu', 0)
+                ->orderBy('pnxl.han_su_dung', 'asc')
+                ->get();
+
+            // 2. Danh sách giao dịch tiêu dùng
+            $transactionsHD = DB::table('chi_tiet_hoa_dons as cthd')
+                ->join('hoa_dons as hd', 'cthd.ma_hoa_don', '=', 'hd.ma_hoa_don')
+                ->join('thanh_phan_san_phams as tp', 'cthd.ma_san_pham', '=', 'tp.ma_san_pham')
+                ->where('hd.ma_cua_hang', $ma_cua_hang)
+                ->where('tp.ma_nguyen_lieu', $nl->ma_nguyen_lieu)
+                ->select('hd.ngay_lap_hoa_don as ngay_phat_sinh', DB::raw('tp.dinh_luong * cthd.so_luong as dinh_luong'))
+                ->get();
+
+            $transactionsPX = DB::table('phieu_nhap_xuat_nguyen_lieus')
+                ->where('ma_cua_hang', $ma_cua_hang)
+                ->where('ma_nguyen_lieu', $nl->ma_nguyen_lieu)
+                ->where('loai_phieu', 1)
+                ->selectRaw('ngay_tao_phieu as ngay_phat_sinh, dinh_luong')
+                ->get();
+
+        $transactionsHuy = DB::table('phieu_nhap_xuat_nguyen_lieus')
+                ->where('ma_cua_hang', $ma_cua_hang)
+                ->where('ma_nguyen_lieu', $nl->ma_nguyen_lieu)
+                ->where('loai_phieu', 2)
+                ->where('dinh_luong', '>', 0) // ❗ tránh lỗi lấy dòng không có định lượng
+                ->select('ngay_tao_phieu as ngay_phat_sinh', 'dinh_luong')
+                ->get();
 
 
-        // Gộp và sắp xếp tất cả các giao dịch phát sinh
-       $transactions = $transactionsHD
-        ->merge($transactionsPX)
-        ->merge($transactionsHuy)
-        ->sortBy('ngay_phat_sinh')
-        ->values();
+            // Gộp và sắp xếp tất cả các giao dịch phát sinh
+        $transactions = $transactionsHD
+            ->merge($transactionsPX)
+            ->merge($transactionsHuy)
+            ->sortBy('ngay_phat_sinh')
+            ->values();
 
-//dd($transactions); // kiểm tra thử đã có định lượng hủy chưa
+    //dd($transactions); // kiểm tra thử đã có định lượng hủy chưa
 
 
-        // 3. Áp dụng FIFO theo từng giao dịch
-        $loWithTon = [];
-        foreach ($loList as $lo) {
-            $left = $lo->dinh_luong;
+            // 3. Áp dụng FIFO theo từng giao dịch
+            $loWithTon = [];
+            foreach ($loList as $lo) {
+                $left = $lo->dinh_luong;
 
-            foreach ($transactions as $tx) {
-                // Bỏ qua giao dịch xảy ra trước khi lô này được nhập
-                if (Carbon::parse($tx->ngay_phat_sinh)->lt(Carbon::parse($lo->ngay_tao_phieu))) {
-                    continue;
+                foreach ($transactions as $tx) {
+                    // Bỏ qua giao dịch xảy ra trước khi lô này được nhập
+                    if (Carbon::parse($tx->ngay_phat_sinh)->lt(Carbon::parse($lo->ngay_tao_phieu))) {
+                        continue;
+                    }
+
+                    if ($tx->dinh_luong <= 0) continue;
+
+                    $used = min($left, $tx->dinh_luong);
+                    $left -= $used;
+                    $tx->dinh_luong -= $used;
+
+                    if ($left <= 0) break;
                 }
 
-                if ($tx->dinh_luong <= 0) continue;
+                $soLuongConLai = round($left / max($nl->so_luong_goc, 1), 2);
 
-                $used = min($left, $tx->dinh_luong);
-                $left -= $used;
-                $tx->dinh_luong -= $used;
-
-                if ($left <= 0) break;
+                $loWithTon[] = [
+                    'so_lo' => $lo->so_lo,
+                    'han_su_dung' => $lo->han_su_dung,
+                    'ton_lo' => $soLuongConLai,
+                ];
             }
 
-            $soLuongConLai = round($left / max($nl->so_luong_goc, 1), 2);
-
-            $loWithTon[] = [
-                'so_lo' => $lo->so_lo,
-                'han_su_dung' => $lo->han_su_dung,
-                'ton_lo' => $soLuongConLai,
-            ];
+            $nl->lo_hang = $loWithTon;
         }
 
-        $nl->lo_hang = $loWithTon;
+        return $nglKho;
     }
 
-    return $nglKho;
-}
-
-    public function index(Request $request)
-    {
-
-        $nhanVien = Auth::guard('staff')->user()->nhanvien;
-        if (!$nhanVien) {
-            toastr()->error('Không tìm thấy thông tin nhân viên.');
-            return redirect()->back();
-        }
-        $ma_cua_hang = $nhanVien->ma_cua_hang;
-        $nguyen_lieu_cua_hang = $this->getNguyenLieuCuaHang($ma_cua_hang);
-        $nguyen_lieu_kiem_kho = $this->getNguyenLieuKiemKho($ma_cua_hang);
-
-        $hoaDonDaNhan = $this->dashboardService->countDonHangTheoTrangThai($ma_cua_hang,4);
-        $hoaDonDaHuy = $this->dashboardService->countDonHangTheoTrangThai($ma_cua_hang,5);
-        $hoaDonNgay = $this->dashboardService->countDonHangTheoNgay($ma_cua_hang,null,null, now()->toDateString());
-        $tangTruongNgay = $this->dashboardService->tinhTyLeTangTruongDonHang('day', now(), $ma_cua_hang);
-        $tongHoaDon = $this->dashboardService->countDonHangTheoNgay($ma_cua_hang,null,null, null);
-        $doanhThuNgay = $this->dashboardService->sumDoanhThuTheoThoiGian($ma_cua_hang, 'day');
-        $tongDoanhThu = $this->dashboardService->sumDoanhThuTheoThoiGian($ma_cua_hang, 'all');
-        $countNhanVien = $this->dashboardService->countNhanVien($ma_cua_hang);
-        $topSPBanChay = $this->dashboardService->topSanPhamBanChay($ma_cua_hang);
-        $doanhTungThangTrongNam = $this->dashboardService->doanhThuTungThangTrongNam($ma_cua_hang);
-
-        $labelsChart = [];
-        $dataChart = [];
-
-        foreach (range(1, 12) as $month) {
-            $tenThang = 'Tháng ' . $month;
-            $labelsChart[] = $tenThang;
-            $dataChart[] = intval(round($doanhTungThangTrongNam[$tenThang] ?? 0));
-        }
-
-        $viewData = [
-            'title' => 'Quản lý cửa hàng '.$ma_cua_hang.' | CDMT Coffee & Tea',
-            'subtitle' => 'Thống kê cửa hàng '. $ma_cua_hang,
-            'hoaDonDaNhan' => $hoaDonDaNhan,
-            'hoaDonDaHuy' => $hoaDonDaHuy,
-            'hoaDonNgay' => $hoaDonNgay,
-            'tangTruongNgay' => $tangTruongNgay,
-            'tongHoaDon' => $tongHoaDon,
-            'doanhThuNgay' => $doanhThuNgay,
-            'tongDoanhThu' => $tongDoanhThu,
-            'countNhanVien' => $countNhanVien,
-            'topSPBanChay' =>$topSPBanChay,
-            'doanhTungThangTrongNam' => $doanhTungThangTrongNam,
-            'dataChart' => $dataChart,
-            'labelsChart' => $labelsChart,
-            'cuaHangs' => $this->dashboardService->getCuaHangs(),
-            'selectedCuaHang' => $ma_cua_hang,
-            'nguyen_lieu_cua_hang' => $nguyen_lieu_cua_hang,
-            'nguyen_lieu_kiem_kho' => $nguyen_lieu_kiem_kho,
-        ];
-
-        return view('staffs.dashboards.index', $viewData);
-    }
     public function exportPhieuNhap(Request $request)
     {
         $chonNhap = $request->input('chon_nhap', []);
@@ -237,6 +245,7 @@ public function getNguyenLieuKiemKho($ma_cua_hang)
 
         return $pdf->stream("{$maPhieu}.pdf");
     }
+
     public function exportPhieuXuat(Request $request)
     {
         $chonXuat = $request->input('chon_xuat', []);
@@ -286,6 +295,7 @@ public function getNguyenLieuKiemKho($ma_cua_hang)
 
         return $pdf->stream("{$maPhieu}.pdf");
     }
+    
     public function exportPhieuKiemKho(Request $request)
     {
         $chonKiemKho = $request->input('chon_kiemkho', []);
