@@ -40,6 +40,9 @@ class TaiKhoanSeeder extends Seeder
 
             ['email' => 'nv14@cdmtcoffeetea.com', 'mat_khau' => Hash::make('Password@123'), 'loai_tai_khoan' => 2, 'trang_thai' => 1],
 
+            [ 'email' => 'ngngthanhlong2004@gmail.com', 'mat_khau' => '$2y$12$ufOV2OhzUW8dR0Qrnmp3s.egRWbhH2GIxEKJ3GYNEdPHmGv87QoSe', 'loai_tai_khoan' => 3, 'trang_thai' => 1],
+            [ 'email' => 'nguyenminhtanvta1405@gmail.com', 'mat_khau' => '$2y$12$jS/SXSYG4YEx/xrfHhFcLeuhpILD66AQSTonllcESXEh140vifAYG','loai_tai_khoan' => 3, 'trang_thai' => 1],
+            [ 'email' => 'danghoanghai336@gmail.com', 'mat_khau' => '$2y$12$MCA9Rp2M03mVjPqjgzGfQ.bg1O3iS9gJPXAtMfQ60BNFYXg2xzZ.K', 'loai_tai_khoan' => 3, 'trang_thai' => 1],
         ];
         DB::table('tai_khoans')->insert($taiKhoan);
     }

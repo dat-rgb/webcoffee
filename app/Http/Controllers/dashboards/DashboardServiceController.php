@@ -7,6 +7,7 @@ use App\Models\CuaHang;
 use App\Models\HoaDon;
 use App\Models\KhachHang;
 use App\Models\NhanVien;
+use App\Models\PhieuNhapXuatNguyenLieu;
 use App\Models\TaiKhoan;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -188,27 +189,48 @@ class DashboardServiceController extends Controller
         }
         return $query->sum('tong_tien');
     }
-    public function doanhThuTungThangTrongNam($ma_cua_hang = null, $year = null)
+
+    public function doanhThuTheoKhoang($ma_cua_hang = null, $start = null, $end = null, $mode = 'month')
     {
-        $year = $year ?? now()->year;
-        $data = [];
+        $query = HoaDon::query()->where('trang_thai', 4);
 
-        for ($month = 1; $month <= 12; $month++) {
-            $startDate = Carbon::create($year, $month, 1)->startOfMonth();
-            $endDate = Carbon::create($year, $month, 1)->endOfMonth();
+        if ($ma_cua_hang) $query->where('ma_cua_hang', $ma_cua_hang);
+        if ($start) $query->whereDate('ngay_lap_hoa_don', '>=', $start);
+        if ($end) $query->whereDate('ngay_lap_hoa_don', '<=', $end);
 
-            $query = HoaDon::query()->where('trang_thai', 4)
-                ->whereBetween('ngay_lap_hoa_don', [$startDate, $endDate]);
-
-            if ($ma_cua_hang) {
-                $query->where('ma_cua_hang', $ma_cua_hang);
-            }
-
-            $data['Tháng ' . $month] = $query->sum('tong_tien');
+        switch ($mode) {
+            case 'quarter':
+                $rows = $query->selectRaw('CONCAT(YEAR(ngay_lap_hoa_don), "-Q", QUARTER(ngay_lap_hoa_don)) as label, SUM(tong_tien) as total')
+                    ->groupBy('label')->orderBy('label')->get();
+                break;
+            case 'year':
+                $rows = $query->selectRaw('YEAR(ngay_lap_hoa_don) as label, SUM(tong_tien) as total')
+                    ->groupBy('label')->orderBy('label')->get();
+                break;
+            default:
+                $rows = $query->selectRaw('DATE_FORMAT(ngay_lap_hoa_don, "%Y-%m") as label, SUM(tong_tien) as total')
+                    ->groupBy('label')->orderBy('label')->get();
         }
 
-        return $data;
+        return [
+            'labels' => $rows->pluck('label'),
+            'values' => $rows->pluck('total')->map(fn($v) => (int)$v),
+        ];
     }
+
+    public function getDoanhThu(Request $request)
+    {
+        $mode = $request->query('mode', 'month');
+        $ma_cua_hang = $request->query('ma_cua_hang');
+        $start = $request->query('start');
+        $end = $request->query('end');
+
+        $data = $this->doanhThuTheoKhoang($ma_cua_hang, $start, $end, $mode);
+
+        return response()->json($data);
+    }
+
+
     public function tinhTyLeTangTruongDoanhThu($period = 'day', $ngay = null, $ma_cua_hang = null)
     {
         $ngay = $ngay instanceof Carbon ? $ngay : Carbon::parse($ngay ?? now());
@@ -285,6 +307,7 @@ class DashboardServiceController extends Controller
             }
         ];
     }
+
     public function topSanPhamBanChay($ma_cua_hang = null, $thoi_gian = 'thang', $limit = 5)
     {
         // Xác định khoảng thời gian
@@ -325,5 +348,85 @@ class DashboardServiceController extends Controller
         ->orderByDesc('tong_ban')
         ->limit($limit)
         ->get();
+    }
+
+    public function getTopSanPham(Request $request)
+    {
+        $mode = $request->query('mode', 'month');
+        $thoi_gian = match ($mode) {
+            'quarter' => 'quy',
+            'year'    => 'nam',
+            default   => 'thang',
+        };
+
+        $ma_cua_hang = $request->query('ma_cua_hang');
+        $limit = $request->query('limit', 7);
+
+        $data = $this->topSanPhamBanChay($ma_cua_hang, $thoi_gian, $limit);
+
+        return response()->json($data);
+    }
+
+
+    public function tinhLoiNhuan($ma_cua_hang = null,$start = null,$end   = null,$mode  = 'month'){
+        // ==== 1. Query doanh thu (hóa đơn đã giao & đã thanh toán) ====
+        $hd = HoaDon::query()
+            ->where('trang_thai', 4)
+            ->where('trang_thai_thanh_toan', 1);
+        if ($ma_cua_hang) $hd->where('ma_cua_hang', $ma_cua_hang);
+        if ($start)       $hd->whereDate('ngay_lap_hoa_don', '>=', $start);
+        if ($end)         $hd->whereDate('ngay_lap_hoa_don', '<=', $end);
+
+        // ==== 2. Query tiền nhập (phiếu nhập nguyên liệu) ====
+        $pn = PhieuNhapXuatNguyenLieu::query()
+            ->where('loai_phieu', 0); // 0 = nhập
+        if ($ma_cua_hang) $pn->where('ma_cua_hang', $ma_cua_hang);
+        if ($start)       $pn->whereDate('ngay_tao_phieu', '>=', $start);
+        if ($end)         $pn->whereDate('ngay_tao_phieu', '<=', $end);
+
+        // ==== 3. Group & sum theo $mode ====
+        switch ($mode) {
+            case 'quarter':
+                $grpHd = $hd->selectRaw('CONCAT(YEAR(ngay_lap_hoa_don), "-Q", QUARTER(ngay_lap_hoa_don)) g, SUM(tong_tien) s')
+                            ->groupBy('g')->pluck('s','g');
+                $grpPn = $pn->selectRaw('CONCAT(YEAR(ngay_tao_phieu), "-Q", QUARTER(ngay_tao_phieu)) g, SUM(tong_tien) s')
+                            ->groupBy('g')->pluck('s','g');
+                break;
+            case 'year':
+                $grpHd = $hd->selectRaw('YEAR(ngay_lap_hoa_don) g, SUM(tong_tien) s')
+                            ->groupBy('g')->pluck('s','g');
+                $grpPn = $pn->selectRaw('YEAR(ngay_tao_phieu) g, SUM(tong_tien) s')
+                            ->groupBy('g')->pluck('s','g');
+                break;
+            default: // month
+                $grpHd = $hd->selectRaw('DATE_FORMAT(ngay_lap_hoa_don,"%Y-%m") g, SUM(tong_tien) s')
+                            ->groupBy('g')->pluck('s','g');
+                $grpPn = $pn->selectRaw('DATE_FORMAT(ngay_tao_phieu,"%Y-%m") g, SUM(tong_tien) s')
+                            ->groupBy('g')->pluck('s','g');
+        }
+
+        // ==== 4. Ghép & tính lợi nhuận ====
+        $labels = collect($grpHd)->keys()->merge($grpPn->keys())->unique()->sort()->values();
+        $thu    = $labels->map(fn($l) => (float) ($grpHd[$l] ?? 0));
+        $chi    = $labels->map(fn($l) => (float) ($grpPn[$l] ?? 0));
+        $loi    = $labels->map(fn($i,$k) => $thu[$k] - $chi[$k]);
+
+        return [
+            'labels' => $labels->values(),
+            'tongChi'  => $chi,
+            'tongThu'  => $thu,
+            'loiNhuan' => $loi,
+        ];
+    }
+    public function getLoiNhuan(Request $request)
+    {
+        $mode = $request->query('mode', 'month');
+        $ma_cua_hang = $request->query('ma_cua_hang');
+        $start = $request->query('start');
+        $end = $request->query('end');
+
+        $data = $this->tinhLoiNhuan($ma_cua_hang, $start, $end, $mode);
+
+        return response()->json($data);
     }
 }
