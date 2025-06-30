@@ -358,12 +358,27 @@ class AdminShopmaterialController extends Controller
                     ->get();
 
                 // Tính định lượng đã dùng từ hóa đơn
+                //$fromHD = DB::table('chi_tiet_hoa_dons as cthd')
+                    //->join('hoa_dons as hd', 'cthd.ma_hoa_don', '=', 'hd.ma_hoa_don')
+                    //->join('thanh_phan_san_phams as tp', 'cthd.ma_san_pham', '=', 'tp.ma_san_pham')
+                    //->where('hd.ma_cua_hang', $maCuaHang)
+                    //->where('tp.ma_nguyen_lieu', $maNguyenLieu)
+                    //->select('hd.ngay_lap_hoa_don as ngay_phat_sinh', DB::raw('tp.dinh_luong * cthd.so_luong as dinh_luong'))
+                    //->get();
+
                 $fromHD = DB::table('chi_tiet_hoa_dons as cthd')
                     ->join('hoa_dons as hd', 'cthd.ma_hoa_don', '=', 'hd.ma_hoa_don')
-                    ->join('thanh_phan_san_phams as tp', 'cthd.ma_san_pham', '=', 'tp.ma_san_pham')
+                    ->join('sizes as s', DB::raw('LOWER(cthd.ten_size)'), '=', DB::raw('LOWER(s.ten_size)'))
+                    ->join('thanh_phan_san_phams as tp', function ($join) {
+                        $join->on('cthd.ma_san_pham', '=', 'tp.ma_san_pham')
+                            ->on('s.ma_size', '=', 'tp.ma_size');
+                    })
                     ->where('hd.ma_cua_hang', $maCuaHang)
                     ->where('tp.ma_nguyen_lieu', $maNguyenLieu)
-                    ->select('hd.ngay_lap_hoa_don as ngay_phat_sinh', DB::raw('tp.dinh_luong * cthd.so_luong as dinh_luong'))
+                    ->select(
+                        'hd.ngay_lap_hoa_don as ngay_phat_sinh',
+                        DB::raw('tp.dinh_luong * cthd.so_luong as dinh_luong')
+                    )
                     ->get();
 
                 // Từ phiếu xuất
@@ -624,12 +639,16 @@ class AdminShopmaterialController extends Controller
 
                 // Định lượng đã tiêu hao từ hóa đơn
                 $fromHD = DB::table('chi_tiet_hoa_dons as cthd')
-                    ->join('hoa_dons as hd', 'cthd.ma_hoa_don', '=', 'hd.ma_hoa_don')
-                    ->join('thanh_phan_san_phams as tp', 'cthd.ma_san_pham', '=', 'tp.ma_san_pham')
-                    ->where('hd.ma_cua_hang', $maCuaHang)
-                    ->where('tp.ma_nguyen_lieu', $maNguyenLieu)
-                    ->select('hd.ngay_lap_hoa_don as ngay_phat_sinh', DB::raw('tp.dinh_luong * cthd.so_luong as dinh_luong'))
-                    ->get();
+                ->join('hoa_dons as hd', 'cthd.ma_hoa_don', '=', 'hd.ma_hoa_don')
+                ->join('sizes as sz', DB::raw('LOWER(cthd.ten_size)'), '=', DB::raw('LOWER(sz.ten_size)'))
+                ->join('thanh_phan_san_phams as tp', function ($join) {
+                    $join->on('cthd.ma_san_pham', '=', 'tp.ma_san_pham')
+                         ->on('sz.ma_size', '=', 'tp.ma_size');
+                })
+                ->where('hd.ma_cua_hang', $maCuaHang)
+                ->where('tp.ma_nguyen_lieu', $maNguyenLieu)
+                ->select('hd.ngay_lap_hoa_don as ngay_phat_sinh', DB::raw('tp.dinh_luong * cthd.so_luong as dinh_luong'))
+                ->get();
 
                 // Phiếu xuất
                 $fromPX = DB::table('phieu_nhap_xuat_nguyen_lieus')

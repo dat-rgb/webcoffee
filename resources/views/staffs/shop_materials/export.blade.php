@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.staff')
 @section('title', $title)
 @section('subtitle', $subtitle)
 @section('content')
@@ -17,7 +17,7 @@
                 </ul>
             </div>
         @endif
-        <form action="{{ route('admins.shopmaterial.export') }}" method="POST">
+        <form action="{{ route('staffs.shop_materials.export') }}" method="POST">
             @csrf
             <div class="card">
                 <div class="shadow-sm card rounded-4">
@@ -149,7 +149,7 @@
                     </div>
                     <div class="card-footer text-end">
                         <button type="submit" class="btn btn-danger">Xác nhận xuất hàng</button>
-                        <a href="{{ route('admins.shopmaterial.index', ['ma_cua_hang' => $firstMaterial->ma_cua_hang]) }}" class="btn btn-secondary">Quay lại</a>
+                        <a href="{{ route('staffs.shop_materials.index', ['ma_cua_hang' => $firstMaterial->ma_cua_hang]) }}" class="btn btn-secondary">Quay lại</a>
                     </div>
                 </div>
             </div>
@@ -181,7 +181,7 @@
                         text: 'Bạn sẽ được chuyển về trang danh sách.',
                         confirmButtonText: 'OK'
                     }).then(() => {
-                        window.location.href = "{{ route('admins.shopmaterial.index', ['ma_cua_hang' => $firstMaterial->ma_cua_hang]) }}";
+                        window.location.href = "{{ route('staffs.shop_materials.index', ['ma_cua_hang' => $firstMaterial->ma_cua_hang]) }}";
                     });
                 }
             });
