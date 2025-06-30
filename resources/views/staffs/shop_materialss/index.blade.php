@@ -2,101 +2,67 @@
 @section('title', $title)
 @section('subtitle', $subtitle)
 
-@push('styles')
-<style>
-    .small.text-muted {
-        display: none !important;
-    }
-</style>
-@endpush
 @section('content')
 <div class="page-inner">
+     <div class="page-header">
+        <h3 class="mb-3 fw-bold">{{ $subtitle }}</h3>
+        <ul class="mb-3 breadcrumbs">
+            <li class="nav-home">
+                <a href="{{ route('staff') }}">
+                    <i class="icon-home"></i>
+                </a>
+            </li>
+            <li class="separator">
+                <i class="icon-arrow-right"></i>
+            </li>
+            <li class="nav-item">
+                <a href="#">Quản lý kho nguyên liệu</a>
+            </li>
+        </ul>
+    </div>
+    {{-- Sửa nội dung ở đây --}}
     <div class="row">
         <div class="col-md-12">
-            <div class="page-header">
-                {{-- Logic để hiển thị tên cửa hàng trong subtitle --}}
-                {{-- @php
-                    $displaySubtitle = $subtitle;
-                    if (request('ma_cua_hang') && isset($stores)) {
-                        $selectedStore = $stores->firstWhere('ma_cua_hang', request('ma_cua_hang'));
-                        if ($selectedStore) {
-                            $displaySubtitle = $subtitle . ' tại ' . $selectedStore->ten_cua_hang;
-                        }
-                    }
-                @endphp --}}
-                <h3 class="mb-3 fw-bold">{{ $subtitle }}</h3>
-                <ul class="mb-3 breadcrumbs">
-                    <li class="nav-home">
-                        <a href="{{ route('staff.dashboard') }}">
-                            <i class="icon-home"></i>
-                        </a>
-                    </li>
-                    <li class="separator">
-                        <i class="icon-arrow-right"></i>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#">Quản lý kho nguyên liệu</a>
-                    </li>
-                </ul>
-            </div>
             <div class="card">
-                <div class="card-header">
-    <div class="flex-wrap gap-3 card-header d-flex align-items-center justify-content-between">
-
-        {{-- Form tìm kiếm --}}
-        <form method="GET" action="{{ url()->current() }}" class="d-flex align-items-center flex-grow-1 me-3">
-            <div class="shadow-sm input-group w-100">
-                <input
-                    type="text"
-                    name="search"
-                    class="form-control"
-                    style="min-width: 280px;"
-                    placeholder="Tìm theo mã nguyên liệu, tên nguyên liệu..."
-                    value="{{ request('search') }}"
-                    autocomplete="off"
-                >
-                <button type="submit" class="btn btn-outline-secondary">
-                    <i class="fa fa-search text-muted"></i>
-                </button>
-            </div>
-        </form>
-
-        {{-- Nhóm nút chức năng --}}
-        <div class="flex-wrap gap-2 d-flex align-items-center">
-            <a href="{{ route('staffs.shop_materials.create') }}" class="btn btn-success">
-                <i class="fa fa-plus"></i> Thêm nguyên liệu
-            </a>
-
-            <form id="selectMaterialsForm" action="{{ route('staffs.shop_materials.showImportPage') }}" method="GET">
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-file-import"></i> Nhập nguyên liệu
-                </button>
-            </form>
-
-            <form id="exportMaterialsForm" action="{{ route('staffs.shop_materials.showExportPage') }}" method="GET">
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-file-export"></i> Xuất nguyên liệu
-                </button>
-            </form>
-
-            <form id="destroyMaterialsForm" action="{{ route('staffs.shop_materials.showDestroyPage') }}" method="GET">
-                @csrf
-                <button type="submit" class="btn btn-danger">
-                    <i class="fas fa-file-excel"></i> Hủy nguyên liệu
-                </button>
-            </form>
-        </div>
-    </div>
-</div>
+                {{-- Dropdown chọn cửa hàng--}}
+                <div class="flex-wrap gap-3 card-header d-flex align-items-center justify-content-between">
+                    <div class="gap-2 d-flex align-items-center">
+                        <a href="{{ route('staffs.shop_materials.create', ['ma_cua_hang' => request('ma_cua_hang')]) }}"
+                        class="btn btn-primary">
+                            <i class="fa fa-plus"></i> Thêm nguyên liệu
+                        </a>
 
 
+                        <form id="selectMaterialsForm" action="{{ route('staffs.shop_materials.showImportPage') }}" method="GET">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-file-import"></i> Nhập nguyên liệu
+                            </button>
+                        </form>
+
+
+                        <form id="exportMaterialsForm" action="{{ route('staffs.shop_materials.showExportPage') }}" method="GET">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-file-export"></i> Xuất nguyên liệu
+                            </button>
+                        </form>
+
+                        <form id="destroyMaterialsForm" action="{{ route('staffs.shop_materials.showDestroyPage') }}" method="GET">
+                            @csrf
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-file-excel"></i> Hủy nguyên liệu
+                            </button>
+                        </form>
+
+
+                    </div>
+                </div>
                 {{-- Hiển thị danh sách kho --}}
                 <div class="card-body">
                     @if($materials->isEmpty())
                         <div class="py-5 my-5 text-center">
                             <i class="mb-3 fa fa-warehouse fa-3x text-muted"></i>
                             <h5 class="text-muted">Không có nguyên liệu nào trong kho</h5>
-                            <p>Liên hệ quản lý để thêm nguyên liệu vào kho.</p>
+                            <p>Vui lòng chọn cửa hàng khác để xem kho nguyên liệu.</p>
                         </div>
                     @else
                         <div class="table-responsive">
@@ -106,8 +72,9 @@
                                         <th><input type="checkbox" id="checkAll"></th>
                                         <th>Mã nguyên liệu</th>
                                         <th>Tên nguyên liệu</th>
-                                        <th>Số lượng tồn</th>
-                                        <th>Số lượng tồn tối thiểu</th>
+                                        <th>Slg tồn</th>
+                                        <th>Slg max</th>
+                                        <th>Đơn vị</th>
                                         <th>Trạng thái</th>
                                         <th>Yêu cầu</th>
                                     </tr>
@@ -122,20 +89,17 @@
                                             if (isset($material->so_luong_ton) && $material->so_luong_ton == 0) {
                                                 $rowClass = 'table-danger';
                                             }
-                                            $dinhLuong = $material->nguyenLieu->so_luong ?: 1;
+
                                         @endphp
-                                        <tr class="{{ $rowClass }}">
+                                        <tr class="{{ $rowClass }} ">
                                             <td class="text-center">
                                                 <input type="checkbox" name="materials[]" value="{{ $material->ma_cua_hang }}|{{ optional($material->nguyenLieu)->ma_nguyen_lieu }}">
                                             </td>
                                             <td>{{ optional($material->nguyenLieu)->ma_nguyen_lieu ?? 'N/A' }}</td>
                                             <td>{{ optional($material->nguyenLieu)->ten_nguyen_lieu ?? 'N/A' }}</td>
-                                            <td class="text-center align-middle">
-                                                {{ rtrim(rtrim(number_format($material->so_luong_ton / $dinhLuong, 2, '.', ''), '0'), '.') . ' ' . $material->don_vi }}
-                                            </td>
-                                            <td class="text-center align-middle">
-                                                {{ rtrim(rtrim(number_format($material->so_luong_ton_min / $dinhLuong, 2, '.', ''), '0'), '.') . ' ' . $material->don_vi }}
-                                            </td>
+                                            <td>{{ $material->so_luong_ton }}</td>
+                                            <td>{{ $material->so_luong_ton_max }}</td>
+                                            <td class="text-center align-middle">{{ $material->don_vi }}</td>
                                             <td class="text-center align-middle">
                                                 @php $trangThai = optional($material->cuaHang)->trang_thai; @endphp
                                                 @if ($trangThai == 1)
@@ -159,11 +123,13 @@
                             </table>
                         </div>
 
-                        <div class="d-flex justify-content-center">
+                        <div class="text-center">
                             {{ $materials->appends(request()->except('page'))->links('pagination::bootstrap-5') }}
                         </div>
+
                     @endif
                 </div>
+
             </div>
         </div>
     </div>
@@ -176,20 +142,11 @@
 document.addEventListener('DOMContentLoaded', function () {
     // 1. Xóa localStorage nếu reload trang (F5)
     const navEntry = performance.getEntriesByType("navigation")[0];
-    if ((navEntry && navEntry.type === "reload") || sessionStorage.getItem('formSubmitted') || sessionStorage.getItem('backToIndex')) {
+    if (navEntry && navEntry.type === "reload") {
         localStorage.removeItem('selectedMaterialsImport');
         localStorage.removeItem('selectedMaterialsExport');
-        sessionStorage.removeItem('formSubmitted');
-        sessionStorage.removeItem('backToIndex');
-        console.log('Cleared localStorage due to reload or back navigation');
+        console.log('Reload detected, cleared selectedMaterials');
     }
-
-    // 2. Bắt sự kiện các nút "Quay lại"
-    // document.querySelectorAll('a.btn-secondary, a.back-to-index').forEach(el => {
-    //     el.addEventListener('click', function () {
-    //         sessionStorage.setItem('backToIndex', 'true');
-    //     });
-    // });
 
     // 2. Lấy các phần tử checkbox và nút chọn tất cả
     const checkAll = document.getElementById('checkAll');
@@ -299,7 +256,6 @@ document.addEventListener('DOMContentLoaded', function () {
             });
 
             localStorage.removeItem(localStorageKey);
-            sessionStorage.setItem('formSubmitted', 'true');
             form.submit();
         });
     }

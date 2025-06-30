@@ -1,4 +1,4 @@
-@extends('layouts.staff')
+@extends('layouts.admin')
 @section('title', $title)
 @section('subtitle', $subtitle)
 @section('content')
@@ -17,7 +17,7 @@
                 </ul>
             </div>
         @endif
-        <form action="{{ route('staffs.shop_materials.export') }}" method="POST">
+        <form action="{{ route('admins.shopmaterial.export') }}" method="POST">
             @csrf
             <div class="card">
                 <div class="shadow-sm card rounded-4">
@@ -51,27 +51,29 @@
                                 <thead class="table-primary">
                                     <tr>
                                         <th class="px-2 py-2">Mã nguyên liệu</th>
-                                        <th class="px-2 py-2">Tên nguyên liệu</th>
-                                        <th class="px-2 py-2">Định lượng</th>
-                                        <th class="px-2 py-2">Số lượng tồn</th>
-                                        <th class="px-2 py-2">Số lượng tối đa</th>
+                                        <th class="px-2 py-2">Nguyên liệu</th>
                                         <th>Số lô còn hàng và số lượng hàng của lô đó</th>
                                         <th class="px-2 py-2" style="white-space: nowrap;">
                                             Số lượng xuất <br>
                                             <small>(kg, lít, gói, túi, thùng)</small>
                                         </th>
                                         <th class="px-2 py-2" style="width: 200px;">Ghi chú</th>
+                                        {{-- <th class="px-2 py-2">Định lượng</th> --}}
+                                        <th class="px-2 py-2">Số lượng tồn</th>
+                                        <th class="px-2 py-2">Số lượng tối thiểu</th>
+
                                         <th class="px-2 py-2">Hành động</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($materials as $material)
-                                    <tr>
+                                    <tr class="text-start">
                                         <td class="px-2 py-2">{{ $material->nguyenLieu->ma_nguyen_lieu }}</td>
-                                        <td class="px-2 py-2">{{ $material->nguyenLieu->ten_nguyen_lieu }}</td>
-                                        <td class="px-2 py-2">{{ $material->nguyenLieu->so_luong .' '. $material->nguyenLieu->don_vi }}</td>
-                                        <td class="px-2 py-2">{{ $material->so_luong_ton .' '. $material->don_vi }}</td>
-                                        <td class="px-2 py-2">{{ $material->so_luong_ton_max .' '. $material->don_vi }}</td>
+                                        {{-- <td class="px-2 py-2">{{ $material->nguyenLieu->ten_nguyen_lieu }}</td> --}}
+                                        <td class="px-2 py-2 text-start">
+                                            {{ $material->nguyenLieu->ten_nguyen_lieu }} ({{ $material->nguyenLieu->so_luong }} {{ $material->nguyenLieu->don_vi }})
+                                        </td>
+
                                         <td class="px-2 py-2 text-start">
                                             @if(!empty($material->available_batches))
                                                 <ul class="mb-0">
@@ -83,7 +85,13 @@
                                                             @php $hasBatch = true; @endphp
                                                             <li>
                                                                 Lô: <strong>{{ $lo['so_lo'] }}</strong> -
-                                                                Còn lại: <strong>{{ $lo['con_lai'] }} {{ $material->nguyenLieu->don_vi }}</strong> -
+                                                                Còn lại:
+                                                                <strong>
+                                                                {{ rtrim(rtrim(number_format($lo['con_lai'] / max(1, $material->nguyenLieu->so_luong), 2), '0'), '.') }}
+                                                                {{ $lo['don_vi'] ?? $material->don_vi }}
+                                                                </strong>-
+
+
                                                                 HSD: <strong>{{ \Carbon\Carbon::parse($lo['han_su_dung'])->format('d/m/Y') }}</strong>
                                                             </li>
                                                         @endif
@@ -101,7 +109,7 @@
 
                                         <td class="px-2 py-2">
                                             @php
-                                                $maxExport = $material->so_luong_ton;
+                                                $maxExport = max(0, $material->so_luong_ton - $material->so_luong_ton_min);
                                             @endphp
                                             @if ($maxExport == 0)
                                                 <input type="hidden" name="export[{{ $material->ma_cua_hang }}][{{ $material->ma_nguyen_lieu }}]" value="0">
@@ -120,7 +128,17 @@
                                         <td class="px-2 py-2" style="width: 200px;">
                                             <input type="text" name="note[{{ $material->ma_cua_hang }}][{{ $material->ma_nguyen_lieu }}]" class="form-control form-control-sm" placeholder="nhập...">
                                         </td>
+                                        {{-- <td class="px-2 py-2">{{ $material->nguyenLieu->so_luong .' '. $material->nguyenLieu->don_vi }}</td> --}}
                                         <td class="px-2 py-2">
+                                            {{ rtrim(rtrim(number_format($material->so_luong_ton / max(1, $material->nguyenLieu->so_luong), 2), '0'), '.') }} {{ $material->don_vi }}
+                                        </td>
+                                        <td class="px-2 py-2">
+                                            {{ rtrim(rtrim(number_format($material->so_luong_ton_min / max(1, $material->nguyenLieu->so_luong), 2), '0'), '.') }} {{ $material->don_vi }}
+                                        </td>
+
+
+
+                                        <td class="px-2 py-2 text-center">
                                             <button type="button" class="btn btn-sm btn-outline-danger remove-row">Xóa</button>
                                         </td>
                                     </tr>
@@ -131,7 +149,7 @@
                     </div>
                     <div class="card-footer text-end">
                         <button type="submit" class="btn btn-danger">Xác nhận xuất hàng</button>
-                        <a href="{{ route('staffs.shop_materials.index') }}" class="btn btn-secondary">Quay lại</a>
+                        <a href="{{ route('admins.shopmaterial.index', ['ma_cua_hang' => $firstMaterial->ma_cua_hang]) }}" class="btn btn-secondary">Quay lại</a>
                     </div>
                 </div>
             </div>
@@ -163,7 +181,7 @@
                         text: 'Bạn sẽ được chuyển về trang danh sách.',
                         confirmButtonText: 'OK'
                     }).then(() => {
-                        window.location.href = "{{ route('staffs.shop_materials.index') }}";
+                        window.location.href = "{{ route('admins.shopmaterial.index', ['ma_cua_hang' => $firstMaterial->ma_cua_hang]) }}";
                     });
                 }
             });
@@ -171,7 +189,6 @@
     });
 </script>
 @endpush
-
 
 
 

@@ -392,8 +392,6 @@ Route::prefix('staff/shop-material')->middleware(NhanVienMiddleware::class)->nam
     Route::get('/', action: [StaffShopmaterialController::class, 'index'])->name('index');
     Route::get('/create', [StaffShopmaterialController::class, 'create'])->name('create');
     Route::post('/store', [StaffShopmaterialController::class, 'store'])->name('store');
-    //Route::get('/{id}/edit', [AdminShopmaterialController::class, 'edit'])->name('edit');
-    //Route::put('/{id}/update', [AdminShopmaterialController::class, 'update'])->name('update');
     Route::get('/import-page', [StaffShopmaterialController::class, 'showImportPage'])->name('showImportPage');
     Route::post('/import', [StaffShopmaterialController::class, 'import'])->name('import');
     Route::get('/export-page',[StaffShopmaterialController::class,'showExportPage'])->name('showExportPage');
