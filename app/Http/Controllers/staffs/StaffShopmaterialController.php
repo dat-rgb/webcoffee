@@ -97,7 +97,6 @@ class StaffShopmaterialController extends Controller
         toastr()->success('Đã thêm nguyên liệu vào kho.');
         return redirect()->route('staffs.shop_materials.index');
     }
-
     public function showImportPage(Request $request)
     {
         $nhanVien = Auth::guard('staff')->user()->nhanvien;
@@ -141,6 +140,8 @@ class StaffShopmaterialController extends Controller
     public function import(Request $request)
     {
         $nhanVien = Auth::guard('staff')->user()->nhanvien;
+        $maCuaHang = $nhanVien->ma_cua_hang;
+
         $importData = $request->input('import');
         $noteData = $request->input('note');
         $datensxuatData = $request->input('nsx');
@@ -150,92 +151,90 @@ class StaffShopmaterialController extends Controller
             return redirect()->back()->withErrors(['import' => 'Không có dữ liệu nhập.'])->withInput();
         }
 
-        $now = now()->startOfDay(); // lấy ngày hiện tại (không tính giờ phút)
+        $now = now()->startOfDay();
 
         try {
-            DB::transaction(function () use ($importData, $noteData, $datensxuatData, $datehsData, $nhanVien, $now, $request) {
+            DB::transaction(function () use ($importData, $noteData, $datensxuatData, $datehsData, $maCuaHang, $now, $request, $nhanVien) {
                 $updateData = [];
 
-                foreach ($importData as $maCuaHang => $nguyenLieus) {
-                    $materials = CuaHangNguyenLieu::with('nguyenLieu')
-                        ->where('ma_cua_hang', $maCuaHang)
-                        ->whereIn('ma_nguyen_lieu', array_keys($nguyenLieus))
-                        ->get()
-                        ->keyBy('ma_nguyen_lieu');
+                $materials = CuaHangNguyenLieu::with('nguyenLieu')
+                    ->where('ma_cua_hang', $maCuaHang)
+                    ->whereIn('ma_nguyen_lieu', array_keys($importData[$maCuaHang] ?? []))
+                    ->get()
+                    ->keyBy('ma_nguyen_lieu');
 
-                    foreach ($nguyenLieus as $maNguyenLieu => $soLuongNhap) {
-                        // Kiểm tra NSX và HSD
-                        $nsx = $datensxuatData[$maCuaHang][$maNguyenLieu] ?? null;
-                        $hsd = $datehsData[$maCuaHang][$maNguyenLieu] ?? null;
+                foreach ($importData[$maCuaHang] ?? [] as $maNguyenLieu => $soLuongNhap) {
+                    // Kiểm tra NSX và HSD
+                    $nsx = $datensxuatData[$maCuaHang][$maNguyenLieu] ?? null;
+                    $hsd = $datehsData[$maCuaHang][$maNguyenLieu] ?? null;
 
-                        if (!$nsx) {
-                            throw new \Exception("Ngày sản xuất (NSX) cho nguyên liệu $maNguyenLieu không được để trống.");
-                        }
-                        if (!$hsd) {
-                            throw new \Exception("Hạn sử dụng (HSD) cho nguyên liệu $maNguyenLieu không được để trống.");
-                        }
+                    if (!$nsx) {
+                        throw new \Exception("Ngày sản xuất (NSX) cho nguyên liệu $maNguyenLieu không được để trống.");
+                    }
+                    if (!$hsd) {
+                        throw new \Exception("Hạn sử dụng (HSD) cho nguyên liệu $maNguyenLieu không được để trống.");
+                    }
 
-                        $nsxDate = Carbon::parse($nsx)->startOfDay();
-                        $hsdDate = Carbon::parse($hsd)->startOfDay();
+                    $nsxDate = Carbon::parse($nsx)->startOfDay();
+                    $hsdDate = Carbon::parse($hsd)->startOfDay();
 
-                        if ($nsxDate->gt($now)) {
-                            throw new \Exception("Ngày sản xuất (NSX) cho nguyên liệu $maNguyenLieu không được sau ngày hiện tại.");
-                        }
+                    if ($nsxDate->gt($now)) {
+                        throw new \Exception("Ngày sản xuất (NSX) cho nguyên liệu $maNguyenLieu không được sau ngày hiện tại.");
+                    }
 
-                        if ($hsdDate->lt($now)) {
-                            throw new \Exception("Hạn sử dụng (HSD) cho nguyên liệu $maNguyenLieu không được trước ngày hiện tại.");
-                        }
+                    if ($hsdDate->lt($now)) {
+                        throw new \Exception("Hạn sử dụng (HSD) cho nguyên liệu $maNguyenLieu không được trước ngày hiện tại.");
+                    }
 
-                        // Kiểm tra số lượng nhập
-                        if (!is_numeric($soLuongNhap)) {
-                            throw new \Exception("Số lượng nhập cho nguyên liệu $maNguyenLieu không hợp lệ (phải là số thực > 0).");
-                        }
+                    // Kiểm tra số lượng nhập
+                    if (!is_numeric($soLuongNhap) || $soLuongNhap <= 0) {
+                        throw new \Exception("Số lượng nhập cho nguyên liệu $maNguyenLieu không hợp lệ.");
+                    }
 
-                        if ($soLuongNhap == 0) {
-                            throw new \Exception("Số lượng nhập cho nguyên liệu $maNguyenLieu phải lớn hơn 0.");
-                        }
+                    $material = $materials->get($maNguyenLieu);
+                    if (!$material) {
+                        throw new \Exception("Không tìm thấy nguyên liệu $maNguyenLieu trong cửa hàng.");
+                    }
 
-                        $material = $materials->get($maNguyenLieu);
-                        if (!$material) {
-                            throw new \Exception("Nguyên liệu $maNguyenLieu không tồn tại trong cửa hàng $maCuaHang.");
-                        }
+                    // Cập nhật giá nhập nếu có giá mới
+                    $giaNhapMoi = $request->input("gia_nhap.$maCuaHang.$maNguyenLieu");
+                    if (is_numeric($giaNhapMoi) && $giaNhapMoi > 0) {
+                        CuaHangNguyenLieu::where('ma_cua_hang', $maCuaHang)
+                            ->where('ma_nguyen_lieu', $maNguyenLieu)
+                            ->update(['gia_nhap' => $giaNhapMoi]);
+                        $material->gia_nhap = $giaNhapMoi;
+                    }
 
-                        $dinhluong = $soLuongNhap * $material->nguyenLieu->so_luong;
+                    $dinhLuong = $soLuongNhap * $material->nguyenLieu->so_luong;
 
-                        $maxImport = $material->so_luong_ton_max - $material->so_luong_ton;
-                        if ($dinhluong > $maxImport) {
-                            throw new \Exception("Định lượng nhập vượt quá mức tối đa cho nguyên liệu $maNguyenLieu (tối đa có thể nhập: $maxImport).");
-                        }
-
-                        $updateKey = $maCuaHang . '_' . $maNguyenLieu;
-                        if (!isset($updateData[$updateKey])) {
-                            $updateData[$updateKey] = [
-                                'ma_cua_hang'    => $maCuaHang,
-                                'ma_nguyen_lieu' => $maNguyenLieu,
-                                'so_luong_ton'   => $material->so_luong_ton,
-                            ];
-                        }
-
-                        $updateData[$updateKey]['so_luong_ton'] += $dinhluong;
-
-                        PhieuNhapXuatNguyenLieu::create([
+                    $updateKey = $maCuaHang . '_' . $maNguyenLieu;
+                    if (!isset($updateData[$updateKey])) {
+                        $updateData[$updateKey] = [
                             'ma_cua_hang'    => $maCuaHang,
                             'ma_nguyen_lieu' => $maNguyenLieu,
-                            'ma_nhan_vien'   => $nhanVien->ma_nhan_vien,
-                            'loai_phieu'     => 0, // Phiếu nhập
-                            'so_lo'          => $request->soLo,
-                            'ngay_san_xuat'  => $nsxDate,
-                            'han_su_dung'    => $hsdDate,
-                            'so_luong'       => $soLuongNhap,
-                            'dinh_luong'     => $dinhluong,
-                            'so_luong_ton_truoc' => $material->so_luong_ton ,
-                            'don_vi'         => $material->don_vi,
-                            'gia_tien'       => $material->nguyenLieu->gia ?? 0,
-                            'tong_tien'      => ($material->nguyenLieu->gia ?? 0) * $soLuongNhap,
-                            'ngay_tao_phieu' => now(),
-                            'ghi_chu'        => $noteData[$maCuaHang][$maNguyenLieu] ?? null,
-                        ]);
+                            'so_luong_ton'   => $material->so_luong_ton,
+                        ];
                     }
+
+                    $updateData[$updateKey]['so_luong_ton'] += $dinhLuong;
+
+                    PhieuNhapXuatNguyenLieu::create([
+                        'ma_cua_hang'    => $maCuaHang,
+                        'ma_nguyen_lieu' => $maNguyenLieu,
+                        'ma_nhan_vien'   => $nhanVien->ma_nhan_vien,
+                        'loai_phieu'     => 0,
+                        'so_lo'          => $request->soLo,
+                        'ngay_san_xuat'  => $nsxDate,
+                        'han_su_dung'    => $hsdDate,
+                        'so_luong'       => $soLuongNhap,
+                        'dinh_luong'     => $dinhLuong,
+                        'so_luong_ton_truoc' => $material->so_luong_ton,
+                        'don_vi'         => $material->don_vi,
+                        'gia_nhap'       => $material->gia_nhap ?? ($material->nguyenLieu->gia ?? 0),
+                        'tong_tien'      => ($material->gia_nhap ?? ($material->nguyenLieu->gia ?? 0)) * $soLuongNhap,
+                        'ngay_tao_phieu' => now(),
+                        'ghi_chu'        => $noteData[$maCuaHang][$maNguyenLieu] ?? null,
+                    ]);
                 }
 
                 foreach ($updateData as $data) {
@@ -243,11 +242,11 @@ class StaffShopmaterialController extends Controller
                         ->where('ma_nguyen_lieu', $data['ma_nguyen_lieu'])
                         ->update(['so_luong_ton' => $data['so_luong_ton']]);
                 }
-
             });
 
             toastr()->success('Nhập nguyên liệu thành công!');
             return redirect()->route('staffs.shop_materials.index');
+
         } catch (\Exception $e) {
             return redirect()->back()->withErrors([
                 'import' => 'Có lỗi xảy ra khi nhập nguyên liệu: ' . $e->getMessage()
