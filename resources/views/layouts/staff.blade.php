@@ -155,8 +155,8 @@
                         </a>
                         </li>
                         <li>
-                            <a href="#">
-                                <span class="sub-item">Kho cửa hàng nguyên liệu ẩn</span>
+                            <a href="{{ route('staffs.shop_materials.showAllPhieu') }}">
+                                <span class="sub-item">Phiếu nhập xuất hủy nguyên liệu</span>
                             </a>
                         </li>
                     </ul>

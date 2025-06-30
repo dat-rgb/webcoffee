@@ -398,7 +398,8 @@ Route::prefix('staff/shop-material')->middleware(NhanVienMiddleware::class)->nam
     Route::post('/export',[StaffShopmaterialController::class,'export'])->name('export');
     Route::post('/destroy', [StaffShopmaterialController::class, 'destroy'])->name('destroy');
     Route::get('/destroy-page', [StaffShopmaterialController::class, 'showDestroyPage'])->name('showDestroyPage');
-
+    Route::get('/phieu', [StaffShopmaterialController::class, 'showAllPhieu'])->name('showAllPhieu');
+    Route::get('/phieu-chi-tiet/{ngay_tao}/{loai_phieu}/{ma_nv}', [StaffShopmaterialController::class, 'layChiTietPhieu'])->name('layChiTietPhieu');
     ////
 });
 

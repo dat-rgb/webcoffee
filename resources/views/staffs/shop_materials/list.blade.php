@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.staff')
 @section('title', $title)
 @section('subtitle', $subtitle)
 @push('styles')
@@ -34,12 +34,12 @@
                 <h3 class="mb-3 fw-bold">{{ $subtitle }}</h3>
                 <ul class="mb-3 breadcrumbs">
                     <li class="nav-home">
-                        <a href="{{ route('admin.dashboard') }}"><i class="icon-home"></i></a>
+                        <a href="{{ route('staff.dashboard') }}"><i class="icon-home"></i></a>
                     </li>
                     <li class="separator"><i class="icon-arrow-right"></i></li>
                     <li class="nav-item"><a href="#">Cửa hàng nguyên liệu</a></li>
                     <li class="separator"><i class="icon-arrow-right"></i></li>
-                    <li class="nav-item"><a href="{{ route('admins.shopmaterial.showAllPhieu') }}">Phiếu nhập xuất hủy</a></li>
+                    <li class="nav-item"><a href="{{ route('staffs.shop_materials.showAllPhieu') }}">Phiếu nhập xuất hủy</a></li>
                 </ul>
             </div>
 
@@ -63,14 +63,7 @@
                         </div>
                         {{-- cddropddoowwn chọn cửa hàng --}}
                         <div class="col-md-3">
-                            <select name="ma_cua_hang" class="form-select" onchange="this.form.submit()">
-                                <option value="">-- Tất cả cửa hàng --</option>
-                                @foreach ($dsCuaHang as $cuahang)
-                                    <option value="{{ $cuahang->ma_cua_hang }}" {{ request('ma_cua_hang') == $cuahang->ma_cua_hang ? 'selected' : '' }}>
-                                        {{ $cuahang->ten_cua_hang }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            <input type="text" class="form-control" value="{{ Auth::guard('staff')->user()->nhanvien->cuaHang->ten_cua_hang ?? 'Không xác định' }}" disabled>
                         </div>
 
                         <div class="col-md-2">
@@ -90,7 +83,7 @@
                             <thead>
                                 <tr class="text-center">
                                     <th>#</th>
-                                    <th>Mã cửa hàng</th>
+                                    {{-- <th>Mã cửa hàng</th> --}}
                                     <th>Mã nhân viên</th>
                                     <th>Tổng tiền</th>
                                     <th>Loại phiếu</th>
@@ -104,7 +97,7 @@
                                         data-loai-phieu="{{ $phieu->loai_phieu }}"
                                         data-ngay-tao="{{ $phieu->ngay_tao_phieu }}">
                                         <td>{{ $index + 1 }}</td>
-                                        <td>{{ $phieu->ma_cua_hang }}</td>
+                                        {{-- <td>{{ $phieu->ma_cua_hang }}</td> --}}
                                         <td>{{ $phieu->ma_nhan_vien ?? 'ADMIN' }}</td>
                                         <td style="white-space: nowrap; text-align: center;">
                                             {{ number_format($phieu->tong_tien, 0, ',', '.') }} vnđ
@@ -191,8 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const ngayTao = row.dataset.ngayTao;
 
             document.getElementById('modal_nguoi_lam').textContent = maNv;
-
-            fetch(`/admin/shop-materials/phieu-chi-tiet/${encodeURIComponent(ngayTao)}/${loaiPhieu}/${maNv}`)
+            fetch(`/staff/shop-material/phieu-chi-tiet/${encodeURIComponent(ngayTao)}/${loaiPhieu}/${maNv}`)
                 .then(response => response.json())
                 .then(data => {
                     const meta = data.meta;
