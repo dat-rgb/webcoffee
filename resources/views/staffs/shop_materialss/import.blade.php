@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.staff')
 @section('title', $title)
 @section('subtitle', $subtitle)
 @section('content')
@@ -18,7 +18,7 @@
                 </ul>
             </div>
         @endif
-        <form action="{{ route('admins.shopmaterial.import') }}" method="POST">
+        <form action="{{ route('staffs.shop_materials.import') }}" method="POST">
             @csrf
             <div class="card">
                 <div class="shadow-sm card rounded-4">
@@ -54,11 +54,12 @@
                                         <th class="px-2 py-2">Mã nguyên liệu</th>
                                         <th class="px-2 py-2">Tên nguyên liệu</th>
                                         <th class="px-2 py-2">Định lượng</th>
+                                        <th class="px-2 py-2">Số lượng tồn</th>
+                                        <th class="px-2 py-2">Số lượng tối đa</th>
                                         <th class="px-2 py-2" style="white-space: nowrap;">
                                             Số lượng <br>
                                             <small>(kg, lít, gói, túi, thùng)</small>
                                         </th>
-                                        <th class="px-2 py-2">Giá nhập (VNĐ) </th>
                                         <th class="px-2 py-2">NSX</th>
                                         <th class="px-2 py-2">HSD</th>
                                         <th class="px-2 py-2" style="width: 200px;">Ghi chú</th>
@@ -71,25 +72,25 @@
                                         <td class="px-2 py-2">{{ $material->nguyenLieu->ma_nguyen_lieu }}</td>
                                         <td class="px-2 py-2">{{ $material->nguyenLieu->ten_nguyen_lieu }}</td>
                                         <td class="px-2 py-2">{{ $material->nguyenLieu->so_luong .' '. $material->nguyenLieu->don_vi }}</td>
+                                        <td class="px-2 py-2">{{ $material->so_luong_ton .' '. $material->don_vi }}</td>
+                                        <td class="px-2 py-2">{{ $material->so_luong_ton_max .' '. $material->don_vi }}</td>
                                         <td class="px-2 py-2">
+                                            @php
+                                                $maxImport = $material->so_luong_ton_max - $material->so_luong_ton;
+                                                if ($maxImport < 1) $maxImport = 0;
+                                            @endphp
+                                            @if ($maxImport == 0)
+                                                <input type="hidden" name="import[{{ $material->ma_cua_hang }}][{{ $material->ma_nguyen_lieu }}]" value="0">
+                                            @endif
                                             <input
                                                 type="number"
                                                 name="import[{{ $material->ma_cua_hang }}][{{ $material->ma_nguyen_lieu }}]"
                                                 class="form-control form-control-sm"
                                                 step="any"
                                                 min="0.01"
-
+                                                max="{{ $maxImport }}"
+                                                {{ $maxImport == 0 ? 'disabled' : '' }}
                                             >
-                                        </td>
-                                        <td class="px-2 py-2">
-                                            <input
-                                                type="number"
-                                                name="gia_nhap[{{ $material->ma_cua_hang }}][{{ $material->ma_nguyen_lieu }}]"
-                                                class="form-control form-control-sm w-100"
-                                                step="any"
-                                                min="0"
-                                                style="min-width: 120px;"
-                                                value="{{ old('gia_nhap.' . $material->ma_cua_hang . '.' . $material->ma_nguyen_lieu, (int) $material->gia_nhap) }}">
                                         </td>
                                         <td>
                                             <input type="date"
@@ -116,8 +117,8 @@
                         </div>
                     </div>
                     <div class="card-footer text-end">
-                        <button type="submit" class="btn btn-success me-4">Xác nhận nhập hàng</button>
-                        <a href="{{ route('admins.shopmaterial.index', ['ma_cua_hang' => $firstMaterial->ma_cua_hang]) }}" class="btn btn-secondary">Quay lại</a>
+                        <button type="submit" class="btn btn-success">Xác nhận nhập hàng</button>
+                        <a href="{{ route('staffs.shop_materials.index') }}" class="btn btn-secondary">Quay lại</a>
                     </div>
                 </div>
 
@@ -150,7 +151,7 @@
                         text: 'Bạn sẽ được chuyển về trang danh sách.',
                         confirmButtonText: 'OK'
                     }).then(() => {
-                        window.location.href = "{{ route('admins.shopmaterial.index', ['ma_cua_hang' => $firstMaterial->ma_cua_hang]) }}";
+                        window.location.href = "{{ route('staffs.shop_materials.index') }}";
                     });
                 }
             });

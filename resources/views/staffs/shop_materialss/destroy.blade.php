@@ -15,7 +15,7 @@
             <div class="card">
                 <div class="shadow-sm card rounded-4">
                     <div class="card-header bg-light rounded-top-4">
-                        <h3 class="fw-bold">Hủy nguyên liệu khỏi kho cửa hàng <strong>{{ $ma_cua_hang }}</strong></h3>
+                        <h3 class="fw-bold">Hủy nguyên liệu khỏi kho cửa hàng</h3>
                         <h5>Ngày hủy: {{ $today }}</h5>
                     </div>
 
@@ -25,7 +25,8 @@
                                 <thead class="table-danger">
                                     <tr>
                                         <th>Mã nguyên liệu</th>
-                                        <th>Nguyên liệu</th>
+                                        <th>Tên nguyên liệu</th>
+                                        <th>Định lượng</th>
                                         <th>Số lượng tồn</th>
                                         <th>Chọn lô cần hủy</th>
                                         <th>Số lượng hủy</th>
@@ -37,18 +38,9 @@
                                     @foreach($materials as $material)
                                     <tr>
                                         <td>{{ $material->nguyenLieu->ma_nguyen_lieu }}</td>
-                                        <td class="text-start">
-                                            {{ $material->nguyenLieu->ten_nguyen_lieu }}
-                                            ({{ rtrim(rtrim(number_format($material->nguyenLieu->so_luong, 2), '0'), '.') }} {{ $material->nguyenLieu->don_vi }})
-                                        </td>
-                                        @php
-                                            $dinhLuong = $material->nguyenLieu->so_luong > 0 ? $material->nguyenLieu->so_luong : 1;
-                                            $tonChia = $material->so_luong_ton / $dinhLuong;
-                                        @endphp
-                                        <td>
-                                            {{ rtrim(rtrim(number_format($tonChia, 2), '0'), '.') }} {{ $material->don_vi }}
-                                        </td>
-
+                                        <td>{{ $material->nguyenLieu->ten_nguyen_lieu }}</td>
+                                        <td>{{ $material->nguyenLieu->so_luong .' '. $material->nguyenLieu->don_vi }}</td>
+                                        <td>{{ $material->so_luong_ton .' '. $material->don_vi }}</td>
                                         <td>
                                             <select name="batch[{{ $material->ma_cua_hang }}][{{ $material->ma_nguyen_lieu }}]"
                                                 class="form-select form-select-sm batch-select" required
@@ -56,13 +48,8 @@
                                                 data-ma_nguyen_lieu="{{ $material->ma_nguyen_lieu }}">
                                                 <option value="">-- Chọn lô --</option>
                                                 @foreach ($material->available_batches as $lo)
-                                                    @php
-                                                        $dinhLuong = $material->nguyenLieu->so_luong > 0 ? $material->nguyenLieu->so_luong : 1;
-                                                        $conLaiChia = $lo['con_lai'] / $dinhLuong;
-                                                        $conLaiFormatted = rtrim(rtrim(number_format($conLaiChia, 2), '0'), '.');
-                                                    @endphp
                                                     <option value="{{ $lo['so_lo'] }}" data-con_lai="{{ $lo['con_lai'] }}">
-                                                        Lô {{ $lo['so_lo'] }} - Còn {{ $conLaiFormatted }} {{ $material->don_vi }} - HSD: {{ \Carbon\Carbon::parse($lo['han_su_dung'])->format('d/m/Y') }}
+                                                        Lô {{ $lo['so_lo'] }} - Còn {{ $lo['con_lai'] }} {{ $material->nguyenLieu->don_vi }} - HSD: {{ \Carbon\Carbon::parse($lo['han_su_dung'])->format('d/m/Y') }}
                                                     </option>
                                                 @endforeach
                                             </select>
@@ -97,8 +84,7 @@
 
                     <div class="card-footer text-end">
                         <button type="submit" class="btn btn-danger">Xác nhận hủy hàng</button>
-                        <a href="{{ route('staffs.shop_materials.index', ['ma_cua_hang' => $ma_cua_hang]) }}" class="btn btn-secondary">Quay lại</a>
-
+                        <a href="{{ route('staffs.shop_materials.index') }}" class="btn btn-secondary">Quay lại</a>
                     </div>
                 </div>
             </div>
@@ -134,7 +120,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     text: 'Bạn sẽ được chuyển về trang danh sách.',
                     confirmButtonText: 'OK'
                 }).then(() => {
-                    window.location.href = "{{ route('staffs.shop_materials.index', ['ma_cua_hang' => $ma_cua_hang]) }}";
+                    window.location.href = "{{ route('staffs.shop_materials.index') }}";
                 });
             }
         });
@@ -161,6 +147,9 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     });
+
+    // --- Ràng buộc số lượng hủy không vượt quá số lượng tồn trong lô ---
+
     // Hàm lấy input quantity dựa vào mã cửa hàng và mã nguyên liệu
     function getQuantityInput(maCuaHang, maNguyenLieu) {
         return document.querySelector(`input.quantity-input[data-ma_cua_hang="${maCuaHang}"][data-ma_nguyen_lieu="${maNguyenLieu}"]`);
