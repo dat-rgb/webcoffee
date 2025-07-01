@@ -50,6 +50,7 @@ class PayOSController extends Controller
                     'ma_hoa_don' => $maHoaDon,
                     'ma_san_pham' => $item['product_id'],
                     'ten_san_pham' => $item['product_name'],
+                    'ma_size' => $item['size_id'],
                     'ten_size' => $item['size_name'],
                     'gia_size' => $item['size_price'],
                     'so_luong' => $item['product_quantity'],

@@ -115,37 +115,35 @@
             <div class="card card-round">
                 <div class="card-header">
                     <div class="card-head-row">
-                        <div class="card-head-row">
-                            <div class="card-title">Doanh thu</div>
-                            <div class="card-tools d-flex align-items-center justify-content-end gap-2">
-                                <div class="d-flex align-items-center gap-1">
-                                    <input type="date"
-                                        id="startDate"
-                                        class="form-control form-control-sm"
-                                        value="{{ request('start') }}"
-                                        placeholder="Từ ngày">
+                        <div class="card-title">Doanh thu</div>
+                        <div class="card-tools d-flex align-items-center justify-content-end gap-2">
+                            <div class="d-flex align-items-center gap-1">
+                                <input type="date"
+                                    id="startDate"
+                                    class="form-control form-control-sm"
+                                    value="{{ request('start') }}"
+                                    placeholder="Từ ngày">
 
-                                    <span class="mx-1">–</span>
+                                <span class="mx-1">–</span>
 
-                                    <input type="date"
-                                        id="endDate"
-                                        class="form-control form-control-sm"
-                                        value="{{ request('end') }}"
-                                        placeholder="Đến ngày">
-                                </div>
-
-                                <!-- Dropdown chọn khoảng thời gian -->
-                                <select id="doanhThuOption" class="form-select form-select-sm w-auto">
-                                    <option value="month" selected>Theo tháng</option>
-                                    <option value="quarter">Theo quý</option>
-                                    <option value="year">Theo năm</option>
-                                </select>
-
-                                <a href="#" class="btn btn-label-success btn-round btn-sm">
-                                    <span class="btn-label"><i class="fa fa-file-export"></i></span>
-                                    Xuất
-                                </a>
+                                <input type="date"
+                                    id="endDate"
+                                    class="form-control form-control-sm"
+                                    value="{{ request('end') }}"
+                                    placeholder="Đến ngày">
                             </div>
+
+                            <!-- Dropdown chọn khoảng thời gian -->
+                            <select id="doanhThuOption" class="form-select form-select-sm w-auto">
+                                <option value="month" selected>Theo tháng</option>
+                                <option value="quarter">Theo quý</option>
+                                <option value="year">Theo năm</option>
+                            </select>
+
+                            <a href="#" class="btn btn-label-success btn-round btn-sm">
+                                <span class="btn-label"><i class="fa fa-file-export"></i></span>
+                                Xuất
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -724,8 +722,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     loadLoiNhuan();
 
-    });    
-
+});    
 </script>
 @endpush
 

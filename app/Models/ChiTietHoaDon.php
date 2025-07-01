@@ -17,6 +17,7 @@ class ChiTietHoaDon extends Model
         'ma_hoa_don',
         'ma_san_pham',
         'ten_san_pham',
+        'ma_size',
         'ten_size',
         'gia_size',
         'so_luong',
