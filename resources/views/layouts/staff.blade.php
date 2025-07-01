@@ -278,7 +278,7 @@
                       <div class="u-text">
                         <h4>{{ Auth::guard('staff')->user()->nhanvien->ho_ten_nhan_vien ?? 'Nhân viên' }}</h4>
                         <p class="text-muted">{{ Auth::guard('staff')->user()->email }}</p>
-                        <a href="profile.html" class="btn btn-xs btn-secondary btn-sm" >View Profile</a>
+                        <a href="{{ route('staff.profile') }}" class="btn btn-xs btn-secondary btn-sm" >View Profile</a>
                       </div>
                     </div>
                   </li>
@@ -306,6 +306,10 @@
     <div class="container">
         @yield('content')
     </div>
+    <form id="reset-password-form" method="POST" action="{{ route('forgotPassword.send') }}">
+        @csrf
+        <input type="hidden" name="email" value="{{ Auth::guard('staff')->user()->email }}">
+    </form>
     <audio id="order-sound" src="{{ asset('sounds/am_thanh_thong_bao.mp3') }}" preload="auto"></audio>
     <footer class="footer">
         <div class="container-fluid d-flex justify-content-center">
@@ -343,26 +347,26 @@
           }
         });
       });
-        document.getElementById('change-password-btn').addEventListener('click', function(e) {
-            e.preventDefault(); // Ngăn chuyển trang
+      document.getElementById('change-password-btn').addEventListener('click', function(e) {
+          e.preventDefault(); // Ngăn chặn hành vi mặc định
 
-            // Lấy email từ blade
-            const email = @json(Auth::guard('staff')->user()->email);
+          const email = @json(Auth::guard('staff')->user()->email);
 
-            Swal.fire({
-                title: 'Bạn có muốn đổi mật khẩu?',
-                text: `Thông tin xác nhận sẽ được gửi về email của bạn: ${email}`,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'Có, gửi xác nhận',
-                cancelButtonText: 'Không',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = "#";
-                }
-            });
-        });
+          Swal.fire({
+              title: 'Bạn có muốn đổi mật khẩu?',
+              text: `Thông tin xác nhận sẽ được gửi về email của bạn: ${email}`,
+              icon: 'question',
+              showCancelButton: true,
+              confirmButtonText: 'Có, gửi xác nhận',
+              cancelButtonText: 'Không',
+              reverseButtons: true
+          }).then((result) => {
+              if (result.isConfirmed) {
+                  // Submit form bằng JS
+                  document.getElementById('reset-password-form').submit();
+              }
+          });
+      });
 
       @if (
           Auth::guard('staff')->user()->nhanvien->chucVu->ma_chuc_vu == 1 ||

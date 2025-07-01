@@ -20,7 +20,7 @@
             <div class="col-lg-8 offset-lg-2 text-center">
                 <div class="breadcrumb-text">
                     <p>Coffee & Tea</p>
-                    <h1>Đăng ký</h1>
+                    <h1>CDMT Xin chào</h1>
                 </div>
             </div>
         </div>
