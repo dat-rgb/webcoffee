@@ -502,7 +502,6 @@
 <script src="{{ asset('admins/js/validate-popup-phieu.js') }}"></script>
 
 <script>
-
 document.addEventListener("DOMContentLoaded", function () {
     // Hóa đơn đã nhận/đã hủy của cửa hàng
     const pieChartHoaDon = document.getElementById("pieChartHoaDon").getContext("2d");
@@ -554,7 +553,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let chartDoanhThu;
 
     function loadDoanhThu(mode = 'month') {
-        const url = new URL('{{ url('/admin/dashboard/doanh-thu-json') }}');
+        const url = new URL('{{ url('/staff/dashboard/doanh-thu-json') }}');
         url.searchParams.set('mode', mode);
         url.searchParams.set('start', document.getElementById('startDate')?.value || '');
         url.searchParams.set('end', document.getElementById('endDate')?.value || '');
@@ -616,7 +615,7 @@ document.addEventListener("DOMContentLoaded", function () {
      let chartTopSanPham;
 
     function loadTopSanPham(mode = 'month') {
-        const url = new URL('{{ url("/admin/dashboard/top-san-pham") }}');
+        const url = new URL('{{ url("/staff/dashboard/top-san-pham") }}');
         url.searchParams.set('mode', mode);
         url.searchParams.set('ma_cua_hang', '{{ $selectedCuaHang ?? "" }}');
 
@@ -683,7 +682,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let chartLoiNhuan;
 
     function loadLoiNhuan(mode = 'month') {
-        const url = new URL('{{ url('/admin/dashboard/loi-nhuan-json') }}');
+        const url = new URL('{{ url('/staff/dashboard/loi-nhuan-json') }}');
 
         url.searchParams.set('mode', mode);
         url.searchParams.set('start', document.getElementById('startDate')?.value || '');
