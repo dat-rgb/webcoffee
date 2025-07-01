@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+
 class StaffController extends Controller
 {
     public function index(Request $request)
@@ -286,6 +287,57 @@ class StaffController extends Controller
 
         return view('staffs.nhanviens.archive', $viewData);
     }
+    public function profile()
+    {
+        $title = 'Thông tin cá nhân';
+        $subtitle = 'Trang hồ sơ nhân viên';
+        return view('staffs.pages.index', compact('title', 'subtitle'));
+    }
+    public function updateProfile(Request $request)
+    {
+        $today = Carbon::today();
+        $minDate = $today->copy()->subYears(50); // lớn nhất 50 tuổi
+        $maxDate = $today->copy()->subYears(18); // nhỏ nhất 18 tuổi
+
+        $request->validate([
+            'ho_ten' => 'required|string|max:255',
+            'so_dien_thoai' => 'required|regex:/^0\d{9}$/',
+            'gioi_tinh' => 'required|in:0,1',
+            'ngay_sinh' => "required|date|after_or_equal:$minDate|before_or_equal:$maxDate",
+            'dia_chi' => 'nullable|string|max:255',
+        ], [
+            'ho_ten.required' => 'Vui lòng nhập họ và tên.',
+            'ho_ten.max' => 'Họ và tên không được vượt quá 255 ký tự.',
+
+            'so_dien_thoai.required' => 'Vui lòng nhập số điện thoại.',
+            'so_dien_thoai.regex' => 'Số điện thoại phải bắt đầu bằng số 0 và gồm 10 chữ số.',
+
+            'gioi_tinh.required' => 'Vui lòng chọn giới tính.',
+            'gioi_tinh.in' => 'Giới tính không hợp lệ.',
+
+            'ngay_sinh.required' => 'Vui lòng nhập ngày sinh.',
+            'ngay_sinh.date' => 'Ngày sinh không hợp lệ.',
+            'ngay_sinh.after_or_equal' => 'Nhân viên phải ít hơn 50 tuổi.',
+            'ngay_sinh.before_or_equal' => 'Nhân viên phải đủ 18 tuổi.',
+
+            'dia_chi.max' => 'Địa chỉ không được vượt quá 255 ký tự.',
+        ]);
+
+        $nhanVien = Auth::guard('staff')->user()->nhanvien;
+
+        $nhanVien->update([
+            'ho_ten_nhan_vien' => $request->ho_ten,
+            'so_dien_thoai' => $request->so_dien_thoai,
+            'gioi_tinh' => $request->gioi_tinh,
+            'ngay_sinh' => $request->ngay_sinh,
+            'dia_chi' => $request->dia_chi,
+        ]);
+
+        toastr()->success('Cập nhật thông tin cá nhân thành công!');
+        return redirect()->route('staff.profile');
+    }
+
+
 }
 
 
