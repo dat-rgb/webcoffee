@@ -19,7 +19,7 @@ return new class extends Migration
             $table->float('so_luong_ton_max')->default(0); // Số lượng tối đa trong kho
             $table->string('don_vi', 50); // 500ml/chai || 100ly/thùng
             $table->integer('trang_thai')->default(1);
-            $table->decimal('gia_nhap', 15, 2)->nullable();
+            $table->float('gia_nhap')->nullable();
             $table->timestamps();
 
             // Khóa ngoại

@@ -278,58 +278,67 @@
             }
         </style>
         <div class="modal-content">
-        <form action="{{ route('staff.nguyenlieu.exportPhieuNhap') }}" method="POST" target="_blank" id="phieuNhapForm">
-            @csrf
-            <div class="modal-header">
-                <h5 class="modal-title">Chọn nguyên liệu vào phiếu yêu cầu nhập nguyên liệu</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered align-middle">
-                        <thead class="table-light text-center">
-                            <tr>
-                                <th>
-                                    <input type="checkbox" id="checkAll">
-                                </th>
-                                <th>Mã NL</th>
-                                <th>Nguyên liệu</th>
-                                <th>Giá</th>
-                                <th>SL Dự kiến</th>
-                                <th>Đơn vị tính</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($nguyen_lieu_cua_hang as $index => $nl)
-                            <tr class="nguyenlieu-row">
-                                <td class="text-center">
-                                    <input type="checkbox" class="check-row" name="chon_nhap[]" value="{{ $nl->ma_nguyen_lieu }}">
-                                </td>
-                                <td>{{ $nl->ma_nguyen_lieu }}</td>
-                                <td>
-                                    {{ $nl->ten_nguyen_lieu }} <br>
-                                    <span class="badge bg-primary mt-1">ĐL: {{ $nl->so_luong ?? 0 }} {{ $nl->don_vi ?? '' }}</span>
-                                </td>
-                                <td>{{ number_format($nl->gia, 0, ',', '.') }} đ</td>
-                                <td>
-                                    <input type="number" name="so_luong_du_kien[{{ $nl->ma_nguyen_lieu }}]"
-                                    class="form-control input-soluong" min="1">
-                                </td>
-                                <td>
-                                    <input type="text" name="don_vi_tinh[{{ $nl->ma_nguyen_lieu }}]"
-                                    class="form-control input-donvi" placeholder="Nhập ĐVT">
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+            <form action="{{ route('staff.nguyenlieu.exportPhieuNhap') }}" method="POST" target="_blank" id="phieuNhapForm">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title">Chọn nguyên liệu vào phiếu yêu cầu nhập nguyên liệu</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="submit" class="btn btn-success">Xuất PDF</button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-            </div>
-        </form>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle">
+                            <thead class="table-light text-center">
+                                <tr>
+                                    <th>
+                                        <input type="checkbox" id="checkAll">
+                                    </th>
+                                    <th>Mã NL</th>
+                                    <th>Nguyên liệu</th>
+                                    <th>Giá</th>
+                                    <th>SL Dự kiến</th>
+                                    <th>Đơn vị tính</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($nguyen_lieu_cua_hang as $index => $nl)
+                                <tr class="nguyenlieu-row">
+                                    <td class="text-center">
+                                        <input type="checkbox" class="check-row" name="chon_nhap[]" value="{{ $nl->ma_nguyen_lieu }}">
+                                    </td>
+                                    <td>{{ $nl->ma_nguyen_lieu }}</td>
+                                    <td>
+                                        {{ $nl->ten_nguyen_lieu }} <br>
+                                        <span class="badge bg-primary mt-1">ĐL: {{ $nl->so_luong ?? 0 }} {{ $nl->don_vi ?? '' }}</span>
+                                    </td>
+                                    <td>
+                                        <input 
+                                            type="number" 
+                                            name="gia[{{ $nl->ma_nguyen_lieu }}]" 
+                                            value="{{ $nl->gia_nhap }}" 
+                                            class="form-control input-gia" 
+                                            min="1000"
+                                            max="1000000000"
+                                        >    
+                                    </td>
+                                    <td>
+                                        <input type="number" name="so_luong_du_kien[{{ $nl->ma_nguyen_lieu }}]"
+                                        class="form-control input-soluong" min="1">
+                                    </td>
+                                    <td>
+                                        <input type="text" name="don_vi_tinh[{{ $nl->ma_nguyen_lieu }}]"
+                                        class="form-control input-donvi" placeholder="Nhập ĐVT">
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Xuất PDF</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -373,7 +382,7 @@
                                                 ĐỊNH LƯỢNG: {{ $nl->so_luong ?? 0 }} ({{ $nl->don_vi ?? '---' }})
                                             </span>
                                         </td>
-                                        <td>{{ number_format($nl->gia, 0, ',', '.') }} đ</td>
+                                        <td>{{ number_format($nl->gia_nhap, 0, ',', '.') }} đ</td>
                                         <td><input type="number" name="so_luong_xuat[{{ $nl->ma_nguyen_lieu }}]" class="form-control" min="0"></td>
                                         <td>
                                             <input type="text" name="don_vi_tinh[{{ $nl->ma_nguyen_lieu }}]"
@@ -441,24 +450,35 @@
                                 <span class="badge bg-info mt-1">ĐL: {{ $nl->so_luong_goc ?? 0 }} {{ $nl->don_vi }}</span>
                             </td>
                             <td class="text-start">
-                                @if(isset($nl->lo_hang) && count($nl->lo_hang) > 0)
-                                    @foreach($nl->lo_hang as $lo)
-                                        @if($lo['ton_lo'] > 0)
+                            @php
+                                // tính tổng tồn
+                                $tongTon = $nl->available_batches->sum('con_lai');
+                            @endphp
+
+                            @if($nl->available_batches->count())
+                                @foreach($nl->available_batches as $lo)
+                                    @if($lo['con_lai'] > 0)
                                         <div class="mb-1">
                                             <span class="badge bg-primary border text-white">
-                                                {{ $lo['so_lo'] ?? '-' }} -
-                                                {{ number_format($lo['ton_lo'] ?? 0, 0, ',', '.') }}
-                                                {{ $nl->don_vi_tinh ?? '' }} -HSD
+                                                {{ $lo['so_lo'] }} -
+                                                {{ floor($lo['con_lai'] / $nl->so_luong_goc) }}
+                                                {{ $nl->don_vi_tinh }} - HSD
                                                 {{ \Carbon\Carbon::parse($lo['han_su_dung'])->format('d/m/Y') }}
                                             </span>
+                                            <!-- <span class="badge bg-primary border text-white">
+                                                {{ $lo['so_lo'] }} -
+                                                {{ $lo['con_lai'] / $nl->so_luong_goc}}
+                                                {{ $nl->don_vi_tinh }} - HSD
+                                                {{ \Carbon\Carbon::parse($lo['han_su_dung'])->format('d/m/Y') }}
+                                            </span> -->
                                         </div>
-                                        @endif
-                                    @endforeach
-                                @else
-                                    <span class="text-muted">Không có lô</span>
-                                @endif
+                                    @endif
+                                @endforeach
+                            @else
+                                <span class="text-muted">Không có lô</span>
+                            @endif
                             </td>
-                            <td>{{ number_format($tongTon, 0, ',', '.') }} {{ $nl->don_vi_tinh ?? '' }}</td>
+                            <td>{{ floor($tongTon / $nl->so_luong_goc) }} {{ $nl->don_vi_tinh ?? '' }}</td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -482,6 +502,7 @@
 <script src="{{ asset('admins/js/validate-popup-phieu.js') }}"></script>
 
 <script>
+
 document.addEventListener("DOMContentLoaded", function () {
     // Hóa đơn đã nhận/đã hủy của cửa hàng
     const pieChartHoaDon = document.getElementById("pieChartHoaDon").getContext("2d");

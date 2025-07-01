@@ -93,11 +93,13 @@
                 <td class="text-center">{{ $nl->don_vi_tinh ?? '-' }}</td>
                 <td>
                     @if(!empty($nl->lo_hang))
-                        @foreach($nl->lo_hang as $lo)
-                            @if($lo['ton_lo'] > 0)
-                                • {{ $lo['so_lo'] ?? '-' }} - {{ number_format($lo['ton_lo'], 0, ',', '.') }} {{ $nl->don_vi_tinh }} - {{ \Carbon\Carbon::parse($lo['han_su_dung'])->format('d/m/Y') }}<br>
-                            @endif
-                        @endforeach
+                        <ul style="padding-left: 15px;">
+                            @foreach($nl->lo_hang as $lo)
+                                @if(isset($lo->ton_lo) && $lo->ton_lo > 0)
+                                    • {{ $lo->so_lo }} - {{ $lo->ton_lo }} {{ $nl->don_vi_tinh }} - {{ \Carbon\Carbon::parse($lo->han_su_dung)->format('d/m/Y') }}<br>
+                                @endif
+                            @endforeach
+                        </ul>
                     @else
                         Không có lô hàng
                     @endif
