@@ -104,39 +104,60 @@ class AuthController extends Controller
     }
     public function login(Request $request)
     {
-
+        // 1. Validate input
         $request->validate([
-            'email' => 'required|string|email|max:255',
+            'email'    => 'required|string|email|max:255',
             'password' => 'required|string|min:6',
         ], [
-            'email.required' => 'Email là bắt buộc.',
-            'email.email' => 'Email không hợp lệ.',
+            'email.required'    => 'Email là bắt buộc.',
+            'email.email'       => 'Email không hợp lệ.',
             'password.required' => 'Mật khẩu là bắt buộc.',
-            'password.min' => 'Mật khẩu phải ít nhất 6 ký tự.',
+            'password.min'      => 'Mật khẩu phải ít nhất 6 ký tự.',
         ]);
 
+        // 2. Lấy user
         $user = TaiKhoan::where('email', $request->email)->first();
 
         if (!$user) {
             toastr()->error('Email không tồn tại. Hãy đăng ký tài khoản.');
-            return redirect()->back();
+            return back();
         }
 
         if (!Hash::check($request->password, $user->mat_khau)) {
             toastr()->error('Mật khẩu không chính xác.');
-            return redirect()->back();
+            return back();
         }
 
         if ($user->trang_thai != 1) {
             toastr()->warning('Tài khoản chưa được kích hoạt.');
-            return redirect()->back();
+            return back();
         }
 
-        Auth::login($user);
-        $request->session()->regenerate();
-        toastr()->success('Đăng nhập thành công.');
-        return redirect()->route('home');
+        switch ($user->loai_tai_khoan) {
+            case 1: // Admin
+                Auth::guard('admin')->login($user);
+                
+                toastr()->success('Đăng nhập thành công.');
+                return redirect()->route('admin.dashboard');
+
+            case 2: // Nhân viên
+                Auth::guard('staff')->login($user);
+
+                toastr()->success('Đăng nhập thành công ');
+                return redirect()->route('staff');
+
+            case 3: // Khách
+                Auth::login($user); // default web guard
+
+                toastr()->success('Đăng nhập thành công.');
+                return redirect()->route('home');
+
+            default:
+                toastr()->error('Không xác định được quyền đăng nhập.');
+                return back();
+        }
     }
+
 
     public function logout(Request $request)
     {

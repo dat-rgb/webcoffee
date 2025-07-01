@@ -300,7 +300,7 @@ Route::prefix('admin/orders')->middleware(AdminMiddleware::class)->group(functio
 });
 
 //Route Admin Dashboard
-Route::prefix('admin/dashboard')->group(function() {
+Route::prefix('admin/dashboard')->middleware(AdminMiddleware::class)->group(function() {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('/loi-nhuan-json', [DashboardServiceController::class, 'getLoiNhuan'])->name('admin.loiNhuan.json');
     Route::get('/doanh-thu-json', [DashboardServiceController::class, 'getDoanhThu'])->name('admin.doanhThu.json');
