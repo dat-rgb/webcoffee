@@ -369,6 +369,8 @@ Route::prefix('admin/contact')->middleware(AdminMiddleware::class)->group(functi
 
 Route::prefix('staff')->middleware(NhanVienMiddleware::class)->group(function(){
     Route::get('', [StaffHomeController::class, 'index'])->name('staff');
+    Route::get('/profile', [StaffController::class, 'profile'])->name('staff.profile');
+    Route::put('/profile/update', [StaffController::class, 'updateProfile'])->name('staff.profile.update');
 });
 //Route Staff products store
 Route::prefix('staff/product-store')->middleware(NhanVienMiddleware::class)->group(function(){

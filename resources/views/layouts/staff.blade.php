@@ -283,20 +283,17 @@
                     </div>
                   </li>
                   <li>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="#">My Profile</a>
-                    <a class="dropdown-item" href="#">My Balance</a>
-                    <a class="dropdown-item" href="#">Inbox</a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="#">Account Setting</a>
-                    <div class="dropdown-divider"></div>
-
-                    <button type="button" id="logout-btn" class="dropdown-item">
-                        <i class="fas fa-sign-out-alt" style="margin-right:6px;"></i>Đăng xuất
-                    </button>
-                    <form id="logout-form" action="{{ route('admin.logout') }}" method="POST" style="display: none;">
-                        @csrf
-                    </form>
+                      <div class="dropdown-divider"></div>
+                      <a href="#" id="change-password-btn" class="dropdown-item">
+                          <i class="fas fa-key" style="margin-right:6px;"></i>Đổi mật khẩu
+                      </a>
+                      <div class="dropdown-divider"></div>
+                      <button type="button" id="logout-btn" class="dropdown-item">
+                          <i class="fas fa-sign-out-alt" style="margin-right:6px;"></i>Đăng xuất
+                      </button>
+                      <form id="logout-form" action="{{ route('admin.logout') }}" method="POST" style="display: none;">
+                          @csrf
+                      </form>
                   </li>
                 </div>
               </ul>
@@ -346,6 +343,26 @@
           }
         });
       });
+        document.getElementById('change-password-btn').addEventListener('click', function(e) {
+            e.preventDefault(); // Ngăn chuyển trang
+
+            // Lấy email từ blade
+            const email = @json(Auth::guard('staff')->user()->email);
+
+            Swal.fire({
+                title: 'Bạn có muốn đổi mật khẩu?',
+                text: `Thông tin xác nhận sẽ được gửi về email của bạn: ${email}`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Có, gửi xác nhận',
+                cancelButtonText: 'Không',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "#";
+                }
+            });
+        });
 
       @if (
           Auth::guard('staff')->user()->nhanvien->chucVu->ma_chuc_vu == 1 ||
