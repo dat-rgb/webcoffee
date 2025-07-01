@@ -24,6 +24,7 @@ use App\Http\Controllers\customers\CustomerFavoriteController;
 use App\Http\Controllers\customers\CustomerOrderController;
 use App\Http\Controllers\customers\CustomerReviewController;
 use App\Http\Controllers\dashboards\AdminDashboardController;
+use App\Http\Controllers\dashboards\DashboardServiceController;
 use App\Http\Controllers\dashboards\StaffDashboardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\payments\PaymentController;
@@ -301,6 +302,9 @@ Route::prefix('admin/orders')->middleware(AdminMiddleware::class)->group(functio
 //Route Admin Dashboard
 Route::prefix('admin/dashboard')->group(function() {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/loi-nhuan-json', [DashboardServiceController::class, 'getLoiNhuan'])->name('admin.loiNhuan.json');
+    Route::get('/doanh-thu-json', [DashboardServiceController::class, 'getDoanhThu'])->name('admin.doanhThu.json');
+    Route::get('/top-san-pham',[DashboardServiceController::class,'getTopSanPham'])->name('admin.topsp.json');
 });
 
 //Route Admin Shop Material
@@ -385,7 +389,6 @@ Route::prefix('staff/dashboard')->middleware(NhanVienMiddleware::class)->group(f
     Route::post('/phieu-nhap/export', [StaffDashboardController::class, 'exportPhieuNhap'])->name('staff.nguyenlieu.exportPhieuNhap');
     Route::post('/phieu-xuat/export', [StaffDashboardController::class, 'exportPhieuXuat'])->name('staff.nguyenlieu.exportPhieuXuat');
     Route::post('/phieu-kiem-kho/export', [StaffDashboardController::class, 'exportPhieuKiemKho'])->name('staff.nguyenlieu.exportPhieuKiemKho');
-
 });
 
 //Route Staff Shop material

@@ -32,8 +32,9 @@ class DatabaseSeeder extends Seeder
             SanPhamCuaHangSeeder::class,
             ThongTinWebsiteSeeder::class,
             PhieuNhapXuatNguyenLieuSeeder::class,
-            //HoaDonSeeder::class,
-            //TransactionSeeder::class,
+            HoaDonSeeder::class,
+            //ChiTietHoaDonSeeder::class,
+            TransactionSeeder::class,
         ]);
     }
 }

@@ -15,7 +15,7 @@ class SanPhamCuaHangSeeder extends Seeder
     {
         $ma_cua_hang = 'CH00000001';
         
-        for ($i = 1; $i <= 14; $i++) {
+        for ($i = 1; $i <= 18; $i++) {
             $ma_san_pham = 'SP' . str_pad($i, 8, '0', STR_PAD_LEFT);
 
             DB::table('san_pham_cua_hangs')->insert([

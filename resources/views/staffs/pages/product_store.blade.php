@@ -109,7 +109,7 @@
                                 <div id="add-row_wrapper" class="dataTables_wrapper container-fluid dt-bootstrap4">
                                     <div class="row">
                                         <div class="col-sm-12">
-                                            <table id="add-row" class="table display table-striped table-hover dataTable" role="grid" aria-describedby="add-row_info">
+                                        <table class="table table-striped table-hover align-middle text-left">
                                                 <thead>
                                                     <tr>
                                                         <th><input type="checkbox" id="checkAll"></th>
@@ -128,7 +128,7 @@
                                                                 <input type="checkbox" class="product-checkbox" value="{{ $pro->ma_san_pham }}">
                                                             </td>
                                                             <td>
-                                                                <img src="{{ $pro->hinh_anh ? asset('storage/' . $pro->hinh_anh) : asset('images/no_product_image.png') }}" alt="{{ $pro->ten_san_pham }}" width="80">
+                                                                <img src="{{ $pro->hinh_anh ? asset('storage/' . $pro->hinh_anh) : asset('images/no_product_image.png') }}" alt="{{ $pro->ten_san_pham }}" width="60">
                                                             </td>
                                                             <td>{{ $pro->ma_san_pham }}</td>
                                                             <td>{{ $pro->ten_san_pham }}</td>
