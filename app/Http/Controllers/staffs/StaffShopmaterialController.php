@@ -35,12 +35,15 @@ class StaffShopmaterialController extends Controller
 
         $materials = $query->paginate(10);
 
-        return view('staffs.shop_materials.index', [
+        $viewData = [
             'materials' => $materials,
             'title' => 'Nguyên liệu cửa hàng ' . $nhanVien->ma_cua_hang,
-            'subtitle' => 'Quản lý danh sách nguyên vật liệu của cửa hàng ' . $nhanVien->ma_cua_hang,
-        ]);
+            'subtitle' => 'Danh sách nguyên vật liệu của cửa hàng ' . $nhanVien->ma_cua_hang,    
+        ];
+
+        return view('staffs.shop_materials.index', $viewData);
     }
+
     public function create(Request $request)
     {
         $nhanVien = Auth::guard('staff')->user()->nhanvien;
@@ -52,15 +55,18 @@ class StaffShopmaterialController extends Controller
         $materials = NguyenLieu::where('trang_thai', 1)
             ->whereNotIn('ma_nguyen_lieu', $nguyenLieuDaCo)
             ->get();
-
-        return view('staffs.shop_materials.create', [
+        
+        $viewData = [
             'title' => 'Thêm nguyên liệu',
             'subtitle' => 'Thêm nguyên liệu vào kho',
             'materials' => $materials,
             'ma_cua_hang' => $maCuaHang,
-            'ten_cua_hang' => CuaHang::where('ma_cua_hang', $maCuaHang)->value('ten_cua_hang'),
-        ]);
+            'ten_cua_hang' => CuaHang::where('ma_cua_hang', $maCuaHang)->value('ten_cua_hang'),    
+        ];
+
+        return view('staffs.shop_materials.create', $viewData);
     }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -97,6 +103,7 @@ class StaffShopmaterialController extends Controller
         toastr()->success('Đã thêm nguyên liệu vào kho.');
         return redirect()->route('staffs.shop_materials.index');
     }
+
     public function showImportPage(Request $request)
     {
         $nhanVien = Auth::guard('staff')->user()->nhanvien;
@@ -129,14 +136,16 @@ class StaffShopmaterialController extends Controller
         $soThuTu = str_pad($countToday + 1, 3, '0', STR_PAD_LEFT);
         $soLo = PhieuNhapXuatNguyenLieu::generateSoLo();
 
-        return view('staffs.shop_materials.import', [
+        $viewData = [
             'materials' => $materials,
             'subtitle' => 'Nhập nguyên liệu vào cửa hàng',
             'title' => 'Nhập nguyên liệu | CDMT & tea and coffee',
             'soLo' => $soLo,
-            'today'=>$today,
-        ]);
+            'today'=>$today,    
+        ];
+        return view('staffs.shop_materials.import', $viewData);
     }
+
     public function import(Request $request)
     {
         $nhanVien = Auth::guard('staff')->user()->nhanvien;
@@ -253,128 +262,118 @@ class StaffShopmaterialController extends Controller
             ])->withInput();
         }
     }
+
     public function showExportPage(Request $request)
-{
-    $nhanVien = Auth::guard('staff')->user()->nhanvien;
-    $maCuaHang = $nhanVien->ma_cua_hang;
-    $today = Carbon::now()->format('d/m/Y');
-    $materialKeys = $request->input('materials', []);
-    $materials = collect();
+    {
+        $nhanVien = Auth::guard('staff')->user()->nhanvien;
+        $maCuaHang = $nhanVien->ma_cua_hang;
+        $today = Carbon::now()->format('d/m/Y');
+        $materialKeys = $request->input('materials', []);
+        $materials = collect();
 
-    $now = Carbon::now()->startOfDay();
+        $now = Carbon::now()->startOfDay();
 
-    foreach ($materialKeys as $key) {
-        [$_, $maNguyenLieu] = explode('|', $key) + [null, null];
+        foreach ($materialKeys as $key) {
+            [$_, $maNguyenLieu] = explode('|', $key) + [null, null];
 
-        if (!$maNguyenLieu) continue;
+            if (!$maNguyenLieu) continue;
 
-        $material = CuaHangNguyenLieu::with('nguyenLieu', 'cuaHang')
-            ->where('ma_cua_hang', $maCuaHang)
-            ->where('ma_nguyen_lieu', $maNguyenLieu)
-            ->first();
-
-        if ($material) {
-            $loList = PhieuNhapXuatNguyenLieu::where('ma_cua_hang', $maCuaHang)
-                ->where('ma_nguyen_lieu', $maNguyenLieu)
-                ->where('loai_phieu', 0)
-                ->where('han_su_dung', '>=', $now)
-                ->orderBy('han_su_dung', 'asc')
-                ->orderBy('ngay_tao_phieu', 'asc')
-                ->get();
-
-            //$fromHD = DB::table('chi_tiet_hoa_dons as cthd')
-                //->join('hoa_dons as hd', 'cthd.ma_hoa_don', '=', 'hd.ma_hoa_don')
-                //->join('thanh_phan_san_phams as tp', 'cthd.ma_san_pham', '=', 'tp.ma_san_pham')
-                //->where('hd.ma_cua_hang', $maCuaHang)
-                //->where('tp.ma_nguyen_lieu', $maNguyenLieu)
-                //->select('hd.ngay_lap_hoa_don as ngay_phat_sinh', DB::raw('tp.dinh_luong * cthd.so_luong as dinh_luong'))
-                //->get();
-            $fromHD = DB::table('chi_tiet_hoa_dons as cthd')
-                ->join('hoa_dons as hd', 'cthd.ma_hoa_don', '=', 'hd.ma_hoa_don')
-                ->join('sizes as s', DB::raw('LOWER(cthd.ten_size)'), '=', DB::raw('LOWER(s.ten_size)'))
-                ->join('thanh_phan_san_phams as tp', function ($join) {
-                    $join->on('cthd.ma_san_pham', '=', 'tp.ma_san_pham')
-                        ->on('s.ma_size', '=', 'tp.ma_size');
-                })
-                ->where('hd.ma_cua_hang', $maCuaHang)
-                ->where('tp.ma_nguyen_lieu', $maNguyenLieu)
-                ->select(
-                    'hd.ngay_lap_hoa_don as ngay_phat_sinh',
-                    DB::raw('tp.dinh_luong * cthd.so_luong as dinh_luong')
-                )
-                ->get();
-
-
-
-
-
-
-
-            $fromPX = DB::table('phieu_nhap_xuat_nguyen_lieus')
+            $material = CuaHangNguyenLieu::with('nguyenLieu', 'cuaHang')
                 ->where('ma_cua_hang', $maCuaHang)
                 ->where('ma_nguyen_lieu', $maNguyenLieu)
-                ->where('loai_phieu', 1)
-                ->select('ngay_tao_phieu as ngay_phat_sinh', 'dinh_luong')
-                ->get();
+                ->first();
 
-            $fromHuy = DB::table('phieu_nhap_xuat_nguyen_lieus')
-                ->where('ma_cua_hang', $maCuaHang)
-                ->where('ma_nguyen_lieu', $maNguyenLieu)
-                ->where('loai_phieu', 2)
-                ->select('ngay_tao_phieu as ngay_phat_sinh', 'dinh_luong')
-                ->get();
+            if ($material) {
+                $loList = PhieuNhapXuatNguyenLieu::where('ma_cua_hang', $maCuaHang)
+                    ->where('ma_nguyen_lieu', $maNguyenLieu)
+                    ->where('loai_phieu', 0)
+                    ->where('han_su_dung', '>=', $now)
+                    ->orderBy('han_su_dung', 'asc')
+                    ->orderBy('ngay_tao_phieu', 'asc')
+                    ->get();
 
-            $transactions = $fromHD->merge($fromPX)->merge($fromHuy)->sortBy('ngay_phat_sinh')->values();
+                $fromHD = DB::table('chi_tiet_hoa_dons as cthd')
+                    ->join('hoa_dons as hd', 'cthd.ma_hoa_don', '=', 'hd.ma_hoa_don')
+                    ->join('sizes as s', DB::raw('LOWER(cthd.ten_size)'), '=', DB::raw('LOWER(s.ten_size)'))
+                    ->join('thanh_phan_san_phams as tp', function ($join) {
+                        $join->on('cthd.ma_san_pham', '=', 'tp.ma_san_pham')
+                            ->on('s.ma_size', '=', 'tp.ma_size');
+                    })
+                    ->where('hd.ma_cua_hang', $maCuaHang)
+                    ->where('tp.ma_nguyen_lieu', $maNguyenLieu)
+                    ->select(
+                        'hd.ngay_lap_hoa_don as ngay_phat_sinh',
+                        DB::raw('tp.dinh_luong * cthd.so_luong as dinh_luong')
+                    )
+                    ->get();
 
-            $availableBatches = collect();
+                $fromPX = DB::table('phieu_nhap_xuat_nguyen_lieus')
+                    ->where('ma_cua_hang', $maCuaHang)
+                    ->where('ma_nguyen_lieu', $maNguyenLieu)
+                    ->where('loai_phieu', 1)
+                    ->select('ngay_tao_phieu as ngay_phat_sinh', 'dinh_luong')
+                    ->get();
 
-            foreach ($loList as $lo) {
-                $left = $lo->dinh_luong;
+                $fromHuy = DB::table('phieu_nhap_xuat_nguyen_lieus')
+                    ->where('ma_cua_hang', $maCuaHang)
+                    ->where('ma_nguyen_lieu', $maNguyenLieu)
+                    ->where('loai_phieu', 2)
+                    ->select('ngay_tao_phieu as ngay_phat_sinh', 'dinh_luong')
+                    ->get();
 
-                foreach ($transactions as $tx) {
-                    if (Carbon::parse($tx->ngay_phat_sinh)->lt(Carbon::parse($lo->ngay_tao_phieu))) {
-                        continue;
+                $transactions = $fromHD->merge($fromPX)->merge($fromHuy)->sortBy('ngay_phat_sinh')->values();
+
+                $availableBatches = collect();
+
+                foreach ($loList as $lo) {
+                    $left = $lo->dinh_luong;
+
+                    foreach ($transactions as $tx) {
+                        if (Carbon::parse($tx->ngay_phat_sinh)->lt(Carbon::parse($lo->ngay_tao_phieu))) {
+                            continue;
+                        }
+
+                        if ($tx->dinh_luong <= 0) continue;
+
+                        $used = min($left, $tx->dinh_luong);
+                        $left -= $used;
+                        $tx->dinh_luong -= $used;
+
+                        if ($left <= 0) break;
                     }
 
-                    if ($tx->dinh_luong <= 0) continue;
-
-                    $used = min($left, $tx->dinh_luong);
-                    $left -= $used;
-                    $tx->dinh_luong -= $used;
-
-                    if ($left <= 0) break;
+                    if ($left > 0) {
+                        $availableBatches->push([
+                            'so_lo'       => $lo->so_lo,
+                            'con_lai'     => $left,
+                            'han_su_dung' => $lo->han_su_dung,
+                            'don_vi'      => $material->don_vi,
+                        ]);
+                    }
                 }
 
-                if ($left > 0) {
-                    $availableBatches->push([
-                        'so_lo'       => $lo->so_lo,
-                        'con_lai'     => $left,
-                        'han_su_dung' => $lo->han_su_dung,
-                        'don_vi'      => $material->don_vi,
-                    ]);
-                }
+                $material->available_batches = $availableBatches;
+                $materials->push($material);
             }
-
-            $material->available_batches = $availableBatches;
-            $materials->push($material);
         }
+
+        if ($materials->isEmpty()) {
+            toastr()->error('Không còn nguyên liệu để xuất!');
+            return redirect()->route('staffs.shop_materials.index');
+        }
+
+        $soLo = PhieuNhapXuatNguyenLieu::generateSoLo();
+
+        $viewData = [
+            'materials' => $materials,
+            'subtitle' => 'Xuất nguyên liệu khỏi cửa hàng',
+            'title' => 'Xuất nguyên liệu | CDMT & tea and coffee',
+            'soLo' => $soLo,
+            'today' => $today,
+        ];
+
+        return view('staffs.shop_materials.export',$viewData);
     }
-
-    if ($materials->isEmpty()) {
-        toastr()->error('Không còn nguyên liệu để xuất!');
-        return redirect()->route('staffs.shop_materials.index');
-    }
-
-    $soLo = PhieuNhapXuatNguyenLieu::generateSoLo();
-
-    return view('staffs.shop_materials.export', [
-        'materials' => $materials,
-        'subtitle' => 'Xuất nguyên liệu khỏi cửa hàng',
-        'title' => 'Xuất nguyên liệu | CDMT & tea and coffee',
-        'soLo' => $soLo,
-        'today' => $today,
-    ]);
-}
 
     public function export(Request $request)
     {
@@ -594,13 +593,15 @@ class StaffShopmaterialController extends Controller
             return redirect()->route('staffs.shop_materials.index');
         }
 
-        return view('staffs.shop_materials.destroy', [
+        $viewData = [
             'materials' => $materials,
             'title' => 'Hủy nguyên liệu | CDMT & tea and coffee',
             'subtitle' => 'Hủy nguyên liệu theo lô',
             'today' => Carbon::now()->format('d/m/Y'),
             'ma_cua_hang' => $maCuaHang,
-        ]);
+        ];
+
+        return view('staffs.shop_materials.destroy', $viewData);
     }
     public function destroy(Request $request)
     {
@@ -758,14 +759,13 @@ class StaffShopmaterialController extends Controller
             });
         }
 
-        // Chỉ lọc cửa hàng của nhân viên đang đăng nhập
         $query->where('ma_cua_hang', $maCuaHang);
 
         if ($request->filled('loai_phieu')) {
             $query->where('loai_phieu', $request->loai_phieu);
         }
 
-        // 👉 Gộp các phiếu có cùng so_lo, loai_phieu, ngay_tao_phieu
+        //Gộp các phiếu có cùng so_lo, loai_phieu, ngay_tao_phieu
         $danhSachLo = $query
             ->select('loai_phieu', 'ma_cua_hang', 'ma_nhan_vien', 'ngay_tao_phieu')
             ->groupBy('loai_phieu', 'ma_cua_hang', 'ma_nhan_vien', 'ngay_tao_phieu')
@@ -774,6 +774,7 @@ class StaffShopmaterialController extends Controller
             ->orderBy('ma_cua_hang')
             ->orderBy('ma_nhan_vien')
             ->get();
+
         //tổng tiền
         $danhSachLo = $danhSachLo->map(function ($phieu) {
             $chiTiet = PhieuNhapXuatNguyenLieu::where('loai_phieu', $phieu->loai_phieu)
@@ -794,13 +795,14 @@ class StaffShopmaterialController extends Controller
             return $phieu;
         });
 
-
-        return view('staffs.shop_materials.list', [
+        $viewData = [
             'title' => 'Danh sách phiếu',
             'subtitle' => 'Danh sách Phiếu Nhập - Xuất - Hủy',
             'danhSachPhieu' => $danhSachLo,
             'search'=>$search,
-        ]);
+        ];
+
+        return view('staffs.shop_materials.list', $viewData);
     }
     public function layChiTietPhieu($ngay_tao, $loai_phieu, $ma_nv)
     {
@@ -830,15 +832,13 @@ class StaffShopmaterialController extends Controller
             'ma_nhan_vien' => $first->ma_nhan_vien,
             'so_lo' => $first->so_lo ?? 'Không có',
         ],
-
-
             'chi_tiet' => $chiTiet->map(function ($item) {
                 return [
                     'ma_nguyen_lieu' => $item->nguyenLieu->ma_nguyen_lieu ?? 'N/A',
                     'ten_nguyen_lieu' => $item->nguyenLieu->ten_nguyen_lieu ?? 'N/A',
                     'so_luong' => $item->so_luong ?? 0,
                     'so_lo' => $item->so_lo ?? 'N/A',
-                    'gia_tien' => $item->gia_nhap ?? 0,  // giá từ bảng nguyên liệu nếu có
+                    'gia_tien' => $item->gia_nhap ?? 0,  
                     'tong_tien' => $item->tong_tien ?? 0,
                     'ghi_chu' => $item->ghi_chu ?? '',
                 ];
@@ -847,8 +847,4 @@ class StaffShopmaterialController extends Controller
 
         return response()->json($data);
     }
-
-
-
-
 }

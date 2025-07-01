@@ -91,7 +91,7 @@ class StaffDashboardController extends Controller
                 'nl.ten_nguyen_lieu',
                 'nl.so_luong',
                 'nl.don_vi',
-                'nl.gia',
+                'chnl.gia_nhap',
                 'chnl.so_luong_ton',
                 'chnl.don_vi as don_vi_tinh',
                 'chnl.so_luong_ton_min',
@@ -117,19 +117,25 @@ class StaffDashboardController extends Controller
             )
             ->get();
 
+        $now = Carbon::now()->startOfDay();
+
         foreach ($nglKho as $nl) {
-            // 1. Danh sách lô nhập
-            $loList = DB::table('phieu_nhap_xuat_nguyen_lieus as pnxl')
-                ->where('pnxl.ma_cua_hang', $ma_cua_hang)
-                ->where('pnxl.ma_nguyen_lieu', $nl->ma_nguyen_lieu)
-                ->where('pnxl.loai_phieu', 0)
-                ->orderBy('pnxl.han_su_dung', 'asc')
+            $loList = DB::table('phieu_nhap_xuat_nguyen_lieus')
+                ->where('ma_cua_hang', $ma_cua_hang)
+                ->where('ma_nguyen_lieu', $nl->ma_nguyen_lieu)
+                ->where('loai_phieu', 0)
+                ->where('han_su_dung', '>=', $now)
+                ->orderBy('han_su_dung', 'asc')
+                ->orderBy('ngay_tao_phieu', 'asc')
                 ->get();
 
-            // 2. Danh sách giao dịch tiêu dùng
             $transactionsHD = DB::table('chi_tiet_hoa_dons as cthd')
                 ->join('hoa_dons as hd', 'cthd.ma_hoa_don', '=', 'hd.ma_hoa_don')
-                ->join('thanh_phan_san_phams as tp', 'cthd.ma_san_pham', '=', 'tp.ma_san_pham')
+                ->join('sizes as s', DB::raw('LOWER(cthd.ten_size)'), '=', DB::raw('LOWER(s.ten_size)'))
+                ->join('thanh_phan_san_phams as tp', function ($join) {
+                    $join->on('cthd.ma_san_pham', '=', 'tp.ma_san_pham')
+                        ->on('s.ma_size', '=', 'tp.ma_size');
+                })
                 ->where('hd.ma_cua_hang', $ma_cua_hang)
                 ->where('tp.ma_nguyen_lieu', $nl->ma_nguyen_lieu)
                 ->select('hd.ngay_lap_hoa_don as ngay_phat_sinh', DB::raw('tp.dinh_luong * cthd.so_luong as dinh_luong'))
@@ -139,39 +145,31 @@ class StaffDashboardController extends Controller
                 ->where('ma_cua_hang', $ma_cua_hang)
                 ->where('ma_nguyen_lieu', $nl->ma_nguyen_lieu)
                 ->where('loai_phieu', 1)
-                ->selectRaw('ngay_tao_phieu as ngay_phat_sinh, dinh_luong')
-                ->get();
-
-        $transactionsHuy = DB::table('phieu_nhap_xuat_nguyen_lieus')
-                ->where('ma_cua_hang', $ma_cua_hang)
-                ->where('ma_nguyen_lieu', $nl->ma_nguyen_lieu)
-                ->where('loai_phieu', 2)
-                ->where('dinh_luong', '>', 0) // ❗ tránh lỗi lấy dòng không có định lượng
                 ->select('ngay_tao_phieu as ngay_phat_sinh', 'dinh_luong')
                 ->get();
 
+            $transactionsHuy = DB::table('phieu_nhap_xuat_nguyen_lieus')
+                ->where('ma_cua_hang', $ma_cua_hang)
+                ->where('ma_nguyen_lieu', $nl->ma_nguyen_lieu)
+                ->where('loai_phieu', 2)
+                ->where('dinh_luong', '>', 0)
+                ->select('ngay_tao_phieu as ngay_phat_sinh', 'dinh_luong')
+                ->get();
 
-            // Gộp và sắp xếp tất cả các giao dịch phát sinh
-        $transactions = $transactionsHD
-            ->merge($transactionsPX)
-            ->merge($transactionsHuy)
-            ->sortBy('ngay_phat_sinh')
-            ->values();
+            $transactions = $transactionsHD
+                ->merge($transactionsPX)
+                ->merge($transactionsHuy)
+                ->sortBy('ngay_phat_sinh')
+                ->values();
 
-    //dd($transactions); // kiểm tra thử đã có định lượng hủy chưa
+            // Tính tồn lô theo FIFO
+            $availableBatches = collect();
 
-
-            // 3. Áp dụng FIFO theo từng giao dịch
-            $loWithTon = [];
             foreach ($loList as $lo) {
                 $left = $lo->dinh_luong;
 
                 foreach ($transactions as $tx) {
-                    // Bỏ qua giao dịch xảy ra trước khi lô này được nhập
-                    if (Carbon::parse($tx->ngay_phat_sinh)->lt(Carbon::parse($lo->ngay_tao_phieu))) {
-                        continue;
-                    }
-
+                    if (Carbon::parse($tx->ngay_phat_sinh)->lt(Carbon::parse($lo->ngay_tao_phieu))) continue;
                     if ($tx->dinh_luong <= 0) continue;
 
                     $used = min($left, $tx->dinh_luong);
@@ -181,16 +179,17 @@ class StaffDashboardController extends Controller
                     if ($left <= 0) break;
                 }
 
-                $soLuongConLai = round($left / max($nl->so_luong_goc, 1), 2);
-
-                $loWithTon[] = [
-                    'so_lo' => $lo->so_lo,
-                    'han_su_dung' => $lo->han_su_dung,
-                    'ton_lo' => $soLuongConLai,
-                ];
+                if ($left > 0) {
+                    $availableBatches->push([
+                        'so_lo'       => $lo->so_lo,
+                        'con_lai'     => $left,
+                        'han_su_dung' => $lo->han_su_dung,
+                        'don_vi'      => $nl->don_vi,
+                    ]);
+                }
             }
 
-            $nl->lo_hang = $loWithTon;
+            $nl->available_batches = $availableBatches;
         }
 
         return $nglKho;
@@ -207,7 +206,7 @@ class StaffDashboardController extends Controller
         foreach ($chonNhap as $maNL) {
             $soLuong = $request->input("so_luong_du_kien.$maNL");
             $donVi = $request->input("don_vi_tinh.$maNL");
-
+            $gia = $request->input("gia.$maNL");
             $nguyenLieu = DB::table('nguyen_lieus')
                 ->where('ma_nguyen_lieu', $maNL)
                 ->first();
@@ -219,7 +218,7 @@ class StaffDashboardController extends Controller
                     'so_luong'           => $nguyenLieu->so_luong,
                     'don_vi'             => $nguyenLieu->don_vi,
                     'don_vi_tinh'        => $donVi,
-                    'gia'                => $nguyenLieu->gia,
+                    'gia'                => $gia,
                     'so_luong_du_kien'   => $soLuong,
                 ];
             }
@@ -257,7 +256,7 @@ class StaffDashboardController extends Controller
         foreach ($chonXuat as $maNL) {
             $soLuong = $request->input("so_luong_xuat.$maNL");
             $donVi = $request->input("don_vi_tinh.$maNL");
-
+            $gia = $request->input("gia.$maNL");
             $nguyenLieu = DB::table('nguyen_lieus')
                 ->where('ma_nguyen_lieu', $maNL)
                 ->first();
@@ -269,7 +268,7 @@ class StaffDashboardController extends Controller
                     'so_luong'           => $nguyenLieu->so_luong,
                     'don_vi'             => $nguyenLieu->don_vi,
                     'don_vi_tinh'        => $donVi,
-                    'gia'                => $nguyenLieu->gia,
+                    'gia'                => $gia,
                     'so_luong_xuat'      => $soLuong,
                 ];
             }
@@ -298,46 +297,67 @@ class StaffDashboardController extends Controller
     
     public function exportPhieuKiemKho(Request $request)
     {
+        // 1) Lấy danh sách NL được tick
         $chonKiemKho = $request->input('chon_kiemkho', []);
-        $nhanVien = Auth::guard('staff')->user()->nhanvien;
-        $maPhieu = 'PKK-' . now()->format('dmY-His');
+        if (empty($chonKiemKho)) {
+            toastr()->error('Bạn chưa chọn nguyên liệu nào!');
+            return back();
+        }
 
-        $nguyenLieuList = [];
+        $staff     = Auth::guard('staff')->user()->nhanvien;
+        $maCuaHang = $staff->ma_cua_hang;
+        $maPhieu   = 'PKK-' . now()->format('dmY-His');
+
+        $kho = $this->getNguyenLieuKiemKho($maCuaHang)->keyBy('ma_nguyen_lieu');
+
+        $nguyenLieuList = collect();
 
         foreach ($chonKiemKho as $maNL) {
-            $nguyenLieu = $this->getNguyenLieuKiemKho($nhanVien->ma_cua_hang)
-                ->firstWhere('ma_nguyen_lieu', $maNL);
+            if (!$kho->has($maNL)) continue;
+            $nl = $kho[$maNL];
 
-            if ($nguyenLieu) {
-                $tongTon = 0;
-                foreach ($nguyenLieu->lo_hang ?? [] as $lo) {
-                    $tongTon += $lo['ton_lo'] ?? 0;
-                }
+            $tongDinhLuong = $nl->available_batches->sum('con_lai');
 
-                $nguyenLieuList[] = (object)[
-                    'ma_nguyen_lieu'   => $nguyenLieu->ma_nguyen_lieu,
-                    'ten_nguyen_lieu'  => $nguyenLieu->ten_nguyen_lieu,
-                    'don_vi'           => $nguyenLieu->don_vi,
-                    'so_luong_goc'     => $nguyenLieu->so_luong_goc,
-                    'don_vi_tinh'      => $nguyenLieu->don_vi_tinh,
-                    'tong_ton'         => $tongTon,
-                    'lo_hang'          => $nguyenLieu->lo_hang,
+            $tongTon = floor($tongDinhLuong / max($nl->so_luong_goc, 1));
+
+            $loHang = $nl->available_batches->map(function ($b) use ($nl) {
+                $soLuongGoc = max($nl->so_luong_goc, 1); // tránh chia cho 0
+
+                return (object)[
+                    'so_lo'        => $b['so_lo'] ?? '-',
+                    'ton_lo'       => floor(($b['con_lai'] ?? 0) / $soLuongGoc),
+                    'han_su_dung'  => $b['han_su_dung'] ?? null,
+                    'so_luong_goc' => $soLuongGoc, // nếu cần hiển thị thêm
                 ];
-            }
+            });
+
+            $nguyenLieuList->push((object)[
+                'ma_nguyen_lieu'  => $nl->ma_nguyen_lieu,
+                'ten_nguyen_lieu' => $nl->ten_nguyen_lieu,
+                'don_vi'          => $nl->don_vi,
+                'don_vi_tinh'     => $nl->don_vi_tinh,
+                'so_luong_goc'    => $nl->so_luong_goc,
+                'tong_ton'        => $tongTon,
+                'lo_hang'         => $loHang,
+            ]);
+        }
+
+        if ($nguyenLieuList->isEmpty()) {
+            toastr()->error('Không có dữ liệu để xuất phiếu!');
+            return back();
         }
 
         $cuaHang = DB::table('cua_hangs')
-            ->where('ma_cua_hang', $nhanVien->ma_cua_hang)
+            ->where('ma_cua_hang', $maCuaHang)
             ->first();
 
-        $nguoiLap = $nhanVien->ho_ten_nhan_vien;
-
         $pdf = Pdf::loadView('exports.phieu_kiem_kho', [
-            'nguyenLieuList' => $nguyenLieuList,
-            'cuaHang'        => $cuaHang,
-            'nguoiLap'       => $nguoiLap,
-            'maPhieu'        => $maPhieu,
-        ])->setPaper('a4', 'landscape');
+                    'nguyenLieuList' => $nguyenLieuList,
+                    'cuaHang'        => $cuaHang,
+                    'nguoiLap'       => $staff->ho_ten_nhan_vien,
+                    'maPhieu'        => $maPhieu,
+                ])
+                ->setPaper('a4', 'landscape');
 
         return $pdf->stream("{$maPhieu}.pdf");
     }

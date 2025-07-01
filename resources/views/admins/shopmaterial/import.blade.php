@@ -72,14 +72,15 @@
                                         <td class="px-2 py-2">{{ $material->nguyenLieu->ten_nguyen_lieu }}</td>
                                         <td class="px-2 py-2">{{ $material->nguyenLieu->so_luong .' '. $material->nguyenLieu->don_vi }}</td>
                                         <td class="px-2 py-2">
-                                            <input
-                                                type="number"
-                                                name="import[{{ $material->ma_cua_hang }}][{{ $material->ma_nguyen_lieu }}]"
-                                                class="form-control form-control-sm"
-                                                step="any"
-                                                min="0.01"
+                                        <input
+                                            type="number"
+                                            name="import[{{ $material->ma_cua_hang }}][{{ $material->ma_nguyen_lieu }}]"
+                                            class="form-control form-control-sm"
+                                            step="any"
+                                            min="0.01"
+                                            value="{{ old('import.' . $material->ma_cua_hang . '.' . $material->ma_nguyen_lieu) }}"
+                                        >
 
-                                            >
                                         </td>
                                         <td class="px-2 py-2">
                                             <input
