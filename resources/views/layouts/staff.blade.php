@@ -1,18 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>@yield('title',"Staff CDMT Coffee & Tea")</title>
     <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport"/>
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="ma-cua-hang" content="{{ Auth::guard('staff')->user()->nhanvien->ma_cua_hang ?? 'CH00000001' }}">
-    {{-- <script>
-        window.maCuaHang = @json(Auth::guard('staff')->user()->nhanvien->ma_cua_hang ?? 'CH00000001');
-    </script>
-
-    @vite('resources/js/app.js') --}}
-
+    <meta name="ma-cua-hang" content="{{ Auth::guard('staff')->user()->nhanvien->ma_cua_hang ?? '' }}">
     <link rel="icon" href="{{ asset('img/favicon.png') }}" type="image/x-icon"/>
+
     <!-- Fonts and icons -->
     <script src="{{ asset('admins/js/plugin/webfont/webfont.min.js') }}"></script>
     <script>
@@ -39,15 +34,24 @@
     <link rel="stylesheet" href="{{ asset('admins/css/bootstrap.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('admins/css/plugins.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('admins/css/kaiadmin.min.css') }}" />
-
-    <!-- CSS Just for demo purpose, don't include it in your project -->
     <link rel="stylesheet" href="{{ asset('admins/css/demo.css') }}" />
-    @stack('styles')
+    <style>
+      #toast-container {
+          top: 12px;
+          left: 12px;
+          left: auto;
+      }
+      #toast-container > .toast-success {
+          background-color: #28a745 !important; /* Xanh lá */
+          color: white !important;
+      }
 
+    </style>
+    @stack('styles')
+    @vite('resources/js/app.js')
   </head>
   <body>
     <div class="wrapper">
-      <!-- Sidebar -->
       <div class="sidebar" data-background-color="dark">
         <div class="sidebar-logo">
           <!-- Logo Header -->
@@ -77,8 +81,6 @@
         <div class="sidebar-wrapper scrollbar scrollbar-inner">
           <div class="sidebar-content">
             <ul class="nav nav-secondary">
-                <!-- DoashBroad cho quản lý cửa hàng -->
-                <!-- {{ Auth::guard('staff')->user()->nhanvien->chucVu->ma_chuc_vu == 1 }} -->
                 @if(Auth::guard('staff')->user()->nhanvien->chucVu->ma_chuc_vu == 1)
                 <li class="nav-item">
                     <a data-bs-toggle="collapse" href="#dashboard" class="collapsed" aria-expanded="false" >
@@ -98,10 +100,10 @@
                 </li>
                 @endif
                 <li class="nav-section">
-                <span class="sidebar-mini-icon">
-                    <i class="fa fa-ellipsis-h"></i>
-                </span>
-                <h4 class="text-section">Thao Tác</h4>
+                  <span class="sidebar-mini-icon">
+                      <i class="fa fa-ellipsis-h"></i>
+                  </span>
+                  <h4 class="text-section">Thao Tác</h4>
                 </li>
                 @if (Auth::guard('staff')->user()->nhanvien->chucVu->ma_chuc_vu == 1 || Auth::guard('staff')->user()->nhanvien->chucVu->ma_chuc_vu == 3)
                 <!-- Đơn hàng -->
@@ -204,32 +206,25 @@
                         </a>
                     </li>
                 @endif
-
             </ul>
-          </div>
         </div>
       </div>
-      <!-- End Sidebar -->
-      <div class="main-panel">
+    </div>
+    <div class="main-panel">
         <div class="main-header">
           <div class="main-header-logo">
             <!-- Logo Header -->
             <div class="logo-header" data-background-color="dark">
               <a href="#" class="logo">
-                <img
-                  src="{{ asset('admins/img/kaiadmin/logo_light.svg') }}"
-                  alt="navbar brand"
-                  class="navbar-brand"
-                  height="20"
-                />
+                <img src="{{ asset('admins/img/kaiadmin/logo_light.svg') }}" alt="navbar brand" class="navbar-brand" height="20"/>
               </a>
               <div class="nav-toggle">
                 <button class="btn btn-toggle toggle-sidebar">
-                  <i class="gg-menu-right"></i>
-                </button>
-                <button class="btn btn-toggle sidenav-toggler">
-                  <i class="gg-menu-left"></i>
-                </button>
+                <i class="gg-menu-right"></i>
+              </button>
+              <button class="btn btn-toggle sidenav-toggler">
+                <i class="gg-menu-left"></i>
+              </button>
               </div>
               <button class="topbar-toggler more">
                 <i class="gg-more-vertical-alt"></i>
@@ -238,111 +233,105 @@
             <!-- End Logo Header -->
           </div>
           <!-- Navbar Header -->
-          <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom">
-            <div class="container-fluid">
-              <nav class="p-0 navbar navbar-header-left navbar-expand-lg navbar-form nav-search d-none d-lg-flex">
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <button type="submit" class="btn btn-search pe-1">
-                      <i class="fa fa-search search-icon"></i>
-                    </button>
-                  </div>
-                  <input type="text" placeholder="Search ..." class="form-control"/>
-                </div>
-              </nav>
-              <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
-                <li class="nav-item topbar-icon dropdown hidden-caret d-flex d-lg-none">
-                  <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown"  href="#" role="button" aria-expanded="false" aria-haspopup="true">
-                    <i class="fa fa-search"></i>
-                  </a>
-                  <ul class="dropdown-menu dropdown-search animated fadeIn">
-                    <form class="navbar-left navbar-form nav-search">
-                      <div class="input-group">
-                        <input type="text" placeholder="Search ..." class="form-control"/>
-                      </div>
-                    </form>
-                  </ul>
-                </li>
-                <li class="nav-item topbar-user dropdown hidden-caret">
-                  <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false" >
-                    <div class="avatar-sm">
-                      <img src="{{ asset('admins/img/profile.jpg') }}" alt="..." class="avatar-img rounded-circle" />
-                    </div>
-                    <span class="profile-username">
-                    <span class="op-7">Xin chào,</span>
-                      <span class="fw-bold">{{ Auth::guard('staff')->user()->nhanvien->ho_ten_nhan_vien ?? 'Nhân viên' }}</span>
-                    </span>
-                  </a>
-                  <ul class="dropdown-menu dropdown-user animated fadeIn">
-                    <div class="dropdown-user-scroll scrollbar-outer">
-                      <li>
-                        <div class="user-box">
-                          <div class="avatar-lg">
-                            <img  src="{{ asset('admins/img/profile.jpg') }}"  alt="image profile" class="rounded avatar-img"/>
-                          </div>
-                          <div class="u-text">
-                            <h4>{{ Auth::guard('staff')->user()->nhanvien->ho_ten_nhan_vien ?? 'Admin' }}</h4>
-                            <p class="text-muted">{{ Auth::guard('staff')->user()->email }}</p>
-                            <a href="profile.html" class="btn btn-xs btn-secondary btn-sm" >View Profile</a>
-                          </div>
-                        </div>
-                      </li>
-                      <li>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#">My Profile</a>
-                        <a class="dropdown-item" href="#">My Balance</a>
-                        <a class="dropdown-item" href="#">Inbox</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#">Account Setting</a>
-                        <div class="dropdown-divider"></div>
-
-                        <button type="button" id="logout-btn" class="dropdown-item">
-                            <i class="fas fa-sign-out-alt" style="margin-right:6px;"></i>Đăng xuất
-                        </button>
-                        <form id="logout-form" action="{{ route('admin.logout') }}" method="POST" style="display: none;">
-                            @csrf
-                        </form>
-                      </li>
-                    </div>
-                  </ul>
-                </li>
-              </ul>
+      <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom">
+        <div class="container-fluid">
+          <nav class="p-0 navbar navbar-header-left navbar-expand-lg navbar-form nav-search d-none d-lg-flex">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <button type="submit" class="btn btn-search pe-1">
+                  <i class="fa fa-search search-icon"></i>
+                </button>
+              </div>
+              <input type="text" placeholder="Search ..." class="form-control"/>
             </div>
           </nav>
-          <!-- End Navbar -->
-        </div>
-
-        <div class="container">
-            @yield('content')
-        </div>
-
-        <footer class="footer">
-            <div class="container-fluid d-flex justify-content-center">
-                <div class="copyright">
-                {{ $thongTinWebsite['footer_text'] }}
+          <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
+            <li class="nav-item topbar-icon dropdown hidden-caret d-flex d-lg-none">
+              <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown"  href="#" role="button" aria-expanded="false" aria-haspopup="true">
+                <i class="fa fa-search"></i>
+              </a>
+              <ul class="dropdown-menu dropdown-search animated fadeIn">
+                <form class="navbar-left navbar-form nav-search">
+                  <div class="input-group">
+                    <input type="text" placeholder="Search ..." class="form-control"/>
+                  </div>
+                </form>
+              </ul>
+            </li>
+            <li class="nav-item topbar-user dropdown hidden-caret">
+              <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false" >
+                <div class="avatar-sm">
+                  <img src="{{ asset('admins/img/profile.jpg') }}" alt="..." class="avatar-img rounded-circle" />
                 </div>
-            </div>
-        </footer>
-      </div>
-    </div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <!-- Core JS Files -->
-  <script src="{{ asset('admins/js/core/jquery-3.7.1.min.js') }}"></script>
-  <script src="{{ asset('admins/js/core/popper.min.js') }}"></script>
-  <script src="{{ asset('admins/js/core/bootstrap.min.js') }}"></script>
-  <script src="{{ asset('admins/js/plugin/sweetalert/sweetalert.min.js') }}"></script>
-  <!-- jQuery Scrollbar -->
-  <script src="{{ asset('admins/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js') }}"></script>
-  <!-- Kaiadmin JS -->
-  <script src="{{ asset('admins/js/kaiadmin.min.js') }}"></script>
-  <!-- Kaiadmin DEMO methods, don't include it in your project! -->
-  <script src="{{ asset('admins/js/setting-demo2.js') }}"></script>
-  <script>
-      $(document).on('click', '#logout-btn', function (e) {
-      e.preventDefault();
+                <span class="profile-username">
+                <span class="op-7">Xin chào,</span>
+                  <span class="fw-bold">{{ Auth::guard('staff')->user()->nhanvien->ho_ten_nhan_vien ?? 'Nhân viên' }}</span>
+                </span>
+              </a>
+              <ul class="dropdown-menu dropdown-user animated fadeIn">
+                <div class="dropdown-user-scroll scrollbar-outer">
+                  <li>
+                    <div class="user-box">
+                      <div class="avatar-lg">
+                        <img  src="{{ asset('admins/img/profile.jpg') }}"  alt="image profile" class="rounded avatar-img"/>
+                      </div>
+                      <div class="u-text">
+                        <h4>{{ Auth::guard('staff')->user()->nhanvien->ho_ten_nhan_vien ?? 'Nhân viên' }}</h4>
+                        <p class="text-muted">{{ Auth::guard('staff')->user()->email }}</p>
+                        <a href="profile.html" class="btn btn-xs btn-secondary btn-sm" >View Profile</a>
+                      </div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="#">My Profile</a>
+                    <a class="dropdown-item" href="#">My Balance</a>
+                    <a class="dropdown-item" href="#">Inbox</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="#">Account Setting</a>
+                    <div class="dropdown-divider"></div>
 
-      Swal.fire({
+                    <button type="button" id="logout-btn" class="dropdown-item">
+                        <i class="fas fa-sign-out-alt" style="margin-right:6px;"></i>Đăng xuất
+                    </button>
+                    <form id="logout-form" action="{{ route('admin.logout') }}" method="POST" style="display: none;">
+                        @csrf
+                    </form>
+                  </li>
+                </div>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+        @yield('content')
+    </div>
+    <audio id="order-sound" src="{{ asset('sounds/am_thanh_thong_bao.mp3') }}" preload="auto"></audio>
+    <footer class="footer">
+        <div class="container-fluid d-flex justify-content-center">
+            <div class="copyright">
+            {{ $thongTinWebsite['footer_text'] }}
+            </div>
+        </div>
+    </footer>
+  </div>
+    <!-- Scripts -->
+    <script src="{{ asset('admins/js/core/jquery-3.7.1.min.js') }}"></script>
+    <script src="{{ asset('admins/js/core/popper.min.js') }}"></script>
+    <script src="{{ asset('admins/js/core/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('admins/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js') }}"></script>
+    <script src="{{ asset('admins/js/kaiadmin.min.js') }}"></script>
+    <script src="{{ asset('admins/js/setting-demo2.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+      $(document).on('click', '#logout-btn', function (e) {
+        e.preventDefault();
+        Swal.fire({
           title: 'Đăng xuất?',
           text: "Bạn chắc chắn muốn đăng xuất?",
           icon: 'warning',
@@ -351,14 +340,38 @@
           cancelButtonColor: '#d33',
           confirmButtonText: 'Có, đăng xuất!',
           cancelButtonText: 'Hủy'
-      }).then((result) => {
+        }).then((result) => {
           if (result.isConfirmed) {
-              $('#logout-form').submit();
+            $('#logout-form').submit();
           }
+        });
       });
-  });
-  </script>
-  @stack('scripts')
 
+      @if (
+          Auth::guard('staff')->user()->nhanvien->chucVu->ma_chuc_vu == 1 ||
+          Auth::guard('staff')->user()->nhanvien->chucVu->ma_chuc_vu == 3
+      )
+      document.addEventListener('DOMContentLoaded', function () {
+        const maCuaHang = document.querySelector('meta[name="ma-cua-hang"]').content;
+        const audio = document.getElementById('order-sound');
+        if (typeof window.Echo !== 'undefined') {
+          console.log("Subscribing to: orders." + maCuaHang);
+          window.Echo.channel('orders.' + maCuaHang)
+            .listen('.order.created', (e) => {
+              console.log("Đơn mới:", e);
+              toastr.success(`Bạn có đơn hàng mới: ${e.order.ma_hoa_don}`, 'Thông báo', {
+                positionClass: 'toast-top-right',
+                closeButton: true,
+                progressBar: true
+              });
+              audio.play();
+            });
+        } else {
+          console.warn("window.Echo chưa load kịp.");
+        }
+      });
+      @endif
+    </script>
+    @stack('scripts')
   </body>
 </html>

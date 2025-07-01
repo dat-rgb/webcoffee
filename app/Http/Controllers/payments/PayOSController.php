@@ -200,25 +200,25 @@ class PayOSController extends Controller
             
             $statusPayment = 'Đã thanh toán';
             $status = 'Chờ xác nhận';
-            app(PaymentController::class)->sendEmail(
-                $hoaDon->ma_hoa_don,
-                $hoaDon->ten_khach_hang,
-                $hoaDon->email,
-                $hoaDon->so_dien_thoai,
-                $hoaDon->phuong_thuc_nhan_hang,
-                $hoaDon->phuong_thuc_thanh_toan,
-                $status, 
-                $statusPayment, 
-                $hoaDon->dia_chi,
-                $cartItems,
-                $hoaDon->tam_tinh,
-                $hoaDon->giam_gia,
-                $hoaDon->tien_ship,
-                $hoaDon->tong_tien,
-                $hoaDon->token_bao_mat,
-            );
+                app(PaymentController::class)->sendEmail(
+                    $hoaDon->ma_hoa_don,
+                    $hoaDon->ten_khach_hang,
+                    $hoaDon->email,
+                    $hoaDon->so_dien_thoai,
+                    $hoaDon->phuong_thuc_nhan_hang,
+                    $hoaDon->phuong_thuc_thanh_toan,
+                    $status, 
+                    $statusPayment, 
+                    $hoaDon->dia_chi,
+                    $cartItems,
+                    $hoaDon->tam_tinh,
+                    $hoaDon->giam_gia,
+                    $hoaDon->tien_ship,
+                    $hoaDon->tong_tien,
+                    $hoaDon->token_bao_mat,
+                );
             }
-
+            //event(new \App\Events\OrderCreated($hoaDon));
             return response()->json(['success' => true]);
         } catch (\Throwable $th) {
             return response()->json(['error' => 1, 'message' => 'Lỗi xử lý'], 500);

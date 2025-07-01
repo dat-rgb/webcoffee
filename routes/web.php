@@ -435,3 +435,11 @@ Route::get('/test-realtime', function () {
     event(new OrderCreated($fakeOrder));
     return view('test-realtime');
 });
+use App\Models\HoaDon;
+
+Route::get('/test-broadcast', function () {
+    $order = HoaDon::latest()->first(); // hoặc mock giả
+    event(new OrderCreated($order));
+    return 'Đã phát event!';
+});
+
