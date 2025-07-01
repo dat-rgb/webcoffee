@@ -81,7 +81,7 @@ class StoreController extends Controller
                 ) AS khoang_cach",
                 [$lat, $lng, $lat]          
             )
-            ->having('khoang_cach', '<=',100) 
+            ->having('khoang_cach', '<=',3) 
             ->orderBy('khoang_cach')
             ->get();
 
