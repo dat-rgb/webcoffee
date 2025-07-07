@@ -67,10 +67,10 @@
                                     <a href="{{ route('admins.nhanvien.lich.tuan') }}" class="btn btn-success">Lịch làm việc</a>
                                     {{-- <a href="#" class="btn btn-outline-secondary">Đổi ca làm</a> --}}
 
-                                    <button type="submit" class="btn btn-danger"
-                                        onclick="return confirm('Bạn có chắc muốn chuyển trạng thái nhân viên sang Tạm nghỉ?')">
+                                    <button type="button" id="btn-archive" class="btn btn-danger">
                                         Tạm nghỉ
                                     </button>
+
                                 </div>
                             </div>
                             <div class="card-body">
@@ -178,4 +178,46 @@
             });
         });
     </script>
+    <script>
+    document.getElementById('btn-archive').addEventListener('click', function () {
+        const selected = document.querySelectorAll('.select-nhanvien:checked');
+
+        if (selected.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Chưa chọn nhân viên',
+                text: 'Vui lòng chọn ít nhất một nhân viên để tạm nghỉ.'
+            });
+            return;
+        }
+
+       Swal.fire({
+            title: 'Bạn có chắc chắn?',
+            html: 'Các nhân viên đã chọn sẽ bị <strong>"Tạm nghỉ"</strong><br>(sẽ bị xóa sau 30 ngày).',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Có',
+            cancelButtonText: 'Không',
+            reverseButtons: true,
+            customClass: {
+                confirmButton: 'btn btn-danger me-2',
+                cancelButton: 'btn btn-secondary'
+            },
+            buttonsStyling: false
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Đang xử lý...',
+                    html: 'Vui lòng chờ giây lát.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                        document.getElementById('bulk-archive-form').submit();
+                    }
+                });
+            }
+        });
+
+    });
+</script>
 @endpush

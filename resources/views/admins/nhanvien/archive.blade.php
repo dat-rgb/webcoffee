@@ -71,41 +71,39 @@
                         </div>
                     </div>
 
-                    <div class="card-body"> 
+                    <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th><input type="checkbox" id="select-all" /></th>
-                                        <th>#</th>
-                                        <th>Mã nhân viên</th>
-                                        <th>Họ tên</th>
-                                        <th>Chức vụ</th>
-                                        <th>Cửa hàng</th>
-                                        <th>SĐT</th>
-                                        <th>Địa chỉ</th>
-                                        <th>Ngày bị xóa</th>
-                                        <th>Tự xóa sau</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @if ($nhanViens->isEmpty())
-                                        <tr>
-                                            <td colspan="9" class="text-center">
-                                                @if (request('search'))
-                                                    <i class="mr-1 fas fa-exclamation-circle text-warning"></i>
-                                                    Không tìm thấy nhân viên nào với từ khóa <strong>{{ $search }}</strong>.
-                                                @else
-                                                    <i class="mr-2 fas fa-exclamation-circle text-warning"></i>
-                                                    Hiện danh sách nhân viên nghỉ trống.
-                                                    <br>
-                                                    <a href="{{ route('admins.nhanvien.index') }}" class="mt-3 btn btn-primary">
-                                                        <i class="fa fa-arrow-alt-circle-right"></i> Quay lại danh sách nhân viên
-                                                    </a>
-                                                @endif
-                                            </td>
-                                        </tr>
+                            @if ($nhanViens->isEmpty())
+                                <div class="p-4 text-center">
+                                    @if (request('search'))
+                                        <i class="mr-1 fas fa-exclamation-circle text-warning"></i>
+                                        Không tìm thấy nhân viên nào với từ khóa <strong>{{ $search }}</strong>.
                                     @else
+                                        <i class="mr-2 fas fa-exclamation-circle text-warning"></i>
+                                        Hiện danh sách nhân viên nghỉ trống.
+                                        <br>
+                                        <a href="{{ route('admins.nhanvien.index') }}" class="mt-3 btn btn-primary">
+                                            <i class="fa fa-arrow-alt-circle-right"></i> Quay lại danh sách nhân viên
+                                        </a>
+                                    @endif
+                                </div>
+                            @else
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th><input type="checkbox" id="select-all" /></th>
+                                            <th>#</th>
+                                            <th>Mã nhân viên</th>
+                                            <th>Họ tên</th>
+                                            <th>Chức vụ</th>
+                                            <th>Cửa hàng</th>
+                                            <th>SĐT</th>
+                                            <th>Địa chỉ</th>
+                                            <th>Ngày bị xóa</th>
+                                            {{-- <th>Tự xóa sau</th> --}}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
                                         @foreach ($nhanViens as $index => $nv)
                                             <tr>
                                                 <td>
@@ -119,7 +117,7 @@
                                                 <td>{{ $nv->so_dien_thoai }}</td>
                                                 <td>{{ $nv->dia_chi }}</td>
                                                 <td>{{ $nv->updated_at }}</td>
-                                                <td class="text-center">
+                                                {{-- <td class="text-center">
                                                     @php
                                                         $updatedAt = \Carbon\Carbon::parse($nv->updated_at);
                                                         $expiresAt = $updatedAt->copy()->addDays(30);
@@ -137,16 +135,15 @@
                                                         <i class="fas fa-clock me-1"></i>
                                                         {{ $remaining }}
                                                     </span>
-                                                </td>
+                                                </td> --}}
                                             </tr>
                                         @endforeach
-                                    @endif
-                                </tbody>
-                            </table>
+                                    </tbody>
+                                </table>
+                            @endif
                         </div> <!-- table-responsive -->
                     </div> <!-- card-body -->
                 </form>
-
             </div> <!-- card -->
         </div> <!-- col -->
     </div> <!-- row -->
