@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CuaHang;
+use App\Models\HoaDon;
 use App\Models\KhachHang;
 use App\Models\KhuyenMai;
 use App\Models\SanPham;
@@ -10,6 +11,7 @@ use App\Models\SanPhamCuaHang;
 use App\Models\Sizes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class CartController extends Controller
@@ -474,17 +476,36 @@ class CartController extends Controller
             'error' => 'Sản phẩm không tồn tại trong giỏ hàng.'
         ], 400);
     }
-    public function getVoucher(){
-        $vouchers = KhuyenMai::where('trang_thai',1)->get();
+    public function getVoucher()
+    {
+        $today = now();
+
+        $vouchers = KhuyenMai::where('trang_thai', 1)
+            ->where('so_luong', '>', 0)
+            ->whereDate('ngay_bat_dau', '<=', $today)
+            ->whereDate('ngay_ket_thuc', '>=', $today)
+            ->get();
+
         return $vouchers;
     }
+
     public function check(Request $request)
     {
+        if (!Auth::check()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn cần đăng nhập để sử dụng voucher.'
+            ]);
+        }
+
         $code = $request->input('code');
+
+        // Tìm voucher hợp lệ
         $voucher = KhuyenMai::where('ma_voucher', $code)
             ->whereNull('deleted_at')
             ->whereDate('ngay_bat_dau', '<=', now())
             ->whereDate('ngay_ket_thuc', '>=', now())
+            ->where('so_luong', '>', 0)
             ->first();
 
         if (!$voucher) {
@@ -494,6 +515,30 @@ class CartController extends Controller
             ]);
         }
 
+        $khachHang = Auth::user()->khachHang;
+
+        // Kiểm tra nếu đã dùng rồi
+        $daDung = HoaDon::where('ma_khach_hang', $khachHang->ma_khach_hang)
+                        ->where('ma_voucher', $code)
+                        ->exists();
+
+        if ($daDung) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn đã sử dụng voucher này rồi.'
+            ]);
+        }
+
+        $diemToiThieu = $voucher->diem_toi_thieu ?? 0;
+        if ($khachHang->diem_thanh_vien < $diemToiThieu) {
+            $thieu = $diemToiThieu - $khachHang->diem_thanh_vien;
+            return response()->json([
+                'success' => false,
+                'message' => "Bạn cần thêm $thieu điểm để sử dụng voucher này."
+            ]);
+        }
+
+        // Nếu hợp lệ
         return response()->json([
             'success' => true,
             'voucher' => [
@@ -503,7 +548,7 @@ class CartController extends Controller
                 'giam_gia_max' => $voucher->giam_gia_max,
                 'dieu_kien_ap_dung' => $voucher->dieu_kien_ap_dung,
                 'hinh_anh' => $voucher->hinh_anh,
-                'ngay_ket_thuc' => \Carbon\Carbon::parse($voucher->ngay_ket_thuc)->format('d/m/Y')
+                'ngay_ket_thuc' => \Carbon\Carbon::parse($voucher->ngay_ket_thuc)->format('d/m/Y'),
             ]
         ]);
     }
@@ -645,6 +690,6 @@ class CartController extends Controller
     }
     public function muaNgay(Request $request, $id)
     {
-        return $this->addToCart($request, $id); // Gửi về giỏ như thường
+        return $this->addToCart($request, $id); 
     }
 }

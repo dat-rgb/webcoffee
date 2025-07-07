@@ -88,34 +88,54 @@ class PaymentController extends Controller
         $voucher = null;
 
         if ($voucherCode) {
-            $voucher = KhuyenMai::where('ma_voucher', $voucherCode)->first();
+            $voucher = KhuyenMai::where('ma_voucher', $voucherCode)
+                ->whereNull('deleted_at')
+                ->where('so_luong', '>', 0)
+                ->whereDate('ngay_bat_dau', '<=', now())
+                ->whereDate('ngay_ket_thuc', '>=', now())
+                ->first();
+
             if (!$voucher) {
-                toastr()->warning('Voucher không tồn tại.');
+                toastr()->warning('Voucher không tồn tại hoặc đã hết hạn.');
                 return redirect()->back();
             }
 
-            if ($voucher->so_luong <= 0) {
-                toastr()->warning('Voucher đã hết lược sử dụng.');
+            if (!$khachHang) {
+                toastr()->warning('Bạn cần đăng nhập để sử dụng voucher.');
                 return redirect()->back();
             }
 
-            if (now()->lt($voucher->ngay_bat_dau) || now()->gt($voucher->ngay_ket_thuc)) {
-                toastr()->warning('Voucher đã hết hạn.');
+            $daDung = HoaDon::where('ma_khach_hang', $khachHang->ma_khach_hang)
+                ->where('ma_voucher', $voucher->ma_voucher)
+                ->exists();
+
+            if ($daDung) {
+                toastr()->warning('Bạn đã sử dụng voucher này rồi.');
                 return redirect()->back();
             }
 
-            // Áp dụng giảm giá
+            if (!empty($voucher->diem_toi_thieu) && $khachHang->diem_thanh_vien < $voucher->diem_toi_thieu) {
+                $thieu = $voucher->diem_toi_thieu - $khachHang->diem_thanh_vien;
+                toastr()->warning("Bạn cần thêm {$thieu} điểm để sử dụng voucher này.");
+                return redirect()->back();
+            }
+
+            if ($subTotal < $voucher->dieu_kien_ap_dung) {
+                toastr()->warning('Đơn hàng chưa đủ điều kiện để sử dụng voucher.');
+                return redirect()->back();
+            }
+
             $discount = $voucher->gia_tri_giam <= 100
                 ? $subTotal * ($voucher->gia_tri_giam / 100)
                 : $voucher->gia_tri_giam;
 
+            $discount = min($discount, $voucher->giam_gia_max ?? $discount);
             $discount = min($discount, $subTotal);
 
-            // Trừ 1 lượt sử dụng
             $voucher->so_luong -= 1;
             $voucher->save();
         }
-      
+
         $total = $subTotal + $shippingFee - $discount;
 
         if($validated['shippingMethod'] == 'pickup'){

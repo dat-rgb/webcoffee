@@ -3,6 +3,14 @@
 @section('subtitle',$subtitle)
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/checkout.css') }}">
+<style>
+.voucher-item:hover {
+    border-color: #ff4d4f;
+    box-shadow: 0 0 0.5rem rgba(255, 77, 79, 0.2);
+}
+
+
+</style>
 @endpush
 @section('content')
 <!-- breadcrumb-section -->
@@ -123,6 +131,123 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Voucher -->
+                            <div class="card single-accordion">
+                                <div class="card-header" id="headingThree">
+                                    <h5 class="mb-0">
+                                        <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseVoucher" aria-expanded="false" aria-controls="collapseVoucher">
+                                            Voucher
+                                        </button>
+                                    </h5>
+                                </div>
+                                <div id="collapseVoucher" aria-labelledby="headingVoucher" data-parent="#accordionExample">
+                                    <div class="card-body">
+                                        <div class="card-details">
+                                            <h5 class="mb-3">
+                                                <i class="fa fa-ticket text-danger"></i> Chọn hoặc nhập mã giảm giá
+                                            </h5>
+
+                                            <!-- Nhập mã voucher -->
+                                            <div class="input-group mb-4">
+                                                <input type="text" class="form-control" id="voucherCodeInput" placeholder="Nhập mã voucher...">
+                                                <div class="input-group-append">
+                                                    <button type="button" id="checkVoucherBtn" class="btn btn-outline-primary">Áp dụng</button>
+                                                </div>
+                                            </div>
+                                            <div id="manualVoucherContainer"></div>
+
+                                            @php
+                                                $isGuest = !Auth::check() || !Auth::user()->khachHang;
+                                                $maKH = $isGuest ? null : Auth::user()->khachHang->ma_khach_hang;
+                                                $diemHienTai = $isGuest ? 0 : Auth::user()->khachHang->diem_thanh_vien;
+                                            @endphp
+
+
+                                            @if($isGuest)
+                                                <div class="alert alert-warning">
+                                                    <i class="fa fa-exclamation-circle"></i> Vui lòng <a href="{{ route('login') }}">đăng nhập</a> để sử dụng voucher.
+                                                </div>
+                                            @endif
+
+                                            @foreach($vouchers as $voucher)
+                                                @php
+                                                    $isUsed = false;
+
+                                                    if (!$isGuest) {
+                                                        $isUsed = \App\Models\HoaDon::where('ma_khach_hang', $maKH)
+                                                            ->where('ma_voucher', $voucher->ma_voucher)
+                                                            ->exists();
+                                                    }
+
+                                                    if ($isUsed) {
+                                                        continue;
+                                                    }
+
+                                                    $diemToiThieu = $voucher->diem_toi_thieu ?? 0;
+                                                    $soDiemThieu = max(0, $diemToiThieu - $diemHienTai);
+
+                                                    $isDisabled = $isGuest || 
+                                                                $subTotal < $voucher->dieu_kien_ap_dung || 
+                                                                $soDiemThieu > 0;
+
+                                                    $reason = null;
+                                                    if ($isGuest) {
+                                                        $reason = 'Bạn cần đăng nhập để sử dụng voucher này.';
+                                                    } elseif ($subTotal < $voucher->dieu_kien_ap_dung) {
+                                                        $reason = 'Đơn hàng chưa đủ điều kiện áp dụng.';
+                                                    } elseif ($soDiemThieu > 0) {
+                                                        $reason = "Bạn cần thêm $soDiemThieu điểm để dùng voucher này.";
+                                                    }
+                                                @endphp
+
+                                                @if($voucher->doi_tuong_ap_dung === 'hoa_don')
+                                                <div class="voucher-item mb-3 p-3 rounded border shadow-sm d-flex align-items-center {{ $isDisabled ? 'bg-light text-muted' : 'bg-white' }}" style="transition: all 0.3s ease;">
+                                                    <input type="checkbox"
+                                                        class="form-check-input voucher-checkbox"
+                                                        name="voucher"
+                                                        id="voucher{{ $voucher->ma_voucher }}"
+                                                        value="{{ $voucher->ma_voucher }}"
+                                                        data-gia-tri-giam="{{ $voucher->gia_tri_giam }}"
+                                                        data-giam-gia-max="{{ $voucher->giam_gia_max }}"
+                                                        data-dieu-kien="{{ $voucher->dieu_kien_ap_dung }}"
+                                                        style="width: 20px; height: 20px;"
+                                                        {{ $isDisabled ? 'disabled' : '' }}>
+
+                                                    <img src="{{ asset('storage/' . ($voucher->hinh_anh ?? 'vouchers/voucher-default.png')) }}"
+                                                        alt="{{ $voucher->ten_voucher }}"
+                                                        class="rounded me-3"
+                                                        style="width: 80px; height: 80px; object-fit: cover; {{ $isDisabled ? 'opacity: 0.5;' : '' }}">
+
+                                                    <div class="flex-grow-1">
+                                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                                            <span class="fw-semibold {{ $isDisabled ? 'text-muted' : 'text-dark' }}" style="font-size: 1rem;">
+                                                                {{ $voucher->ten_voucher }}
+                                                            </span>
+                                                            <span class="badge px-3 py-2" style="background-color: #ff4d4f; color: #fff; font-size: 0.9rem;">
+                                                                {{ $voucher->gia_tri_giam < 100 ? $voucher->gia_tri_giam . '%' : number_format($voucher->gia_tri_giam, 0, ',', '.') . 'đ' }}
+                                                            </span>
+                                                        </div>
+
+                                                        <small class="text-secondary d-block">
+                                                            Đơn từ <strong>{{ number_format($voucher->dieu_kien_ap_dung, 0, ',', '.') }}đ</strong> 
+                                                            | HSD: {{ \Carbon\Carbon::parse($voucher->ngay_ket_thuc)->format('d/m/Y') }}
+                                                        </small>
+
+                                                        @if($isDisabled && $reason)
+                                                            <small class="text-danger d-block mt-1">
+                                                                <i class="fa fa-exclamation-circle me-1"></i>{{ $reason }}
+                                                            </small>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Patyment method -->
                             <div class="card single-accordion">
                                 <div class="card-header" id="headingThree">
@@ -164,84 +289,10 @@
                                     </div>
                                 </div>
                             </div>
-                            <!-- Voucher -->
-                            <div class="card single-accordion">
-                                <div class="card-header" id="headingThree">
-                                    <h5 class="mb-0">
-                                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseVoucher" aria-expanded="false" aria-controls="collapseVoucher">
-                                       Voucher
-                                    </button>
-                                    </h5>
-                                </div>
-                                <div id="collapseVoucher" aria-labelledby="headingVoucher" data-parent="#accordionExample">
-                                    <div class="card-body">
-                                        <div class="card-details">
-                                            <h5 class="mb-3">
-                                                <i class="fa fa-ticket text-danger"></i> Chọn hoặc nhập mã giảm giá
-                                            </h5>
-                                            <!-- Nhập mã voucher -->
-                                            <div class="input-group mb-4">
-                                                <input type="text" class="form-control" id="voucherCodeInput" placeholder="Nhập mã voucher...">
-                                                <div class="input-group-append">
-                                                    <button type="button" id="checkVoucherBtn" class="btn btn-outline-primary">Áp dụng</button>
-                                                </div>
-                                            </div>
-                                            <div id="manualVoucherContainer"></div>
-
-                                            @foreach($vouchers as $voucher)
-                                                @php
-                                                    $isDisabled = $subTotal < $voucher->dieu_kien_ap_dung;
-                                                    $reason = null;
-
-                                                    if ($isDisabled) {
-                                                        $reason = 'Không thể áp dụng, đơn hàng chưa đủ điều kiện';
-                                                    }
-                                                @endphp
-                                                @if($voucher->doi_tuong_ap_dung === 'hoa_don')
-                                                    <div class="custom-control custom-radio mb-2 p-2 border rounded d-flex align-items-center {{ $isDisabled ? 'bg-light text-muted' : 'bg-white' }}">
-                                                        <input type="radio"
-                                                            class="custom-control-input voucher-radio"
-                                                            name="voucher"
-                                                            id="voucher{{ $voucher->ma_voucher }}"
-                                                            value="{{ $voucher->ma_voucher }}"
-                                                            data-gia-tri-giam="{{ $voucher->gia_tri_giam }}"
-                                                            data-giam-gia-max="{{ $voucher->giam_gia_max }}"
-                                                            data-dieu-kien="{{ $voucher->dieu_kien_ap_dung }}"
-                                                            {{ $isDisabled ? 'disabled' : '' }}>
-                                                    
-                                                        <label class="custom-control-label d-flex align-items-center w-100" for="voucher{{ $voucher->ma_voucher }}">
-                                                            <span class="radio-custom mr-3"></span>
-                                                            <img src="{{ asset('storage/' . ($voucher->hinh_anh ?? 'vouchers/voucher-default.png')) }}"
-                                                                alt="{{ $voucher->ten_voucher }}"
-                                                                style="width: 60px; height: 60px; object-fit: cover; {{ $isDisabled ? 'opacity: 0.5;' : '' }}">
-                                                            <div class="d-flex flex-column">
-                                                                <span class="font-weight-bold {{ $isDisabled ? 'text-muted' : 'text-dark' }}">{{ $voucher->ten_voucher }}</span>
-                                                                <small>
-                                                                    Giảm 
-                                                                    @if($voucher->gia_tri_giam < 100)
-                                                                        {{ $voucher->gia_tri_giam }}%
-                                                                    @else
-                                                                        {{ number_format($voucher->gia_tri_giam, 0, ',', '.') }}đ
-                                                                    @endif
-                                                                    (Tối đa {{ number_format($voucher->giam_gia_max, 0, ',', '.') }}đ) | 
-                                                                    ĐH từ {{ number_format($voucher->dieu_kien_ap_dung, 0, ',', '.') }}đ | 
-                                                                    HSD: {{ \Carbon\Carbon::parse($voucher->ngay_ket_thuc)->format('d/m/Y') }}
-                                                                </small>
-                                                                @if($isDisabled && $reason)
-                                                                    <small class="text-danger mt-1">{{ $reason }}</small>
-                                                                @endif
-                                                            </div>
-                                                        </label>
-                                                    </div>
-                                                @endif
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
+                <!--  -->
                 <div class="col-lg-4">
                     <div class="order-details-wrap">
                         <table class="order-details">
@@ -326,42 +377,46 @@ $(document).ready(function () {
                     Swal.fire('Không hợp lệ', res.message || 'Mã không tồn tại hoặc đã hết hạn', 'error');
                     return;
                 }
-                const v = res.voucher;
-                const isDisabled = false;
-                const reason = null;
 
+                const v = res.voucher;
                 const html = `
-                <div class="custom-control custom-radio mb-2 p-2 border rounded d-flex align-items-center bg-white">
-                    <input type="radio"
-                        class="custom-control-input voucher-radio"
+                <div class="voucher-item mb-3 p-3 rounded border shadow-sm d-flex align-items-center bg-white">
+                    <input type="checkbox"
+                        class="form-check-input voucher-checkbox"
                         name="voucher"
-                        id="voucher${v.ma_voucher}"
+                        id="manualVoucher"
                         value="${v.ma_voucher}"
                         data-gia-tri-giam="${v.gia_tri_giam}"
                         data-giam-gia-max="${v.giam_gia_max}"
-                        data-dieu-kien="${v.dieu_kien_ap_dung}">
-                    <label class="custom-control-label d-flex align-items-center w-100" for="voucher${v.ma_voucher}">
-                        <span class="radio-custom mr-3"></span>
-                        <img src="/storage/${v.hinh_anh || 'vouchers/voucher-default.png'}"
-                            alt="${v.ten_voucher}" style="width: 60px; height: 60px; object-fit: cover;">
-                        <div class="d-flex flex-column">
-                            <span class="font-weight-bold text-dark">${v.ten_voucher}</span>
-                            <small>
-                                Giảm ${v.gia_tri_giam < 100 ? v.gia_tri_giam + '%' : new Intl.NumberFormat().format(v.gia_tri_giam) + 'đ'}
-                                (Tối đa ${new Intl.NumberFormat().format(v.giam_gia_max)}đ) |
-                                ĐH từ ${new Intl.NumberFormat().format(v.dieu_kien_ap_dung)}đ |
-                                HSD: ${v.ngay_ket_thuc}
-                            </small>
+                        data-dieu-kien="${v.dieu_kien_ap_dung}"
+                        style="width: 20px; height: 20px;">
+
+                    <img src="/storage/${v.hinh_anh || 'vouchers/voucher-default.png'}"
+                        alt="${v.ten_voucher}"
+                        class="rounded me-3"
+                        style="width: 80px; height: 80px; object-fit: cover;">
+
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-semibold text-dark" style="font-size: 1rem;">
+                                ${v.ten_voucher}
+                            </span>
+                            <span class="badge px-3 py-2" style="background-color: #ff4d4f; color: #fff; font-size: 0.9rem;">
+                                ${v.gia_tri_giam < 100 ? v.gia_tri_giam + '%' : new Intl.NumberFormat().format(v.gia_tri_giam) + 'đ'}
+                            </span>
                         </div>
-                    </label>
+                        <small class="text-secondary d-block">
+                            Đơn từ <strong>${new Intl.NumberFormat().format(v.dieu_kien_ap_dung)}đ</strong> |
+                            HSD: ${v.ngay_ket_thuc}
+                        </small>
+                    </div>
                 </div>`;
 
                 $('#manualVoucherContainer').html(html);
                 $('#voucherCodeInput').val('');
 
-                $('.voucher-radio').off('change').on('change', function () {
-                    $('.voucher-radio').trigger('change'); 
-                });
+                // Trigger lại event nếu cần
+                $('.voucher-checkbox').trigger('change');
             },
             error: function () {
                 Swal.fire('Lỗi server', 'Vui lòng thử lại sau.', 'error');
@@ -370,4 +425,5 @@ $(document).ready(function () {
     });
 });
 </script>
+
 @endpush    
