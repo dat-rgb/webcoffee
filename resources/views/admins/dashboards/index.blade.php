@@ -120,7 +120,7 @@
                     <div class="card-head-row">
                         <div class="card-title">Doanh thu</div>
                         <div class="card-tools d-flex align-items-center justify-content-end gap-2">
-                             <div class="d-flex align-items-center gap-1">
+                            <div class="d-flex align-items-center gap-1">
                                 <input type="date"
                                     id="startDate"
                                     class="form-control form-control-sm"

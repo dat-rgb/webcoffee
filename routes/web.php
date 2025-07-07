@@ -360,6 +360,11 @@ Route::prefix('/admin/store')->middleware(AdminMiddleware::class)->group(functio
 Route::prefix('admin/contact')->middleware(AdminMiddleware::class)->group(function(){
     Route::get('/',[ContactController::class,'showListContact'])->name('admin.contact.list');
     Route::post('/reply', [ContactController::class, 'sendMailContact'])->name('admin.contact.reply');
+
+    Route::post('/bulk/read',   [ContactController::class,'bulkMarkRead'])->name('admin.contact.bulk.read');
+    Route::post('/bulk/unread', [ContactController::class,'bulkMarkUnread'])->name('admin.contact.bulk.unread');
+    Route::delete('/bulk',      [ContactController::class,'bulkDelete'])->name('admin.contact.bulk.delete');
+
 });
 
 //End - Admin
@@ -388,6 +393,9 @@ Route::prefix('staff/orders')->middleware(NhanVienMiddleware::class)->group(func
 //Route Staff Dashboard
 Route::prefix('staff/dashboard')->middleware(NhanVienMiddleware::class)->group(function() {
     Route::get('/', [StaffDashboardController::class, 'index'])->name('staff.dashboard');
+    Route::get('/loi-nhuan-json', [DashboardServiceController::class, 'getLoiNhuan'])->name('staff.loiNhuan.json');
+    Route::get('/doanh-thu-json', [DashboardServiceController::class, 'getDoanhThu'])->name('staff.doanhThu.json');
+    Route::get('/top-san-pham',[DashboardServiceController::class,'getTopSanPham'])->name('staff.topsp.json');
     Route::post('/phieu-nhap/export', [StaffDashboardController::class, 'exportPhieuNhap'])->name('staff.nguyenlieu.exportPhieuNhap');
     Route::post('/phieu-xuat/export', [StaffDashboardController::class, 'exportPhieuXuat'])->name('staff.nguyenlieu.exportPhieuXuat');
     Route::post('/phieu-kiem-kho/export', [StaffDashboardController::class, 'exportPhieuKiemKho'])->name('staff.nguyenlieu.exportPhieuKiemKho');

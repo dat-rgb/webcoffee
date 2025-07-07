@@ -60,7 +60,6 @@ class StoreController extends Controller
             'store_name' => $store->ten_cua_hang,
         ]);
     }
-
     public function ganNhat(Request $request)
     {
         $lat = $request->latitude;
@@ -87,7 +86,6 @@ class StoreController extends Controller
 
         return response()->json($cuaHangs);
     }
-
     public function getAddress(Request $request)
     {
         $lat = $request->input('latitude');
@@ -125,3 +123,4 @@ class StoreController extends Controller
         }
     }
 }
+    
