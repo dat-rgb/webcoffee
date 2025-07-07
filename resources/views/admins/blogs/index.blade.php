@@ -29,16 +29,17 @@
                 <li class="nav-item">
                     <a href="{{ route('admin.blog.index') }}">Blog</a>
                 </li>
-                @if(request()->input('trang_thai') == 0)
+                @if(request('trang_thai') == '0')
                     <li class="separator">
                         <i class="icon-arrow-right"></i>
                     </li>
                     <li class="nav-item">
-                        <a href="">Blog đã ẩn</a>
+                        <a href="#">Blog đã ẩn</a>
                     </li>
                 @endif
             </ul>
         </div>
+
         <div class="row">
             <div class="col-md-12">
                 <div class="card">
@@ -94,14 +95,16 @@
                                 {{-- Bộ lọc trạng thái --}}
                                 <div class="col-6 col-lg-2">
                                     @php
-                                        $newTrangThai = request()->input('trang_thai') == 0 ? 1 : 0;
+                                        $isHidden = request('trang_thai') == '0';
+                                        $newTrangThai = $isHidden ? 1 : 0;
                                     @endphp
                                     <a href="{{ route('admin.blog.index', array_merge(request()->except('page'), ['trang_thai' => $newTrangThai])) }}"
-                                        class="btn btn-outline-{{ $newTrangThai == 0 ? 'secondary' : 'danger' }} w-100">
+                                        class="btn btn-outline-{{ $newTrangThai == 0 ? 'secondary' : 'success' }} w-100">
                                         <i class="bi bi-eye{{ $newTrangThai == 0 ? '-slash' : '' }}-fill me-1"></i>
                                         {{ $newTrangThai == 0 ? 'Blog ẩn' : 'Blog hiển thị' }}
                                     </a>
                                 </div>
+
 
                                 {{-- Thêm mới --}}
                                 <div class="col-6 col-lg-2">

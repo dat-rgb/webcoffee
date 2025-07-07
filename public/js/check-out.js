@@ -186,43 +186,59 @@ $(document).ready(function(){
 
 
 $(document).ready(function () {
-  $(document).on('change', '.voucher-radio', function () {
-    const giaTriGiam = parseFloat($(this).data('gia-tri-giam'));
-    const giamGiaMax = parseFloat($(this).data('giam-gia-max'));
-    const dieuKien = parseFloat($(this).data('dieu-kien'));
+  $(document).on('change', '.voucher-checkbox', function () {
+    // ❌ Bỏ hết các checkbox khác
+    $('.voucher-checkbox').not(this).prop('checked', false);
+
+    const isChecked = $(this).is(':checked');
 
     let subtotal = parseFloat($('#subtotal').text().replace(/\./g, '').replace(' đ', ''));
     let shippingFee = parseFloat($('#shippingFeeText').text().replace(/\./g, '').replace(' đ', ''));
-
-    if (subtotal < dieuKien) {
-      Swal.fire({
-          icon: 'warning',
-          title: 'Không thể áp dụng voucher!',
-          text: 'Đơn hàng chưa đủ điều kiện để sử dụng voucher này.',
-      });
-      $(this).prop('checked', false);
-      return;
-    }
-
-    let discount = 0;
-    if (giaTriGiam <= 100) {
-        discount = subtotal * (giaTriGiam / 100);
-        if (discount > giamGiaMax) discount = giamGiaMax;
-    } else {
-        discount = giaTriGiam;
-    }
-
-    let total = subtotal + shippingFee - discount;
-    if (total < 0) total = 0;
 
     function formatCurrency(num) {
       return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " đ";
     }
 
-    $('#total').text(formatCurrency(total));
+    if (!isChecked) {
+      // ❌ Nếu bỏ chọn → reset giá
+      $('#discount').text("0 đ");
+      $('#total').text(formatCurrency(subtotal + shippingFee));
+      return;
+    }
+
+    const giaTriGiam = parseFloat($(this).data('gia-tri-giam'));
+    const giamGiaMax = parseFloat($(this).data('giam-gia-max'));
+    const dieuKien = parseFloat($(this).data('dieu-kien'));
+
+    if (subtotal < dieuKien) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Không thể áp dụng voucher!',
+        text: 'Đơn hàng chưa đủ điều kiện để sử dụng voucher này.',
+      });
+      $(this).prop('checked', false);
+      $('#discount').text("0 đ");
+      $('#total').text(formatCurrency(subtotal + shippingFee));
+      return;
+    }
+
+    let discount = 0;
+    if (giaTriGiam <= 100) {
+      discount = subtotal * (giaTriGiam / 100);
+      if (discount > giamGiaMax) discount = giamGiaMax;
+    } else {
+      discount = giaTriGiam;
+    }
+
+    let total = subtotal + shippingFee - discount;
+    if (total < 0) total = 0;
+
     $('#discount').text(formatCurrency(discount));
+    $('#total').text(formatCurrency(total));
   });
 });
+
+
 
 
 
