@@ -56,34 +56,68 @@ class ContactController extends Controller
 
     public function showListContact(Request $request)
     {
-        $status = $request->input('trang_Thai');
-        $search = $request->input('search');
+        $status   = $request->input('trang_Thai', 0);      // 0 = chưa xử lý (default)
+        $search   = $request->input('search');
+        $sortBy   = $request->input('sort_by', 'latest');  // latest | oldest
 
-        $query = LienHe::query();
+        $query = LienHe::where('trang_thai', $status);
 
-        // Lọc theo trạng thái nếu có
-        if (!is_null($status)) {
-            $query->where('trang_thai', $status);
-        }
-
-        // Lọc theo từ khóa tìm kiếm nếu có
-        if (!empty($search)) {
+        if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('ho_ten', 'like', "%$search%")
-                ->orWhere('email', 'like', "%$search%")
-                ->orWhere('tieu_de', 'like', "%$search%");
+                $q->where('ho_ten',  'like', "%$search%")
+                ->orWhere('email',  'like', "%$search%")
+                ->orWhere('tieu_de','like', "%$search%");
             });
         }
 
-        // Lấy danh sách
-        $contacts = $query->orderBy('ngay_gui', 'desc')->paginate(10);
+        $query->orderBy('ngay_gui', $sortBy === 'oldest' ? 'asc' : 'desc');
 
-        $viewData = [
-            'title' => 'Danh sách liên hệ',
+        $contacts = $query->paginate(10)->appends($request->query());
+
+        if ($request->filled('page') && $request->page > $contacts->lastPage()) {
+            return redirect()->route('admin.contact.list',
+                array_merge($request->except('page'), ['page' => $contacts->lastPage()]));
+        }
+
+        return view('admins.pages.contact_list', [
+            'title'    => 'Danh sách liên hệ',
             'subtitle' => 'Danh sách liên hệ',
-            'contacts' => $contacts,    
-        ];
-        return view('admins.pages.contact_list', $viewData);
+            'contacts' => $contacts,
+            'status'   => $status,
+            'sortBy'   => $sortBy,
+        ]);
+    }
+    public function bulkMarkRead(Request $req) {
+        $ids = $req->input('ids');
+
+        if (!$ids || !is_array($ids)) {
+            return response()->json(['ok' => false, 'message' => 'Dữ liệu không hợp lệ'], 400);
+        }
+
+        LienHe::whereIn('id', $ids)->update(['trang_thai' => 1]);
+        return response()->json(['ok' => true]);
+    }
+
+    public function bulkMarkUnread(Request $req) {
+        $ids = $req->input('ids');
+
+        if (!$ids || !is_array($ids)) {
+            return response()->json(['ok' => false, 'message' => 'Dữ liệu không hợp lệ'], 400);
+        }
+
+        LienHe::whereIn('id', $ids)->update(['trang_thai' => 0]);
+        return response()->json(['ok' => true]);
+    }
+
+    public function bulkDelete(Request $req) {
+        $ids = $req->input('ids');
+
+        if (!$ids || !is_array($ids)) {
+            return response()->json(['ok' => false, 'message' => 'Dữ liệu không hợp lệ'], 400);
+        }
+
+        LienHe::whereIn('id', $ids)->delete();
+        return response()->json(['ok' => true]);
     }
 
     public function sendMailContact(Request $request)
@@ -96,8 +130,7 @@ class ContactController extends Controller
 
         $contact = LienHe::findOrFail($request->contact_id);
 
-        try {
-            // Gửi email
+        try {   
             Mail::to($contact->email)->send(new ReplyMail(
                 $contact->ho_ten,
                 $contact->email,
@@ -105,9 +138,8 @@ class ContactController extends Controller
                 $request->subject
             ));
 
-            // Cập nhật trạng thái phản hồi (2 = đã phản hồi)
             $contact->update([
-                'trang_thai' => 2
+                'trang_thai' => 1
             ]);
 
             toastr()->success('Gửi phản hồi thành công!');
@@ -118,5 +150,4 @@ class ContactController extends Controller
             return redirect()->back()->withInput();
         }
     }
-
 }

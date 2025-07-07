@@ -360,6 +360,11 @@ Route::prefix('/admin/store')->middleware(AdminMiddleware::class)->group(functio
 Route::prefix('admin/contact')->middleware(AdminMiddleware::class)->group(function(){
     Route::get('/',[ContactController::class,'showListContact'])->name('admin.contact.list');
     Route::post('/reply', [ContactController::class, 'sendMailContact'])->name('admin.contact.reply');
+
+    Route::post('/bulk/read',   [ContactController::class,'bulkMarkRead'])->name('admin.contact.bulk.read');
+    Route::post('/bulk/unread', [ContactController::class,'bulkMarkUnread'])->name('admin.contact.bulk.unread');
+    Route::delete('/bulk',      [ContactController::class,'bulkDelete'])->name('admin.contact.bulk.delete');
+
 });
 
 //End - Admin

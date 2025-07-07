@@ -61,7 +61,7 @@ class CustomerOrderController extends Controller
         ]);
 
         if ($order->trang_thai >= 2) {
-            toastr()->error('Không thể hủy đơn hàng đã được xử lý');
+            toastr()->error('Không thể hủy đơn hàng đã được chuẩn bị');
             return redirect()->back();
         }
 

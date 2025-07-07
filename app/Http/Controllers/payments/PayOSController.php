@@ -218,7 +218,7 @@ class PayOSController extends Controller
                     $hoaDon->token_bao_mat,
                 );
             }
-            //event(new \App\Events\OrderCreated($hoaDon));
+            event(new \App\Events\OrderCreated($hoaDon));
             return response()->json(['success' => true]);
         } catch (\Throwable $th) {
             return response()->json(['error' => 1, 'message' => 'Lỗi xử lý'], 500);
