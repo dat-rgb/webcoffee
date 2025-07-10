@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('blogs', function (Blueprint $table) {
             $table->id('ma_blog');
-            $table->unsignedBigInteger('ma_danh_muc_blog');
+            $table->unsignedBigInteger('ma_danh_muc_blog')->nullable();
             $table->string('tieu_de',255);
             $table->string('slug',255)->unique();
             $table->string('sub_tieu_de',255)->nullable();
@@ -29,7 +29,7 @@ return new class extends Migration
             $table->integer('do_uu_tien')->default(0); //0: ưu tiên, 1: ưu tiên nhất, 2: nhỏ hơn 1..
             $table->timestamps();
 
-            $table->foreign('ma_danh_muc_blog')->references('ma_danh_muc_blog')->on('danh_muc_blogs')->onDelete('cascade');
+            $table->foreign('ma_danh_muc_blog')->references('ma_danh_muc_blog')->on('danh_muc_blogs')->onDelete('set null');
         });
     }
 

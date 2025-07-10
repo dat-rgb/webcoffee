@@ -11,15 +11,22 @@ class CuaHang extends Model
     protected $fillable = [
         'ma_cua_hang',
         'ten_cua_hang',
+        'slug',
+        'so_nha',
+        'ten_duong',
         'dia_chi',
+        'gio_mo_cua',
+        'gio_dong_cua',
+        'ma_tinh',
+        'ma_quan',
+        'ma_xa',
         'so_dien_thoai',
         'email',
+        'latitude',
+        'longitude',
         'trang_thai',
-        'logo',
-        'chi_nhanh',
     ];
-    
-    // Hàm tạo mã cửa hàng tự động: CH00000001
+
     public static function generateMaCuaHang()
     {
         $last = self::orderByDesc('id')->first();
@@ -27,13 +34,6 @@ class CuaHang extends Model
         return 'CH' . str_pad($number, 8, '0', STR_PAD_LEFT);
     }
 
-    public function hoaDon()
-    {
-        return $this->hasMany(HoaDon::class, 'ma_hoa_don', 'ma_hoa_don');
-    }
-
-
-    // Auto tạo mã khi tạo mới
     protected static function booted()
     {
         static::creating(function ($cuaHang) {
@@ -41,5 +41,10 @@ class CuaHang extends Model
                 $cuaHang->ma_cua_hang = self::generateMaCuaHang();
             }
         });
+    }
+
+    public function hoaDons()
+    {
+        return $this->hasMany(HoaDon::class, 'ma_cua_hang', 'ma_cua_hang');
     }
 }

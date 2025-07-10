@@ -17,7 +17,7 @@ return new class extends Migration
             $table->char('ma_nguyen_lieu',10)->unique();
             $table->string('ten_nguyen_lieu', 255);
             $table->string('slug',255);
-            $table->unsignedBigInteger('ma_nha_cung_cap');
+            $table->unsignedBigInteger('ma_nha_cung_cap')->nullable();
             $table->float(column: 'so_luong')->default(0);
             $table->float('gia')->default(0);
             $table->integer('loai_nguyen_lieu')->default(0); // 0: chế biến, 1: tiêu dùng: ly, muổng, ống hút, túi T, 2: Đóng gói
@@ -28,7 +28,7 @@ return new class extends Migration
             $table->softDeletes();
 
             // Khóa ngoại
-            $table->foreign('ma_nha_cung_cap')->references('ma_nha_cung_cap')->on('nha_cung_caps')->onDelete('cascade');
+            $table->foreign('ma_nha_cung_cap')->references('ma_nha_cung_cap')->on('nha_cung_caps')->onDelete('set null');
         });
     }
 
