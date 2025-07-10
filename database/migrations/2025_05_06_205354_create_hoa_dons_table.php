@@ -38,10 +38,12 @@ return new class extends Migration
             $table->timestamps();
 
             // Khóa ngoại
-            $table->foreign('ma_voucher')->references('ma_voucher')->on('khuyen_mais')->onDelete('cascade');
-            $table->foreign('ma_khach_hang')->references('ma_khach_hang')->on('khach_hangs')->onDelete('cascade');
-            $table->foreign('ma_cua_hang')->references('ma_cua_hang')->on('cua_hangs')->onDelete('cascade');
-            $table->foreign('ma_nhan_vien')->references('ma_nhan_vien')->on('nhan_viens')->onDelete('cascade');
+            //$table->foreign('ma_voucher')->references('ma_voucher')->on('khuyen_mais')->onDelete('cascade');
+            $table->foreign('ma_voucher')->references('ma_voucher')->on('khuyen_mais')->onDelete('set null');
+
+            $table->foreign('ma_khach_hang')->references('ma_khach_hang')->on('khach_hangs')->onDelete('set null');
+            $table->foreign('ma_cua_hang')->references('ma_cua_hang')->on('cua_hangs')->onDelete('set null');
+            $table->foreign('ma_nhan_vien')->references('ma_nhan_vien')->on('nhan_viens')->onDelete('set null');
         });
     }
 

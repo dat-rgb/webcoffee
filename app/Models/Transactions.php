@@ -20,6 +20,12 @@ class Transactions extends Model
         'items_json',
         'payment_link',
         'trang_thai',
+        'counter_account_bank_id',
+        'counter_account_bank_name',
+        'counter_account_name',
+        'counter_account_number',
+        'virtual_account_name',
+        'virtual_account_number',
     ];
     public function hoaDon(): BelongsTo
     {

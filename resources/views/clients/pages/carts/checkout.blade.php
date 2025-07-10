@@ -261,13 +261,6 @@
                                     <div class="card-body">
                                         <div class="card-details">
                                             <div class="d-flex flex-column gap-3">
-                                                <div class="form-check d-flex align-items-center gap-2">
-                                                    <input class="form-check-input" type="radio" name="paymentMethod" id="paymentMethodCOD" value="COD" >
-                                                    <label class="form-check-label d-flex align-items-center gap-2" for="paymentMethodCOD">
-                                                    <img src="{{ asset('images/cod.webp') }}" alt="COD" style="width:40px; height:auto;">
-                                                    Thanh toán khi nhận hàng (COD)
-                                                    </label>
-                                                </div>
 
                                                 <div class="form-check d-flex align-items-center gap-2">
                                                     <input class="form-check-input" type="radio" name="paymentMethod" id="paymentMethodNapas247" value="NAPAS247" >
@@ -282,6 +275,13 @@
                                                     <label class="form-check-label d-flex align-items-center gap-2" for="paymentMethodVNPAY">
                                                     <img src="{{ asset('images/vnpay.webp') }}" alt="VNPAY" style="width:40px; height:auto;">
                                                     Thanh toán trực tuyến VNPAY
+                                                    </label>
+                                                </div>
+                                                <div class="form-check d-flex align-items-center gap-2">
+                                                    <input class="form-check-input" type="radio" name="paymentMethod" id="paymentMethodCOD" value="COD" >
+                                                    <label class="form-check-label d-flex align-items-center gap-2" for="paymentMethodCOD">
+                                                    <img src="{{ asset('images/cod.webp') }}" alt="COD" style="width:40px; height:auto;">
+                                                    Thanh toán khi nhận hàng (COD)
                                                     </label>
                                                 </div>
                                             </div>

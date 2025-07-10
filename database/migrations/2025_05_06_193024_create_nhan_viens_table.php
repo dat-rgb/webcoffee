@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('nhan_viens', function (Blueprint $table) {
             $table->id();
             $table->char('ma_nhan_vien',10)->unique(); //NV00000001
-            $table->unsignedBigInteger('ma_chuc_vu');
-            $table->unsignedBigInteger('ma_tai_khoan');
-            $table->char('ma_cua_hang',10); // Cửa hàng mà nhân viên làm việc
+            $table->unsignedBigInteger('ma_chuc_vu')->nullable();
+            $table->unsignedBigInteger('ma_tai_khoan')->nullable();
+            $table->char('ma_cua_hang',10)->nullable(); // Cửa hàng mà nhân viên làm việc
             $table->string('ho_ten_nhan_vien', 255);
             $table->date('ngay_sinh')->nullable();
             $table->integer('gioi_tinh')->nullable();
@@ -27,8 +27,8 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('ma_tai_khoan')->references('ma_tai_khoan')->on('tai_khoans')->onDelete('cascade');
-            $table->foreign('ma_chuc_vu')->references('ma_chuc_vu')->on('chuc_vus')->onDelete('cascade');
-            $table->foreign('ma_cua_hang')->references('ma_cua_hang')->on('cua_hangs')->onDelete('cascade');
+            $table->foreign('ma_chuc_vu')->references('ma_chuc_vu')->on('chuc_vus')->onDelete('set null');
+            $table->foreign('ma_cua_hang')->references('ma_cua_hang')->on('cua_hangs')->onDelete('set null');
         });
     }
 

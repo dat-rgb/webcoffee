@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('lien_hes', function (Blueprint $table) {
             $table->id();
-            $table->char('ma_nhan_vien',10)->nullable();
             $table->char('ma_khach_hang',10)->nullable();
             $table->string('ho_ten',255);
             $table->char('so_dien_thoai',10);
@@ -26,7 +25,6 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('ma_khach_hang')->references('ma_khach_hang')->on('khach_hangs')->onDelete('cascade');
-            $table->foreign('ma_nhan_vien')->references('ma_nhan_vien')->on('nhan_viens')->onDelete('cascade');
         });
     }
 

@@ -453,3 +453,8 @@ Route::get('/test-broadcast', function () {
     return 'Đã phát event!';
 });
 
+
+Route::fallback(function () {
+    return response()->view('clients.pages.404', [], 404);
+});
+    

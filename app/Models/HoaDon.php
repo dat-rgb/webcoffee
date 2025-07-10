@@ -47,9 +47,9 @@ class HoaDon extends Model
 
     public function khuyenMai()
     {
-        return $this->belongsTo(KhuyenMai::class, 'ma_khuyen_mai', 'ma_khuyen_mai');
+        return $this->belongsTo(KhuyenMai::class, 'ma_voucher', 'ma_voucher');
     }
-
+    
     public function cuaHang()
     {
         return $this->belongsTo(CuaHang::class, 'ma_cua_hang', 'ma_cua_hang');
