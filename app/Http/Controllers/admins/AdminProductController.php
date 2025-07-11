@@ -518,6 +518,8 @@ class AdminProductController extends Controller
             return redirect()->back();
         }
 
+        //dd($request);
+
         $request->validate([
             'ma_san_pham' => 'required|string|size:10|unique:san_phams,ma_san_pham,' . $product->id,
             'ten_san_pham' => 'required|string|max:255|min:2',
