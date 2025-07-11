@@ -41,34 +41,34 @@
         </ul>
     </div>
     <div class="row">
+        <div class="form-group mb-12">
+            <div class="selectgroup">
+                <label class="selectgroup-item">
+                    <input 
+                        type="radio" 
+                        name="loai_san_pham" 
+                        value="0" 
+                        class="selectgroup-input" 
+                        {{ $product->loai_san_pham == 0 ? 'checked' : '' }} 
+                        disabled>
+                    <span class="selectgroup-button">Pha chế</span>
+                </label>
+                <label class="selectgroup-item">
+                    <input 
+                        type="radio" 
+                        name="loai_san_pham" 
+                        value="1" 
+                        class="selectgroup-input" 
+                        {{ $product->loai_san_pham == 1 ? 'checked' : '' }} 
+                        disabled>
+                    <span class="selectgroup-button">Đóng gói</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- sản phẩm pha chế -->
         <form id="product-form" method="POST" enctype="multipart/form-data" action="{{ route('admin.product.update', $product->ma_san_pham) }}">
             @csrf
-            <div class="form-group mb-12">
-                <div class="selectgroup">
-                    <label class="selectgroup-item">
-                        <input 
-                            type="radio" 
-                            name="loai_san_pham" 
-                            value="0" 
-                            class="selectgroup-input" 
-                            {{ $product->loai_san_pham == 0 ? 'checked' : '' }} 
-                            disabled>
-                        <span class="selectgroup-button">Pha chế</span>
-                    </label>
-                    <label class="selectgroup-item">
-                        <input 
-                            type="radio" 
-                            name="loai_san_pham" 
-                            value="1" 
-                            class="selectgroup-input" 
-                            {{ $product->loai_san_pham == 1 ? 'checked' : '' }} 
-                            disabled>
-                        <span class="selectgroup-button">Đóng gói</span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- sản phẩm pha chế -->
             <div id="formPhaChe" class="col-md-12" style="{{ old('loai_san_pham', $product->loai_san_pham) == 0 ? '' : 'display:none' }}">
                 <div class="card">
                     <div class="card-body">
@@ -170,9 +170,17 @@
                     </div>
                     <input type="hidden" name="loai_san_pham" value="0">
                 </div>
-            </div>
 
-            <!-- sản phẩm đóng gói -->
+                <div class="card-action mt-4">
+                    <button type="submit" class="btn btn-success">Cập nhật</button>
+                    <a href="{{ route('admin.products.list') }}" class="btn btn-secondary">Hủy</a>
+                </div>
+            </div>
+        </form>
+
+        <!-- sản phẩm đóng gói -->
+        <form id="product-form" method="POST" enctype="multipart/form-data" action="{{ route('admin.product.update', $product->ma_san_pham) }}">
+            @csrf
             <div id="formDongGoi" class="col-md-12" style="{{ old('loai_san_pham', $product->loai_san_pham) == 1 ? '' : 'display:none' }}">
                 <div class="card">
                     <div class="card-body">
@@ -295,10 +303,10 @@
                     </div>
                     <input type="hidden" name="loai_san_pham" value="1">
                 </div>
-            </div>
-            <div class="card-action mt-4">
-                <button type="submit" class="btn btn-success">Cập nhật</button>
-                <a href="{{ route('admin.products.list') }}" class="btn btn-secondary">Hủy</a>
+                <div class="card-action mt-4">
+                    <button type="submit" class="btn btn-success">Cập nhật</button>
+                    <a href="{{ route('admin.products.list') }}" class="btn btn-secondary">Hủy</a>
+                </div>
             </div>
         </form>
     </div>
