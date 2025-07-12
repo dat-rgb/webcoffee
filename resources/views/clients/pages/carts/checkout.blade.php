@@ -270,13 +270,13 @@
                                                     </label>
                                                 </div>
 
-                                                <div class="form-check d-flex align-items-center gap-2">
+                                                <!-- <div class="form-check d-flex align-items-center gap-2">
                                                     <input class="form-check-input" type="radio" name="paymentMethod" id="paymentMethodVNPAY" value="VNPAY" >
                                                     <label class="form-check-label d-flex align-items-center gap-2" for="paymentMethodVNPAY">
                                                     <img src="{{ asset('images/vnpay.webp') }}" alt="VNPAY" style="width:40px; height:auto;">
                                                     Thanh toán trực tuyến VNPAY
                                                     </label>
-                                                </div>
+                                                </div> -->
                                                 <div class="form-check d-flex align-items-center gap-2">
                                                     <input class="form-check-input" type="radio" name="paymentMethod" id="paymentMethodCOD" value="COD" >
                                                     <label class="form-check-label d-flex align-items-center gap-2" for="paymentMethodCOD">

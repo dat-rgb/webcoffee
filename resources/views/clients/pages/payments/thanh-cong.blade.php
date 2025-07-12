@@ -203,14 +203,22 @@
                         </a>
                 
                         @if ($hoaDon->trang_thai < 2)
-                            <form id="cancelOrderForm" action="{{ route('customer.orders.cancel', $hoaDon->ma_hoa_don) }}" method="POST" style="display: none;">
-                                @csrf
-                                <input type="hidden" name="cancel_reason" id="lyDoHuyInput">
-                            </form> 
-                            <button type="button" class="btn btn-danger" onclick="showCancelPrompt()">
-                                <i class="bi bi-x-circle"></i> Hủy đơn hàng
-                            </button>
+                            @php
+                                $isCOD = $hoaDon->phuong_thuc_thanh_toan !== 'COD';
+                                $isTransactionSuccess = isset($hoaDon->transaction) && $hoaDon->transaction->trang_thai === 'SUCCESS';
+                            @endphp
+
+                            @if ((!$isCOD) || ($isCOD && $isTransactionSuccess))
+                                <form id="cancelOrderForm" action="{{ route('customer.orders.cancel', $hoaDon->ma_hoa_don) }}" method="POST" style="display: none;">
+                                    @csrf
+                                    <input type="hidden" name="cancel_reason" id="lyDoHuyInput">
+                                </form>
+                                <button type="button" class="btn btn-danger" onclick="showCancelPrompt()">
+                                    <i class="bi bi-x-circle"></i> Hủy đơn hàng
+                                </button>
+                            @endif
                         @endif
+
                     </div>
                 </div>
             @endif

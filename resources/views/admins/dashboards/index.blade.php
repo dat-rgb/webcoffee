@@ -19,7 +19,7 @@
         <div class="ms-md-auto py-2 py-md-0 d-flex align-items-center gap-2">
             <form action="" method="GET">
                 <select name="ma_cua_hang" class="form-select btn-round" style="width: auto;" onchange="this.form.submit()">
-                    <option selected disabled>--Chọn cửa hàng--</option>
+                    <option value="">--Chọn cửa hàng--</option>
                     @foreach ($cuaHangs as $store)
                         <option value="{{ $store->ma_cua_hang }}" {{ isset($selectedCuaHang) && $selectedCuaHang == $store->ma_cua_hang ? 'selected' : '' }}>
                             {{ $store->ten_cua_hang }}

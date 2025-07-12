@@ -75,7 +75,8 @@ class StaffOrderController extends Controller
             });
         }
 
-        $orders = $query->latest()->get();
+        $orders = $query->orderByDesc('ngay_lap_hoa_don')->get();
+
 
         return view('staffs.orders._order_tbody', compact('orders'))->render();
     }
@@ -165,14 +166,11 @@ class StaffOrderController extends Controller
                 'ma_nhan_vien' => $nhanVien->ma_nhan_vien,
             ]);
 
-            // ✅ Luôn hoàn kho nếu có sản phẩm đóng gói
             $this->restorePackedProductOnly($order);
 
-            // ✅ Chỉ hoàn voucher + nguyên liệu pha chế nếu đơn chưa được xử lý
             if ($oldStatus < 2) {
                 $this->restoreVoucherAndBrewedProductOnly($order);
 
-                // ✅ Điều kiện hoàn tiền với đơn thanh toán NAPAS247
                 if (
                     $order->phuong_thuc_thanh_toan === 'NAPAS247' &&
                     $order->trang_thai_thanh_toan === 1 &&
@@ -189,7 +187,6 @@ class StaffOrderController extends Controller
                 }
             }
 
-            // ✅ Lưu lịch sử hủy
             LichSuHuyDonHang::create([
                 'ma_hoa_don' => $order->ma_hoa_don,
                 'ly_do_huy' => $data['cancel_reason'],
@@ -197,7 +194,6 @@ class StaffOrderController extends Controller
                 'nguoi_huy' => 'NV - ' . $nhanVien->ho_ten_nhan_vien,
             ]);
 
-            // ✅ Cập nhật giao hàng nếu có
             $giaoHang = GiaoHang::where('ma_hoa_don', $order->ma_hoa_don)->first();
             if ($giaoHang) {
                 $giaoHang->update([

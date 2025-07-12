@@ -129,18 +129,40 @@ class StaffDashboardController extends Controller
                 ->orderBy('ngay_tao_phieu', 'asc')
                 ->get();
 
-            $transactionsHD = DB::table('chi_tiet_hoa_dons as cthd')
+            // Pha chế (loai_san_pham = 0)
+            $transactionsBrewed = DB::table('chi_tiet_hoa_dons as cthd')
                 ->join('hoa_dons as hd', 'cthd.ma_hoa_don', '=', 'hd.ma_hoa_don')
-                ->join('sizes as s', DB::raw('LOWER(cthd.ten_size)'), '=', DB::raw('LOWER(s.ten_size)'))
+                ->join('san_phams as sp', 'cthd.ma_san_pham', '=', 'sp.ma_san_pham')
                 ->join('thanh_phan_san_phams as tp', function ($join) {
                     $join->on('cthd.ma_san_pham', '=', 'tp.ma_san_pham')
-                        ->on('s.ma_size', '=', 'tp.ma_size');
+                        ->on('cthd.ma_size', '=', 'tp.ma_size');
                 })
                 ->where('hd.ma_cua_hang', $ma_cua_hang)
+                ->where('sp.loai_san_pham', 0)
+                ->where('hd.trang_thai', 4) // 
                 ->where('tp.ma_nguyen_lieu', $nl->ma_nguyen_lieu)
-                ->select('hd.ngay_lap_hoa_don as ngay_phat_sinh', DB::raw('tp.dinh_luong * cthd.so_luong as dinh_luong'))
-                ->get();
+                ->select(
+                    'hd.ngay_lap_hoa_don as ngay_phat_sinh',
+                    'sp.loai_san_pham',
+                    DB::raw('tp.dinh_luong * cthd.so_luong as dinh_luong')
+            );
 
+            // Đóng gói (loai_san_pham = 1)
+            $transactionsPacked = DB::table('chi_tiet_hoa_dons as cthd')
+                ->join('hoa_dons as hd', 'cthd.ma_hoa_don', '=', 'hd.ma_hoa_don')
+                ->join('san_phams as sp', 'cthd.ma_san_pham', '=', 'sp.ma_san_pham')
+                ->join('thanh_phan_san_phams as tp', 'cthd.ma_san_pham', '=', 'tp.ma_san_pham')
+                ->where('hd.ma_cua_hang', $ma_cua_hang)
+                ->where('sp.loai_san_pham', 1)
+                ->where('hd.trang_thai', 4) // 
+                ->where('tp.ma_nguyen_lieu', $nl->ma_nguyen_lieu)
+                ->select(
+                    'hd.ngay_lap_hoa_don as ngay_phat_sinh',
+                    'sp.loai_san_pham',
+                    DB::raw('tp.dinh_luong * cthd.so_luong as dinh_luong')
+            );
+            $transactionsHD = $transactionsBrewed->unionAll($transactionsPacked)->get();
+                    
             $transactionsPX = DB::table('phieu_nhap_xuat_nguyen_lieus')
                 ->where('ma_cua_hang', $ma_cua_hang)
                 ->where('ma_nguyen_lieu', $nl->ma_nguyen_lieu)
