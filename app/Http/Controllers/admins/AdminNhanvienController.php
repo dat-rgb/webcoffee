@@ -273,26 +273,47 @@ class AdminNhanvienController extends Controller
                 $nhanVien->trang_thai = 0;
                 $nhanVien->save();
                 $restoredCount++;
+
+                // Cập nhật trạng thái tài khoản theo ma_tai_khoan
+                if ($nhanVien->ma_tai_khoan) {
+                    TaiKhoan::where('ma_tai_khoan', $nhanVien->ma_tai_khoan)->update(['trang_thai' => 1]);
+                }
             }
         }
+
 
         toastr()->success("Đã khôi phục {$restoredCount} nhân viên.");
         return redirect()->route('admins.nhanvien.archived');
     }
+
     public function archiveBulk(Request $request)
-    {
-        $maNhanViens = $request->input('selected_nhanviens');
-        if (!$maNhanViens || count($maNhanViens) === 0) {
-            //return redirect()->back()->with('error', 'Vui lòng chọn ít nhất một nhân viên.');
-            toastr()->error("Vui lòng chọn ít nhất một nhân viên.");
-            return redirect()->route('admins.nhanvien.index');
-        }
-        // Cập nhật trạng thái = 1 (tạm nghỉ)
-        NhanVien::whereIn('ma_nhan_vien', $maNhanViens)->update(['trang_thai' => 1]);
-        toastr()->success("Nhân viên được chọn đã đưa vào danh sách nghỉ");
+{
+    $maNhanViens = $request->input('selected_nhanviens');
+
+    if (!$maNhanViens || count($maNhanViens) === 0) {
+        toastr()->error("Vui lòng chọn ít nhất một nhân viên.");
         return redirect()->route('admins.nhanvien.index');
-        //return redirect()->back()->with('success', 'Đã chuyển trạng thái nhân viên sang Tạm nghỉ.');
     }
+
+    // Cập nhật trạng thái nhân viên
+    NhanVien::whereIn('ma_nhan_vien', $maNhanViens)->update(['trang_thai' => 1]);
+
+    // Lấy danh sách mã tài khoản từ nhân viên
+    $maTaiKhoans = NhanVien::whereIn('ma_nhan_vien', $maNhanViens)
+                    ->pluck('ma_tai_khoan')
+                    ->filter() // loại bỏ null nếu có
+                    ->toArray();
+
+    // Cập nhật trạng thái tài khoản
+    TaiKhoan::whereIn('ma_tai_khoan', $maTaiKhoans)->update(['trang_thai' => 0]);
+
+    toastr()->success("Nhân viên được chọn đã đưa vào danh sách nghỉ");
+    return redirect()->route('admins.nhanvien.index');
+}
+
+
+
+
     public function archived(Request $request)
     {
         $search = $request->input('search');
