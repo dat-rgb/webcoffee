@@ -53,7 +53,7 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="card">
-                <div class="card-header">
+                    <div class="card-header">
                         <form action="{{ url()->current() }}" method="GET" class="row g-2 align-items-center">
                             <div class="col-12 col-lg-6"> 
                                 <div class="input-group">
@@ -106,14 +106,6 @@
                                             <th>Ngày lập HĐ</th>
                                             <th>Thông tin khách hàng</th>
                                             <th>
-                                                Phương thức thanh toán<br>
-                                                <select id="pt_thanh_toan" class="form-select form-select-sm mt-1">
-                                                    <option value="">Tất cả</option>
-                                                    <option value="COD">Thanh toán khi nhận hàng (COD)</option>
-                                                    <option value="NAPAS247">Chuyển khoản</option>
-                                                </select>
-                                            </th>
-                                            <th>
                                                 Trạng thái đơn hàng<br>
                                                 <select id="trang_thai" class="form-select form-select-sm mt-1">
                                                     <option value="">Tất cả</option>
@@ -133,6 +125,14 @@
                                                     <option value="1">Đã thanh toán</option>
                                                     <option value="2">Đang hoàn tiền</option>
                                                     <option value="3">Đã hoàn tiền</option>
+                                                </select>
+                                            </th>
+                                            <th>
+                                                Phương thức thanh toán<br>
+                                                <select id="pt_thanh_toan" class="form-select form-select-sm mt-1">
+                                                    <option value="">Tất cả</option>
+                                                    <option value="COD">Thanh toán khi nhận hàng (COD)</option>
+                                                    <option value="NAPAS247">Chuyển khoản</option>
                                                 </select>
                                             </th>
                                         </tr>

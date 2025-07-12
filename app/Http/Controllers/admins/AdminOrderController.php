@@ -82,7 +82,7 @@ class AdminOrderController extends Controller
             });
         }
 
-        $orders = $query->get();
+        $orders = $query->orderByDesc('ngay_lap_hoa_don')->get();
 
         return view('admins.orders._order_tbody', compact('orders'));
     }

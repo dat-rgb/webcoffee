@@ -77,13 +77,6 @@
                 <div style="font-size: 0.85em; color: #555;">{{ $order->email }}</div>
             </td>
             <td class="text-start">
-                @if( $order->phuong_thuc_thanh_toan === "COD")
-                    Thanh toán khi nhận hàng (COD)
-                @elseif ($order->phuong_thuc_thanh_toan === "NAPAS247")
-                    Chuyển khoản
-                @endif
-            </td>
-            <td class="text-start">
                 @php
                     $statuses = [
                         0 => 'Chờ xác nhận',
@@ -136,6 +129,13 @@
                             onclick='showRefundModal("{{ $order->ma_hoa_don }}", {!! $jsonTransaction !!})'>
                         <i class="fa fa-undo"></i> Xử lý hoàn tiền
                     </button>
+                @endif
+            </td>
+            <td class="text-start">
+                @if( $order->phuong_thuc_thanh_toan === "COD")
+                    Thanh toán khi nhận hàng (COD)
+                @elseif ($order->phuong_thuc_thanh_toan === "NAPAS247")
+                    Chuyển khoản
                 @endif
             </td>
         </tr>
