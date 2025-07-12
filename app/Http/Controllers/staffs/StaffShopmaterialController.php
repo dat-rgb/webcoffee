@@ -268,7 +268,7 @@ class StaffShopmaterialController extends Controller
         $nhanVien = Auth::guard('staff')->user()->nhanvien;
         $maCuaHang = $nhanVien->ma_cua_hang;
         $today = Carbon::now()->format('d/m/Y');
-        $materialKeys = $request->input('materials', []);
+        $materialKeys = $request->input('materials', []);   
         $materials = collect();
 
         $now = Carbon::now()->startOfDay();
