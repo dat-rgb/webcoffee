@@ -22,7 +22,7 @@ class CheckExpiredOrders implements ShouldQueue
 
     public function handle(): void
     {
-        $expiredTime = now()->subSeconds(60);
+        $expiredTime = now()->subMinutes(5);
 
         $orders = HoaDon::where('trang_thai', 0)
             ->where('trang_thai_thanh_toan', 0)

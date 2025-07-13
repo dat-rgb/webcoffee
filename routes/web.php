@@ -186,6 +186,9 @@ Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function(){
     Route::post('/banners/{id}', [AdminHomeController::class, 'destroy'])->name('admin.home.banners.destroy');
     Route::post('/admin/banners', [AdminHomeController::class, 'store'])->name('admin.home.banners.store');
     Route::post('/admin/banners/update-group/{position}', [AdminHomeController::class, 'updateGroup'])->name('admin.home.banners.updateGroup');
+    Route::get('/settings',[AdminHomeController::class,'settings'])->name('admin.home.settings');
+    Route::post('/settings', [AdminHomeController::class, 'updateSettings'])->name('admin.settings.update');
+
 });
 //Route Products Admin
 Route::prefix('admin/products')->middleware(AdminMiddleware::class)->group(function(){

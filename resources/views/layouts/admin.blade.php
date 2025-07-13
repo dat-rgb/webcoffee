@@ -112,6 +112,11 @@
                         <span class="sub-item">Banners</span>
                       </a>
                     </li>
+                    <li>
+                      <a href="{{ route('admin.home.settings') }}">
+                        <span class="sub-item">Settings</span>
+                      </a>
+                    </li>
                   </ul>
                 </div>
               </li>

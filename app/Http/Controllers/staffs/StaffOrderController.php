@@ -10,6 +10,7 @@ use App\Models\HoaDon;
 use App\Models\KhuyenMai;
 use App\Models\LichSuHuyDonHang;
 use App\Models\NhanVien;
+use App\Models\Settings;
 use App\Models\SanPham;
 use App\Models\Sizes;
 use App\Models\ThanhPhanSanPham;
@@ -19,6 +20,10 @@ use Illuminate\Support\Facades\Auth;
 
 class StaffOrderController extends Controller
 {
+    public function __construct()
+    {
+        $this->settings = Settings::first(); 
+    }
     public function orderStore()
     {
         $nhanVien = Auth::guard('staff')->user()->nhanvien;
@@ -268,7 +273,10 @@ class StaffOrderController extends Controller
             return ($item->so_luong * $item->don_gia) + $item->gia_size;
         });
 
-        $diem = floor($tongTien / 10000); // 10k = 1 điểm
+        $tyLe = intval($this->settings->ty_le_diem_thuong ?? 1000); // fallback nếu không có
+        if ($tyLe <= 0) $tyLe = 1000; // tránh chia 0
+
+        $diem = floor($tongTien / $tyLe); // ví dụ 1000 VND = 1 điểm
 
         if ($diem > 0) {
             $khach = $order->khachHang;
@@ -277,7 +285,10 @@ class StaffOrderController extends Controller
 
             $khach->diem_thanh_vien = $diemSau;
 
-            if ($diemSau >= 600) {
+            // Cập nhật hạng thành viên
+            if($diemSau >= 900){
+                $khach->hang_thanh_vien = 'Kim Cương';
+            }elseif ($diemSau >= 600) {
                 $khach->hang_thanh_vien = 'Vàng';
             } elseif ($diemSau >= 300) {
                 $khach->hang_thanh_vien = 'Bạc';

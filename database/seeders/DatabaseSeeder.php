@@ -35,6 +35,7 @@ class DatabaseSeeder extends Seeder
             HoaDonSeeder::class,
             //ChiTietHoaDonSeeder::class,
             TransactionSeeder::class,
+            SettingSeeder::class,
         ]);
     }
 }

@@ -9,6 +9,7 @@ use App\Models\KhuyenMai;
 use App\Models\SanPham;
 use App\Models\SanPhamCuaHang;
 use App\Models\Sizes;
+use App\Models\Settings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -16,6 +17,13 @@ use Carbon\Carbon;
 
 class CartController extends Controller
 {
+    protected $settings;
+
+    public function __construct()
+    {
+        $this->settings = Settings::first(); 
+    }
+
     public function cart(){
         $cart = session()->get('cart', []);  
         $productSizes = [];
@@ -223,10 +231,10 @@ class CartController extends Controller
             }
         }
 
-        if ($newQuantity > 99 && $mode === 'add') {
+        if ($newQuantity > $this->settings->so_luong_toi_da && $mode === 'add') {
             return [
                 'success' => false,
-                'message' => "Bạn chỉ có thể mua tối đa 99 sản phẩm cho mỗi loại."
+                'message' => "Bạn chỉ có thể mua tối đa {$this->settings->so_luong_toi_da} sản phẩm cho mỗi loại."
             ];
         }
 
@@ -558,7 +566,7 @@ class CartController extends Controller
         $storeId = session('selected_store_id');
         $storeName = session('selected_store_name');
         $user = auth()->user();
-
+        
         if (!$cart) {
             return redirect()->route('cart');
         }
@@ -662,8 +670,8 @@ class CartController extends Controller
         $subTotal = array_sum(array_column($cart, 'money'));
 
         $shippingFee = 0;
-        if ($subTotal < 200000) {
-            $shippingFee = 30000;
+        if ($subTotal < $this->settings->nguong_mien_phi_ship) {
+            $shippingFee = $this->settings->phi_ship;
         }
 
         $total = $subTotal + $shippingFee;

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\admins;
 
 use App\Http\Controllers\Controller;
 use App\Models\Banners;
+use App\Models\Settings;
 use App\Models\ThongTinWebsite;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -193,4 +194,58 @@ class AdminHomeController extends Controller
         return redirect()->back();
     }
 
+    public function settings(){
+
+        $settings = Settings::first(); 
+
+        $viewData = [
+            'title' => 'Cài đặc hệ thống',
+            'subtitle' => 'Cài đặc hệ thống',
+            'settings' => $settings,
+        ];
+        return view('admins.pages.settings', $viewData);
+    }
+    public function updateSettings(Request $request)
+    {
+        $validatedData = $request->validate([
+            'phi_ship' => 'required|numeric|min:0',
+            'nguong_mien_phi_ship' => 'required|numeric|min:0',
+            'vat_mac_dinh' => 'required|numeric|min:0|max:100',
+            'so_luong_toi_thieu' => 'required|integer|min:1',
+            'so_luong_toi_da' => 'required|integer|min:1',
+            'ty_le_diem_thuong' => 'required|numeric|min:1',
+            'ban_kinh_giao_hang' => 'required|numeric|min:0',
+            'ban_kinh_hien_thi_cua_hang' => 'required|numeric|min:0',
+            'che_do_bao_tri' => 'nullable|boolean',
+        ]);
+
+        // Validate logic: số lượng tối thiểu không được lớn hơn tối đa
+        if ((int) $validatedData['so_luong_toi_thieu'] > (int) $validatedData['so_luong_toi_da']) {
+            toastr()->error('Số lượng tối thiểu không được lớn hơn số lượng tối đa.');
+            return back();
+        }
+
+        $settings = Settings::first();
+
+        // Nếu chưa có thì tạo mới
+        if (!$settings) {
+            $settings = new Settings();
+        }
+
+        // Gán dữ liệu
+        $settings->phi_ship = $validatedData['phi_ship'];
+        $settings->nguong_mien_phi_ship = $validatedData['nguong_mien_phi_ship'];
+        $settings->vat_mac_dinh = $validatedData['vat_mac_dinh'];
+        $settings->so_luong_toi_thieu = $validatedData['so_luong_toi_thieu'];
+        $settings->so_luong_toi_da = $validatedData['so_luong_toi_da'];
+        $settings->ty_le_diem_thuong = $validatedData['ty_le_diem_thuong'];
+        $settings->ban_kinh_giao_hang = $validatedData['ban_kinh_giao_hang'];
+        $settings->ban_kinh_hien_thi_cua_hang = $validatedData['ban_kinh_hien_thi_cua_hang'];
+        $settings->che_do_bao_tri = $request->has('che_do_bao_tri') ? 1 : 0;
+
+        $settings->save();
+
+        toastr()->success('Cập nhật cài đặc thành công');
+        return redirect()->back();
+    }
 }
