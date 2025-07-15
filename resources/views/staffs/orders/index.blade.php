@@ -4,12 +4,28 @@
 @section('subtitle', $subtitle)
 @push('styles')
 <style>
-    th {
-        white-space: nowrap;
-        font-size: 14px;
-        padding: 8px 10px;
-        text-align: center;
-    }
+th {
+    white-space: nowrap;
+    font-size: 14px;
+    padding: 8px 10px;
+    text-align: center;
+}
+
+.highlight-row {
+    background-color: #fff3cd !important; /* Vàng nhạt */
+}
+
+.animate-highlight {
+    animation: flashHighlight 1.5s ease-in-out;
+}
+
+@keyframes flashHighlight {
+    0%   { background-color: #ffeeba; }  /* sáng */
+    50%  { background-color: #fff3cd; }  /* vàng nhạt */
+    100% { background-color: #fff3cd; }  /* giữ lại */
+}
+
+
 </style>
 @endpush
 
@@ -34,7 +50,7 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="card">
-                <div class="card-header">
+                    <div class="card-header">
                         <form action="{{ url()->current() }}" method="GET" class="row g-2 align-items-center">
                             <div class="col-12 col-lg-6"> 
                                 <div class="input-group">
@@ -101,16 +117,17 @@
                                          
                                         </tr>
                                     </thead>    
+                                    
                                     <tbody id="order-tbody">
                                         @include('staffs.orders._order_tbody', ['orders' => $orders])
-                                        <div class="modal fade" id="orderDetailModal" tabindex="-1" aria-hidden="true"> 
-                                            <div class="modal-dialog modal-lg"> 
-                                                <div class="modal-content">
-                                                    <div id="order-detail-content"></div>
-                                                </div>
+                                    </tbody>
+                                    <div class="modal fade" id="orderDetailModal" tabindex="-1" aria-hidden="true"> 
+                                        <div class="modal-dialog modal-lg"> 
+                                            <div class="modal-content">
+                                            <div id="order-detail-content"></div>
                                             </div>
                                         </div>
-                                    </tbody>
+                                    </div>
                                 </table>
                             </div>
                         </div>
@@ -302,7 +319,6 @@ function showCancelReasonModal(orderId, newStatus, selectElement) {
     });
 }
 
-// Xem chi tiết đơn hàng
 $(document).on('click', '.order-detail-btn', function () {
     const orderId = $(this).data('id');
     const modal = new bootstrap.Modal(document.getElementById('orderDetailModal'));
@@ -350,6 +366,16 @@ $(document).ready(function () {
     $('#searchBtn').on('click', fetchOrders);
 
     bindOrderStatusEvents(); // 👈 lần đầu trang load
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const highlightId = new URLSearchParams(window.location.search).get('highlight');
+    if (highlightId) {
+        const el = document.getElementById('order-' + highlightId);
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
 });
 </script>
 @endpush

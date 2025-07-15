@@ -391,6 +391,10 @@ Route::prefix('staff/product-store')->middleware(NhanVienMiddleware::class)->gro
 //Route Staff Order
 Route::prefix('staff/orders')->middleware(NhanVienMiddleware::class)->group(function(){
     Route::get('/', [StaffOrderController::class, 'orderStore'])->name('staff.orders.list');
+    Route::get('/count', [StaffOrderController::class, 'countHoaDonMoi']);
+    Route::get('/partial', [StaffOrderController::class, 'loadOrdersPartial']);
+
+
     Route::get('/{id}/detail', [StaffOrderController::class, 'detail'])->name('staff.orders.detail');
     Route::post('/filter', [StaffOrderController::class, 'filter'])->name('staff.orders.filter');
     Route::post('/update-status', [StaffOrderController::class, 'updateStatusOrder'])->name('staff.orders.updateStatus');

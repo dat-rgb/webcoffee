@@ -38,15 +38,18 @@ class StaffOrderController extends Controller
             return redirect()->back();
         }
 
-        $orders = HoaDon::with(['khachHang', 'chiTietHoaDon'])
+        $orders = HoaDon::with(['khachHang', 'chiTietHoaDon','transaction'])
             ->where('ma_cua_hang', $nhanVien->ma_cua_hang)
             ->orderByDesc('ngay_lap_hoa_don')
             ->get();
+
+        
 
         return view('staffs.orders.index', [
             'title' => 'Đơn hàng cửa hàng '. $nhanVien->ma_cua_hang.' | CDMT Coffee & Tea',
             'subtitle' => 'Quản lý đơn hàng ' . $nhanVien->ma_cua_hang,
             'orders' => $orders,
+            'highlightId' => request('highlight',null)
         ]); 
     }
     public function filter(Request $request)
@@ -297,6 +300,52 @@ class StaffOrderController extends Controller
             }
 
             $khach->save();
+        }
+    }
+
+    public function countHoaDonMoi()
+    {
+        try {
+            $maCuaHang = Auth::guard('staff')->user()->nhanVien->ma_cua_hang;
+
+            // Đếm đơn hàng mới
+            $count = HoaDon::countDonHangMoi($maCuaHang);
+
+            // Lấy danh sách đơn hàng mới (giới hạn 5 đơn gần nhất)
+            $donHangMoi = HoaDon::where('ma_cua_hang', $maCuaHang)
+                ->where('trang_thai', 0)
+                ->orderBy('ngay_lap_hoa_don', 'desc')
+                ->take(5)
+                ->get(['ma_hoa_don', 'ngay_lap_hoa_don']); // Chỉ lấy trường cần
+
+            return response()->json([
+                'orderCount' => $count,
+                'orders' => $donHangMoi,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Lỗi lấy số lượng đơn hàng'], 500);
+        }
+    }
+
+    public function loadOrdersPartial()
+    {
+        try {
+            $nhanVien = Auth::guard('staff')->user()->nhanvien;
+
+            if (!$nhanVien) {
+                \Log::error('Không tìm thấy nhân viên');
+                return response('Không có nhân viên', 403);
+            }
+
+            $orders = HoaDon::with(['khachHang', 'chiTietHoaDon', 'transaction'])
+                ->where('ma_cua_hang', $nhanVien->ma_cua_hang)
+                ->orderByDesc('ngay_lap_hoa_don')
+                ->get();
+
+            return view('staffs.orders._order_tbody', compact('orders'));
+        } catch (\Exception $e) {
+            \Log::error('Lỗi loadOrdersPartial: ' . $e->getMessage());
+            return response('Có lỗi xảy ra', 500);
         }
     }
 }
