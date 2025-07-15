@@ -5,6 +5,7 @@ namespace App\Http\Controllers\staffs;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\payments\PaymentController;
 use App\Http\Controllers\Print\PrintHoaDonService;
+use App\Models\CaLamViec;
 use App\Models\ChiTietHoaDon;
 use App\Models\GiaoHang;
 use App\Models\HoaDon;
@@ -351,6 +352,45 @@ class StaffOrderController extends Controller
         } catch (\Exception $e) {
             \Log::error('Lỗi loadOrdersPartial: ' . $e->getMessage());
             return response('Có lỗi xảy ra', 500);
+        }
+    }
+    public function thongKeOrderNhanVien(Request $request)
+    {
+        try {
+            $nhanVien = Auth::guard('staff')->user()->nhanvien;
+
+            $ca = CaLamViec::where('ma_nhan_vien', $nhanVien->ma_nhan_vien)
+                ->whereNull('thoi_gian_ra')
+                ->latest()
+                ->first();
+
+            if (!$ca) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không tìm thấy ca làm việc đang mở.'
+                ], 404);
+            }
+
+            $hoaDonQuery = HoaDon::where('ma_nhan_vien', $nhanVien->ma_nhan_vien)
+                ->where('created_at', '>=', $ca->thoi_gian_vao)
+                ->where('trang_thai', 4);
+
+            $tong_don_xac_nhan = $hoaDonQuery->count();
+            $tong_tien_cod = (clone $hoaDonQuery)->where('phuong_thuc_thanh_toan', 'COD')->sum('tong_tien');
+            $tong_tien_online = (clone $hoaDonQuery)->where('phuong_thuc_thanh_toan', '!=', 'COD')->sum('tong_tien');
+            $tong_tien = $tong_tien_cod + $tong_tien_online;
+
+            return response()->json([
+                'success' => true,
+                'data' => compact('tong_don_xac_nhan', 'tong_tien_cod', 'tong_tien_online', 'tong_tien')
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('Lỗi thống kê đơn hàng: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi server: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

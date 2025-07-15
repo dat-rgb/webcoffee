@@ -403,6 +403,7 @@ Route::prefix('staff/orders')->middleware(NhanVienMiddleware::class)->group(func
     Route::get('/{order}/print-tem-ly', [PrintHoaDonService::class, 'printTemLy'])->name('orders.print.temly');
     Route::get('/{order}/print-hoa-don', [PrintHoaDonService::class, 'printHoaDon'])->name('orders.print.hoadon');
 
+    Route::get('/thong-ke',[StaffOrderController::class,'thongKeOrderNhanVien'])->name('staff.orders.thongke');
 
 });
 

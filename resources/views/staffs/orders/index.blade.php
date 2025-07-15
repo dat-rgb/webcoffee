@@ -47,6 +47,86 @@ th {
                 </li>
             </ul>
         </div>
+
+        <div class="row">
+            <div class="col-sm-6 col-md-3">
+                <div class="card card-stats card-round">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-5">
+                            <div class="icon-big text-center">
+                                <i class="fas fa-file-invoice-dollar text-warning"></i>
+                            </div>
+                            </div>
+                            <div class="col-7 col-stats">
+                            <div class="numbers">
+                                <p class="card-category">Hóa đơn xác nhận</p>
+                                <h4 class="card-title" id="tong-don"></h4>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="card card-stats card-round">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-5">
+                                <div class="icon-big text-center">
+                                    <i class="icon-wallet text-success"></i>
+                                </div>
+                            </div>
+                            <div class="col-7 col-stats">
+                                <div class="numbers">
+                                    <p class="card-category">Tổng tiền</p>
+                                    <h4 class="card-title" id="tong-tien"></h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+            <div class="card card-stats card-round">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-5">
+                            <div class="icon-big text-center">
+                                <i class="fas fa-money-bill text-danger"></i>
+                            </div>
+                        </div>
+                        <div class="col-7 col-stats">
+                            <div class="numbers">
+                                <p class="card-category">Tiền COD</p>
+                                <h4 class="card-title" id="tien-cod"></h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="card card-stats card-round">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-5">
+                                <div class="icon-big text-center">
+                                    <i class="fas fa-credit-card text-primary"></i>
+                                </div>
+                            </div>
+                            <div class="col-7 col-stats">
+                                <div class="numbers">
+                                    <p class="card-category">Tiền Online</p>
+                                    <h4 class="card-title" id="tien-online"></h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="row">
             <div class="col-md-12">
                 <div class="card">
@@ -391,6 +471,29 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 });
+
+fetch('/staff/orders/thong-ke')
+    .then(async res => {
+        if (!res.ok) {
+            const errorText = await res.text();
+            console.error('Server Error:', errorText);
+            throw new Error(errorText);
+        }
+        return res.json();
+    })
+    .then(data => {
+        if (data.success) {
+            const info = data.data;
+            document.getElementById('tong-don').innerText = info.tong_don_xac_nhan;
+            document.getElementById('tong-tien').innerText = info.tong_tien.toLocaleString() + 'đ';
+            document.getElementById('tien-cod').innerText = info.tong_tien_cod.toLocaleString() + 'đ';
+            document.getElementById('tien-online').innerText = info.tong_tien_online.toLocaleString() + 'đ';
+        }
+    })
+    .catch(err => {
+        console.error('Lỗi thống kê đơn hàng:', err.message);
+    });
+
 </script>
 @endpush
 
