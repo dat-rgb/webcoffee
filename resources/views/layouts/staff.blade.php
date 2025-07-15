@@ -537,7 +537,6 @@
             })
             .catch(err => console.error("Lỗi fetch đơn hàng mới:", err));
       }
-
     </script>
     @stack('scripts')
   </body>

@@ -105,7 +105,7 @@ class AdminLoginController extends Controller
         if (!$ca) return;
 
         $hoaDonQuery = HoaDon::where('ma_nhan_vien', $nhanVien->ma_nhan_vien)
-            ->where('created_at', '>=', $ca->thoi_gian_vao)
+            ->where('ngay_lap_hoa_don', '>=', $ca->thoi_gian_vao)
             ->where('trang_thai', 4);
 
         $tongDon = $hoaDonQuery->count();
@@ -128,7 +128,6 @@ class AdminLoginController extends Controller
             'tien_chenh_lech' => $tienChenhLech,
         ]);
 
-        // Optional xuất PDF ngay nếu cần
         return Pdf::loadView('exports.phieu_ket_ca', [
             'ca' => $ca,
             'nhanVien' => $nhanVien,

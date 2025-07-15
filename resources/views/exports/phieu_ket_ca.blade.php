@@ -59,6 +59,10 @@
         <div><span class="label">Mã NV:</span> <span class="value">{{ $nhanVien->ma_nhan_vien }}</span></div>
         <div><span class="label">Vào ca:</span> <span class="value">{{ $ca->thoi_gian_vao->format('H:i d/m/Y') }}</span></div>
         <div><span class="label">Ra ca:</span> <span class="value">{{ $ca->thoi_gian_ra->format('H:i d/m/Y') }}</span></div>
+        <div class="label">Giờ làm:</div>
+        <div class="value">
+            {{ $ca->thoi_gian_ra->diff($ca->thoi_gian_vao)->format('%h giờ %i phút') }}
+        </div>
     </div>
 
     <div class="line"></div>

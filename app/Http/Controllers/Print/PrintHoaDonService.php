@@ -59,7 +59,7 @@ class PrintHoaDonService extends Controller
 
             $pdf = Pdf::loadView('exports.tem_ly', [
                 'temList' => $temList
-            ])->setPaper([0, 0, 226.8, 160]);
+            ])->setPaper([0, 0, 226.8, 170]);
 
             return $pdf->download('tem_ly_' . $order->ma_hoa_don . '.pdf');
         } catch (\Exception $e) {
