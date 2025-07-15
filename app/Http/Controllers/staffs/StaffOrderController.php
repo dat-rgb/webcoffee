@@ -4,6 +4,7 @@ namespace App\Http\Controllers\staffs;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\payments\PaymentController;
+use App\Http\Controllers\Print\PrintHoaDonService;
 use App\Models\ChiTietHoaDon;
 use App\Models\GiaoHang;
 use App\Models\HoaDon;
@@ -20,9 +21,12 @@ use Illuminate\Support\Facades\Auth;
 
 class StaffOrderController extends Controller
 {
-    public function __construct()
+    protected $printService;
+
+    public function __construct(PrintHoaDonService $printService)
     {
         $this->settings = Settings::first(); 
+        $this->printService = $printService;
     }
     public function orderStore()
     {
@@ -130,6 +134,7 @@ class StaffOrderController extends Controller
             $order->save();
 
             return response()->json(['success' => true]);
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

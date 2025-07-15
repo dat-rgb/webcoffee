@@ -29,6 +29,7 @@ use App\Http\Controllers\dashboards\StaffDashboardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\payments\PaymentController;
 use App\Http\Controllers\payments\PayOSController;
+use App\Http\Controllers\Print\PrintHoaDonService;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\staffs\StaffHomeController;
 use App\Http\Controllers\staffs\StaffOrderController;
@@ -398,6 +399,11 @@ Route::prefix('staff/orders')->middleware(NhanVienMiddleware::class)->group(func
     Route::get('/{id}/detail', [StaffOrderController::class, 'detail'])->name('staff.orders.detail');
     Route::post('/filter', [StaffOrderController::class, 'filter'])->name('staff.orders.filter');
     Route::post('/update-status', [StaffOrderController::class, 'updateStatusOrder'])->name('staff.orders.updateStatus');
+
+    Route::get('/{order}/print-tem-ly', [PrintHoaDonService::class, 'printTemLy'])->name('orders.print.temly');
+    Route::get('/{order}/print-hoa-don', [PrintHoaDonService::class, 'printHoaDon'])->name('orders.print.hoadon');
+
+
 });
 
 //Route Staff Dashboard

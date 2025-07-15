@@ -505,14 +505,15 @@
 
               // Thêm vào dropdown
               const newNotif = `
-                <a href="#">
+                <a href="/staff/orders?highlight=${e.order.ma_hoa_don}">
                   <div class="notif-icon notif-primary"><i class="fas fa-check-circle"></i></div>
                   <div class="notif-content">
                     <span class="block">Đơn hàng ${e.order.ma_hoa_don}</span>
-                    <span class="time">vừa xong</span>
+                    <span class="time">Vừa xong</span>
                   </div>
                 </a>
               `;
+
               document.querySelector('.notif-center').insertAdjacentHTML('afterbegin', newNotif);
               loadOrdersPartial();
             });

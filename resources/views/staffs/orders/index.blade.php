@@ -167,16 +167,18 @@ function bindOrderStatusEvents() {
                 cancelButtonText: 'Hủy',
             }).then(result => {
                 if (result.isConfirmed) {
+                    const extraData = { pt_nhan_hang };
+
                     if (newStatus === 3) {
                         if (pt_nhan_hang === 'pickup') {
-                            updateOrderStatus(orderId, newStatus, {}, this);
+                            updateOrderStatus(orderId, newStatus, extraData, this);
                         } else {
                             showDeliverInfoModal(orderId, newStatus, this);
                         }
                     } else if (newStatus === 5) {
                         showCancelReasonModal(orderId, newStatus, this);
                     } else {
-                        updateOrderStatus(orderId, newStatus, {}, this);
+                        updateOrderStatus(orderId, newStatus, extraData, this);
                     }
                 } else {
                     this.value = previousValue;
@@ -218,7 +220,18 @@ function updateOrderStatus(orderId, status, extraData = {}, selectElement = null
                 icon: 'success',
                 title: 'Thành công',
                 text: 'Cập nhật trạng thái đơn hàng thành công!',
-            }).then(() => window.location.reload());
+            })
+            .then(() => {
+            if (status === 1) {
+                window.open(`/staff/orders/${orderId}/print-tem-ly`, '_blank');
+            } else if (
+                (status === 3 && extraData?.pt_nhan_hang === 'delivery') ||
+                (status === 4 && extraData?.pt_nhan_hang === 'pickup')
+            ) {
+                window.open(`/staff/orders/${orderId}/print-hoa-don`, '_blank');
+            }
+           window.location.reload();
+        });
         } else {
             if (selectElement) selectElement.value = selectElement.getAttribute('data-previous');
             Swal.fire({
@@ -285,6 +298,7 @@ function showDeliverInfoModal(orderId, newStatus, selectElement) {
                 shipper_name: result.value.name,
                 shipper_phone: result.value.phone,
                 note: result.value.note,
+                pt_nhan_hang: 'delivery',
             }, selectElement);
         } else {
             if (selectElement) selectElement.value = selectElement.getAttribute('data-previous');
@@ -348,7 +362,7 @@ $(document).ready(function () {
             },
             success: function (res) {
                 $('#order-tbody').html(res);
-                bindOrderStatusEvents(); // 👈 bind lại sau khi lọc
+                bindOrderStatusEvents(); 
             },
             error: function () {
                 alert('Có lỗi xảy ra khi tìm kiếm hoặc lọc đơn hàng.');
@@ -365,7 +379,7 @@ $(document).ready(function () {
     });
     $('#searchBtn').on('click', fetchOrders);
 
-    bindOrderStatusEvents(); // 👈 lần đầu trang load
+    bindOrderStatusEvents(); 
 });
 
 document.addEventListener('DOMContentLoaded', function () {
