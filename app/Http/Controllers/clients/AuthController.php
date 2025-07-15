@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\ActivationMail;
 use App\Models\KhachHang;
 use App\Models\TaiKhoan;
+use App\Models\CaLamViec;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -143,7 +144,26 @@ class AuthController extends Controller
             case 2: // Nhân viên
                 Auth::guard('staff')->login($user);
 
-                toastr()->success('Đăng nhập thành công ');
+                $nhanVien = Auth::guard('staff')->user()->nhanvien;
+
+                if (in_array($nhanVien->ma_chuc_vu, [1, 3])) {
+                    $caDangMo = CaLamViec::where('ma_nhan_vien', $nhanVien->ma_nhan_vien)
+                        ->whereNull('thoi_gian_ra')
+                        ->first();
+
+                    if ($caDangMo) {
+                        toastr()->warning('Bạn đã có ca làm việc đang mở!');
+                    } else {
+                        CaLamViec::create([
+                            'ma_nhan_vien' => $nhanVien->ma_nhan_vien,
+                            'thoi_gian_vao' => now(),
+                        ]);
+                        toastr()->success('Đăng nhập thành công và bắt đầu ca làm việc!');
+                    }
+                } else {
+                    toastr()->success('Đăng nhập thành công!');
+                }
+
                 return redirect()->route('staff');
 
             case 3: // Khách

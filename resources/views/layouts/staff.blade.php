@@ -293,6 +293,7 @@
                       </button>
                       <form id="logout-form" action="{{ route('admin.logout') }}" method="POST" style="display: none;">
                           @csrf
+                         
                       </form>
                   </li>
                 </div>
@@ -330,23 +331,73 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-      $(document).on('click', '#logout-btn', function (e) {
-        e.preventDefault();
+      document.getElementById('logout-btn').addEventListener('click', function (e) {
+    e.preventDefault();
+
+    const chucVu = @json(Auth::guard('staff')->user()->nhanvien->chucVu->ma_chuc_vu);
+    if (chucVu === 1 || chucVu === 3) {
         Swal.fire({
-          title: 'Đăng xuất?',
-          text: "Bạn chắc chắn muốn đăng xuất?",
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#28a745',
-          cancelButtonColor: '#d33',
-          confirmButtonText: 'Có, đăng xuất!',
-          cancelButtonText: 'Hủy'
+            title: 'Nhập thông tin kết ca',
+            html:
+                `<input type="number" id="tien-dau-ca" class="swal2-input" placeholder="Tiền đầu ca" value="">` +
+                `<input type="number" id="tien-thuc-nhan" class="swal2-input" placeholder="Tiền nhận (gồm cả tiền đầu ca)">`,
+            showCancelButton: true,
+            confirmButtonText: 'Xác nhận & In phiếu',
+            cancelButtonText: 'Huỷ',
+            preConfirm: () => {
+                const tienDauCa = parseFloat(document.getElementById('tien-dau-ca').value);
+                const tienThucNhan = parseFloat(document.getElementById('tien-thuc-nhan').value);
+                if (isNaN(tienDauCa) || isNaN(tienThucNhan)) {
+                    Swal.showValidationMessage('Vui lòng nhập đầy đủ thông tin!');
+                    return false;
+                }
+                return { tien_dau_ca: tienDauCa, tien_thuc_nhan: tienThucNhan };
+            }
         }).then((result) => {
-          if (result.isConfirmed) {
-            $('#logout-form').submit();
-          }
+            if (result.isConfirmed) {
+                const { tien_dau_ca, tien_thuc_nhan } = result.value;
+
+                // Tạo form tạm để gửi POST in phiếu
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '{{ route("admin.ketca") }}';
+                form.target = '_blank';
+
+                const csrf = document.createElement('input');
+                csrf.type = 'hidden';
+                csrf.name = '_token';
+                csrf.value = '{{ csrf_token() }}';
+                form.appendChild(csrf);
+
+                const tienDauCaInput = document.createElement('input');
+                tienDauCaInput.type = 'hidden';
+                tienDauCaInput.name = 'tien_dau_ca';
+                tienDauCaInput.value = tien_dau_ca;
+                form.appendChild(tienDauCaInput);
+
+                const tienThucNhanInput = document.createElement('input');
+                tienThucNhanInput.type = 'hidden';
+                tienThucNhanInput.name = 'tien_thuc_nhan';
+                tienThucNhanInput.value = tien_thuc_nhan;
+                form.appendChild(tienThucNhanInput);
+
+                document.body.appendChild(form);
+                form.submit();
+
+                // Delay vài giây rồi logout
+                setTimeout(() => {
+                    document.getElementById('logout-form').submit();
+                }, 3000); // đợi 3s để tải PDF
+            }
         });
-      });
+    } else {
+        // Không phải ca trưởng thì logout luôn
+        document.getElementById('logout-form').submit();
+    }
+});
+
+
+      
       document.getElementById('change-password-btn').addEventListener('click', function(e) {
           e.preventDefault(); // Ngăn chặn hành vi mặc định
 
@@ -392,6 +443,7 @@
         }
       });
       @endif
+
     </script>
     @stack('scripts')
   </body>

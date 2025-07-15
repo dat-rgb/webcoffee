@@ -65,7 +65,7 @@
                 <strong>Mã phiếu:</strong> {{ $maPhieu ?? '---' }}<br>
                 <strong>CỬA HÀNG:</strong> {{ $cuaHang->ten_cua_hang ?? '---' }}<br>
                 <strong>Địa chỉ:</strong> {{ $cuaHang->dia_chi ?? '---' }}<br>
-                <strong>Ngày lập phiếu:</strong> {{ \Carbon\Carbon::now()->format('d/m/Y H:i') }}<br>
+                <!-- <strong>Ngày lập phiếu:</strong> {{ \Carbon\Carbon::now()->format('d/m/Y H:i') }}<br> -->
                 <strong>Người lập:</strong> {{ $nguoiLap ?? '---' }}<br>
             </td>
         </tr>

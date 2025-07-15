@@ -168,12 +168,15 @@ Route::get('api/dia-chi', [CustomerController::class, 'getDiaChi'])->name('api.d
 
 //End - User
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Route::get('/staff/in-tem-ly/{ma_hoa_don}', [PrintHoaDonService::class, 'inTemLyFromRoute']);
 
 //auth adim & staff
 Route::prefix('auth')->group(function(){
     Route::get('/login',[AdminLoginController::class,'showLoginForm'])->name('admin.login.show');
     Route::post('/login',[AdminLoginController::class,'login'])->name('admin.login');
     Route::post('/logout',[AdminLoginController::class,'logout'])->name('admin.logout');
+    Route::post('/ket-ca', [AdminLoginController::class, 'ketCaLam'])->name('admin.ketca');
+
 });
 ///////////////////////////////////////////////////////////////////////////////////////////
 //Start - Admin
