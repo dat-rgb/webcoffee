@@ -254,6 +254,20 @@
                             <img src="{{ asset('storage/' . ($item->sanPham->hinh_anh ?? 'default.png')) }}" alt="Ảnh" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px;">
                             <div>
                                 <div>{{ $item->ten_san_pham }} - {{ $item->ten_size }}</div>
+                                @if ($item->review)
+                                    <div class="mt-1">
+                                        <div class="d-flex align-items-center gap-1">
+                                            @for ($i = 1; $i <= 5; $i++)
+                                                <i class="fa{{ $i <= $item->review->rating ? 's' : 'r' }} fa-star text-warning small"></i>
+                                            @endfor
+                                        </div>
+                                        @if ($item->review->danh_gia)
+                                            <div class="text-muted fst-italic small">{{ $item->review->danh_gia }}</div>
+                                        @endif
+                                    </div>
+                                @else
+                                    <div class="text-muted fst-italic small">Chưa có đánh giá</div>
+                                @endif
                             </div>
                         </div>
                     </td>
@@ -272,4 +286,5 @@
         <hr>
         <p class="d-flex justify-content-between fw-bold fs-5 text-danger"><strong>Thành tiền:</strong> <span>{{ number_format($order->tong_tien, 0, ',', '.') }} đ</span></p>
     </div>
+
 </div>

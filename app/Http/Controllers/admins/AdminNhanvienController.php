@@ -287,29 +287,29 @@ class AdminNhanvienController extends Controller
     }
 
     public function archiveBulk(Request $request)
-{
-    $maNhanViens = $request->input('selected_nhanviens');
+    {
+        $maNhanViens = $request->input('selected_nhanviens');
 
-    if (!$maNhanViens || count($maNhanViens) === 0) {
-        toastr()->error("Vui lòng chọn ít nhất một nhân viên.");
+        if (!$maNhanViens || count($maNhanViens) === 0) {
+            toastr()->error("Vui lòng chọn ít nhất một nhân viên.");
+            return redirect()->route('admins.nhanvien.index');
+        }
+
+        // Cập nhật trạng thái nhân viên
+        NhanVien::whereIn('ma_nhan_vien', $maNhanViens)->update(['trang_thai' => 1]);
+
+        // Lấy danh sách mã tài khoản từ nhân viên
+        $maTaiKhoans = NhanVien::whereIn('ma_nhan_vien', $maNhanViens)
+                        ->pluck('ma_tai_khoan')
+                        ->filter() // loại bỏ null nếu có
+                        ->toArray();
+
+        // Cập nhật trạng thái tài khoản
+        TaiKhoan::whereIn('ma_tai_khoan', $maTaiKhoans)->update(['trang_thai' => 0]);
+
+        toastr()->success("Nhân viên được chọn đã đưa vào danh sách nghỉ");
         return redirect()->route('admins.nhanvien.index');
     }
-
-    // Cập nhật trạng thái nhân viên
-    NhanVien::whereIn('ma_nhan_vien', $maNhanViens)->update(['trang_thai' => 1]);
-
-    // Lấy danh sách mã tài khoản từ nhân viên
-    $maTaiKhoans = NhanVien::whereIn('ma_nhan_vien', $maNhanViens)
-                    ->pluck('ma_tai_khoan')
-                    ->filter() // loại bỏ null nếu có
-                    ->toArray();
-
-    // Cập nhật trạng thái tài khoản
-    TaiKhoan::whereIn('ma_tai_khoan', $maTaiKhoans)->update(['trang_thai' => 0]);
-
-    toastr()->success("Nhân viên được chọn đã đưa vào danh sách nghỉ");
-    return redirect()->route('admins.nhanvien.index');
-}
 
 
 

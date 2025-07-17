@@ -75,6 +75,32 @@ class HoaDon extends Model
         return $this->hasMany(Review::class, 'ma_hoa_don', 'ma_hoa_don');
     }
 
+    public function getRouteKeyName()
+    {
+        return 'ma_hoa_don';
+    }
+
+
+    public static function countDonHangMoi($maCuaHang)
+    {
+        return self::where(function ($query) use ($maCuaHang) {
+                $query->where('ma_cua_hang', $maCuaHang)
+                    ->where(function ($q) { 
+                        $q->where(function ($qq) {
+                            $qq->where('trang_thai', 0)
+                                ->where('phuong_thuc_thanh_toan', 'COD');
+                        })
+                        ->orWhere(function ($qq) {
+                            $qq->where('phuong_thuc_thanh_toan', '!=', 'COD')
+                                ->where('trang_thai', 0)
+                                ->where('trang_thai_thanh_toan', 1);
+                        });
+                    });
+            })
+            ->count();
+    }
+
+
     public static function generateMaHoaDon(): string
     {
         $prefix = 'HD';

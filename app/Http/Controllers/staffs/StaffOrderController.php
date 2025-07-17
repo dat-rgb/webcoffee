@@ -4,12 +4,16 @@ namespace App\Http\Controllers\staffs;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\payments\PaymentController;
+use App\Http\Controllers\Print\PrintHoaDonService;
+use App\Models\CaLamViec;
 use App\Models\ChiTietHoaDon;
 use App\Models\GiaoHang;
 use App\Models\HoaDon;
 use App\Models\KhuyenMai;
 use App\Models\LichSuHuyDonHang;
 use App\Models\NhanVien;
+use App\Models\Review;
+use App\Models\Settings;
 use App\Models\SanPham;
 use App\Models\Sizes;
 use App\Models\ThanhPhanSanPham;
@@ -19,6 +23,13 @@ use Illuminate\Support\Facades\Auth;
 
 class StaffOrderController extends Controller
 {
+    protected $printService;
+
+    public function __construct(PrintHoaDonService $printService)
+    {
+        $this->settings = Settings::first(); 
+        $this->printService = $printService;
+    }
     public function orderStore()
     {
         $nhanVien = Auth::guard('staff')->user()->nhanvien;
@@ -33,15 +44,18 @@ class StaffOrderController extends Controller
             return redirect()->back();
         }
 
-        $orders = HoaDon::with(['khachHang', 'chiTietHoaDon'])
+        $orders = HoaDon::with(['khachHang', 'chiTietHoaDon','transaction'])
             ->where('ma_cua_hang', $nhanVien->ma_cua_hang)
             ->orderByDesc('ngay_lap_hoa_don')
             ->get();
+
+        
 
         return view('staffs.orders.index', [
             'title' => 'Đơn hàng cửa hàng '. $nhanVien->ma_cua_hang.' | CDMT Coffee & Tea',
             'subtitle' => 'Quản lý đơn hàng ' . $nhanVien->ma_cua_hang,
             'orders' => $orders,
+            'highlightId' => request('highlight',null)
         ]); 
     }
     public function filter(Request $request)
@@ -80,11 +94,27 @@ class StaffOrderController extends Controller
 
         return view('staffs.orders._order_tbody', compact('orders'))->render();
     }
+    
     public function detail($id)
     {
-        $order = HoaDon::with(['khachHang', 'chiTietHoaDon','khuyenMai','giaoHang','lichSuHuyDonHang'])->where('ma_hoa_don',$id)->first();
-        return view('staffs.orders._order_detail', compact('order'));
+        $order = HoaDon::with([
+            'khachHang',
+            'chiTietHoaDon.sanPham',
+        ])->where('ma_hoa_don', $id)->first();
+
+        $customerId = $order->ma_khach_hang;
+
+        foreach ($order->chiTietHoaDon as $item) {
+            $item->review = Review::where([
+                'ma_khach_hang' => $customerId,
+                'ma_san_pham' => $item->ma_san_pham,
+                'ma_hoa_don' => $id,
+            ])->first();
+        }
+
+        return view('admins.orders._order_detail', compact('order'));
     }
+
     public function updateStatusOrder(Request $request)
     {
         try {
@@ -122,6 +152,7 @@ class StaffOrderController extends Controller
             $order->save();
 
             return response()->json(['success' => true]);
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -268,7 +299,10 @@ class StaffOrderController extends Controller
             return ($item->so_luong * $item->don_gia) + $item->gia_size;
         });
 
-        $diem = floor($tongTien / 10000); // 10k = 1 điểm
+        $tyLe = intval($this->settings->ty_le_diem_thuong ?? 1000); // fallback nếu không có
+        if ($tyLe <= 0) $tyLe = 1000; // tránh chia 0
+
+        $diem = floor($tongTien / $tyLe); // ví dụ 1000 VND = 1 điểm
 
         if ($diem > 0) {
             $khach = $order->khachHang;
@@ -277,7 +311,10 @@ class StaffOrderController extends Controller
 
             $khach->diem_thanh_vien = $diemSau;
 
-            if ($diemSau >= 600) {
+            // Cập nhật hạng thành viên
+            if($diemSau >= 900){
+                $khach->hang_thanh_vien = 'Kim Cương';
+            }elseif ($diemSau >= 600) {
                 $khach->hang_thanh_vien = 'Vàng';
             } elseif ($diemSau >= 300) {
                 $khach->hang_thanh_vien = 'Bạc';
@@ -286,6 +323,91 @@ class StaffOrderController extends Controller
             }
 
             $khach->save();
+        }
+    }
+
+    public function countHoaDonMoi()
+    {
+        try {
+            $maCuaHang = Auth::guard('staff')->user()->nhanVien->ma_cua_hang;
+
+            // Đếm đơn hàng mới
+            $count = HoaDon::countDonHangMoi($maCuaHang);
+
+            // Lấy danh sách đơn hàng mới (giới hạn 5 đơn gần nhất)
+            $donHangMoi = HoaDon::where('ma_cua_hang', $maCuaHang)
+                ->where('trang_thai', 0)
+                ->orderBy('ngay_lap_hoa_don', 'desc')
+                ->take(5)
+                ->get(['ma_hoa_don', 'ngay_lap_hoa_don']); // Chỉ lấy trường cần
+
+            return response()->json([
+                'orderCount' => $count,
+                'orders' => $donHangMoi,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Lỗi lấy số lượng đơn hàng'], 500);
+        }
+    }
+
+    public function loadOrdersPartial()
+    {
+        try {
+            $nhanVien = Auth::guard('staff')->user()->nhanvien;
+
+            if (!$nhanVien) {
+                \Log::error('Không tìm thấy nhân viên');
+                return response('Không có nhân viên', 403);
+            }
+
+            $orders = HoaDon::with(['khachHang', 'chiTietHoaDon', 'transaction'])
+                ->where('ma_cua_hang', $nhanVien->ma_cua_hang)
+                ->orderByDesc('ngay_lap_hoa_don')
+                ->get();
+
+            return view('staffs.orders._order_tbody', compact('orders'));
+        } catch (\Exception $e) {
+            \Log::error('Lỗi loadOrdersPartial: ' . $e->getMessage());
+            return response('Có lỗi xảy ra', 500);
+        }
+    }
+    public function thongKeOrderNhanVien(Request $request)
+    {
+        try {
+            $nhanVien = Auth::guard('staff')->user()->nhanvien;
+
+            $ca = CaLamViec::where('ma_nhan_vien', $nhanVien->ma_nhan_vien)
+                ->whereNull('thoi_gian_ra')
+                ->latest()
+                ->first();
+
+            if (!$ca) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không tìm thấy ca làm việc đang mở.'
+                ], 404);
+            }
+
+            $hoaDonQuery = HoaDon::where('ma_nhan_vien', $nhanVien->ma_nhan_vien)
+                ->where('created_at', '>=', $ca->thoi_gian_vao)
+                ->where('trang_thai', 4);
+
+            $tong_don_xac_nhan = $hoaDonQuery->count();
+            $tong_tien_cod = (clone $hoaDonQuery)->where('phuong_thuc_thanh_toan', 'COD')->sum('tong_tien');
+            $tong_tien_online = (clone $hoaDonQuery)->where('phuong_thuc_thanh_toan', '!=', 'COD')->sum('tong_tien');
+            $tong_tien = $tong_tien_cod + $tong_tien_online;
+
+            return response()->json([
+                'success' => true,
+                'data' => compact('tong_don_xac_nhan', 'tong_tien_cod', 'tong_tien_online', 'tong_tien')
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('Lỗi thống kê đơn hàng: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi server: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

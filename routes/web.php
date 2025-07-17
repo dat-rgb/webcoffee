@@ -29,6 +29,7 @@ use App\Http\Controllers\dashboards\StaffDashboardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\payments\PaymentController;
 use App\Http\Controllers\payments\PayOSController;
+use App\Http\Controllers\Print\PrintHoaDonService;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\staffs\StaffHomeController;
 use App\Http\Controllers\staffs\StaffOrderController;
@@ -168,12 +169,15 @@ Route::get('api/dia-chi', [CustomerController::class, 'getDiaChi'])->name('api.d
 
 //End - User
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Route::get('/staff/in-tem-ly/{ma_hoa_don}', [PrintHoaDonService::class, 'inTemLyFromRoute']);
 
 //auth adim & staff
 Route::prefix('auth')->group(function(){
     Route::get('/login',[AdminLoginController::class,'showLoginForm'])->name('admin.login.show');
     Route::post('/login',[AdminLoginController::class,'login'])->name('admin.login');
     Route::post('/logout',[AdminLoginController::class,'logout'])->name('admin.logout');
+    Route::post('/ket-ca', [AdminLoginController::class, 'ketCaLam'])->name('admin.ketca');
+
 });
 ///////////////////////////////////////////////////////////////////////////////////////////
 //Start - Admin
@@ -186,6 +190,9 @@ Route::prefix('admin')->middleware(AdminMiddleware::class)->group(function(){
     Route::post('/banners/{id}', [AdminHomeController::class, 'destroy'])->name('admin.home.banners.destroy');
     Route::post('/admin/banners', [AdminHomeController::class, 'store'])->name('admin.home.banners.store');
     Route::post('/admin/banners/update-group/{position}', [AdminHomeController::class, 'updateGroup'])->name('admin.home.banners.updateGroup');
+    Route::get('/settings',[AdminHomeController::class,'settings'])->name('admin.home.settings');
+    Route::post('/settings', [AdminHomeController::class, 'updateSettings'])->name('admin.settings.update');
+
 });
 //Route Products Admin
 Route::prefix('admin/products')->middleware(AdminMiddleware::class)->group(function(){
@@ -385,9 +392,19 @@ Route::prefix('staff/product-store')->middleware(NhanVienMiddleware::class)->gro
 //Route Staff Order
 Route::prefix('staff/orders')->middleware(NhanVienMiddleware::class)->group(function(){
     Route::get('/', [StaffOrderController::class, 'orderStore'])->name('staff.orders.list');
+    Route::get('/count', [StaffOrderController::class, 'countHoaDonMoi']);
+    Route::get('/partial', [StaffOrderController::class, 'loadOrdersPartial']);
+
+
     Route::get('/{id}/detail', [StaffOrderController::class, 'detail'])->name('staff.orders.detail');
     Route::post('/filter', [StaffOrderController::class, 'filter'])->name('staff.orders.filter');
     Route::post('/update-status', [StaffOrderController::class, 'updateStatusOrder'])->name('staff.orders.updateStatus');
+
+    Route::get('/{order}/print-tem-ly', [PrintHoaDonService::class, 'printTemLy'])->name('orders.print.temly');
+    Route::get('/{order}/print-hoa-don', [PrintHoaDonService::class, 'printHoaDon'])->name('orders.print.hoadon');
+
+    Route::get('/thong-ke',[StaffOrderController::class,'thongKeOrderNhanVien'])->name('staff.orders.thongke');
+
 });
 
 //Route Staff Dashboard

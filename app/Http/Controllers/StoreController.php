@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CuaHang;
+use App\Models\Settings;
 use Illuminate\Http\Request;
 use App\Http\Controllers\CartController;
 use Illuminate\Support\Facades\DB;
@@ -10,9 +11,16 @@ use Illuminate\Support\Facades\Http;
 
 class StoreController extends Controller
 {
+    protected $settings;
+
+    public function __construct()
+    {
+        $this->settings = Settings::first(); 
+    }
+
     public function index()
     {
-        return CuaHang::where('trang_thai', 1)->get();   // trả JSON
+        return CuaHang::where('trang_thai', 1)->get();  
     }
     
     public function selectStore(Request $request)
@@ -80,7 +88,7 @@ class StoreController extends Controller
                 ) AS khoang_cach",
                 [$lat, $lng, $lat]          
             )
-            ->having('khoang_cach', '<=',3) 
+            ->having('khoang_cach', '<=',$this->settings->ban_kinh_hien_thi_cua_hang) 
             ->orderBy('khoang_cach')
             ->get();
 

@@ -4,12 +4,28 @@
 @section('subtitle', $subtitle)
 @push('styles')
 <style>
-    th {
-        white-space: nowrap;
-        font-size: 14px;
-        padding: 8px 10px;
-        text-align: center;
-    }
+th {
+    white-space: nowrap;
+    font-size: 14px;
+    padding: 8px 10px;
+    text-align: center;
+}
+
+.highlight-row {
+    background-color: #fff3cd !important; /* Vàng nhạt */
+}
+
+.animate-highlight {
+    animation: flashHighlight 1.5s ease-in-out;
+}
+
+@keyframes flashHighlight {
+    0%   { background-color: #ffeeba; }  /* sáng */
+    50%  { background-color: #fff3cd; }  /* vàng nhạt */
+    100% { background-color: #fff3cd; }  /* giữ lại */
+}
+
+
 </style>
 @endpush
 
@@ -31,10 +47,90 @@
                 </li>
             </ul>
         </div>
+
+        <div class="row">
+            <div class="col-sm-6 col-md-3">
+                <div class="card card-stats card-round">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-5">
+                            <div class="icon-big text-center">
+                                <i class="fas fa-file-invoice-dollar text-warning"></i>
+                            </div>
+                            </div>
+                            <div class="col-7 col-stats">
+                            <div class="numbers">
+                                <p class="card-category">Hóa đơn xác nhận</p>
+                                <h4 class="card-title" id="tong-don"></h4>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="card card-stats card-round">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-5">
+                                <div class="icon-big text-center">
+                                    <i class="icon-wallet text-success"></i>
+                                </div>
+                            </div>
+                            <div class="col-7 col-stats">
+                                <div class="numbers">
+                                    <p class="card-category">Tổng tiền</p>
+                                    <h4 class="card-title" id="tong-tien"></h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+            <div class="card card-stats card-round">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-5">
+                            <div class="icon-big text-center">
+                                <i class="fas fa-money-bill text-danger"></i>
+                            </div>
+                        </div>
+                        <div class="col-7 col-stats">
+                            <div class="numbers">
+                                <p class="card-category">Tiền COD</p>
+                                <h4 class="card-title" id="tien-cod"></h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="card card-stats card-round">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-5">
+                                <div class="icon-big text-center">
+                                    <i class="fas fa-credit-card text-primary"></i>
+                                </div>
+                            </div>
+                            <div class="col-7 col-stats">
+                                <div class="numbers">
+                                    <p class="card-category">Tiền Online</p>
+                                    <h4 class="card-title" id="tien-online"></h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="row">
             <div class="col-md-12">
                 <div class="card">
-                <div class="card-header">
+                    <div class="card-header">
                         <form action="{{ url()->current() }}" method="GET" class="row g-2 align-items-center">
                             <div class="col-12 col-lg-6"> 
                                 <div class="input-group">
@@ -101,16 +197,17 @@
                                          
                                         </tr>
                                     </thead>    
+                                    
                                     <tbody id="order-tbody">
                                         @include('staffs.orders._order_tbody', ['orders' => $orders])
-                                        <div class="modal fade" id="orderDetailModal" tabindex="-1" aria-hidden="true"> 
-                                            <div class="modal-dialog modal-lg"> 
-                                                <div class="modal-content">
-                                                    <div id="order-detail-content"></div>
-                                                </div>
+                                    </tbody>
+                                    <div class="modal fade" id="orderDetailModal" tabindex="-1" aria-hidden="true"> 
+                                        <div class="modal-dialog modal-lg"> 
+                                            <div class="modal-content">
+                                            <div id="order-detail-content"></div>
                                             </div>
                                         </div>
-                                    </tbody>
+                                    </div>
                                 </table>
                             </div>
                         </div>
@@ -150,16 +247,18 @@ function bindOrderStatusEvents() {
                 cancelButtonText: 'Hủy',
             }).then(result => {
                 if (result.isConfirmed) {
+                    const extraData = { pt_nhan_hang };
+
                     if (newStatus === 3) {
                         if (pt_nhan_hang === 'pickup') {
-                            updateOrderStatus(orderId, newStatus, {}, this);
+                            updateOrderStatus(orderId, newStatus, extraData, this);
                         } else {
                             showDeliverInfoModal(orderId, newStatus, this);
                         }
                     } else if (newStatus === 5) {
                         showCancelReasonModal(orderId, newStatus, this);
                     } else {
-                        updateOrderStatus(orderId, newStatus, {}, this);
+                        updateOrderStatus(orderId, newStatus, extraData, this);
                     }
                 } else {
                     this.value = previousValue;
@@ -201,7 +300,18 @@ function updateOrderStatus(orderId, status, extraData = {}, selectElement = null
                 icon: 'success',
                 title: 'Thành công',
                 text: 'Cập nhật trạng thái đơn hàng thành công!',
-            }).then(() => window.location.reload());
+            })
+            .then(() => {
+            if (status === 1) {
+                window.open(`/staff/orders/${orderId}/print-tem-ly`, '_blank');
+            } else if (
+                (status === 3 && extraData?.pt_nhan_hang === 'delivery') ||
+                (status === 4 && extraData?.pt_nhan_hang === 'pickup')
+            ) {
+                window.open(`/staff/orders/${orderId}/print-hoa-don`, '_blank');
+            }
+           window.location.reload();
+        });
         } else {
             if (selectElement) selectElement.value = selectElement.getAttribute('data-previous');
             Swal.fire({
@@ -268,6 +378,7 @@ function showDeliverInfoModal(orderId, newStatus, selectElement) {
                 shipper_name: result.value.name,
                 shipper_phone: result.value.phone,
                 note: result.value.note,
+                pt_nhan_hang: 'delivery',
             }, selectElement);
         } else {
             if (selectElement) selectElement.value = selectElement.getAttribute('data-previous');
@@ -302,7 +413,6 @@ function showCancelReasonModal(orderId, newStatus, selectElement) {
     });
 }
 
-// Xem chi tiết đơn hàng
 $(document).on('click', '.order-detail-btn', function () {
     const orderId = $(this).data('id');
     const modal = new bootstrap.Modal(document.getElementById('orderDetailModal'));
@@ -332,7 +442,7 @@ $(document).ready(function () {
             },
             success: function (res) {
                 $('#order-tbody').html(res);
-                bindOrderStatusEvents(); // 👈 bind lại sau khi lọc
+                bindOrderStatusEvents(); 
             },
             error: function () {
                 alert('Có lỗi xảy ra khi tìm kiếm hoặc lọc đơn hàng.');
@@ -349,8 +459,41 @@ $(document).ready(function () {
     });
     $('#searchBtn').on('click', fetchOrders);
 
-    bindOrderStatusEvents(); // 👈 lần đầu trang load
+    bindOrderStatusEvents(); 
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+    const highlightId = new URLSearchParams(window.location.search).get('highlight');
+    if (highlightId) {
+        const el = document.getElementById('order-' + highlightId);
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+});
+
+fetch('/staff/orders/thong-ke')
+    .then(async res => {
+        if (!res.ok) {
+            const errorText = await res.text();
+            console.error('Server Error:', errorText);
+            throw new Error(errorText);
+        }
+        return res.json();
+    })
+    .then(data => {
+        if (data.success) {
+            const info = data.data;
+            document.getElementById('tong-don').innerText = info.tong_don_xac_nhan;
+            document.getElementById('tong-tien').innerText = info.tong_tien.toLocaleString() + 'đ';
+            document.getElementById('tien-cod').innerText = info.tong_tien_cod.toLocaleString() + 'đ';
+            document.getElementById('tien-online').innerText = info.tong_tien_online.toLocaleString() + 'đ';
+        }
+    })
+    .catch(err => {
+        console.error('Lỗi thống kê đơn hàng:', err.message);
+    });
+
 </script>
 @endpush
 

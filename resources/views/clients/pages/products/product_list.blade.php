@@ -68,30 +68,56 @@
         </div>
         <div class="row"  id="product-list">
             @foreach ( $products as  $pro)
-            <div class="col-lg-3 col-md-4 col-6 text-center {{ $pro->danhMuc->ma_danh_muc ?? '' }}">
-                <div class="single-product-item">
-                    <div class="product-image ">
-                        <div class="icon-wrapper">
-                            @if ($pro->hot && $pro->is_new)
-                                <img src="{{ asset('images/product_hot.png') }}" alt="" class="hot-icon">
-                                <img src="{{ asset('images/product_new.png') }}" alt="" class="hot-icon second">
-                            @elseif($pro->hot)
-                                <img src="{{ asset('images/product_hot.png') }}" alt="" class="hot-icon">
-                            @elseif($pro->is_new)
-                                <img src="{{ asset('images/product_new.png') }}" alt="" class="hot-icon">
-                            @endif
+                <div class="col-lg-3 col-md-4 col-6 text-center {{ $pro->danhMuc->ma_danh_muc ?? '' }}">
+                    <div class="single-product-item">
+                        <div class="product-image ">
+                            <div class="icon-wrapper">
+                                @if ($pro->hot && $pro->is_new)
+                                    <img src="{{ asset('images/product_hot.png') }}" alt="" class="hot-icon">
+                                    <img src="{{ asset('images/product_new.png') }}" alt="" class="hot-icon second">
+                                @elseif($pro->hot)
+                                    <img src="{{ asset('images/product_hot.png') }}" alt="" class="hot-icon">
+                                @elseif($pro->is_new)
+                                    <img src="{{ asset('images/product_new.png') }}" alt="" class="hot-icon">
+                                @endif
+                            </div>
+                            <a href="{{ route('product.detail', $pro->slug) }}">
+                                <img class="" src="{{ $pro->hinh_anh ? asset('storage/' . $pro->hinh_anh) : asset('images/no_product_image.png') }}" alt="">
+                            </a>
                         </div>
-                        <a href="{{ route('product.detail', $pro->slug) }}">
-                            <img class="" src="{{ $pro->hinh_anh ? asset('storage/' . $pro->hinh_anh) : asset('images/no_product_image.png') }}" alt="">
+                        <h5 class="mt-2">{{ \Illuminate\Support\Str::limit($pro['ten_san_pham'], 20) }}</h5>
+                        @if ($pro->loai_san_pham == 0)
+                            @php
+                                $sizes = $sizesMap[$pro->ma_san_pham] ?? collect(); 
+                                $sortedSizes = $sizes->sortBy('gia_size');
+                            @endphp
+                            <p class="text-center" style="font-style: italic; font-weight: bold; font-size: 14px; color: #5a5a5a; margin-bottom: 6px;">
+                                @php
+                                    $sizes = $sizesMap[$pro->ma_san_pham] ?? collect(); 
+                                @endphp
+                                @if ($sizes->count() === 1)
+                                    {{ number_format($pro->gia + $sizes[0]->gia_size, 0, ',', '.') }} đ
+                                @elseif ($sizes->count() > 1)
+                                    @php
+                                        $prices = $sizes->map(function($size) use ($pro) {
+                                            return $pro->gia + $size->gia_size;
+                                        })->sort()->values();
+                                    @endphp
+                                    {{ number_format($prices->first(), 0, ',', '.') }} đ ~ {{ number_format($prices->last(), 0, ',', '.') }} đ
+                                @else
+                                    {{ number_format($pro->gia, 0, ',', '.') }} đ
+                                @endif
+                            </p>
+                        @else
+                            <p class="text-center" style="font-style: italic; font-weight: bold; font-size: 14px; color: #5a5a5a; margin-bottom: 6px;">
+                                {{ number_format($pro->gia, 0,',','.') }} đ
+                            </p>
+                        @endif
+                        <a href="{{ route('product.detail', $pro->slug) }}" class="cart-btn mt-1">
+                            <i class="fas fa-shopping-cart"></i> Đặt mua
                         </a>
                     </div>
-                    <h5 class="mt-2">{{ \Illuminate\Support\Str::limit($pro['ten_san_pham'], 20) }}</h5>
-                    <a href="{{ route('product.detail', $pro->slug) }}" class="cart-btn mt-1">
-                        <i class="fas fa-shopping-cart"></i> Đặt mua
-                    </a>
                 </div>
-            </div>
-
             @endforeach
         </div>
         
@@ -101,7 +127,7 @@
                     <div class="col-lg-12 text-center">
                         <div class="pagination-wrap">
                             <ul>
-                                <li><a href="{{ $products->previousPageUrl() ?? '#' }}">Prev</a></li>
+                                <li><a href="{{ $products->previousPageUrl() ?? '#' }}">Trước</a></li>
                                 @for ($i = 1; $i <= $products->lastPage(); $i++)
                                     <li>
                                         <a href="{{ $products->url($i) }}"
@@ -110,7 +136,7 @@
                                         </a>
                                     </li>
                                 @endfor
-                                <li><a href="{{ $products->nextPageUrl() ?? '#' }}">Next</a></li>
+                                <li><a href="{{ $products->nextPageUrl() ?? '#' }}">Tiếp</a></li>
                             </ul>
                         </div>
                     </div>

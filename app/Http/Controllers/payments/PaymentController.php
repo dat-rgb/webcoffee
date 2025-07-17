@@ -9,6 +9,7 @@ use App\Models\KhuyenMai;
 use App\Models\SanPham;
 use App\Models\SanPhamCuaHang;
 use App\Models\Sizes;
+use App\Models\Settings;
 use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -20,6 +21,13 @@ use Illuminate\Support\Facades\Http;
 
 class PaymentController extends Controller
 {
+    protected $settings;
+
+    public function __construct()
+    {
+        $this->settings = Settings::first(); 
+    }
+
     public function payment(Request $request)
     {
         $validated = $request->validate([
@@ -517,10 +525,10 @@ class PaymentController extends Controller
             $lngUser
         );
 
-        if ($distance > 3) {
+        if ($distance > $this->settings->ban_kinh_giao_hang) {
             return [
                 'success' => false,
-                'message' => "Khoảng cách giao hàng vượt quá 3 km (hiện tại: {$distance} km)"
+                'message' => "Khoảng cách giao hàng vượt quá {$this->settings->ban_kinh_giao_hang} km"
             ];
         }
 

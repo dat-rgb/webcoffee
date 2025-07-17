@@ -65,8 +65,9 @@
             $isPending = $order->trang_thai_thanh_toan == 0 && optional($order->transaction)->trang_thai == 'PENDING';
             $isTimeout = $isOnline && $expired && $isPending;
         @endphp
-        <tr>
-           
+        <tr id="order-{{ $order->ma_hoa_don }}"
+            class="{{ request('highlight') == $order->ma_hoa_don ? 'highlight-row animate-highlight' : '' }}"
+        >
             <td class="text-start">{{ $loop->iteration }}</td>
             <td class="text-start">
                 <a href="javascript:void(0);" 

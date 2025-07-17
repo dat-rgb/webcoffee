@@ -193,7 +193,7 @@
 
        Swal.fire({
             title: 'Bạn có chắc chắn?',
-            html: 'Các nhân viên đã chọn sẽ bị <strong>"Tạm nghỉ"</strong><br>(sẽ bị xóa sau 30 ngày).',
+            html: 'Các nhân viên đã chọn sẽ bị <strong>"Tạm nghỉ"</strong><br>.',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Có',
@@ -217,7 +217,6 @@
                 });
             }
         });
-
     });
 </script>
 @endpush

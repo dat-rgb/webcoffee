@@ -480,8 +480,6 @@ class AdminProductController extends Controller
 
         return response()->json(['status' => 'success', 'message' => 'Đã thực hiện thao tác thành công']);
     }
-
-
     //show form cập nhật
     public function showProductEdit($proId) {
         $product = SanPham::with('thanhPhans')->where('ma_san_pham', $proId)->first();

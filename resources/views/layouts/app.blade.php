@@ -293,7 +293,6 @@
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 	<!-- JS -->
 	<script src="{{ asset('js/store-popup.js') }}"></script>
-	<script src="{{ asset('js/cart.js') }}"></script>
 	<!--  -->
 	<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 	<script src="https://cdn.payos.vn/payos-checkout/v1/stable/payos-initialize.js"></script>
@@ -301,6 +300,18 @@
 	@stack('scripts')
 	<x-store-popup />
 	<script>
+		window.appSettings = {
+			maxQuantity: {{ $settings->so_luong_toi_da }},
+			minQuantity: {{ $settings->so_luong_toi_thieu }},
+			phiShip: {{ $settings->phi_ship }},
+			nguongMienPhi: {{ $settings->nguong_mien_phi_ship }},
+			banKinhGiaoHang: {{ $settings->ban_kinh_giao_hang }},
+			banKinhHienThiCuaHang: {{ $settings->ban_kinh_hien_thi_cua_hang }},
+			vatMacDinh: {{ $settings->vat_mac_dinh }},
+			cheDoBaoTri: {{ $settings->che_do_bao_tri ? 'true' : 'false' }},
+			tyLeDiemThuong: {{ $settings->ty_le_diem_thuong }},
+		};
+
     	$(document).on('click', '#logout-btn', function (e) {
 			e.preventDefault();
 
@@ -400,7 +411,6 @@
 					</li>`;
 			}).join('');
 		}
-
     	// Lấy vị trí và gọi API
 		function getCurrentLocation() {
 			if (navigator.geolocation) {
@@ -457,6 +467,7 @@
 			$('#store-modal').modal('hide');
 		}
 	</script>
-	<!-- <script lang="javascript">var __vnp = {code : 25338,key:'', secret : 'd3920272b894f48f2d92802d63fd3db2'};(function() {var ga = document.createElement('script');ga.type = 'text/javascript';ga.async=true; ga.defer=true;ga.src = '//core.vchat.vn/code/tracking.js?v=35925'; var s = document.getElementsByTagName('script');s[0].parentNode.insertBefore(ga, s[0]);})();</script> -->
+	<script src="{{ asset('js/cart.js') }}"></script>
+	<!-- <script lang="javascript">var __vnp = {code : 25510,key:'', secret : 'd3c75c7522fe8cfa6f39bee4a30bc5ca'};(function() {var ga = document.createElement('script');ga.type = 'text/javascript';ga.async=true; ga.defer=true;ga.src = '//core.vchat.vn/code/tracking.js?v=83033'; var s = document.getElementsByTagName('script');s[0].parentNode.insertBefore(ga, s[0]);})();</script> -->
 </body>
 </html>

@@ -19,7 +19,6 @@
           </div>
 
           <!-- Store List -->
-          <p class="mb-3 text-left" style="color: #F28123;">Các cửa hàng gần bạn trong vòng 3km</p>
           <ul class="list-group" id="storeList" data-selected-store="{{ session('selected_store_id') }}"></ul>
       </div>
     </div>

@@ -5,6 +5,8 @@ namespace App\Providers;
 use App\Http\ViewComposers\CategoryComposer;
 use App\Http\ViewComposers\DanhMucBlogComposer;
 use App\Http\ViewComposers\ThongTinWebsiteComposer;
+use App\Http\ViewComposers\SettingsComposer;
+
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\View;
@@ -29,6 +31,7 @@ class AppServiceProvider extends ServiceProvider
         View::composer('*', CategoryComposer::class);
         View::composer('*',DanhMucBlogComposer::class);
         View::composer('*',ThongTinWebsiteComposer::class);
+        View::composer('*', SettingsComposer::class);
         
         if (app()->environment('local') && request()->server('HTTP_HOST') && str_contains(request()->server('HTTP_HOST'), 'ngrok-free.app')) {
             URL::forceScheme('https');
