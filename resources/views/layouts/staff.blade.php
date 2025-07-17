@@ -52,6 +52,13 @@
   </head>
   <body>
     <div class="wrapper">
+      @php
+          $isHomeActive = request()->routeIs('staff.dashboard');
+          $isOrderActive = request()->routeIs('staff.orders.*');
+          $isProductActive = request()->routeIs('staff.productStore');
+          $isShopMaterialActive = request()->routeIs('staffs.shop_materials.*');
+          $isStaffActive = request()->routeIs('staffs.nhanviens.*');
+      @endphp
       <div class="sidebar" data-background-color="dark">
         <div class="sidebar-logo">
           <!-- Logo Header -->
@@ -88,7 +95,7 @@
                     <p>Cửa hàng</p>
                     <span class="caret"></span>
                     </a>
-                    <div class="collapse" id="dashboard">
+                    <div class="collapse  {{ $isHomeActive ? 'show' : '' }}" id="dashboard">
                     <ul class="nav nav-collapse">
                         <li>
                         <a href="{{ route('staff.dashboard') }}">
@@ -113,7 +120,7 @@
                     <p>Đơn hàng</p>
                     <span class="caret"></span>
                     </a>
-                    <div class="collapse" id="base">
+                    <div class="collapse {{ $isOrderActive ? 'show' : '' }}" id="base">
                     <ul class="nav nav-collapse">
                         <li>
                         <a href="{{ route('staff.orders.list') }}">
@@ -130,7 +137,7 @@
                     <p>Sản phẩm</p>
                     <span class="caret"></span>
                     </a>
-                    <div class="collapse" id="sidebarLayouts">
+                    <div class="collapse {{ $isProductActive ? 'show' : '' }}" id="sidebarLayouts">
                     <ul class="nav nav-collapse">
                         <li>
                           <a href="{{ route('staff.productStore',['status' => 1]) }}">
@@ -145,11 +152,11 @@
                 <!-- Quản lý kho nguyên liệu cửa hàng -->
                 <li class="nav-item">
                     <a data-bs-toggle="collapse" href="#materials">
-                    <i class="fas fa-laptop"></i>
+                    <i class="fas fa-blender"></i>
                     <p>Cửa hàng nguyên liệu</p>
                     <span class="caret"></span>
                     </a>
-                    <div class="collapse" id="materials">
+                    <div class="collapse {{ $isShopMaterialActive ? 'show' : '' }}" id="materials">
                     <ul class="nav nav-collapse">
                         <li>
                         <a href="{{ route('staffs.shop_materials.index') }}">
@@ -179,16 +186,11 @@
                             <span class="sub-item">Nhân viên</span>
                             <span class="caret"></span>
                         </a>
-                        <div class="collapse" id="subnav1">
+                        <div class="collapse {{ $isStaffActive ? 'show' : '' }}" id="subnav1">
                             <ul class="nav nav-collapse subnav">
                             <li>
                                 <a href="{{ route('staffs.nhanviens.index') }}">
                                 <span class="sub-item">Danh sách nhân viên</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#">
-                                    <span class="sub-item">Danh sách nhân viên nghỉ việc</span>
                                 </a>
                             </li>
                             </ul>
@@ -235,29 +237,8 @@
           <!-- Navbar Header -->
           <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom">
             <div class="container-fluid">
-              <nav class="p-0 navbar navbar-header-left navbar-expand-lg navbar-form nav-search d-none d-lg-flex">
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <button type="submit" class="btn btn-search pe-1">
-                      <i class="fa fa-search search-icon"></i>
-                    </button>
-                  </div>
-                  <input type="text" placeholder="Search ..." class="form-control"/>
-                </div>
-              </nav>
+              
               <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
-                <li class="nav-item topbar-icon dropdown hidden-caret d-flex d-lg-none">
-                  <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown"  href="#" role="button" aria-expanded="false" aria-haspopup="true">
-                    <i class="fa fa-search"></i>
-                  </a>
-                  <ul class="dropdown-menu dropdown-search animated fadeIn">
-                    <form class="navbar-left navbar-form nav-search">
-                      <div class="input-group">
-                        <input type="text" placeholder="Search ..." class="form-control"/>
-                      </div>
-                    </form>
-                  </ul>
-                </li>
                 <!--  -->
                 <li class="nav-item topbar-icon dropdown hidden-caret submenu">
                   <a class="nav-link dropdown-toggle" href="#" id="notifDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

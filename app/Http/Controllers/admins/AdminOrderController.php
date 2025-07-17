@@ -10,6 +10,7 @@ use App\Models\HoaDon;
 use App\Models\KhuyenMai;
 use App\Models\LichSuHuyDonHang;
 use App\Models\NguyenLieu;
+use App\Models\Review;
 use App\Models\SanPham;
 use App\Models\Sizes;
 use App\Models\ThanhPhanSanPham;
@@ -89,9 +90,24 @@ class AdminOrderController extends Controller
 
     public function detail($id)
     {
-        $order = HoaDon::with(['khachHang', 'chiTietHoaDon'])->where('ma_hoa_don',$id)->first();
+        $order = HoaDon::with([
+            'khachHang',
+            'chiTietHoaDon.sanPham',
+        ])->where('ma_hoa_don', $id)->first();
+
+        $customerId = $order->ma_khach_hang;
+
+        foreach ($order->chiTietHoaDon as $item) {
+            $item->review = Review::where([
+                'ma_khach_hang' => $customerId,
+                'ma_san_pham' => $item->ma_san_pham,
+                'ma_hoa_don' => $id,
+            ])->first();
+        }
+
         return view('admins.orders._order_detail', compact('order'));
     }
+
 
     public function updateStatusOrder(Request $request)
     {
@@ -186,7 +202,6 @@ class AdminOrderController extends Controller
             }
         }
     }
-
     public function restorePackedProductOnly($hoaDon)
     {
         $chiTietHoaDons = ChiTietHoaDon::where('ma_hoa_don', $hoaDon->ma_hoa_don)->get();

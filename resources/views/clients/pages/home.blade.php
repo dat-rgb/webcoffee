@@ -75,6 +75,33 @@
                             </a>
                         </div>
                         <h5 class="mt-2">{{ \Illuminate\Support\Str::limit($pro['ten_san_pham'], 20) }}</h5>
+                        @if ($pro->loai_san_pham == 0)
+                            @php
+                                $sizes = $sizesMap[$pro->ma_san_pham] ?? collect(); 
+                                $sortedSizes = $sizes->sortBy('gia_size');
+                            @endphp
+                            <p class="text-center" style="font-style: italic; font-weight: bold; font-size: 14px; color: #5a5a5a; margin-bottom: 6px;">
+                                @php
+                                    $sizes = $sizesMap[$pro->ma_san_pham] ?? collect(); 
+                                @endphp
+                                @if ($sizes->count() === 1)
+                                    {{ number_format($pro->gia + $sizes[0]->gia_size, 0, ',', '.') }} đ
+                                @elseif ($sizes->count() > 1)
+                                    @php
+                                        $prices = $sizes->map(function($size) use ($pro) {
+                                            return $pro->gia + $size->gia_size;
+                                        })->sort()->values();
+                                    @endphp
+                                    {{ number_format($prices->first(), 0, ',', '.') }} đ ~ {{ number_format($prices->last(), 0, ',', '.') }} đ
+                                @else
+                                    {{ number_format($pro->gia, 0, ',', '.') }} đ
+                                @endif
+                            </p>
+                        @else
+                            <p class="text-center" style="font-style: italic; font-weight: bold; font-size: 14px; color: #5a5a5a; margin-bottom: 6px;">
+                                {{ number_format($pro->gia, 0,',','.') }} đ
+                            </p>
+                        @endif
                         <a href="{{ route('product.detail', $pro->slug) }}" class="cart-btn mt-1">
                             <i class="fas fa-shopping-cart"></i> Đặt mua
                         </a>

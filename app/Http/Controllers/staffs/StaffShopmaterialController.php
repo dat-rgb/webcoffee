@@ -273,88 +273,120 @@ class StaffShopmaterialController extends Controller
 
         $now = Carbon::now()->startOfDay();
 
-        foreach ($materialKeys as $key) {
-            [$_, $maNguyenLieu] = explode('|', $key) + [null, null];
-
-            if (!$maNguyenLieu) continue;
+         foreach ($materialKeys as $key) {
+            [$maCuaHang, $maNguyenLieu] = explode('|', $key) + [null, null];
+            if (!$maCuaHang || !$maNguyenLieu) continue;
 
             $material = CuaHangNguyenLieu::with('nguyenLieu', 'cuaHang')
                 ->where('ma_cua_hang', $maCuaHang)
                 ->where('ma_nguyen_lieu', $maNguyenLieu)
                 ->first();
 
-            if ($material) {
-                $loList = PhieuNhapXuatNguyenLieu::where('ma_cua_hang', $maCuaHang)
-                    ->where('ma_nguyen_lieu', $maNguyenLieu)
-                    ->where('loai_phieu', 0)
-                    ->where('han_su_dung', '>=', $now)
-                    ->orderBy('han_su_dung', 'asc')
-                    ->orderBy('ngay_tao_phieu', 'asc')
-                    ->get();
+            if (!$material) continue;
 
-                $fromHD = DB::table('chi_tiet_hoa_dons as cthd')
-                    ->join('hoa_dons as hd', 'cthd.ma_hoa_don', '=', 'hd.ma_hoa_don')
-                    ->join('sizes as s', DB::raw('LOWER(cthd.ten_size)'), '=', DB::raw('LOWER(s.ten_size)'))
-                    ->join('thanh_phan_san_phams as tp', function ($join) {
-                        $join->on('cthd.ma_san_pham', '=', 'tp.ma_san_pham')
-                            ->on('s.ma_size', '=', 'tp.ma_size');
-                    })
-                    ->where('hd.ma_cua_hang', $maCuaHang)
-                    ->where('tp.ma_nguyen_lieu', $maNguyenLieu)
-                    ->select(
-                        'hd.ngay_lap_hoa_don as ngay_phat_sinh',
-                        DB::raw('tp.dinh_luong * cthd.so_luong as dinh_luong')
-                    )
-                    ->get();
+            // Danh sách lô còn hạn sử dụng
+            $loList = DB::table('phieu_nhap_xuat_nguyen_lieus')
+                ->where('ma_cua_hang', $maCuaHang)
+                ->where('ma_nguyen_lieu', $maNguyenLieu)
+                ->where('loai_phieu', 0) // Nhập
+                ->where('han_su_dung', '>=', $now)
+                ->orderBy('han_su_dung')
+                ->orderBy('ngay_tao_phieu')
+                ->get();
 
-                $fromPX = DB::table('phieu_nhap_xuat_nguyen_lieus')
-                    ->where('ma_cua_hang', $maCuaHang)
-                    ->where('ma_nguyen_lieu', $maNguyenLieu)
-                    ->where('loai_phieu', 1)
-                    ->select('ngay_tao_phieu as ngay_phat_sinh', 'dinh_luong')
-                    ->get();
+            // Giao dịch: Bán (Pha chế & Đóng gói)
+            $transactionsBrewed = DB::table('chi_tiet_hoa_dons as cthd')
+                ->join('hoa_dons as hd', 'cthd.ma_hoa_don', '=', 'hd.ma_hoa_don')
+                ->join('san_phams as sp', 'cthd.ma_san_pham', '=', 'sp.ma_san_pham')
+                ->join('thanh_phan_san_phams as tp', function ($join) {
+                    $join->on('cthd.ma_san_pham', '=', 'tp.ma_san_pham')
+                        ->on('cthd.ma_size', '=', 'tp.ma_size');
+                })
+                ->where('hd.ma_cua_hang', $maCuaHang)
+                ->where('sp.loai_san_pham', 0)
+                ->where('hd.trang_thai', 4)
+                ->where('tp.ma_nguyen_lieu', $maNguyenLieu)
+                ->select(
+                    'hd.ngay_lap_hoa_don as ngay_phat_sinh',
+                    DB::raw('tp.dinh_luong * cthd.so_luong as dinh_luong')
+                );
 
-                $fromHuy = DB::table('phieu_nhap_xuat_nguyen_lieus')
-                    ->where('ma_cua_hang', $maCuaHang)
-                    ->where('ma_nguyen_lieu', $maNguyenLieu)
-                    ->where('loai_phieu', 2)
-                    ->select('ngay_tao_phieu as ngay_phat_sinh', 'dinh_luong')
-                    ->get();
+            $transactionsPacked = DB::table('chi_tiet_hoa_dons as cthd')
+                ->join('hoa_dons as hd', 'cthd.ma_hoa_don', '=', 'hd.ma_hoa_don')
+                ->join('san_phams as sp', 'cthd.ma_san_pham', '=', 'sp.ma_san_pham')
+                ->join('thanh_phan_san_phams as tp', 'cthd.ma_san_pham', '=', 'tp.ma_san_pham')
+                ->where('hd.ma_cua_hang', $maCuaHang)
+                ->where('sp.loai_san_pham', 1)
+                ->where('hd.trang_thai', 4)
+                ->where('tp.ma_nguyen_lieu', $maNguyenLieu)
+                ->select(
+                    'hd.ngay_lap_hoa_don as ngay_phat_sinh',
+                    DB::raw('tp.dinh_luong * cthd.so_luong as dinh_luong')
+                );
 
-                $transactions = $fromHD->merge($fromPX)->merge($fromHuy)->sortBy('ngay_phat_sinh')->values();
+            $transactionsHD = $transactionsBrewed->unionAll($transactionsPacked)->get();
 
-                $availableBatches = collect();
+            // Giao dịch: Phiếu Xuất
+            $transactionsPX = DB::table('phieu_nhap_xuat_nguyen_lieus')
+                ->where('ma_cua_hang', $maCuaHang)
+                ->where('ma_nguyen_lieu', $maNguyenLieu)
+                ->where('loai_phieu', 1)
+                ->select('ngay_tao_phieu as ngay_phat_sinh', 'dinh_luong')
+                ->get();
 
-                foreach ($loList as $lo) {
-                    $left = $lo->dinh_luong;
+            // Giao dịch: Phiếu Hủy (CÓ `so_lo`)
+            $transactionsHuy = DB::table('phieu_nhap_xuat_nguyen_lieus')
+                ->where('ma_cua_hang', $maCuaHang)
+                ->where('ma_nguyen_lieu', $maNguyenLieu)
+                ->where('loai_phieu', 2)
+                ->where('dinh_luong', '>', 0)
+                ->select('ngay_tao_phieu as ngay_phat_sinh', 'dinh_luong', 'so_lo')
+                ->get();
 
-                    foreach ($transactions as $tx) {
-                        if (Carbon::parse($tx->ngay_phat_sinh)->lt(Carbon::parse($lo->ngay_tao_phieu))) {
-                            continue;
-                        }
+            // Gộp tất cả giao dịch và sắp xếp theo thời gian phát sinh
+            $transactions = $transactionsHD
+                ->merge($transactionsPX)
+                ->merge($transactionsHuy)
+                ->sortBy('ngay_phat_sinh')
+                ->values();
 
-                        if ($tx->dinh_luong <= 0) continue;
+            // Tính tồn theo FIFO nhưng nếu là phiếu hủy thì phải đúng lô
+            $availableBatches = collect();
 
-                        $used = min($left, $tx->dinh_luong);
-                        $left -= $used;
-                        $tx->dinh_luong -= $used;
+            foreach ($loList as $lo) {
+                $left = $lo->dinh_luong;
 
-                        if ($left <= 0) break;
+                foreach ($transactions as $tx) {
+                    if (Carbon::parse($tx->ngay_phat_sinh)->lt(Carbon::parse($lo->ngay_tao_phieu))) {
+                        continue;
                     }
 
-                    if ($left > 0) {
-                        $availableBatches->push([
-                            'so_lo'       => $lo->so_lo,
-                            'con_lai'     => $left,
-                            'han_su_dung' => $lo->han_su_dung,
-                            'don_vi'      => $material->don_vi,
-                        ]);
+                    if ($tx->dinh_luong <= 0) continue;
+
+                    // Nếu là phiếu hủy có `so_lo`, phải khớp với `lô hiện tại`
+                    if (isset($tx->so_lo) && $tx->so_lo !== $lo->so_lo) {
+                        continue;
                     }
+
+                    $used = min($left, $tx->dinh_luong);
+                    $left -= $used;
+                    $tx->dinh_luong -= $used;
+
+                    if ($left <= 0) break;
                 }
 
-                $material->available_batches = $availableBatches;
-                $materials->push($material);
+                if ($left > 0) {
+                    $availableBatches->push([
+                        'so_lo'       => $lo->so_lo,
+                        'con_lai'     => $left,
+                        'han_su_dung' => $lo->han_su_dung,
+                        'don_vi'      => $material->don_vi,
+                    ]);
+                }
             }
+
+            $material->available_batches = $availableBatches;
+            $materials->push($material);
         }
 
         if ($materials->isEmpty()) {
@@ -517,75 +549,111 @@ class StaffShopmaterialController extends Controller
                 ->where('ma_nguyen_lieu', $maNguyenLieu)
                 ->first();
 
-            if ($material) {
-                $loList = PhieuNhapXuatNguyenLieu::where('ma_cua_hang', $maCuaHang)
-                    ->where('ma_nguyen_lieu', $maNguyenLieu)
-                    ->where('loai_phieu', 0)
-                    ->where('han_su_dung', '>=', $now)
-                    ->orderBy('han_su_dung', 'asc')
-                    ->orderBy('ngay_tao_phieu', 'asc')
-                    ->get();
+            if (!$material) continue;
 
-                $fromHD = DB::table('chi_tiet_hoa_dons as cthd')
-                    ->join('hoa_dons as hd', 'cthd.ma_hoa_don', '=', 'hd.ma_hoa_don')
-                    ->join('sizes as s', DB::raw('LOWER(cthd.ten_size)'), '=', DB::raw('LOWER(s.ten_size)'))
-                    ->join('thanh_phan_san_phams as tp', function ($join) {
-                        $join->on('cthd.ma_san_pham', '=', 'tp.ma_san_pham')
-                             ->on('s.ma_size', '=', 'tp.ma_size');
-                    })
-                    ->where('hd.ma_cua_hang', $maCuaHang)
-                    ->where('tp.ma_nguyen_lieu', $maNguyenLieu)
-                    ->select('hd.ngay_lap_hoa_don as ngay_phat_sinh', DB::raw('tp.dinh_luong * cthd.so_luong as dinh_luong'))
-                    ->get();
+            // Danh sách lô còn hạn sử dụng
+            $loList = DB::table('phieu_nhap_xuat_nguyen_lieus')
+                ->where('ma_cua_hang', $maCuaHang)
+                ->where('ma_nguyen_lieu', $maNguyenLieu)
+                ->where('loai_phieu', 0) // Nhập
+                ->where('han_su_dung', '>=', $now)
+                ->orderBy('han_su_dung')
+                ->orderBy('ngay_tao_phieu')
+                ->get();
 
-                $fromPX = DB::table('phieu_nhap_xuat_nguyen_lieus')
-                    ->where('ma_cua_hang', $maCuaHang)
-                    ->where('ma_nguyen_lieu', $maNguyenLieu)
-                    ->where('loai_phieu', 1)
-                    ->select('ngay_tao_phieu as ngay_phat_sinh', 'dinh_luong')
-                    ->get();
+            // Giao dịch: Bán (Pha chế & Đóng gói)
+            $transactionsBrewed = DB::table('chi_tiet_hoa_dons as cthd')
+                ->join('hoa_dons as hd', 'cthd.ma_hoa_don', '=', 'hd.ma_hoa_don')
+                ->join('san_phams as sp', 'cthd.ma_san_pham', '=', 'sp.ma_san_pham')
+                ->join('thanh_phan_san_phams as tp', function ($join) {
+                    $join->on('cthd.ma_san_pham', '=', 'tp.ma_san_pham')
+                        ->on('cthd.ma_size', '=', 'tp.ma_size');
+                })
+                ->where('hd.ma_cua_hang', $maCuaHang)
+                ->where('sp.loai_san_pham', 0)
+                ->where('hd.trang_thai', 4)
+                ->where('tp.ma_nguyen_lieu', $maNguyenLieu)
+                ->select(
+                    'hd.ngay_lap_hoa_don as ngay_phat_sinh',
+                    DB::raw('tp.dinh_luong * cthd.so_luong as dinh_luong')
+                );
 
-                $fromHuy = DB::table('phieu_nhap_xuat_nguyen_lieus')
-                    ->where('ma_cua_hang', $maCuaHang)
-                    ->where('ma_nguyen_lieu', $maNguyenLieu)
-                    ->where('loai_phieu', 2)
-                    ->select('ngay_tao_phieu as ngay_phat_sinh', 'dinh_luong')
-                    ->get();
+            $transactionsPacked = DB::table('chi_tiet_hoa_dons as cthd')
+                ->join('hoa_dons as hd', 'cthd.ma_hoa_don', '=', 'hd.ma_hoa_don')
+                ->join('san_phams as sp', 'cthd.ma_san_pham', '=', 'sp.ma_san_pham')
+                ->join('thanh_phan_san_phams as tp', 'cthd.ma_san_pham', '=', 'tp.ma_san_pham')
+                ->where('hd.ma_cua_hang', $maCuaHang)
+                ->where('sp.loai_san_pham', 1)
+                ->where('hd.trang_thai', 4)
+                ->where('tp.ma_nguyen_lieu', $maNguyenLieu)
+                ->select(
+                    'hd.ngay_lap_hoa_don as ngay_phat_sinh',
+                    DB::raw('tp.dinh_luong * cthd.so_luong as dinh_luong')
+                );
 
-                $transactions = $fromHD->merge($fromPX)->merge($fromHuy)->sortBy('ngay_phat_sinh')->values();
+            $transactionsHD = $transactionsBrewed->unionAll($transactionsPacked)->get();
 
-                $availableBatches = collect();
+            // Giao dịch: Phiếu Xuất
+            $transactionsPX = DB::table('phieu_nhap_xuat_nguyen_lieus')
+                ->where('ma_cua_hang', $maCuaHang)
+                ->where('ma_nguyen_lieu', $maNguyenLieu)
+                ->where('loai_phieu', 1)
+                ->select('ngay_tao_phieu as ngay_phat_sinh', 'dinh_luong')
+                ->get();
 
-                foreach ($loList as $lo) {
-                    $left = $lo->dinh_luong;
+            // Giao dịch: Phiếu Hủy (CÓ `so_lo`)
+            $transactionsHuy = DB::table('phieu_nhap_xuat_nguyen_lieus')
+                ->where('ma_cua_hang', $maCuaHang)
+                ->where('ma_nguyen_lieu', $maNguyenLieu)
+                ->where('loai_phieu', 2)
+                ->where('dinh_luong', '>', 0)
+                ->select('ngay_tao_phieu as ngay_phat_sinh', 'dinh_luong', 'so_lo')
+                ->get();
 
-                    foreach ($transactions as $tx) {
-                        if (Carbon::parse($tx->ngay_phat_sinh)->lt(Carbon::parse($lo->ngay_tao_phieu))) {
-                            continue;
-                        }
+            // Gộp tất cả giao dịch và sắp xếp theo thời gian phát sinh
+            $transactions = $transactionsHD
+                ->merge($transactionsPX)
+                ->merge($transactionsHuy)
+                ->sortBy('ngay_phat_sinh')
+                ->values();
 
-                        if ($tx->dinh_luong <= 0) continue;
+            // Tính tồn theo FIFO nhưng nếu là phiếu hủy thì phải đúng lô
+            $availableBatches = collect();
 
-                        $used = min($left, $tx->dinh_luong);
-                        $left -= $used;
-                        $tx->dinh_luong -= $used;
+            foreach ($loList as $lo) {
+                $left = $lo->dinh_luong;
 
-                        if ($left <= 0) break;
+                foreach ($transactions as $tx) {
+                    if (Carbon::parse($tx->ngay_phat_sinh)->lt(Carbon::parse($lo->ngay_tao_phieu))) {
+                        continue;
                     }
 
-                    if ($left > 0) {
-                        $availableBatches->push([
-                            'so_lo'       => $lo->so_lo,
-                            'con_lai'     => $left,
-                            'han_su_dung' => $lo->han_su_dung,
-                            'don_vi'      => $material->don_vi,
-                        ]);
+                    if ($tx->dinh_luong <= 0) continue;
+
+                    // Nếu là phiếu hủy có `so_lo`, phải khớp với `lô hiện tại`
+                    if (isset($tx->so_lo) && $tx->so_lo !== $lo->so_lo) {
+                        continue;
                     }
+
+                    $used = min($left, $tx->dinh_luong);
+                    $left -= $used;
+                    $tx->dinh_luong -= $used;
+
+                    if ($left <= 0) break;
                 }
 
-                $material->available_batches = $availableBatches;
-                $materials->push($material);
+                if ($left > 0) {
+                    $availableBatches->push([
+                        'so_lo'       => $lo->so_lo,
+                        'con_lai'     => $left,
+                        'han_su_dung' => $lo->han_su_dung,
+                        'don_vi'      => $material->don_vi,
+                    ]);
+                }
             }
+
+            $material->available_batches = $availableBatches;
+            $materials->push($material);
         }
 
         if ($materials->isEmpty()) {

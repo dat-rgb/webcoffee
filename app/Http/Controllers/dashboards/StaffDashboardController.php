@@ -120,16 +120,17 @@ class StaffDashboardController extends Controller
         $now = Carbon::now()->startOfDay();
 
         foreach ($nglKho as $nl) {
+
             $loList = DB::table('phieu_nhap_xuat_nguyen_lieus')
                 ->where('ma_cua_hang', $ma_cua_hang)
                 ->where('ma_nguyen_lieu', $nl->ma_nguyen_lieu)
-                ->where('loai_phieu', 0)
+                ->where('loai_phieu', 0) // Nhập
                 ->where('han_su_dung', '>=', $now)
-                ->orderBy('han_su_dung', 'asc')
-                ->orderBy('ngay_tao_phieu', 'asc')
+                ->orderBy('han_su_dung')
+                ->orderBy('ngay_tao_phieu')
                 ->get();
 
-            // Pha chế (loai_san_pham = 0)
+            // Giao dịch: Bán (Pha chế & Đóng gói)
             $transactionsBrewed = DB::table('chi_tiet_hoa_dons as cthd')
                 ->join('hoa_dons as hd', 'cthd.ma_hoa_don', '=', 'hd.ma_hoa_don')
                 ->join('san_phams as sp', 'cthd.ma_san_pham', '=', 'sp.ma_san_pham')
@@ -139,30 +140,29 @@ class StaffDashboardController extends Controller
                 })
                 ->where('hd.ma_cua_hang', $ma_cua_hang)
                 ->where('sp.loai_san_pham', 0)
-                ->where('hd.trang_thai', 4) // 
+                ->where('hd.trang_thai', 4)
                 ->where('tp.ma_nguyen_lieu', $nl->ma_nguyen_lieu)
                 ->select(
                     'hd.ngay_lap_hoa_don as ngay_phat_sinh',
-                    'sp.loai_san_pham',
                     DB::raw('tp.dinh_luong * cthd.so_luong as dinh_luong')
-            );
+                );
 
-            // Đóng gói (loai_san_pham = 1)
             $transactionsPacked = DB::table('chi_tiet_hoa_dons as cthd')
                 ->join('hoa_dons as hd', 'cthd.ma_hoa_don', '=', 'hd.ma_hoa_don')
                 ->join('san_phams as sp', 'cthd.ma_san_pham', '=', 'sp.ma_san_pham')
                 ->join('thanh_phan_san_phams as tp', 'cthd.ma_san_pham', '=', 'tp.ma_san_pham')
                 ->where('hd.ma_cua_hang', $ma_cua_hang)
                 ->where('sp.loai_san_pham', 1)
-                ->where('hd.trang_thai', 4) // 
+                ->where('hd.trang_thai', 4)
                 ->where('tp.ma_nguyen_lieu', $nl->ma_nguyen_lieu)
                 ->select(
                     'hd.ngay_lap_hoa_don as ngay_phat_sinh',
-                    'sp.loai_san_pham',
                     DB::raw('tp.dinh_luong * cthd.so_luong as dinh_luong')
-            );
+                );
+
             $transactionsHD = $transactionsBrewed->unionAll($transactionsPacked)->get();
-                    
+
+            // Giao dịch: Phiếu Xuất
             $transactionsPX = DB::table('phieu_nhap_xuat_nguyen_lieus')
                 ->where('ma_cua_hang', $ma_cua_hang)
                 ->where('ma_nguyen_lieu', $nl->ma_nguyen_lieu)
@@ -170,29 +170,39 @@ class StaffDashboardController extends Controller
                 ->select('ngay_tao_phieu as ngay_phat_sinh', 'dinh_luong')
                 ->get();
 
+            // Giao dịch: Phiếu Hủy (CÓ `so_lo`)
             $transactionsHuy = DB::table('phieu_nhap_xuat_nguyen_lieus')
                 ->where('ma_cua_hang', $ma_cua_hang)
                 ->where('ma_nguyen_lieu', $nl->ma_nguyen_lieu)
                 ->where('loai_phieu', 2)
                 ->where('dinh_luong', '>', 0)
-                ->select('ngay_tao_phieu as ngay_phat_sinh', 'dinh_luong')
+                ->select('ngay_tao_phieu as ngay_phat_sinh', 'dinh_luong', 'so_lo')
                 ->get();
 
+            // Gộp tất cả giao dịch và sắp xếp theo thời gian phát sinh
             $transactions = $transactionsHD
                 ->merge($transactionsPX)
                 ->merge($transactionsHuy)
                 ->sortBy('ngay_phat_sinh')
                 ->values();
 
-            // Tính tồn lô theo FIFO
+            // Tính tồn theo FIFO nhưng nếu là phiếu hủy thì phải đúng lô
             $availableBatches = collect();
 
             foreach ($loList as $lo) {
                 $left = $lo->dinh_luong;
 
                 foreach ($transactions as $tx) {
-                    if (Carbon::parse($tx->ngay_phat_sinh)->lt(Carbon::parse($lo->ngay_tao_phieu))) continue;
+                    if (Carbon::parse($tx->ngay_phat_sinh)->lt(Carbon::parse($lo->ngay_tao_phieu))) {
+                        continue;
+                    }
+
                     if ($tx->dinh_luong <= 0) continue;
+
+                    // Nếu là phiếu hủy có `so_lo`, phải khớp với `lô hiện tại`
+                    if (isset($tx->so_lo) && $tx->so_lo !== $lo->so_lo) {
+                        continue;
+                    }
 
                     $used = min($left, $tx->dinh_luong);
                     $left -= $used;
@@ -214,6 +224,7 @@ class StaffDashboardController extends Controller
             $nl->available_batches = $availableBatches;
         }
 
+      
         return $nglKho;
     }
 

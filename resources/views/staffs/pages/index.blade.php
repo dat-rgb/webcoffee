@@ -31,7 +31,7 @@
                                 {{ optional($nv->cuaHang)->ten_cua_hang ?? 'Cửa hàng chưa cập nhật' }}
                             </div>
                             <!-- Tổng giờ làm việc -->
-                            <div class="mt-4 row">
+                            <!-- <div class="mt-4 row">
                                 <div class="col-6">
                                     <div class="p-3 text-center border rounded shadow-sm">
                                         <div class="mb-2 icon-big text-warning">
@@ -54,7 +54,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div> -->
                         </div>
 
                         <!-- Bên phải: form cập nhật -->

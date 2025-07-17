@@ -6,6 +6,7 @@ use App\Models\Blog;
 use App\Models\SanPham;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 class HomeController extends Controller
 {
     public function about() {
@@ -48,14 +49,28 @@ class HomeController extends Controller
         return $products;
     }
 
+    public function getSizeProduct($proId){
+        $sizes = DB::table('thanh_phan_san_phams')
+            ->join('sizes', 'thanh_phan_san_phams.ma_size', '=', 'sizes.ma_size')
+            ->where('thanh_phan_san_phams.ma_san_pham', $proId)
+            ->select('sizes.ma_size', 'sizes.ten_size', 'sizes.gia_size')
+            ->distinct()
+            ->get();
+        return $sizes;
+    }
     public function home(){
 
         $blogs = $this->blogHot();
         $products = $this->productsHot();
+        $sizesMap = [];
+        foreach ($products as $pro) {
+            $sizesMap[$pro->ma_san_pham] = $this->getSizeProduct($pro->ma_san_pham);
+        }
         $viewData = [
             'title'=> 'Trang Chủ'   ,
             'blogs' => $blogs,
             'products' => $products,
+            'sizesMap'=> $sizesMap,
         ];
         return view('clients.pages.home', $viewData);
     }

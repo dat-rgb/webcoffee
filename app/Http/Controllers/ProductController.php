@@ -41,6 +41,16 @@ class ProductController extends Controller
         return $query->paginate(12);
     }
 
+    public function getSizeProduct($proId){
+        $sizes = DB::table('thanh_phan_san_phams')
+            ->join('sizes', 'thanh_phan_san_phams.ma_size', '=', 'sizes.ma_size')
+            ->where('thanh_phan_san_phams.ma_san_pham', $proId)
+            ->select('sizes.ma_size', 'sizes.ten_size', 'sizes.gia_size')
+            ->distinct()
+            ->get();
+        return $sizes;
+    }
+
     public function getProductByCategoryIDs(array $categoryIDs, $selected_store_id = null)
     {
         if ($selected_store_id) {
@@ -62,6 +72,7 @@ class ProductController extends Controller
 
         return $products;
     }
+
     public function productList()
     {
         $products = $this->getProduct();
@@ -75,6 +86,11 @@ class ProductController extends Controller
             $countCate[$cate->ma_danh_muc] = $products->where('ma_danh_muc', $cate->ma_danh_muc)->count();
         }
 
+        $sizesMap = [];
+        foreach ($products as $pro) {
+            $sizesMap[$pro->ma_san_pham] = $this->getSizeProduct($pro->ma_san_pham);
+        }
+
         $productToHistory = $this->getProductToViewHistory();
 
         $viewData = [
@@ -83,7 +99,9 @@ class ProductController extends Controller
             'products' => $products,
             'categories' => $categories,
             'countCate' => $countCate,
+            'sizesMap' => $sizesMap, 
             'productToHistory' => $productToHistory,
+
         ];
 
         return view('clients.pages.products.product_list', $viewData);
@@ -127,13 +145,19 @@ class ProductController extends Controller
             $countCate[$cate->ma_danh_muc] = $products->where('ma_danh_muc', $cate->ma_danh_muc)->count();
         }
 
+        $sizesMap = [];
+        foreach ($products as $pro) {
+            $sizesMap[$pro->ma_san_pham] = $this->getSizeProduct($pro->ma_san_pham);
+        }
+
         $viewData = [
             'title' => $categoryParent->ten_danh_muc . ' | CDMT coffee & tea',
             'subtitle' => $categoryParent->ten_danh_muc,
             'products' => $products,
             'categories' => $categories,
             'categoryParent' => $categoryParent,
-            'countCate' => $countCate
+            'countCate' => $countCate,
+            'sizesMap' => $sizesMap,
         ];
 
         return view('clients.pages.products.product_list', $viewData);
@@ -158,6 +182,11 @@ class ProductController extends Controller
             ->orderBy('created_at', 'desc')
             ->take(5)
             ->get();
+        
+        $sizesMap = [];
+        foreach ($products as $pro) {
+            $sizesMap[$pro->ma_san_pham] = $this->getSizeProduct($pro->ma_san_pham);
+        }
 
         $viewData = [
             'title' => 'Kết quả tìm kiếm cho từ khóa "' . $search . '" | CMDT Coffee & Tea',
@@ -166,6 +195,7 @@ class ProductController extends Controller
             'blogs' => $blogs,
             'categories' => $categories,
             'countCate' => $countCate,
+            'sizesMap' => $sizesMap,
             'search' => $search,
         ];
         return view('clients.pages.products.result_search', $viewData);

@@ -12,6 +12,7 @@ use App\Models\HoaDon;
 use App\Models\KhuyenMai;
 use App\Models\LichSuHuyDonHang;
 use App\Models\NhanVien;
+use App\Models\Review;
 use App\Models\Settings;
 use App\Models\SanPham;
 use App\Models\Sizes;
@@ -93,11 +94,27 @@ class StaffOrderController extends Controller
 
         return view('staffs.orders._order_tbody', compact('orders'))->render();
     }
+    
     public function detail($id)
     {
-        $order = HoaDon::with(['khachHang', 'chiTietHoaDon','khuyenMai','giaoHang','lichSuHuyDonHang'])->where('ma_hoa_don',$id)->first();
-        return view('staffs.orders._order_detail', compact('order'));
+        $order = HoaDon::with([
+            'khachHang',
+            'chiTietHoaDon.sanPham',
+        ])->where('ma_hoa_don', $id)->first();
+
+        $customerId = $order->ma_khach_hang;
+
+        foreach ($order->chiTietHoaDon as $item) {
+            $item->review = Review::where([
+                'ma_khach_hang' => $customerId,
+                'ma_san_pham' => $item->ma_san_pham,
+                'ma_hoa_don' => $id,
+            ])->first();
+        }
+
+        return view('admins.orders._order_detail', compact('order'));
     }
+
     public function updateStatusOrder(Request $request)
     {
         try {
